@@ -1,0 +1,8 @@
+{
+  "name": "palantarot",
+  "version": "1.0.0",
+  "description": "Palantir French Tarot site",
+  "main": "index.js",
+  "author": "gcole <gtc.cole@gmail.com>",
+  "license": "MIT"
+}
