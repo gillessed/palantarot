@@ -1,0 +1,20 @@
+@import '~normalize.css';
+@import '~@blueprintjs/core/dist/blueprint.css';
+@import './containers/RootContainer.scss';
+@import './containers/home/HomeContainer.scss';
+@import './containers/enter/EnterContainer.scss';
+
+.title {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.player-select-bar {
+  display: flex;
+  justify-content: center;
+  .pt-button {
+    flex-basis: 200px;
+  }
+}

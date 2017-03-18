@@ -1,0 +1,14 @@
+@import '~@blueprintjs/core/dist/variables';
+
+.brand-link {
+  font-size: 24px 
+}
+
+.pt-app {
+  padding-top: $pt-navbar-height;
+  overflow: auto;
+  div {
+    margin: 0 auto;
+    width: 80%;
+  }
+}
