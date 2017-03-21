@@ -1,6 +1,9 @@
-@import "~@blueprintjs/core/dist/variables";
-
 .enter-container {
-  margin: 60px auto;
-  width: 80%;
+  margin: 0 auto;
+  @media (max-width: 400px) {
+    width: 100%;
+  }
+  @media (min-width: 700px) {
+    width: 80%;
+  }
 }

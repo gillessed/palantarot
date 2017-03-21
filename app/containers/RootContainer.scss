@@ -5,9 +5,9 @@
 }
 
 .pt-app {
+  overflow-x: auto;
   padding-top: $pt-navbar-height;
-  overflow: auto;
-  div {
+  > div {
     margin: 0 auto;
     width: 80%;
   }

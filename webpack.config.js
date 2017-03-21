@@ -5,7 +5,7 @@ const extractSass = new ExtractTextPlugin({filename: "bundle.css"});
 const staticFileRegex = /\.(woff|svg|ttf|eot|gif|jpeg|jpg|png)([\?]?.*)$/;
 
 module.exports = {
-  entry: ['./build/app/app.js', './build/app/app.scss'],
+  entry: ['babel-polyfill', './build/app/app.js', './build/app/app.scss'],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build/app')

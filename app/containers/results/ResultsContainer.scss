@@ -1,0 +1,23 @@
+.results-container {
+  margin: 60px auto;
+  width: 80%;
+}
+
+.results-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.results-table {
+  white-space: nowrap;
+  width: 100%;
+  thead tr th {
+    background-color: #EBF1F5;
+  }
+  td.rank-row {
+    display: flex;
+    justify-content: center;
+  }
+}

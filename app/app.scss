@@ -3,18 +3,27 @@
 @import './containers/RootContainer.scss';
 @import './containers/home/HomeContainer.scss';
 @import './containers/enter/EnterContainer.scss';
+@import './containers/game/GameContainer.scss';
+@import './containers/results/ResultsContainer.scss';
+@import './components/spinnerOverlay/SpinnerOverlay.scss';
+@import './components/gameTable/GameTable.scss';
+@import './components/gameForm/GameForm.scss';
+@import './components/playerSelector/PlayerSelector.scss';
 
 .title {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding-top: 30px;
   padding-bottom: 30px;
+  p {
+    font-size: 14px;
+    color: #182026;
+  }
 }
 
-.player-select-bar {
-  display: flex;
-  justify-content: center;
-  .pt-button {
-    flex-basis: 200px;
+@media (max-width: 700px) {
+  .hide-on-small {
+    display: none;
   }
 }

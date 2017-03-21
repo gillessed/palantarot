@@ -16,6 +16,7 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
         <div className='menu'>
           {this.renderMenuItem('Enter Score', 'pt-icon-manually-entered-data', '/enter')}
           {this.renderMenuItem('Results', 'pt-icon-th', '/results')}
+          {this.renderMenuItem('Recent Games', 'pt-icon-history', '/recent')}
           {this.renderMenuItem('Advanced Search', 'pt-icon-search', '/search')}
           {this.renderMenuItem('Records', 'pt-icon-glass', '/records')}
           {this.renderMenuItem('Add New Player', 'pt-icon-add', '/new_player')}
@@ -29,7 +30,6 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
     title: string,
     logo: string,
     to: string,
-    description?: string,
   ) {
     return (
       <div className='menu-item'>
