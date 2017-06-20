@@ -15,5 +15,5 @@ const recentGamesService = generatePropertyService<number | undefined, Game[]>('
 
 export const recentGamesActions = recentGamesService.actions;
 export const recentGamesActionCreators = recentGamesService.actionCreators;
-export const recentGamesReducer = recentGamesService.reducer;
+export const recentGamesReducer = recentGamesService.reducer.build();
 export const recentGamesSaga = recentGamesService.saga;

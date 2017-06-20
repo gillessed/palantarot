@@ -15,5 +15,5 @@ const gameService = generateService<string, Game>('GAMES',
 
 export const gameActions = gameService.actions;
 export const gameActionCreators = gameService.actionCreators;
-export const gameReducer = gameService.reducer;
+export const gameReducer = gameService.reducer.build();
 export const gameSaga = gameService.saga;

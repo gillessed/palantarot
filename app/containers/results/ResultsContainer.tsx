@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
-import { Player } from '../../../server/model/Player';
 import { Month, IMonth } from '../../../server/model/Month';
 import { Result } from '../../../server/model/Result';
 import { playersActionCreators, PlayersService } from '../../services/players';
@@ -42,7 +41,6 @@ class Internal extends React.PureComponent<Props, State> {
 
   public componentWillMount() {
     this.props.loadPlayers();
-    console.log(this.state.month);
     this.props.loadResults(this.state.month);
   }
 

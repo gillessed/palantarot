@@ -2,9 +2,14 @@
   "name": "palantarot",
   "version": "1.0.0",
   "description": "Palantir French Tarot site",
-  "main": "index.js",
+  "main": "build/server/index.js",
   "author": "gcole <gtc.cole@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "gulp": "gulp",
+    "webpack": "webpack -w",
+    "server": "nodemon build/server/index.js"
+  },
   "dependencies": {
     "@blueprintjs/core": "^1.12.0",
     "@types/body-parser": "^1.16.0",

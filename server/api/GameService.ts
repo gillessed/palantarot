@@ -21,6 +21,7 @@ export class GameService {
     this.router.post('/month', this.getMonthResults);
     this.router.get('/recent', this.getRecentGames);
     this.router.get('/:id', this.getGame);
+    this.router.post('/save', this.saveGame);
   }
 
   // API
@@ -67,6 +68,15 @@ export class GameService {
       res.send(game);
     }).catch(() => {
       res.send({ error: 'Could not find game with id ' + id });
+    });
+  }
+
+  public saveGame = (req: Request, res: Response) => {
+    const newGame = req.body as Game;
+    this.gameDb.saveGame(newGame).then(() => {
+      res.sendStatus(200);
+    }).catch((e) => {
+      res.send({ error: 'Could not save game: ' + e});
     });
   }
 

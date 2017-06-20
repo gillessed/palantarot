@@ -1,7 +1,7 @@
 import { Month } from './../../server/model/Month';
 import { Result } from './../../server/model/Result';
 import { Game } from './../../server/model/Game';
-import { Player } from './../../server/model/Player';
+import { Player, NewPlayer } from './../../server/model/Player';
 import { ApisauceInstance, create } from 'apisauce';
 import { mapFromCollection, encodeQueryData } from '../../server/utils';
 
@@ -33,8 +33,16 @@ export class ServerApi {
     });
   }
 
+  public saveGame = (newGame: Game): Promise<void> => {
+    return this.wrapPost<void>(`/game/save`, newGame);
+  }
+
   public getResults = (month: Month): Promise<Result[]> => {
     return this.wrapPost<Result[]>(`/game/month`, month);
+  }
+
+  public addPlayer = (newPlayer: NewPlayer): Promise<Player> => {
+    return this.wrapPost<Player>('/players/add', newPlayer);
   }
 
   // Helpers

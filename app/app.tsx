@@ -17,6 +17,7 @@ import { EnterContainer } from './containers/enter/EnterContainer';
 import { RecentContainer } from './containers/recent/RecentContainer';
 import { GameContainer } from './containers/game/GameContainer';
 import { ResultsContainer } from './containers/results/ResultsContainer';
+import { AddPlayerContainer } from './containers/addPlayer/AddPlayerContainer';
 
 const logger = createLogger();
 
@@ -47,6 +48,7 @@ if (appElement != null) {
       <Route path="recent" component={RecentContainer} />
       <Route path="/game/:gameId" component={GameContainer} />
       <Route path="/results" component={ResultsContainer} />
+      <Route path="/add-player" component={AddPlayerContainer} />
     </Route>
   );
 

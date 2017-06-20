@@ -2,6 +2,7 @@ import mysql, { IPool } from 'mysql';
 
 interface ConnectionOptions {
   host: string;
+  port: number;
   user: string;
   password: string;
   database: string;

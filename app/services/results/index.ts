@@ -16,5 +16,5 @@ const resultsService = generatePropertyService<Month, Result[]>('RESULTS',
 
 export const resultsActions = resultsService.actions;
 export const resultsActionCreators = resultsService.actionCreators;
-export const resultsReducer = resultsService.reducer;
+export const resultsReducer = resultsService.reducer.build();
 export const resultsSaga = resultsService.saga;

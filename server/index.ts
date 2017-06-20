@@ -4,6 +4,7 @@ import { connect, Database } from './db/dbConnector';
 
 connect({
   host: 'localhost',
+  port: 3306,
   user: 'palantir',
   password: 'Palantir1!',
   database: 'palantir',

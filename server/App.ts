@@ -31,6 +31,7 @@ export class App {
   }
 
   private staticRoutes() {
+    this.express.use('/favicon.ico', express.static('build/static/favicon.ico'));
     this.express.use('/app', express.static('build/app'));
     this.express.use('/static', express.static('build/static'));
   }

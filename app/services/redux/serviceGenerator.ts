@@ -18,7 +18,7 @@ export function generatePropertyService<ARG, RESULT>(
 ) {
   const actions = generatePropertyActions<ARG, RESULT>(prefix);
   const actionCreators = generatePropertyActionCreators<ARG, RESULT>(actions);
-  const reducer = generatePropertyReducer(actions).build();
+  const reducer = generatePropertyReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
       actions.REQUEST,
@@ -39,7 +39,7 @@ export function generateService<ARG, RESULT>(
 ) {
   const actions = generateServiceActions<ARG, RESULT>(prefix);
   const actionCreators = generateServiceActionCreators<ARG, RESULT>(actions);
-  const reducer = generateServiceReducer(actions).build();
+  const reducer = generateServiceReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
       actions.REQUEST,

@@ -8,11 +8,13 @@ const tsProject = ts.createProject('tsconfig.json');
 gulp.task('compile', () => {
   const tsResult = tsProject
     .src()
-    .pipe(tsProject());
+    .pipe(tsProject())
+    .on('error', function(error) {});
   return tsResult.js
     .pipe(babel({
       presets: ['es2015']
     }))
+    .on('error', function(error) {})
     .pipe(gulp.dest('build'));
 });
 
