@@ -62,7 +62,7 @@ export class GameQuerier {
       throw new Error('Cannot create a new game without hand data.');
     }
     const handData = game.handData;
-    const timestamp = moment().toString();
+    const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
     const gameValues = [
       timestamp,
       game.numberOfPlayers,
@@ -109,10 +109,12 @@ export class GameQuerier {
           hand.oneLast,
           hand.pointsEarned,
         ]);
-      });
+      })
       return Promise.all(playerHands.map((data) => {
         return this.db.query(insertPlayerHand, data);
       }));
+    }).catch((error) => {
+      console.log(error.message);
     });
   }
 

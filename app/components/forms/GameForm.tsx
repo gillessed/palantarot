@@ -209,10 +209,15 @@ export class GameForm extends React.PureComponent<Props, State> {
       partner: playerHands[PlayerNames.PARTNER],
       opposition: [],
     }
+    const bidderId = this.state.players[PlayerNames.BIDDER].player!.id;
+    let partnerId = '';
+    if (this.state.players[PlayerNames.PARTNER].player) {
+      partnerId = this.state.players[PlayerNames.PARTNER].player!.id;
+    }
     const newGame: Game = {
       id: '',
-      bidderId: '',
-      partnerId: '',
+      bidderId,
+      partnerId,
       timestamp: '',
       numberOfPlayers: this.state.numberOfPlayers,
       bidAmount: this.state.bidAmount!,
