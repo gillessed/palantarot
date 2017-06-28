@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
 import { Player } from '../../../server/model/Player';
-import { Game, PlayerHand } from '../../../server/model/Game';
+import { PlayerHand } from '../../../server/model/Game';
 import { playersActionCreators, PlayersService } from '../../services/players';
 import { gameActionCreators, GameService } from '../../services/game';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
@@ -34,7 +33,6 @@ interface State {
 }
 
 class Internal extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -105,7 +103,7 @@ class Internal extends React.PureComponent<Props, State> {
       const bidder = players.get(handData.id);
       const bidderName = bidder ? `${bidder.firstName} ${bidder.lastName}` : `Unknown Player: ${handData.id}`;
       return (
-        <p key={handData.id}><span style={{fontWeight: 'bold'}}>{tag}: </span> {bidderName}</p>
+        <p key={handData.id}><span className='text' style={{fontWeight: 'bold'}}>{tag}: </span> {bidderName}</p>
       );
     }
   }

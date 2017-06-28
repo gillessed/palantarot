@@ -3,7 +3,6 @@ import { Game, PlayerHand } from '../../../server/model/Game';
 import { Player } from '../../../server/model/Player';
 import { TextInput, SelectInput } from './Elements';
 import { PlayerSelector, PlayerState } from '../../containers/playerSelector/PlayerSelector';
-import moment from 'moment-timezone';
 
 interface Props {
   players: Player[];
@@ -19,6 +18,13 @@ const PlayerNames: {[key: string]: string} = {
   PLAYER3: 'Player 3',
   PLAYER4: 'Player 4',
 }
+
+const OppositionNames = [
+  PlayerNames.PLAYER1,
+  PlayerNames.PLAYER2,
+  PlayerNames.PLAYER3,
+  PlayerNames.PLAYER4,
+];
 
 interface State {
   numberOfPlayers: number;
@@ -91,7 +97,7 @@ export class GameForm extends React.PureComponent<Props, State> {
                   checked={this.state.bidderCalledSelf}
                 />
                 <span className='pt-control-indicator'></span>
-                <span>Called Self</span>
+                <span className='text'>Called Self</span>
               </label>
             </div>
 
@@ -207,13 +213,16 @@ export class GameForm extends React.PureComponent<Props, State> {
     const handData = {
       bidder: playerHands[PlayerNames.BIDDER],
       partner: playerHands[PlayerNames.PARTNER],
-      opposition: [],
+      opposition: OppositionNames.map((playerName: string) => {
+        return playerHands[playerName];
+      }).filter(hand => hand),
     }
     const bidderId = this.state.players[PlayerNames.BIDDER].player!.id;
     let partnerId = '';
     if (this.state.players[PlayerNames.PARTNER].player) {
       partnerId = this.state.players[PlayerNames.PARTNER].player!.id;
     }
+
     const newGame: Game = {
       id: '',
       bidderId,
@@ -233,28 +242,28 @@ export class GameForm extends React.PureComponent<Props, State> {
       <div className='player-selector-container pt-ui-text-large'>
         <div className='player-select-bar pt-button-group pt-large'>
           <a 
-            className={`pt-button pt-icon-people ${this.numberButtonEnabled(3)}`}
+            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(3)}`}
             onClick={() => {this.setPlayerCount(3)}}
             tabIndex={0}
             role='button'
           >
-            3<span className='hide-on-small'> Players</span>
+            3<span className='text hide-on-small'> Players</span>
           </a>
           <a
-            className={`pt-button pt-icon-people ${this.numberButtonEnabled(4)}`}
+            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(4)}`}
             onClick={() => {this.setPlayerCount(4)}}
             tabIndex={0}
             role='button'
           >
-            4<span className='hide-on-small'> Players</span>
+            4<span className='text hide-on-small'> Players</span>
           </a>
           <a
-            className={`pt-button pt-icon-people ${this.numberButtonEnabled(5)}`}
+            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(5)}`}
             onClick={() => {this.setPlayerCount(5)}}
             tabIndex={0}
             role='button'
           >
-            5<span className='hide-on-small'> Players</span>
+            5<span className='text hide-on-small'> Players</span>
           </a>
         </div>
       </div>

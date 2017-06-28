@@ -7,6 +7,11 @@ import { Player } from '../../../server/model/Player';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { saveGameActionCreators } from '../../services/saveGame/index';
 import { Game } from '../../../server/model/Game';
+import { push } from 'react-router-redux';
+import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
+import { SagaListener } from '../../services/sagaListener';
+import { saveGameActions } from '../../services/saveGame/index';
+import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 
 interface StateProps {
   players: PlayersService;
@@ -15,6 +20,7 @@ interface StateProps {
 interface DispatchProps {
   loadPlayers: () => void;
   saveGame: (newGame: Game) => void;
+  push: (path: string) => void;
 }
 
 type Props = StateProps & DispatchProps;
@@ -30,6 +36,18 @@ interface State {
 }
 
 export class Internal extends React.PureComponent<Props, State> {
+  public static contextTypes = SagaContextType;
+  private sagas: SagaRegistration;
+  private gameSavedListener: SagaListener<Game> = {
+    actionType: saveGameActions.SUCCESS,
+    callback: () => {
+      Palantoaster.show({
+        message: 'Game Saved Succesufully',
+        intent: TIntent.SUCCESS,
+      });
+      this.props.push('/recent');
+    },
+  };
 
   constructor(props: Props) {
     super(props);
@@ -41,7 +59,13 @@ export class Internal extends React.PureComponent<Props, State> {
   }
 
   public componentWillMount() {
+    this.sagas = getSagaContext(this.context);
+    this.sagas.register(this.gameSavedListener);
     this.props.loadPlayers();
+  }
+
+  public componentWillUnmount() {
+    this.sagas.unregister(this.gameSavedListener);
   }
 
   private getPlayerList() {
@@ -98,7 +122,8 @@ const mapStateToProps = (state: ReduxState): StateProps => {
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
   return {
     loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
-    saveGame: (newGame: Game) => { dispatch(saveGameActionCreators.request(newGame)); }
+    saveGame: (newGame: Game) => { dispatch(saveGameActionCreators.request(newGame)); },
+    push: (path: string) => { dispatch(push(path)); },
   }
 }
 

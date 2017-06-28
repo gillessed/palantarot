@@ -8,7 +8,8 @@
   "scripts": {
     "gulp": "gulp",
     "webpack": "webpack -w",
-    "server": "nodemon build/server/index.js"
+    "server": "nodemon build/server/index.js",
+    "sql": "mysql.server start"
   },
   "dependencies": {
     "@blueprintjs/core": "^1.12.0",

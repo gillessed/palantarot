@@ -125,11 +125,33 @@ class Internal extends React.PureComponent<Props, State> {
       <tr key={result.id}>
         <td className="rank-row">{index + 1}</td>
         <td>{playerName}</td>
-        <td>{result.points} {result.delta ? `(${result.delta})` : ''}</td>
+        <td>{result.points} {this.renderDelta(result.delta)}</td>
         <td>{result.gamesPlayed}</td>
         <td>{(result.points / result.gamesPlayed).toFixed(2)}</td>
       </tr>
     );
+  }
+
+  private renderDelta = (delta?: number) => {
+    if (!delta) {
+      return '';
+    }
+    if (delta < 0) {
+      return (
+        <span className='result-delta' style={{color: 'red'}}>
+          <span className='pt-icon pt-icon-arrow-down'></span>
+          {delta}
+        </span>
+      );
+    } else {
+    if (delta > 0) {
+      return (
+        <span className='result-delta' style={{color: 'green'}}>
+          <span className='pt-icon pt-icon-arrow-up'></span>
+          {delta}
+        </span>
+      );
+    }}
   }
 
   private isCurrentMonth() {

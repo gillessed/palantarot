@@ -7,14 +7,16 @@ import { gameSaga } from './game';
 import { resultsSaga } from './results/index';
 import { addNewPlayerSaga} from './addPlayer';
 import { saveGameSaga } from './saveGame/index';
+import { SagaListener, listenerLoop } from './sagaListener';
 
-export function* rootSaga(api: ServerApi) {
-  yield[
+export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
+  yield [
     fork(recentGamesSaga, api),
     fork(playersSaga, api),
     fork(gameSaga, api),
     fork(resultsSaga, api),
     fork(addNewPlayerSaga, api),
     fork(saveGameSaga, api),
+    fork(listenerLoop, listeners),
   ];
 }

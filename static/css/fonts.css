@@ -1,0 +1,55 @@
+/*
+ * Blender Pro
+ */
+@font-face {
+  font-family: blenderProBold;
+  src: url(../fonts/blender-pro/blender-pro-bold-webfont.woff);
+}
+@font-face {
+  font-family: blenderProBoldItalic;
+  src: url(../fonts/blender-pro/blender-pro-bolditalic-webfont.woff);
+}
+@font-face {
+  font-family: blenderProMedium;
+  src: url(../fonts/blender-pro/blender-pro-medium-webfont.woff);
+}
+@font-face {
+  font-family: blenderProMediumItalic;
+  src: url(../fonts/blender-pro/blender-pro-mediumitalic-webfont.woff);
+}
+
+/*
+ * DIN Next
+ */
+@font-face {
+  font-family: dinNextBoldItalic;
+  src: url(../fonts/din-next/din-next-ltw04-bold-italic.woff);
+}
+@font-face {
+  font-family: dinNextBold;
+  src: url(../fonts/din-next/din-next-ltw04-bold.woff);
+}
+@font-face {
+  font-family: dinNextItalic;
+  src: url(../fonts/din-next/din-next-ltw04-italic.woff);
+}
+@font-face {
+  font-family: dinNextLightItalic;
+  src: url(../fonts/din-next/din-next-ltw04-light-italic.woff);
+}
+@font-face {
+  font-family: dinNextLight;
+  src: url(../fonts/din-next/din-next-ltw04-light.woff);
+}
+@font-face {
+  font-family: dinNextMediumItalic;
+  src: url(../fonts/din-next/din-next-ltw04-medium-italic.woff);
+}
+@font-face {
+  font-family: dinNextMedium;
+  src: url(../fonts/din-next/din-next-ltw04-medium.woff);
+}
+@font-face {
+  font-family: dinNextRegular;
+  src: url(../fonts/din-next/din-next-ltw04-regular.woff);
+}

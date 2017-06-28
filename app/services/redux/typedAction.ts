@@ -1,11 +1,11 @@
 export interface Action {
-    type: string;
-    payload: any;
-    meta?: any;
+  type: string;
+  payload: any;
+  meta?: any;
 }
 
 export interface TypedAction<T> extends Action {
-    payload: T;
+  payload: T;
 }
 
 export type ActionType<T> = string & {
@@ -29,13 +29,13 @@ export function isActionType<T>(action: Action, type: ActionType<T>): action is 
 }
 
 export interface TypedActionCreator<T> {
-    (payload: T, meta?: any): TypedAction<T>;
+  (payload: T, meta?: any): TypedAction<T>;
 }
 
 export function createActionCreator<T>(type: ActionType<T>): (payload: T, meta?: any) => {
-    type: string;
-    payload: T;
-    meta?: any;
+  type: string;
+  payload: T;
+  meta?: any;
 } {
   return function (payload, meta) { return createAction(type, payload, meta); };
 }

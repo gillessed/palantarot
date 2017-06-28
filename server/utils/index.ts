@@ -50,3 +50,7 @@ export function encodeQueryData(data: { [key: string]: any }) {
   }
   return '?' + ret.join('&');
 }
+
+export function randomString(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}

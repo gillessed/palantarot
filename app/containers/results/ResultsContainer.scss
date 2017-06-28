@@ -1,6 +1,12 @@
 .results-container {
-  margin: 60px auto;
-  width: 80%;
+  @media (max-width: 700px) {
+    margin: 20 auto;
+    width: 100%;
+  }
+  @media (min-width: 700px) {
+    margin: 60px auto;
+    width: 80%;
+  }
 }
 
 .results-header {
@@ -20,4 +26,8 @@
     display: flex;
     justify-content: center;
   }
+}
+
+.result-delta {
+  margin-left: 10px;
 }

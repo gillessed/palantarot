@@ -18,6 +18,8 @@ import { RecentContainer } from './containers/recent/RecentContainer';
 import { GameContainer } from './containers/game/GameContainer';
 import { ResultsContainer } from './containers/results/ResultsContainer';
 import { AddPlayerContainer } from './containers/addPlayer/AddPlayerContainer';
+import { SagaProvider } from './sagaProvider';
+import { SagaListener } from './services/sagaListener';
 
 const logger = createLogger();
 
@@ -35,7 +37,8 @@ const createStoreWithMiddleware = applyMiddleware(
 const store = createStoreWithMiddleware(reducer);
 const history = syncHistoryWithStore(browserHistory, store);
 const api = new ServerApi('/api/v1');
-sagaMiddleware.run(rootSaga, api);
+const sagaListeners: Set<SagaListener<any>> = new Set();
+sagaMiddleware.run(rootSaga, api, sagaListeners);
 
 const appElement = document.getElementById("app");
 
@@ -54,9 +57,11 @@ if (appElement != null) {
 
   ReactDOM.render((
     <Provider store={store}>
-      <Router history={history}>
-        {routes}
-      </Router>
+      <SagaProvider listeners={sagaListeners}>
+        <Router history={history}>
+          {routes}
+        </Router>
+      </SagaProvider>
     </Provider>
   ), appElement);
 }

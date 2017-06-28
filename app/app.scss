@@ -33,3 +33,20 @@
     width: 95%;
   }
 }
+
+p, span.text, .pt-label, td {
+  font-family: dinNextRegular;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: blenderProBold;
+}
+
+h6 {
+  font-family: blenderProItalic;
+}
+
+th {
+  font-family: blenderProBold;
+  font-size: 18;
+}

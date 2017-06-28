@@ -72,6 +72,8 @@ export class GameQuerier {
       game.points,
       game.slam,
     ];
+
+
     return this.db.query(insertHand, gameValues).then(() => {
       return this.queryLastInsertedGameId();
     }).then((gameId: string) => {
@@ -100,21 +102,20 @@ export class GameQuerier {
       }
       handData.opposition.forEach((hand) => {
         playerHands.push([
-          game.timestamp,
+          timestamp,
           gameId,
           hand.id,
           0,
-          1,
+          0,
           hand.showedTrump,
           hand.oneLast,
           hand.pointsEarned,
         ]);
-      })
+      });
+
       return Promise.all(playerHands.map((data) => {
         return this.db.query(insertPlayerHand, data);
       }));
-    }).catch((error) => {
-      console.log(error.message);
     });
   }
 

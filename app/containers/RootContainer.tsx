@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import {IndexLink } from 'react-router';
+import { IndexLink } from 'react-router';
 import { push } from 'react-router-redux';
 
 interface DispatchProps {
@@ -25,10 +25,10 @@ class Internal extends React.PureComponent<Props, {}> {
           </div>
           <div className="pt-navbar-group pt-align-right collapsable">
             <button className="pt-button pt-minimal pt-icon-manually-entered-data" onClick={() => this.props.push("enter")}>
-              <span className="hide-on-small">Enter Score</span>
+              <span className="text hide-on-small">Enter Score</span>
             </button>
             <button className="pt-button pt-minimal pt-icon-th" onClick={() => this.props.push("results")}>
-              <span className="hide-on-small">Results</span>
+              <span className="text hide-on-small">Results</span>
             </button>
           </div>
         </div>

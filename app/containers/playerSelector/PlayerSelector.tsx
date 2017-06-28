@@ -121,7 +121,7 @@ export class Internal extends React.PureComponent<Props, State> {
               checked={this.props.player.showed}
             />
             <span className='pt-control-indicator'></span>
-            <span className='player-selector-check-label'>Showed Trump</span>
+            <span className='text player-selector-check-label'>Showed Trump</span>
           </label>
           <label className='pt-control pt-checkbox .modifier'>
             <input
@@ -130,7 +130,7 @@ export class Internal extends React.PureComponent<Props, State> {
               checked={this.props.player.oneLast}
             />
             <span className='pt-control-indicator'></span>
-            <span className='player-selector-check-label'>One Last</span>
+            <span className='text player-selector-check-label'>One Last</span>
           </label>
         </div>
         {this.renderDialog()}

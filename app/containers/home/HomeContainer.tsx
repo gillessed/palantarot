@@ -6,11 +6,12 @@ interface Props {
 }
 
 export class HomeContainer extends React.PureComponent<Props, {}> {
+
   public render() {
     return (
       <div className='home-container pt-ui-text-large'>
         <div className='logo'>
-          <p className='pt-running-text'>Welcome to the new French Tarot website</p>
+          <p className='pt-running-text'>Welcome to the new French Tarot website, where the points are fake, and no one really knows that they are doing.</p>
         </div>
         <div className='menu'>
           {this.renderMenuItem('Enter Score', 'pt-icon-manually-entered-data', '/enter')}
@@ -33,7 +34,7 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
     return (
       <div className='menu-item'>
         <Link className='link' to={to}>
-          <span className={`${logo}`} />
+          <div className={`${logo}`} />
         </Link>
         <h4>{title}</h4>
       </div>
