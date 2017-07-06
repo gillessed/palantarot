@@ -20,6 +20,9 @@ import { ResultsContainer } from './containers/results/ResultsContainer';
 import { AddPlayerContainer } from './containers/addPlayer/AddPlayerContainer';
 import { SagaProvider } from './sagaProvider';
 import { SagaListener } from './services/sagaListener';
+import { PlayerContainer } from './containers/player/PlayerContainer';
+import { DispatcherProvider } from './dispatchProvider';
+import { dispatcherCreators } from './services/dispatchers';
 
 const logger = createLogger();
 
@@ -40,28 +43,40 @@ const api = new ServerApi('/api/v1');
 const sagaListeners: Set<SagaListener<any>> = new Set();
 sagaMiddleware.run(rootSaga, api, sagaListeners);
 
-const appElement = document.getElementById("app");
+const appElement = document.getElementById('app');
 
 if (appElement != null) {
   const routes = (
-    <Route path="/" component={RootContainer}>
-      <IndexRedirect to="home" />
-      <Route path="home" component={HomeContainer} />
-      <Route path="enter" component={EnterContainer} />
-      <Route path="recent" component={RecentContainer} />
-      <Route path="/game/:gameId" component={GameContainer} />
-      <Route path="/results" component={ResultsContainer} />
-      <Route path="/add-player" component={AddPlayerContainer} />
+    <Route path='/' component={RootContainer}>
+      <IndexRedirect to='home' />
+      <Route path='home' component={HomeContainer} />
+      <Route path='enter' component={EnterContainer} />
+      <Route path='recent' component={RecentContainer} />
+      <Route path='/game/:gameId' component={GameContainer} />
+      <Route path='/results' component={ResultsContainer} />
+      <Route path='/add-player' component={AddPlayerContainer} />
+      <Route path='/player/:playerId' component={PlayerContainer} />
     </Route>
   );
 
   ReactDOM.render((
     <Provider store={store}>
-      <SagaProvider listeners={sagaListeners}>
-        <Router history={history}>
-          {routes}
-        </Router>
-      </SagaProvider>
+      <DispatcherProvider
+        dispatchers={dispatcherCreators}
+      >
+        <SagaProvider listeners={sagaListeners}>
+          <Router history={history}>
+            {routes}
+          </Router>
+        </SagaProvider>
+      </DispatcherProvider>
     </Provider>
   ), appElement);
+}
+
+export function mergeContexts(t1: React.ValidationMap<any>, t2: React.ValidationMap<any>): React.ValidationMap<any> {
+  return {
+    ...t1,
+    ...t2,
+  };
 }

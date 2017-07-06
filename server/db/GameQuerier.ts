@@ -3,12 +3,20 @@ import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
 
 const selectHand = 'SELECT * FROM hand';
+const orderLimit = 'ORDER BY hand.timestamp DESC LIMIT ? ';
+const offset = 'OFFSET ?';
 const joinPlayerHand = 'JOIN player_hand ON hand.id=player_hand.hand_fk_id';
+const joinPlayerId = 'AND player_hand.player_fk_id=?';
 const whereId = 'WHERE hand.id=?';
 const whereTimestamp = 'WHERE hand.timestamp >= ? AND hand.timestamp < ?';
 const insertHand = 'INSERT INTO hand (timestamp, players, bidder_fk_id, partner_fk_id, bid_amt, points, slam) VALUES (?, ?, ?, ?, ?, ?, ?)';
-const lastInsertedGameId = 'SELECT id FROM hand WHERE id = LAST_INSERT_ID()';
 const insertPlayerHand = 'INSERT INTO player_hand (timestamp, hand_fk_id, player_fk_id, was_bidder, was_partner, showed_trump, one_last, points_earned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+export interface RecentGameQuery {
+  count: number;
+  player?: string;
+  offset?: number;
+}
 
 export class GameQuerier {
   private db: Database;
@@ -25,16 +33,98 @@ export class GameQuerier {
     });
   }
 
-  public queryRecentGames = (count: number): Promise<Game[]> => {
-    return this.db.query('SELECT * FROM hand ORDER BY timestamp DESC LIMIT ? ', [count]).then((result: any[]) => {
+  public queryRecentGames = (query: RecentGameQuery): Promise<Game[]> => {
+    let queryString = `${selectHand}`;
+    const queryParams: any[] = [];
+    if (query.player) {
+      queryString += ` ${joinPlayerHand} ${joinPlayerId}`;
+      queryParams.push(+query.player);
+    }
+    queryString += ` ${orderLimit}`;
+    queryParams.push(query.count);
+    if (query.offset) {
+      queryString += ` ${offset}`;
+      queryParams.push(query.offset);
+    }
+    return this.db.query(queryString, queryParams).then((result: any[]) => {
       return result.map(this.getGameData);
     });
   }
 
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
-    return this.db.query(`${selectHand} ${joinPlayerHand} ${whereTimestamp}`, [startDate, endDate]).then((playerHands: any[]) => {
+    return this.db.query(`${selectHand} ${joinPlayerHand} ${whereTimestamp}`, [startDate, endDate]).then((handEntries: any[]) => {
+      return this.getGamesFromResults(handEntries);
+    });
+  }
+
+  public saveGame = (game: Game) => {
+    if (!game.handData) {
+      throw new Error('Cannot create a new game without hand data.');
+    }
+    const handData = game.handData;
+    const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+    const gameValues = [
+      timestamp,
+      game.numberOfPlayers,
+      game.bidderId,
+      game.partnerId || null,
+      game.bidAmount,
+      game.points,
+      game.slam,
+    ];
+
+    return this.db.beginTransaction().then((transaction) => {
+      return transaction.query(insertHand, gameValues).then((results: {insertId: number}) => {
+        const gameId = results.insertId.toString();
+        const playerHands = [[
+          timestamp,
+          gameId,
+          game.bidderId,
+          1,
+          0,
+          handData.bidder.showedTrump,
+          handData.bidder.oneLast,
+          handData.bidder.pointsEarned,
+        ]];
+        if (game.partnerId) {
+          const partner = handData.partner!;
+          playerHands.push([
+            timestamp,
+            gameId,
+            partner.id,
+            0,
+            1,
+            partner.showedTrump,
+            partner.oneLast,
+            partner.pointsEarned,
+          ]);
+        }
+        handData.opposition.forEach((hand) => {
+          playerHands.push([
+            timestamp,
+            gameId,
+            hand.id,
+            0,
+            0,
+            hand.showedTrump,
+            hand.oneLast,
+            hand.pointsEarned,
+          ]);
+        });
+        return Promise.all(playerHands.map((data) => {
+          return transaction.query(insertPlayerHand, data);
+        }));
+      }).then(() => {
+        return transaction.commit();
+      });
+    });
+  }
+
+  // Helpers
+
+  private getGamesFromResults(handEntries: any[]): Game[] {
       const gameHands = new Map<string, any[]>();
-      playerHands.forEach((hand: any) => {
+      handEntries.forEach((hand: any) => {
         const gameId = hand['hand_fk_id'];
         if (!gameHands.has(gameId)) {
           gameHands.set(gameId, []);
@@ -48,78 +138,7 @@ export class GameQuerier {
         games.push(this.getGameFromResults(currentPlayerHands));
       });
       return games;
-    });
   }
-
-  public queryLastInsertedGameId = (): Promise<string> => {
-    return this.db.query(lastInsertedGameId).then((result: any[]) => {
-      return result[0]['id'];
-    })
-  }
-
-  public saveGame = (game: Game) => {
-    if (!game.handData) {
-      throw new Error('Cannot create a new game without hand data.');
-    }
-    const handData = game.handData;
-    const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
-    const gameValues = [
-      timestamp,
-      game.numberOfPlayers,
-      game.bidderId,
-      game.partnerId,
-      game.bidAmount,
-      game.points,
-      game.slam,
-    ];
-
-
-    return this.db.query(insertHand, gameValues).then(() => {
-      return this.queryLastInsertedGameId();
-    }).then((gameId: string) => {
-      const playerHands = [[
-        timestamp,
-        gameId,
-        game.bidderId,
-        1,
-        0,
-        handData.bidder.showedTrump,
-        handData.bidder.oneLast,
-        handData.bidder.pointsEarned,
-      ]];
-      if (game.partnerId) {
-        const partner = handData.partner!;
-        playerHands.push([
-          timestamp,
-          gameId,
-          partner.id,
-          0,
-          1,
-          partner.showedTrump,
-          partner.oneLast,
-          partner.pointsEarned,
-        ]);
-      }
-      handData.opposition.forEach((hand) => {
-        playerHands.push([
-          timestamp,
-          gameId,
-          hand.id,
-          0,
-          0,
-          hand.showedTrump,
-          hand.oneLast,
-          hand.pointsEarned,
-        ]);
-      });
-
-      return Promise.all(playerHands.map((data) => {
-        return this.db.query(insertPlayerHand, data);
-      }));
-    });
-  }
-
-  // Helpers
 
   private getGameFromResults(playerHands: any[]): Game {
     const gameData = this.getGameData(playerHands[0]);

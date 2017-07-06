@@ -9,6 +9,8 @@ import {
 import { ServerApi } from './../../api/serverApi';
 import { newTypedReducer } from '../redux/typedReducer';
 import { put } from 'redux-saga/effects';
+import { Store } from 'redux';
+import { ReduxState } from '../rootReducer';
 
 export interface AddNewPlayerPayload {
   newPlayer: NewPlayer,
@@ -24,13 +26,25 @@ export const addNewPlayerActions = {
   CLEAR: createActionType<void>('ADD_NEW_PLAYER // CLEAR'),
 };
 
-export const addNewPlayerActionCreators = {
+const addNewPlayerActionCreators = {
   request: createActionCreator(addNewPlayerActions.REQUEST),
   error: createActionCreator(addNewPlayerActions.ERROR),
   loading: createActionCreator(addNewPlayerActions.LOADING),
   success: createActionCreator(addNewPlayerActions.SUCCESS),
   clear: createActionCreator(addNewPlayerActions.CLEAR),
 };
+
+export class AddNewPlayerDispatcher {
+  constructor(public readonly store: Store<ReduxState>) {}
+
+  public request(payload: AddNewPlayerPayload) {
+    this.store.dispatch(addNewPlayerActionCreators.request(payload));
+  }
+
+  public clear() {
+    this.store.dispatch(addNewPlayerActionCreators.clear(undefined));
+  }
+}
 
 export function* addNewPlayerSaga(api: ServerApi) {
   yield [

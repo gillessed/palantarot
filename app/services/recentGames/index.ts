@@ -2,18 +2,21 @@ import { Loadable } from './../redux/loadable';
 import { ServerApi } from './../../api/serverApi';
 import { Game } from './../../../server/model/Game';
 import { generatePropertyService } from '../redux/serviceGenerator';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { RecentGameQuery } from '../../../server/db/GameQuerier';
 
-export type RecentGamesService = Loadable<Game[]>;
+export type RecentGamesService = Loadable<void, Game[]>;
 
-const recentGamesService = generatePropertyService<number | undefined, Game[]>('RECENT_GAMES',
+const recentGamesService = generatePropertyService<RecentGameQuery, Game[]>('RECENT_GAMES',
   (api: ServerApi) => {
-    return (count: number | undefined) => {
-      return api.getRecentGames(count);
+    return (query: RecentGameQuery) => {
+      return api.getRecentGames(query);
     }
   }
 );
 
 export const recentGamesActions = recentGamesService.actions;
-export const recentGamesActionCreators = recentGamesService.actionCreators;
+export const RecentGamesDispatcher = recentGamesService.dispatcher;
+export type RecentGamesDispatcher = PropertyDispatcher<RecentGameQuery>;
 export const recentGamesReducer = recentGamesService.reducer.build();
 export const recentGamesSaga = recentGamesService.saga;

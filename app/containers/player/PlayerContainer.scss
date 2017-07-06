@@ -1,0 +1,19 @@
+.player-view-container {
+  @media (max-width: 700px) {
+    margin: 20 auto;
+    width: 100%;
+  }
+  @media (min-width: 700px) {
+    margin: 60px auto;
+    width: 80%;
+  }
+}
+
+.player-tabs {
+  background-color: #F5F8FA;
+  padding: 10;
+  .pt-tab {
+    font-family: blenderProBold;
+    font-size: 18;
+  }
+}

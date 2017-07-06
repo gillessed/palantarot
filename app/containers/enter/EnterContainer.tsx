@@ -2,25 +2,25 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { GameForm } from '../../components/forms/GameForm';
 import { ReduxState } from '../../services/rootReducer';
-import { playersActionCreators, PlayersService } from '../../services/players';
+import { PlayersService } from '../../services/players';
 import { Player } from '../../../server/model/Player';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { saveGameActionCreators } from '../../services/saveGame/index';
 import { Game } from '../../../server/model/Game';
-import { push } from 'react-router-redux';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { SagaListener } from '../../services/sagaListener';
 import { saveGameActions } from '../../services/saveGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
+import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
+import { mergeContexts } from '../../app';
+import { Dispatchers } from '../../services/dispatchers';
 
 interface StateProps {
   players: PlayersService;
 }
 
 interface DispatchProps {
-  loadPlayers: () => void;
   saveGame: (newGame: Game) => void;
-  push: (path: string) => void;
 }
 
 type Props = StateProps & DispatchProps;
@@ -36,7 +36,7 @@ interface State {
 }
 
 export class Internal extends React.PureComponent<Props, State> {
-  public static contextTypes = SagaContextType;
+  public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
   private gameSavedListener: SagaListener<Game> = {
     actionType: saveGameActions.SUCCESS,
@@ -45,12 +45,24 @@ export class Internal extends React.PureComponent<Props, State> {
         message: 'Game Saved Succesufully',
         intent: TIntent.SUCCESS,
       });
-      this.props.push('/recent');
+      this.dispatchers.navigation.push('/recent');
     },
   };
+  private gameSaveErrorListener: SagaListener<Game> = {
+    actionType: saveGameActions.ERROR,
+    callback: () => {
+      Palantoaster.show({
+        message: 'Server Error: Game was not saved correctly.',
+        intent: TIntent.DANGER,
+      });
+    },
+  };
+  private dispatchers: Dispatchers;
 
-  constructor(props: Props) {
-    super(props);
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.sagas = getSagaContext(context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       numberOfPlayers: 5,
       calledSelf: false,
@@ -59,12 +71,13 @@ export class Internal extends React.PureComponent<Props, State> {
   }
 
   public componentWillMount() {
-    this.sagas = getSagaContext(this.context);
     this.sagas.register(this.gameSavedListener);
-    this.props.loadPlayers();
+    this.sagas.register(this.gameSaveErrorListener);
+    this.dispatchers.players.request(undefined);
   }
 
   public componentWillUnmount() {
+    this.sagas.unregister(this.gameSavedListener);
     this.sagas.unregister(this.gameSavedListener);
   }
 
@@ -121,9 +134,7 @@ const mapStateToProps = (state: ReduxState): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
   return {
-    loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
     saveGame: (newGame: Game) => { dispatch(saveGameActionCreators.request(newGame)); },
-    push: (path: string) => { dispatch(push(path)); },
   }
 }
 

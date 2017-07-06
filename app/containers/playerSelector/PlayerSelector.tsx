@@ -3,10 +3,12 @@ import { Player, NewPlayer } from '../../../server/model/Player';
 import { Dialog } from '@blueprintjs/core';
 import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { AddPlayerService, addNewPlayerActionCreators } from '../../services/addPlayer/index';
+import { AddPlayerService } from '../../services/addPlayer/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
+import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
+import { Dispatchers } from '../../services/dispatchers';
 
 export interface PlayerState {
   name: string;
@@ -23,25 +25,23 @@ interface OwnProps {
   onChange: (player: PlayerState) => void;
 }
 
-interface PropsFromState {
+interface StateProps {
   addPlayerService: AddPlayerService;
 }
 
-interface PropsFromDispatch {
-  addNewPlayer: (player: NewPlayer, source: any) => void;
-  clear: () => void;
-}
-
-type Props = OwnProps & PropsFromState & PropsFromDispatch;
+type Props = OwnProps & StateProps;
 
 interface State {
   openDialog: boolean;
 }
 
 export class Internal extends React.PureComponent<Props, State> {
-
-  constructor(props: Props) {
-    super(props);
+  public static contextTypes = DispatchersContextType;
+  private dispatchers: Dispatchers;
+  
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       openDialog: false,
     }
@@ -72,7 +72,7 @@ export class Internal extends React.PureComponent<Props, State> {
         player,
       });
       this.closeDialog();
-      this.props.clear();
+      this.dispatchers.addPlayer.clear();
     }
   }
 
@@ -155,7 +155,7 @@ export class Internal extends React.PureComponent<Props, State> {
         <div className="pt-dialog-body">
           <AddPlayerForm
             onSubmit={(newPlayer: NewPlayer) => {
-              this.props.addNewPlayer(newPlayer, this.props.label);
+              this.dispatchers.addPlayer.request({newPlayer, source: this.props.label});
             }}
           />
           {this.renderDialogSpinner()}
@@ -215,15 +215,7 @@ const mapStateToProps = (state: ReduxState, ownProps: OwnProps) => {
   return {
     ...ownProps,
     addPlayerService: state.addPlayer,
-  } as OwnProps & PropsFromState;
+  } as OwnProps & StateProps;
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    addNewPlayer: (player: NewPlayer, source: any) => 
-      dispatch(addNewPlayerActionCreators.request({newPlayer: player, source})),
-    clear: () => { dispatch (addNewPlayerActionCreators.clear(undefined)); },
-  }
-}
-
-export const PlayerSelector = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const PlayerSelector = connect(mapStateToProps)(Internal);

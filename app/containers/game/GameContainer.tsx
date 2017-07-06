@@ -2,11 +2,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
 import { Player } from '../../../server/model/Player';
-import { PlayerHand } from '../../../server/model/Game';
-import { playersActionCreators, PlayersService } from '../../services/players';
-import { gameActionCreators, GameService } from '../../services/game';
+import { PlayerHand, Game } from '../../../server/model/Game';
+import { PlayersService } from '../../services/players';
+import { GameService } from '../../services/game';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { push } from 'react-router-redux'
+import { formatTimestamp } from '../../../server/utils/index';
+import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
+import { Dispatchers } from '../../services/dispatchers';
 
 interface OwnProps {
   children: any[];
@@ -20,37 +22,32 @@ interface StateProps {
   games: GameService;
 }
 
-interface DispatchProps {
-  loadPlayers: () => void;
-  loadGame: (gameId: string) => void
-  push: (path: string) => void;
-}
-
-type Props = OwnProps & StateProps & DispatchProps;
+type Props = OwnProps & StateProps;
 
 interface State {
   page: number,
 }
 
 class Internal extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  public static contextTypes = DispatchersContextType;
+  private dispatchers: Dispatchers;
+
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       page: 0,
     };
   }
 
   public componentWillMount() {
-    this.props.loadPlayers();
-    this.props.loadGame(this.props.params.gameId);
+    this.dispatchers.players.request(undefined);
+    this.dispatchers.game.request([this.props.params.gameId]);
   }
 
   public render() {
     return (
       <div className='game-container pt-ui-text-large'>
-        <div className='title'>
-          <h1>Game {this.props.params.gameId}</h1>
-        </div>
         {this.renderContainer()}
       </div>
     );
@@ -79,18 +76,41 @@ class Internal extends React.PureComponent<Props, State> {
     if (game.handData) {
       return (
         <div>
-          <p>Number of players: {game.numberOfPlayers}</p>
-          <p>Slam: {game.slam ? 'Yes': 'No'}</p>
-          <br/>
-          {this.renderHandData(players, 'Bidder', game.handData.bidder)}
-          {this.renderHandData(players, 'Partner', game.handData.partner)}
-          {game.handData.opposition.map((handData: PlayerHand, index: number) => {
-            return this.renderHandData(players, `Opposition ${index + 1}`, handData);
-          })}
+          {this.renderSlamBanner(game)}
+          <div className='game-banner'>
+            <div className='game-title-container'>
+              <span><h1> Game {game.id} </h1></span>
+              <h6> {formatTimestamp(game.timestamp)} </h6>
+            </div>
+            <div className={'game-point-display' + (game.points >= 0 ? ' game-win' : ' game-loss')}>
+              {game.points > 0 ? '+' + game.points : game.points}
+            </div>
+          </div>
+          <div className='game-data-container'>
+            <div className='bidder-team-container'>
+              {this.renderHandData(players, 'Bidder', game.handData.bidder)}
+              {this.renderHandData(players, 'Partner', game.handData.partner)}
+            </div>
+            <div className='opposition-team-container'>
+              {game.handData.opposition.map((handData: PlayerHand, index: number) => {
+                return this.renderHandData(players, `Opposition ${index + 1}`, handData);
+              })}
+            </div>
+          </div>
         </div>
       );
     } else {
       return <p>Hand data not loaded...</p>;
+    }
+  }
+
+  private renderSlamBanner = (game: Game) => {
+    if (game.slam) {
+      return (
+        <div className='slam-banner'>
+          <h4>SLAM!!!</h4>
+        </div>
+      );
     }
   }
 
@@ -100,10 +120,20 @@ class Internal extends React.PureComponent<Props, State> {
     handData?: PlayerHand
   ) => {
     if (handData) {
-      const bidder = players.get(handData.id);
-      const bidderName = bidder ? `${bidder.firstName} ${bidder.lastName}` : `Unknown Player: ${handData.id}`;
+      const player = players.get(handData.id);
+      const playerName = player ? `${player.firstName} ${player.lastName}` : `Unknown Player: ${handData.id}`;
+      const points = handData.pointsEarned;
+      let containerStyle: string = 'player-container';
+      if (points > 0) {
+        containerStyle += ' winner-container';
+      } else {
+        containerStyle += ' loser-container';
+      }
       return (
-        <p key={handData.id}><span className='text' style={{fontWeight: 'bold'}}>{tag}: </span> {bidderName}</p>
+        <div key={handData.id} className={containerStyle}>
+          <h4>{tag}</h4>
+          <div>{playerName} ({points > 0 ? '+' + points : points})</div>
+        </div>
       );
     }
   }
@@ -117,12 +147,4 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
   }
 }
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => {
-  return {
-    loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
-    loadGame: (gameId: string) => { dispatch(gameActionCreators.request([gameId])); },
-    push: (path: string) => { dispatch(push(path)); },
-  }
-}
-
-export const GameContainer = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const GameContainer = connect(mapStateToProps)(Internal);

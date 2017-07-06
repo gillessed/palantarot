@@ -2,11 +2,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
 import { Game } from '../../../server/model/Game';
-import { playersActionCreators, PlayersService } from '../../services/players';
-import { recentGamesActionCreators, RecentGamesService } from '../../services/recentGames';
+import { PlayersService } from '../../services/players';
+import { RecentGamesService } from '../../services/recentGames';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable } from '../../components/gameTable/GameTable';
-import { push } from 'react-router-redux';
+import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
+import { Dispatchers } from '../../services/dispatchers';
 
 interface OwnProps {
   children: any[];
@@ -17,30 +18,27 @@ interface StateProps {
   recentGames: RecentGamesService;
 }
 
-interface DispatchProps {
-  loadPlayers: () => void;
-  loadRecentGames: () => void;
-  push: (path: string) => void;
-}
-
-type Props = OwnProps & StateProps & DispatchProps;
+type Props = OwnProps & StateProps;
 
 interface State {
   page: number,
 }
 
 class Internal extends React.PureComponent<Props, State> {
-
-  constructor(props: Props) {
-    super(props);
+  public static contextTypes = DispatchersContextType;
+  private dispatchers: Dispatchers;
+  
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       page: 0,
     };
   }
 
   public componentWillMount() {
-    this.props.loadPlayers();
-    this.props.loadRecentGames();
+    this.dispatchers.players.request(undefined);
+    this.dispatchers.recentGames.request({ count: 20 });
   }
 
   public render() {
@@ -76,7 +74,7 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private onRowClick = (game: Game) => {
-    this.props.push(`/game/${game.id}`);
+    this.dispatchers.navigation.push(`/game/${game.id}`);
   }
 }
 
@@ -88,12 +86,4 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
   }
 }
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => {
-  return {
-    loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
-    loadRecentGames: () => { dispatch(recentGamesActionCreators.request(undefined)); },
-    push: (path: string) => { dispatch(push(path)); },
-  }
-}
-
-export const RecentContainer = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const RecentContainer = connect(mapStateToProps)(Internal);

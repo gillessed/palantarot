@@ -1,3 +1,5 @@
+import moment from 'moment-timezone';
+
 export function objectToMap<T>(object: any) {
   if (!object) {
     return undefined;
@@ -53,4 +55,8 @@ export function encodeQueryData(data: { [key: string]: any }) {
 
 export function randomString(): string {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+export function formatTimestamp(timestamp: string) {
+    return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
 }

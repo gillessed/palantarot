@@ -5,13 +5,26 @@ export interface Month {
   month: number;
 }
 
+const _months: Map<string, IMonth> = new Map();
+
 export class IMonth implements Month {
   year: number;
   month: number;
 
-  constructor(m: Month) {
+  private constructor(m: Month) {
     this.year = m.year;
     this.month = m.month;
+  }
+
+  public static get(m: Month): IMonth {
+    const key = `${m.year},${m.month}`;
+    if (_months.has(key)) {
+      return _months.get(key)!;
+    } else {
+      const month = new IMonth(m);
+      _months.set(key, month);
+      return month;
+    }
   }
 
   public isValid(options?: { inPast: boolean }): { valid: boolean, error?: string } {
@@ -26,19 +39,27 @@ export class IMonth implements Month {
 
   public previous(): IMonth {
     const previous = (this.month + 11) % 12;
-    return new IMonth({ month: previous, year: previous == 11 ? this.year - 1 : this.year });
+    return IMonth.get({ month: previous, year: previous == 11 ? this.year - 1 : this.year });
   }
 
   public next(): IMonth {
     const nextMonth = (this.month + 1) % 12;
-    return new IMonth({ month: nextMonth, year: nextMonth == 0 ? this.year + 1 : this.year });
+    return IMonth.get({ month: nextMonth, year: nextMonth == 0 ? this.year + 1 : this.year });
   }
 
   public static m(m: Month) {
-    return new IMonth(m);
+    return IMonth.get(m);
   }
 
   public static now() {
-    return new IMonth({ month: moment().month(), year: moment().year() });
+    return IMonth.get({ month: moment().month(), year: moment().year() });
+  }
+
+  public static toString(month: Month): string {
+    return JSON.stringify(month);
+  }
+
+  public static fromString(string: string): Month {
+    return JSON.parse(string);
   }
 }

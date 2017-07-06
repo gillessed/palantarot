@@ -3,7 +3,8 @@ import { Result } from './../../server/model/Result';
 import { Game } from './../../server/model/Game';
 import { Player, NewPlayer } from './../../server/model/Player';
 import { ApisauceInstance, create } from 'apisauce';
-import { mapFromCollection, encodeQueryData } from '../../server/utils';
+import { mapFromCollection } from '../../server/utils';
+import { RecentGameQuery } from '../../server/db/GameQuerier';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -22,15 +23,16 @@ export class ServerApi {
     });
   }
 
-  public getRecentGames = (count: number | undefined): Promise<Game[]> => {
-    const url = '/game/recent' + encodeQueryData({ count: count });
-    return this.wrapGet<Game[]>(url);
+  public getRecentGames = (query: RecentGameQuery): Promise<Game[]> => {
+    return this.wrapPost<Game[]>('/game/recent', query);
   }
 
-  public loadGame = (gameId: string): Promise<Map<string, Game>> => {
-    return this.wrapGet<Game>(`/game/${gameId}`).then((game: Game) => {
-      return new Map<string, Game>([[game.id, game]]);
-    });
+  public getMonthGames = (month: Month): Promise<Game[]> => {
+    return this.wrapPost<Game[]>(`/game/month/all`, month);
+  }
+
+  public loadGame = (gameId: string): Promise<Game> => {
+    return this.wrapGet<Game>(`/game/${gameId}`);
   }
 
   public saveGame = (newGame: Game): Promise<void> => {

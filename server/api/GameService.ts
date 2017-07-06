@@ -6,6 +6,7 @@ import { Database } from './../db/dbConnector';
 import { Router, Request, Response } from 'express';
 import { Month, IMonth } from '../model/Month';
 import moment from 'moment-timezone';
+import { RecentGameQuery } from '../db/GameQuerier';
 
 const westernTimezone = 'America/Los_Angeles';
 
@@ -19,7 +20,8 @@ export class GameService {
     this.playerDb = new PlayerQuerier(db);
     this.gameDb = new GameQuerier(db);
     this.router.post('/month', this.getMonthResults);
-    this.router.get('/recent', this.getRecentGames);
+    this.router.post('/month/all', this.getMonthGames);
+    this.router.post('/recent', this.getRecentGames);
     this.router.get('/:id', this.getGame);
     this.router.post('/save', this.saveGame);
   }
@@ -53,9 +55,28 @@ export class GameService {
     });
   }
 
+  public getMonthGames = (req: Request, res: Response) => {
+    const body = req.body as Month;
+    const month = IMonth.m(body);
+
+    const { valid, error } = month.isValid({ inPast: true });
+    if (!valid) {
+      res.send({ error });
+    }
+
+    const startDate = this.convertToSql(month);
+    const endDate = this.convertToSql(month.next());
+
+    this.gameDb.queryGamesBetweenDates(startDate, endDate).then((results: Game[]) => {
+      res.send(results);
+    }).catch((error: any) => {
+      res.send({ error: `Error loading month games for ${startDate}: ${error}` });
+    });
+  }
+
   public getRecentGames = (req: Request, res: Response) => {
-    const count = req.query['count'] || 20;
-    this.gameDb.queryRecentGames(count).then((games: Game[]) => {
+    const query = req.body as RecentGameQuery;
+    this.gameDb.queryRecentGames(query).then((games: Game[]) => {
       res.send(games);
     }).catch((error: any) => {
       res.send({ error: 'Error loading recent games: ' + error });

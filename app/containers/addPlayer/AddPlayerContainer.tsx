@@ -1,42 +1,38 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
-import { playersActionCreators } from '../../services/players';
 import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { NewPlayer } from '../../../server/model/Player';
-import { addNewPlayerActionCreators } from '../../services/addPlayer';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { AddPlayerService } from '../../services/addPlayer/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { push } from 'react-router-redux';
+import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
+import { Dispatchers } from '../../services/dispatchers';
 
 interface StateProps {
   addPlayerService: AddPlayerService,
 }
 
-interface DispatchProps {
-  loadPlayers: () => void;
-  addNewPlayer: (newPlayer: NewPlayer) => void;
-  clear: () => void;
-  push: (path: string) => void;
-}
-
-type Props = StateProps & DispatchProps;
+type Props = StateProps;
 
 interface State {
   numberOfPlayers: 5,
 }
 
 export class Internal extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  public static contextTypes = DispatchersContextType;
+  private dispatchers: Dispatchers;
+
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       numberOfPlayers: 5,
     };
   }
 
   public componentWillMount() {
-    this.props.loadPlayers();
+    this.dispatchers.players.request(undefined);
   }
 
   public componentWillReceiveProps(nextProps: Props) {
@@ -45,7 +41,7 @@ export class Internal extends React.PureComponent<Props, State> {
         message: nextProps.addPlayerService.error.message,
         intent: TIntent.DANGER,
       });
-      this.props.clear();
+      this.dispatchers.addPlayer.clear();
     } else if (nextProps.addPlayerService.newPlayer && nextProps.addPlayerService.newPlayer !== this.props.addPlayerService.newPlayer) {
       const player = nextProps.addPlayerService.newPlayer;
       Palantoaster.show({
@@ -54,8 +50,8 @@ export class Internal extends React.PureComponent<Props, State> {
       });
       if (nextProps.addPlayerService.redirect) {
         const redirect = nextProps.addPlayerService.redirect;
-        this.props.clear();
-        this.props.push(redirect);
+        this.dispatchers.addPlayer.clear();
+        this.dispatchers.navigation.push(redirect);
       }
     }
   }
@@ -86,7 +82,7 @@ export class Internal extends React.PureComponent<Props, State> {
     return (
       <AddPlayerForm
         onSubmit={(newPlayer: NewPlayer) => {
-          this.props.addNewPlayer(newPlayer);
+          this.dispatchers.addPlayer.request({newPlayer, redirect: '/home'});
         }}
       />
     );
@@ -99,13 +95,4 @@ const mapStateToProps = (state: ReduxState): StateProps => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => {
-  return {
-    loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
-    addNewPlayer: (newPlayer: NewPlayer) => { dispatch(addNewPlayerActionCreators.request({newPlayer, redirect: '/home'})); },
-    clear: () => { dispatch (addNewPlayerActionCreators.clear(undefined)); },
-    push: (path: string) => { dispatch(push(path)); },
-  }
-}
-
-export const AddPlayerContainer = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const AddPlayerContainer = connect(mapStateToProps)(Internal);

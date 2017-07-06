@@ -6,6 +6,7 @@ import {
   generatePropertyActionCreators,
 } from './serviceActions';
 import { generatePropertyReducer, generateServiceReducer } from './serviceReducer';
+import { generateServiceDispatcher, generatePropertyDispatcher } from './serviceDispatcher';
 import { 
   createSagaPropertyOperation, 
   createSagaServiceOperation,
@@ -18,6 +19,7 @@ export function generatePropertyService<ARG, RESULT>(
 ) {
   const actions = generatePropertyActions<ARG, RESULT>(prefix);
   const actionCreators = generatePropertyActionCreators<ARG, RESULT>(actions);
+  const dispatcher = generatePropertyDispatcher(actionCreators);
   const reducer = generatePropertyReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
@@ -28,6 +30,7 @@ export function generatePropertyService<ARG, RESULT>(
   return {
     actions,
     actionCreators,
+    dispatcher,
     reducer,
     saga,
   };
@@ -39,6 +42,7 @@ export function generateService<ARG, RESULT>(
 ) {
   const actions = generateServiceActions<ARG, RESULT>(prefix);
   const actionCreators = generateServiceActionCreators<ARG, RESULT>(actions);
+  const dispatcher = generateServiceDispatcher(actionCreators);
   const reducer = generateServiceReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
@@ -49,6 +53,7 @@ export function generateService<ARG, RESULT>(
   return {
     actions,
     actionCreators,
+    dispatcher,
     reducer,
     saga,
   };

@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
-import { Month, IMonth } from '../../../server/model/Month';
+import { IMonth } from '../../../server/model/Month';
 import { Result } from '../../../server/model/Result';
-import { playersActionCreators, PlayersService } from '../../services/players';
-import { resultsActionCreators, ResultsService } from '../../services/results';
+import { PlayersService } from '../../services/players';
+import { ResultsService } from '../../services/results';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { push } from 'react-router-redux'
 import moment from 'moment';
+import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
+import { Dispatchers } from '../../services/dispatchers';
 
 interface OwnProps {
   children: any[];
@@ -17,31 +18,27 @@ interface StateProps {
   players: PlayersService;
   results: ResultsService;
 }
-
-interface DispatchProps {
-  loadPlayers: () => void;
-  loadResults: (month: Month) => void;
-  push: (path: string) => void;
-}
-
-type Props = OwnProps & StateProps & DispatchProps;
+type Props = OwnProps & StateProps;
 
 interface State {
   month: IMonth,
 }
 
 class Internal extends React.PureComponent<Props, State> {
-
-  constructor(props: Props) {
-    super(props);
+  public static contextTypes = DispatchersContextType;
+  private dispatchers: Dispatchers;
+  
+  constructor(props: Props, context: DispatchContext) {
+    super(props, context);
+    this.dispatchers = context.dispatchers;
     this.state = {
       month: IMonth.now(),
     };
   }
 
   public componentWillMount() {
-    this.props.loadPlayers();
-    this.props.loadResults(this.state.month);
+    this.dispatchers.players.request(undefined);
+    this.dispatchers.results.request([this.state.month]);
   }
 
   public render() {
@@ -56,7 +53,6 @@ class Internal extends React.PureComponent<Props, State> {
           />
           <div className='title'>
             <h1 style={{textAlign: 'center'}}>Results for {this.state.month.year}/{zeroPadMonth}</h1>
-            <p className='pt-running-text'>Click on a row to view a player's stats.</p>
           </div>
           <button
             type='button'
@@ -71,11 +67,11 @@ class Internal extends React.PureComponent<Props, State> {
 
   private renderContainer() {
     const players = this.props.players;
-    const results = this.props.results;
+    const results = this.props.results.get(this.state.month);
     if (players.loading || results.loading) {
       return <SpinnerOverlay size='pt-large' />;
     } else if (players.value && results.value) {
-      return this.renderResultsTable();
+      return this.renderResultsTable(results.value);
     } else if (players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
     } else if (results.error) {
@@ -85,8 +81,8 @@ class Internal extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderResultsTable = () => {
-    const results = Array.from(this.props.results.value!).sort((r1: Result, r2: Result) => {
+  private renderResultsTable = (resultList: Result[]) => {
+    const results = Array.from(resultList).sort((r1: Result, r2: Result) => {
       if (r1.points > r2.points) {
         return -1;
       } else if (r1.points < r2.points) {
@@ -121,9 +117,14 @@ class Internal extends React.PureComponent<Props, State> {
     const players = this.props.players.value!;
     const player = players.get(result.id);
     const playerName = player ? `${player.firstName} ${player.lastName}` : `Unknown Player: ${result.id}`;
+    const onRowClick = () => {
+      if (player) {
+        this.dispatchers.navigation.push(`/player/${player.id}`);
+      }
+    }
     return (
-      <tr key={result.id}>
-        <td className="rank-row">{index + 1}</td>
+      <tr key={result.id} onClick={onRowClick}>
+        <td className='rank-row'>{index + 1}</td>
         <td>{playerName}</td>
         <td>{result.points} {this.renderDelta(result.delta)}</td>
         <td>{result.gamesPlayed}</td>
@@ -163,7 +164,7 @@ class Internal extends React.PureComponent<Props, State> {
     this.setState({
       month: previousMonth,
     });
-    this.props.loadResults(previousMonth);
+    this.dispatchers.results.request([previousMonth]);
   }
 
   private nextMonth = () => {
@@ -174,7 +175,7 @@ class Internal extends React.PureComponent<Props, State> {
     this.setState({
       month: nextMonth,
     });
-    this.props.loadResults(nextMonth);
+    this.dispatchers.results.request([nextMonth]);
   }
 }
 
@@ -188,12 +189,4 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
   }
 }
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => {
-  return {
-    loadPlayers: () => { dispatch(playersActionCreators.request(undefined)); },
-    loadResults: (month: Month) => { dispatch(resultsActionCreators.request(month)); },
-    push: (path: string) => { dispatch(push(path)); },
-  }
-}
-
-export const ResultsContainer = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const ResultsContainer = connect(mapStateToProps)(Internal);

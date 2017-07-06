@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
-import moment from 'moment-timezone';
+import { formatTimestamp } from '../../../server/utils/index';
 
 class Props {
   players: Map<string, Player>;
@@ -46,12 +46,8 @@ export class GameTable extends React.PureComponent<Props, {}> {
         <td>{game.bidAmount}</td>
         <td>{game.points}</td>
         <td>{game.numberOfPlayers}</td>
-        <td>{this.formatTimestamp(game.timestamp)}</td>
+        <td>{formatTimestamp(game.timestamp)}</td>
       </tr>
     );
-  }
-
-  private formatTimestamp(timestamp: string) {
-    return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
   }
 }

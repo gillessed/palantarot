@@ -197,6 +197,7 @@ export class GameForm extends React.PureComponent<Props, State> {
   private onSubmitPress = () => {
     const playerHands: {[key: string]: PlayerHand} = {};
     const activePlayers = this.getActivePlayers();
+    console.log(this.state.players);
     activePlayers.forEach((playerName) => {
       const player = this.state.players[playerName];
       playerHands[playerName] = {
@@ -219,7 +220,7 @@ export class GameForm extends React.PureComponent<Props, State> {
     }
     const bidderId = this.state.players[PlayerNames.BIDDER].player!.id;
     let partnerId = '';
-    if (this.state.players[PlayerNames.PARTNER].player) {
+    if (this.state.players[PlayerNames.PARTNER]) {
       partnerId = this.state.players[PlayerNames.PARTNER].player!.id;
     }
 

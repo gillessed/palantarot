@@ -1,30 +1,30 @@
-export interface Loadable<T> {
-  key?: string;
-  value?: T;
+export interface Loadable<KEY, VALUE> {
+  key?: KEY;
+  value?: VALUE;
   error?: Error;
   loading: boolean;
   timestamp?: number;
 }
 
-export class LoadableCache<T> {
-  private cache: Map<string, Loadable<T>>;
+export class LoadableCache<KEY, VALUE> {
+  private cache: Map<KEY, Loadable<KEY, VALUE>>;
   public loading: boolean;
 
-  private constructor(options?: {cache: Map<string, Loadable<T>>, loading: boolean}) {
+  private constructor(options?: {cache: Map<KEY, Loadable<KEY, VALUE>>, loading: boolean}) {
     if (options) {
       this.cache = options.cache;
       this.loading = options.loading;
     } else {
-      this.cache = new Map<string, Loadable<T>>();
+      this.cache = new Map<KEY, Loadable<KEY, VALUE>>();
       this.loading = false;
     }
   }
 
-  public static create<T>() {
-    return new LoadableCache<T>();
+  public static create<KEY, VALUE>() {
+    return new LoadableCache<KEY, VALUE>();
   }
 
-  public get(key: string): Loadable<T> {
+  public get(key: KEY): Loadable<KEY, VALUE> {
     const entry = this.cache.get(key);
     if (entry) {
       return entry;
@@ -36,17 +36,17 @@ export class LoadableCache<T> {
     }
   }
 
-  public has(key: string): boolean {
+  public has(key: KEY): boolean {
     return this.cache.has(key);
   }
 
-  public getSubset(...keys: string[]): Map<string, Loadable<T>> {
-    return new Map<string, Loadable<T>>(
-      keys.map((key) => [key, this.get(key)] as [string, Loadable<T>]),
+  public getSubset(...keys: KEY[]): Map<KEY, Loadable<KEY, VALUE>> {
+    return new Map<KEY, Loadable<KEY, VALUE>>(
+      keys.map((key) => [key, this.get(key)] as [KEY, Loadable<KEY, VALUE>]),
     );
   }
 
-  public getLoaded(key: string): T | undefined {
+  public getLoaded(key: KEY): VALUE | undefined {
     const entry = this.cache.get(key);
     if (entry) {
       return entry.value;
@@ -55,21 +55,21 @@ export class LoadableCache<T> {
     }
   }
 
-  public getLoadedSubset(...keys:string[]): Map<string, T> {
-    return new Map<string, T>(keys
+  public getLoadedSubset(...keys: KEY[]): Map<KEY, VALUE> {
+    return new Map<KEY, VALUE>(keys
       .map((key) => {
-        return [key, this.getLoaded(key)] as [string, T];
+        return [key, this.getLoaded(key)] as [KEY, VALUE];
       })
       .filter((key) => key[1]),
     );
   }
 
-  public loadedSingle(key: string, object: T) {
-    return this.loaded(new Map<string, T>([[key, object]]));
+  public loadedSingle(key: KEY, object: VALUE) {
+    return this.loaded(new Map<KEY, VALUE>([[key, object]]));
   }
 
-  public loaded(objects: Map<string, T>) {
-    const newCache = new Map<string, Loadable<T>>(this.cache);
+  public loaded(objects: Map<KEY, VALUE>) {
+    const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     const date = new Date();
     for (const [key, object] of objects) {
       const entry = {
@@ -80,15 +80,15 @@ export class LoadableCache<T> {
       };
       newCache.set(key, entry);
     }
-    return new LoadableCache<T>({cache: newCache, loading: false});
+    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: false});
   }
 
-  public erroredSingle(key: string, error: Error) {
+  public erroredSingle(key: KEY, error: Error) {
     return this.errored([key], error);
   }
 
-  public errored(keys: string[], error: Error) {
-    const newCache = new Map<string, Loadable<T>>(this.cache);
+  public errored(keys: KEY[], error: Error) {
+    const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     const date = new Date();
     keys.map((key) => {
       const entry = {
@@ -99,31 +99,31 @@ export class LoadableCache<T> {
       };
       newCache.set(key, entry);
     });
-    return new LoadableCache<T>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
   }
 
-  public keysLoading(...keys: string[]) {
-    const newCache = new Map<string, Loadable<T>>(this.cache);
+  public keysLoading(...keys: KEY[]) {
+    const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     for (const key of keys) {
       const entry = { ...this.get(key), loading: true };
       newCache.set(key, entry);
     }
-    return new LoadableCache<T>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
   }
 
   public globalLoading() {
     return new LoadableCache({cache: this.cache, loading: true});
   }
 
-  public clear(...keys: string[]) {
-    const newCache = new Map<string, Loadable<T>>(this.cache);
+  public clear(...keys: KEY[]) {
+    const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     for (const key of keys) {
       newCache.delete(key);
     }
-    return new LoadableCache<T>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
   }
 
   public clearAll() {
-    return new LoadableCache<T>();
+    return new LoadableCache<KEY, VALUE>();
   }
 }
