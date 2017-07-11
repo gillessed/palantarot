@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 
 export interface Config {
+  port: number;
   auth: {
     cookieDurationDays: number;
     cookieName: string;
@@ -9,6 +10,13 @@ export interface Config {
     authHeaderName: string;
   };
   assetDir: string;
+  database: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+  };
 }
 
 export function readConfig(): Config {

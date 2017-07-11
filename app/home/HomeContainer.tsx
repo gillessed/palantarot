@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
+import { Button, Intent } from '@blueprintjs/core';
 
 interface Props {
   children: any[];
@@ -14,13 +15,13 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
           <p className='pt-running-text'>Welcome to the new French Tarot website, where the points are fake, and no one really knows that they are doing.</p>
         </div>
         <div className='menu'>
-          {this.renderMenuItem('Enter Score', 'pt-icon-manually-entered-data', '/enter')}
-          {this.renderMenuItem('Results', 'pt-icon-th', '/results')}
-          {this.renderMenuItem('Recent Games', 'pt-icon-history', '/recent')}
-          {this.renderMenuItem('Advanced Search', 'pt-icon-search', '/search')}
-          {this.renderMenuItem('Records', 'pt-icon-glass', '/records')}
-          {this.renderMenuItem('Add New Player', 'pt-icon-add', '/add-player')}
-          {this.renderMenuItem('Tarothon', 'pt-icon-ninja', '/tarothon')}
+          {this.renderMenuItem('Enter Score', 'manually-entered-data', '/enter')}
+          {this.renderMenuItem('Results', 'th', '/results')}
+          {this.renderMenuItem('Recent Games', 'history', '/recent')}
+          {this.renderMenuItem('Advanced Search', 'search', '/search')}
+          {this.renderMenuItem('Records', 'glass', '/records')}
+          {this.renderMenuItem('Add New Player', 'add', '/add-player')}
+          {this.renderMenuItem('Tarothon', 'ninja', '/tarothon')}
         </div>
       </div>
     );
@@ -32,12 +33,14 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
     to: string,
   ) {
     return (
-      <div className='menu-item'>
-        <Link className='link' to={to}>
-          <div className={`${logo}`} />
-        </Link>
-        <h4>{title}</h4>
-      </div>
+      <Link className='link' to={to}>
+        <Button
+          type='button'
+          iconName={logo}
+          text={title}
+          intent={Intent.PRIMARY}
+        />
+      </Link>
     );
   }
 }

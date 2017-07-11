@@ -1,4 +1,5 @@
 {
+  "port": 7456,
   "auth": {
     "cookieDurationDays": 30,
     "cookieName": "palantarot-session",
@@ -6,5 +7,12 @@
     "token": "2343rg34fg3q34fv3tbn2w45bgwstysqwerq",
     "authHeaderName": "tarot-token"
   },
-  "assetDir": "build"
+  "assetDir": "build",
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "palantir",
+    "password": "Palantir1!",
+    "database": "palantir"
+  }
 }

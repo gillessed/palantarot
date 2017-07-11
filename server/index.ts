@@ -5,15 +5,8 @@ import { readConfig } from './config';
 
 const config = readConfig();
 
-connect({
-  // TODO: move this to config.json
-  host: 'localhost',
-  port: 3306,
-  user: 'palantir',
-  password: 'Palantir1!',
-  database: 'palantir',
-}, (db: Database) => {
-  const port = 7456;
+connect(config.database, (db: Database) => {
+  const port = config.port;
   const app = new App(config, db);
   app.express.set('port', port);
 
