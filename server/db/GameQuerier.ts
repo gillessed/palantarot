@@ -1,16 +1,7 @@
 import { Database } from './dbConnector';
 import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
-
-const selectHand = 'SELECT * FROM hand';
-const orderLimit = 'ORDER BY hand.timestamp DESC LIMIT ? ';
-const offset = 'OFFSET ?';
-const joinPlayerHand = 'JOIN player_hand ON hand.id=player_hand.hand_fk_id';
-const joinPlayerId = 'AND player_hand.player_fk_id=?';
-const whereId = 'WHERE hand.id=?';
-const whereTimestamp = 'WHERE hand.timestamp >= ? AND hand.timestamp < ?';
-const insertHand = 'INSERT INTO hand (timestamp, players, bidder_fk_id, partner_fk_id, bid_amt, points, slam) VALUES (?, ?, ?, ?, ?, ?, ?)';
-const insertPlayerHand = 'INSERT INTO player_hand (timestamp, hand_fk_id, player_fk_id, was_bidder, was_partner, showed_trump, one_last, points_earned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+import { QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
 
 export interface RecentGameQuery {
   count: number;
@@ -28,95 +19,134 @@ export class GameQuerier {
   // Queries
 
   public queryGameWithId = (gameId: string): Promise<Game> => {
-    return this.db.query(`${selectHand} ${joinPlayerHand} ${whereId}`, [gameId]).then((result: any[]) => {
+    const sqlQuery = QueryBuilder.select('hand')
+      .star()
+      .join('player_hand',
+        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id'),
+      )
+      .where(
+        QueryBuilder.condition().equals('hand.id', '=', gameId),
+      );
+    
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
       return this.getGameFromResults(result);
     });
   }
 
   public queryRecentGames = (query: RecentGameQuery): Promise<Game[]> => {
-    let queryString = `${selectHand}`;
-    const queryParams: any[] = [];
+    const sqlQuery = QueryBuilder.select('hand').star();
     if (query.player) {
-      queryString += ` ${joinPlayerHand} ${joinPlayerId}`;
-      queryParams.push(+query.player);
+      sqlQuery.join('player_hand',
+        QueryBuilder.condition()
+          .equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+          .equals('player_hand.player_fk_id', '=', query.player),
+      );
     }
-    queryString += ` ${orderLimit}`;
-    queryParams.push(query.count);
-    if (query.offset) {
-      queryString += ` ${offset}`;
-      queryParams.push(query.offset);
-    }
-    return this.db.query(queryString, queryParams).then((result: any[]) => {
+    sqlQuery.orderBy('hand.timestamp', 'desc');
+    sqlQuery.limit(query.count, query.offset);
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
       return result.map(this.getGameData);
     });
   }
 
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
-    return this.db.query(`${selectHand} ${joinPlayerHand} ${whereTimestamp}`, [startDate, endDate]).then((handEntries: any[]) => {
+    const sqlQuery = QueryBuilder.select('hand')
+      .star()
+      .join('player_hand',
+        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+      )
+      .where(
+        QueryBuilder.condition()
+          .equals('hand.timestamp', '>=', startDate)
+          .equals('hand.timestamp', '<', endDate)
+      );
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
       return this.getGamesFromResults(handEntries);
     });
   }
 
-  public saveGame = (game: Game) => {
+  public saveGame = (game: Game): Promise<any> => {
     if (!game.handData) {
       throw new Error('Cannot create a new game without hand data.');
     }
     const handData = game.handData;
-    const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
-    const gameValues = [
-      timestamp,
-      game.numberOfPlayers,
-      game.bidderId,
-      game.partnerId || null,
-      game.bidAmount,
-      game.points,
-      game.slam,
-    ];
+    let upsertHandSqlQuery: UpsertBuilder;
+    let timestamp: string;
+    if (game.id) {
+      timestamp = moment(game.timestamp).format('YYYY-MM-DD HH:mm:ss');
+      upsertHandSqlQuery = QueryBuilder.update('hand')
+        .where(QueryBuilder.condition().equals('id', '=', game.id));
+    } else {
+      timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+      upsertHandSqlQuery = QueryBuilder.insert('hand')
+        .v('timestamp', timestamp);
+    }
 
-    return this.db.beginTransaction().then((transaction) => {
-      return transaction.query(insertHand, gameValues).then((results: {insertId: number}) => {
-        const gameId = results.insertId.toString();
-        const playerHands = [[
-          timestamp,
-          gameId,
-          game.bidderId,
-          1,
-          0,
-          handData.bidder.showedTrump,
-          handData.bidder.oneLast,
-          handData.bidder.pointsEarned,
-        ]];
+    upsertHandSqlQuery
+      .v('players', game.numberOfPlayers)
+      .v('bidder_fk_id', game.bidderId)
+      .v('partner_fk_id', game.partnerId || null)
+      .v('bid_amt', game.bidAmount)
+      .v('points', game.points);
+
+    return this.db.beginTransaction().then((transaction): Promise<any> => {
+      let maybeDelete: Promise<any>;
+      if (game.id) {
+        // If the game has an id, we are updating, so delete the old hands so we can add the new ones.
+        const deleteOldHandsSqlQuery = QueryBuilder.delete('player_hand')
+          .where(
+            QueryBuilder.condition().equals('hand_fk_id', '=', game.id),
+          );
+        maybeDelete = transaction.query(deleteOldHandsSqlQuery.getQueryString(), deleteOldHandsSqlQuery.getValues());
+      } else {
+        maybeDelete = Promise.resolve();
+      }
+      return maybeDelete.then((): Promise<any> => {
+        return transaction.query(upsertHandSqlQuery.getQueryString(), upsertHandSqlQuery.getValues());
+      }).then((results: { insertId?: number }) => {
+        let gameId: string;
+        if (game.id) {
+          gameId = game.id;
+        } else if (results.insertId !== undefined) {
+          gameId = results.insertId.toString()
+        } else {
+          throw Error('Error: could not determine game idea to insert game.');
+        }
+        const insertPlayerHandsSqlQueries: QueryBuilder[] = [];
+        insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.bidder, gameId, timestamp, true, false));
         if (game.partnerId) {
-          const partner = handData.partner!;
-          playerHands.push([
-            timestamp,
-            gameId,
-            partner.id,
-            0,
-            1,
-            partner.showedTrump,
-            partner.oneLast,
-            partner.pointsEarned,
-          ]);
+          insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.partner!, gameId, timestamp, false, true));
         }
         handData.opposition.forEach((hand) => {
-          playerHands.push([
-            timestamp,
-            gameId,
-            hand.id,
-            0,
-            0,
-            hand.showedTrump,
-            hand.oneLast,
-            hand.pointsEarned,
-          ]);
+          insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(hand, gameId, timestamp, false, false));
         });
-        return Promise.all(playerHands.map((data) => {
-          return transaction.query(insertPlayerHand, data);
+        return Promise.all(insertPlayerHandsSqlQueries.map((sqlQuery): Promise<any> => {
+          return transaction.query(sqlQuery.getQueryString(), sqlQuery.getValues());
         }));
-      }).then(() => {
+      }).then((): Promise<any> => {
         return transaction.commit();
       });
+    });
+  }
+
+  public deleteGame = (gameId: string): Promise<any> => {
+    const deleteHandSqlQuery = QueryBuilder.delete('hand')
+      .where(
+        QueryBuilder.condition().equals('id', '=', gameId),
+      );
+    const deletePlayerHandsSqlQuery = QueryBuilder.delete('player_hand')
+      .where(
+        QueryBuilder.condition().equals('hand_fk_id', '=', gameId),
+      );
+
+    return this.db.beginTransaction().then((transaction) => {
+      return transaction.query(deleteHandSqlQuery.getQueryString(), deleteHandSqlQuery.getValues()).then(() => {
+          return transaction.query(deletePlayerHandsSqlQuery.getQueryString(), deletePlayerHandsSqlQuery.getValues());
+        }).then(() => {
+          return transaction.commit();
+        });
     });
   }
 
@@ -190,5 +220,23 @@ export class GameQuerier {
       showedTrump: playerHand['showed_trump'],
       oneLast: playerHand['one_last'],
     };
+  }
+
+  private createInsertHandQuery(
+    playerHand: PlayerHand,
+    gameId: string,
+    timestamp: string,
+    isBidder: boolean,
+    isPartner: boolean
+  ): QueryBuilder {
+    return QueryBuilder.insert('player_hand')
+      .v('timestamp', timestamp)
+      .v('hand_fk_id', gameId)
+      .v('player_fk_id', playerHand.id)
+      .v('was_bidder', isBidder ? 1 : 0)
+      .v('was_partner', isPartner ? 1 : 0)
+      .v('showed_trump', playerHand.showedTrump)
+      .v('one_last', playerHand.oneLast)
+      .v('points_earned', playerHand.pointsEarned);
   }
 }

@@ -7,10 +7,11 @@ import { PlayerSelector, PlayerState } from '../../containers/playerSelector/Pla
 interface Props {
   players: Player[];
   game?: Game;
+  submitText: string;
   onSubmit: (newGame: Game) => void;
 }
 
-const PlayerNames: {[key: string]: string} = {
+const PlayerRoles: {[key: string]: string} = {
   BIDDER: 'Bidder',
   PARTNER: 'Partner',
   PLAYER1: 'Player 1',
@@ -19,11 +20,11 @@ const PlayerNames: {[key: string]: string} = {
   PLAYER4: 'Player 4',
 }
 
-const OppositionNames = [
-  PlayerNames.PLAYER1,
-  PlayerNames.PLAYER2,
-  PlayerNames.PLAYER3,
-  PlayerNames.PLAYER4,
+const OppositionRoles = [
+  PlayerRoles.PLAYER1,
+  PlayerRoles.PLAYER2,
+  PlayerRoles.PLAYER3,
+  PlayerRoles.PLAYER4,
 ];
 
 interface State {
@@ -40,18 +41,58 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    //TODO: initialize correctly if props.game is not null (for edit).
+    if (this.props.game) {
+      this.state = this.getStateFromGame(this.props.game);
+    } else {
+      this.state = this.getEmptyState();
+    }
+  }
+
+  private getStateFromGame(game: Game): State {
+    const numberOfPlayers: number = game.numberOfPlayers;
+    const bidderCalledSelf: boolean = numberOfPlayers === 5 && !game.partnerId;
+    const bidAmount: number = game.bidAmount;
+    const points: number = game.points;
+    const handData = game.handData!;
+    const players: {[key: string]: PlayerState} = {};
+    players[PlayerRoles.BIDDER] = this.getPlayerStateFromHand(PlayerRoles.BIDDER, handData.bidder);
+    if (handData.partner) {
+      players[PlayerRoles.PARTNER] = this.getPlayerStateFromHand(PlayerRoles.PARTNER, handData.partner);
+    }
+    handData.opposition.forEach((handData: PlayerHand, index: number) => {
+      players[OppositionRoles[index]] = this.getPlayerStateFromHand(OppositionRoles[index], handData);
+    });
+    return {
+      numberOfPlayers,
+      bidderCalledSelf,
+      bidAmount,
+      points,
+      players,
+    };
+  }
+
+  private getPlayerStateFromHand(role: string, hand: PlayerHand): PlayerState {
+    const player = this.props.players.find((player) => hand.id === player.id);
+    return {
+      role,
+      player,
+      showed: hand.showedTrump,
+      oneLast: hand.oneLast,
+    };
+  }
+
+  private getEmptyState(): State {
     const numberOfPlayers = 5;
     const players: {[key: string]: PlayerState} = {};
-    this.getActivePlayersForValues(numberOfPlayers, false).forEach((name: string) => {
-      players[name] = {
-        name,
+    this.getActivePlayersForValues(numberOfPlayers, false).forEach((role: string) => {
+      players[role] = {
+        role,
         showed: false,
         oneLast: false,
       };
     });
 
-    this.state = {
+    return {
       numberOfPlayers,
       bidderCalledSelf: false,
       players,
@@ -64,18 +105,18 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private getActivePlayersForValues(numberOfPlayers: number, bidderCalledSelf: boolean): string[] {
     const activePlayers = [
-      PlayerNames.BIDDER,
-      PlayerNames.PLAYER1,
-      PlayerNames.PLAYER2,
+      PlayerRoles.BIDDER,
+      PlayerRoles.PLAYER1,
+      PlayerRoles.PLAYER2,
     ];
     if (numberOfPlayers === 5 && !bidderCalledSelf) {
-      activePlayers.push(PlayerNames.PARTNER);
+      activePlayers.push(PlayerRoles.PARTNER);
     }
     if (numberOfPlayers >= 4) {
-      activePlayers.push(PlayerNames.PLAYER3);
+      activePlayers.push(PlayerRoles.PLAYER3);
     }
     if (numberOfPlayers === 5 && bidderCalledSelf) {
-      activePlayers.push(PlayerNames.PLAYER4);
+      activePlayers.push(PlayerRoles.PLAYER4);
     }
     return activePlayers;
   }
@@ -101,11 +142,12 @@ export class GameForm extends React.PureComponent<Props, State> {
               </label>
             </div>
 
-            {this.renderPlayerSelector(PlayerNames.BIDDER)}
+            {this.renderPlayerSelector(PlayerRoles.BIDDER)}
 
             <SelectInput
               classNames={['pt-game-bid-select']}
               label='Bid Amount:'
+              initialValue={this.state.bidAmount === undefined ? '' : `${this.state.bidAmount}`}
               values={['10', '20', '40', '80', '160'].map(item => ({value: item, display: item}))}
               onChange={this.onBidChanged}
               validator={(value: string) => {
@@ -117,6 +159,7 @@ export class GameForm extends React.PureComponent<Props, State> {
 
             <TextInput
               label='Points:'
+              initialValue={this.state.points === undefined ? '' : `${this.state.points}`}
               classNames={['pt-game-points-input']}
               onChange={this.onPointsChanged}
               validator={(value: string) => {
@@ -143,16 +186,17 @@ export class GameForm extends React.PureComponent<Props, State> {
     );
   }
 
-  private renderPlayerSelector(playerName: string) {
+  private renderPlayerSelector(playerRole: string) {
     return (
       <PlayerSelector
-        key={playerName}
+        key={playerRole}
+        role={playerRole}
         players={this.props.players}
-        player={this.state.players[playerName]}
-        label={`${playerName}:`}
+        player={this.state.players[playerRole]}
+        label={`${playerRole}:`}
         onChange={(player: PlayerState) => {
           const newPlayers ={...this.state.players};
-          newPlayers[playerName] = player;
+          newPlayers[playerRole] = player;
           this.setState({
             players: newPlayers,
           }, () => this.validatePlayers());
@@ -168,14 +212,14 @@ export class GameForm extends React.PureComponent<Props, State> {
     return (
       <div className='enter-score-button-container'>
         <button className={buttonClass} style={{marginTop: 20}} onClick={this.onSubmitPress}>
-          Enter Score
+          {this.props.submitText}
         </button>
       </div>
     );
   }
 
   private getPointsEarned(basePoints: number, playerName: string) {
-    if (playerName === PlayerNames.BIDDER) {
+    if (playerName === PlayerRoles.BIDDER) {
       if (this.state.numberOfPlayers === 3) {
         return basePoints * 2;
       } else if (this.state.numberOfPlayers === 4) {
@@ -187,7 +231,7 @@ export class GameForm extends React.PureComponent<Props, State> {
           return basePoints * 2;
         }
       }
-    } else if (playerName === PlayerNames.PARTNER) {
+    } else if (playerName === PlayerRoles.PARTNER) {
       return basePoints;
     } else {
       return -basePoints;
@@ -197,7 +241,6 @@ export class GameForm extends React.PureComponent<Props, State> {
   private onSubmitPress = () => {
     const playerHands: {[key: string]: PlayerHand} = {};
     const activePlayers = this.getActivePlayers();
-    console.log(this.state.players);
     activePlayers.forEach((playerName) => {
       const player = this.state.players[playerName];
       playerHands[playerName] = {
@@ -212,23 +255,23 @@ export class GameForm extends React.PureComponent<Props, State> {
       };
     });
     const handData = {
-      bidder: playerHands[PlayerNames.BIDDER],
-      partner: playerHands[PlayerNames.PARTNER],
-      opposition: OppositionNames.map((playerName: string) => {
+      bidder: playerHands[PlayerRoles.BIDDER],
+      partner: playerHands[PlayerRoles.PARTNER],
+      opposition: OppositionRoles.map((playerName: string) => {
         return playerHands[playerName];
       }).filter(hand => hand),
     }
-    const bidderId = this.state.players[PlayerNames.BIDDER].player!.id;
+    const bidderId = this.state.players[PlayerRoles.BIDDER].player!.id;
     let partnerId = '';
-    if (this.state.players[PlayerNames.PARTNER]) {
-      partnerId = this.state.players[PlayerNames.PARTNER].player!.id;
+    if (this.state.players[PlayerRoles.PARTNER]) {
+      partnerId = this.state.players[PlayerRoles.PARTNER].player!.id;
     }
 
     const newGame: Game = {
-      id: '',
+      id: this.props.game ? this.props.game.id : '',
       bidderId,
       partnerId,
-      timestamp: '',
+      timestamp: this.props.game ? this.props.game.timestamp : '',
       numberOfPlayers: this.state.numberOfPlayers,
       bidAmount: this.state.bidAmount!,
       points: this.state.points!,
@@ -273,19 +316,19 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private renderPartnerSelector() {
     if (!this.state.bidderCalledSelf && this.state.numberOfPlayers === 5) {
-      return this.renderPlayerSelector(PlayerNames.PARTNER);
+      return this.renderPlayerSelector(PlayerRoles.PARTNER);
     }
   }
 
   private renderOppositionSelectors() {
     const opposition = [
-      this.renderPlayerSelector(PlayerNames.PLAYER1),
-      this.renderPlayerSelector(PlayerNames.PLAYER2),
+      this.renderPlayerSelector(PlayerRoles.PLAYER1),
+      this.renderPlayerSelector(PlayerRoles.PLAYER2),
     ];
     if (this.state.numberOfPlayers >= 4) {
-      opposition.push(this.renderPlayerSelector(PlayerNames.PLAYER3));
+      opposition.push(this.renderPlayerSelector(PlayerRoles.PLAYER3));
       if (this.state.numberOfPlayers === 5 && this.state.bidderCalledSelf) {
-        opposition.push(this.renderPlayerSelector(PlayerNames.PLAYER4));
+        opposition.push(this.renderPlayerSelector(PlayerRoles.PLAYER4));
       }
     }
     return opposition;
@@ -326,12 +369,12 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private updateActivePlayers = (numberOfPlayers: number, bidderCalledSelf: boolean) => {
     const newPlayers: {[key: string]: PlayerState} = {};
-    this.getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).forEach((name: string) => {
-      if (this.state.players[name]) {
-        newPlayers[name] = this.state.players[name];
+    this.getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).forEach((role: string) => {
+      if (this.state.players[role]) {
+        newPlayers[role] = this.state.players[role];
       } else {
-        newPlayers[name] = {
-          name,
+        newPlayers[role] = {
+          role,
           showed: false,
           oneLast: false,
         };
@@ -345,8 +388,8 @@ export class GameForm extends React.PureComponent<Props, State> {
   }
 
   private getActivePlayerStates = () => {
-    return this.getActivePlayers().map((name: string) => {
-      return this.state.players[name];
+    return this.getActivePlayers().map((role: string) => {
+      return this.state.players[role];
     })
   }
   
@@ -393,7 +436,7 @@ export class GameForm extends React.PureComponent<Props, State> {
         }
       });
     const newPlayers: {[key: string]: PlayerState} = {};
-    newPlayersArray.forEach((newPlayer) => newPlayers[newPlayer.name] = newPlayer);
+    newPlayersArray.forEach((newPlayer) => newPlayers[newPlayer.role] = newPlayer);
     this.setState({
       players: newPlayers,
     });

@@ -8,6 +8,7 @@ import { AddPlayerService } from '../../services/addPlayer/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
+import { Routes } from '../../routes';
 
 interface StateProps {
   addPlayerService: AddPlayerService,
@@ -35,7 +36,7 @@ export class Internal extends React.PureComponent<Props, State> {
     this.dispatchers.players.request(undefined);
   }
 
-  public componentWillReceiveProps(nextProps: Props) {
+  public componentWillReceiveProps = (nextProps: Props) => {
     if (nextProps.addPlayerService.error && nextProps.addPlayerService.error !== this.props.addPlayerService.error) {
       Palantoaster.show({
         message: nextProps.addPlayerService.error.message,
@@ -82,7 +83,7 @@ export class Internal extends React.PureComponent<Props, State> {
     return (
       <AddPlayerForm
         onSubmit={(newPlayer: NewPlayer) => {
-          this.dispatchers.addPlayer.request({newPlayer, redirect: '/home'});
+          this.dispatchers.addPlayer.request({newPlayer, redirect: Routes.home()});
         }}
       />
     );

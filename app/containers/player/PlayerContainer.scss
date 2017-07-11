@@ -1,11 +1,11 @@
 .player-view-container {
   @media (max-width: 700px) {
-    margin: 20 auto;
-    width: 100%;
+    margin: 10 auto;
+    width: 90%;
   }
   @media (min-width: 700px) {
     margin: 60px auto;
-    width: 80%;
+    width: 70%;
   }
 }
 
@@ -16,4 +16,8 @@
     font-family: blenderProBold;
     font-size: 18;
   }
+}
+
+#player-graph {
+  background-color: #FFFFFF;
 }

@@ -5,37 +5,24 @@ import { ReduxState } from '../../services/rootReducer';
 import { PlayersService } from '../../services/players';
 import { Player } from '../../../server/model/Player';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { saveGameActionCreators } from '../../services/saveGame/index';
 import { Game } from '../../../server/model/Game';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { SagaListener } from '../../services/sagaListener';
-import { saveGameActions } from '../../services/saveGame/index';
+import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
+import { Routes } from '../../routes';
 
 interface StateProps {
   players: PlayersService;
+  saveGame: SaveGameService;
 }
 
-interface DispatchProps {
-  saveGame: (newGame: Game) => void;
-}
+type Props = StateProps;
 
-type Props = StateProps & DispatchProps;
-
-interface State {
-  numberOfPlayers: 5,
-  bidder?: Player;
-  calledSelf: boolean;
-  bidAmount?: number;
-  points?: number;
-  partner?: Player;
-  opposition: Array<Player | undefined>;
-}
-
-export class Internal extends React.PureComponent<Props, State> {
+export class Internal extends React.PureComponent<Props, void> {
   public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
   private gameSavedListener: SagaListener<Game> = {
@@ -45,7 +32,7 @@ export class Internal extends React.PureComponent<Props, State> {
         message: 'Game Saved Succesufully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push('/recent');
+      this.dispatchers.navigation.push(Routes.recent());
     },
   };
   private gameSaveErrorListener: SagaListener<Game> = {
@@ -63,11 +50,6 @@ export class Internal extends React.PureComponent<Props, State> {
     super(props, context);
     this.sagas = getSagaContext(context);
     this.dispatchers = context.dispatchers;
-    this.state = {
-      numberOfPlayers: 5,
-      calledSelf: false,
-      opposition: [undefined, undefined, undefined],
-    };
   }
 
   public componentWillMount() {
@@ -78,7 +60,7 @@ export class Internal extends React.PureComponent<Props, State> {
 
   public componentWillUnmount() {
     this.sagas.unregister(this.gameSavedListener);
-    this.sagas.unregister(this.gameSavedListener);
+    this.sagas.unregister(this.gameSaveErrorListener);
   }
 
   private getPlayerList() {
@@ -105,12 +87,14 @@ export class Internal extends React.PureComponent<Props, State> {
 
   private renderContainer() {
     const players = this.props.players;
-    if (players.loading) {
+    const saveGame = this.props.saveGame;
+    if (players.loading || saveGame.loading) {
       return <SpinnerOverlay size='pt-large'/>;
     } else if (players.value) {
       return (
         <GameForm
           players={this.getPlayerList()!}
+          submitText='Enter Score'
           onSubmit={this.onSubmit}
         />
       );
@@ -122,20 +106,15 @@ export class Internal extends React.PureComponent<Props, State> {
   }
 
   private onSubmit = (newGame: Game) => {
-    this.props.saveGame(newGame);
+    this.dispatchers.saveGame.request(newGame);
   }
 }
 
 const mapStateToProps = (state: ReduxState): StateProps => {
   return {
     players: state.players,
+    saveGame: state.saveGame,
   }
 }
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => {
-  return {
-    saveGame: (newGame: Game) => { dispatch(saveGameActionCreators.request(newGame)); },
-  }
-}
-
-export const EnterContainer = connect(mapStateToProps, mapDispatchToProps)(Internal);
+export const EnterContainer = connect(mapStateToProps)(Internal);

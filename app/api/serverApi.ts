@@ -5,17 +5,33 @@ import { Player, NewPlayer } from './../../server/model/Player';
 import { ApisauceInstance, create } from 'apisauce';
 import { mapFromCollection } from '../../server/utils';
 import { RecentGameQuery } from '../../server/db/GameQuerier';
+import { AuthRequest } from '../services/auth/index';
+import { pTimeout } from '../../server/utils/index';
+import { Store } from 'redux';
+import { ReduxState } from '../services/rootReducer';
+import { push } from 'react-router-redux';
+import { Routes } from '../routes';
 
 export class ServerApi {
   private api: ApisauceInstance;
 
-  constructor(baseURL: string) {
+  constructor(
+    baseURL: string,
+    private readonly store: Store<ReduxState>,
+  ) {
     this.api = create({
       baseURL
     });
   }
 
   // API
+
+  public login = (request: AuthRequest): Promise<void> => {
+    // Timeout for login time to feel natural
+    return pTimeout(250).then(() => {
+      return this.wrapPost<void>('/login', request);
+    })
+  }
 
   public getPlayers = (): Promise<Map<string, Player>> => {
     return this.wrapGet('/players').then((players: Player[]) => {
@@ -47,6 +63,10 @@ export class ServerApi {
     return this.wrapPost<Player>('/players/add', newPlayer);
   }
 
+  public deleteGame = (gameId: string): Promise<void> => {
+    return this.wrapPost<void>('/game/delete', { gameId });
+  }
+
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
@@ -58,6 +78,9 @@ export class ServerApi {
         } else {
           return data;
         }
+      } else if (response.status === 403) {
+        this.store.dispatch(push(Routes.login()));
+        throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);
       }
@@ -73,6 +96,9 @@ export class ServerApi {
         } else {
           return data;
         }
+      } else if (response.status === 403) {
+        this.store.dispatch(push(Routes.login()));
+        throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);
       }

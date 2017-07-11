@@ -5,7 +5,7 @@ import { generatePropertyService } from '../redux/serviceGenerator';
 import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { RecentGameQuery } from '../../../server/db/GameQuerier';
 
-export type RecentGamesService = Loadable<void, Game[]>;
+export type RecentGamesService = Loadable<RecentGameQuery, Game[]>;
 
 const recentGamesService = generatePropertyService<RecentGameQuery, Game[]>('RECENT_GAMES',
   (api: ServerApi) => {

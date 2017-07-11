@@ -1,18 +1,18 @@
 .results-container {
   @media (max-width: 700px) {
-    margin: 20 auto;
-    width: 100%;
+    margin: 10 auto;
+    width: 90%;
   }
   @media (min-width: 700px) {
     margin: 60px auto;
-    width: 80%;
+    width: 70%;
   }
 }
 
 .results-header {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
 }
 
@@ -30,4 +30,20 @@
 
 .result-delta {
   margin-left: 10px;
+}
+
+.results-tabs-container {
+  background-color: #FFFFFF;
+  padding: 10;
+  .pt-tabs {
+    background-color: #FFFFFF;
+    .pt-tab {
+      font-family: blenderProBold;
+      font-size: 18;
+    }
+  }
+}
+
+.results-table-container {
+  overflow-x: scroll;
 }

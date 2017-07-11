@@ -24,6 +24,7 @@ export class GameService {
     this.router.post('/recent', this.getRecentGames);
     this.router.get('/:id', this.getGame);
     this.router.post('/save', this.saveGame);
+    this.router.post('/delete', this.deleteGame);
   }
 
   // API
@@ -98,6 +99,15 @@ export class GameService {
       res.sendStatus(200);
     }).catch((e) => {
       res.send({ error: 'Could not save game: ' + e});
+    });
+  }
+
+  public deleteGame = (req: Request, res: Response) => {
+    const { gameId } = req.body;
+    this.gameDb.deleteGame(gameId).then(() => {
+      res.sendStatus(200);
+    }).catch((e) => {
+      res.send({ error: 'Could not delete game: ' + e});
     });
   }
 

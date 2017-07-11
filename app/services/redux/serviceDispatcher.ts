@@ -1,10 +1,14 @@
 import { LoadableServiceActionCreators, LoadablePropertyActionCreators } from './serviceActions';
 import { Store } from 'redux';
 import { ReduxState } from '../rootReducer';
+import { Loadable, LoadableCache } from './loadable';
 
 export function generateServiceDispatcher<ARG, RESULT>(actionCreators: LoadableServiceActionCreators<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
-  constructor(public readonly store: Store<ReduxState>) {}
+  constructor(
+    public readonly store: Store<ReduxState>,
+    public readonly accessor?: (state: ReduxState) => LoadableCache<ARG, RESULT>,
+  ) {}
 
     public request(args: ARG[]) {
       this.store.dispatch(actionCreators.request(args));
@@ -33,7 +37,10 @@ export interface ServiceDispatcher<ARG> {
 
 export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: LoadablePropertyActionCreators<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
-  constructor(public readonly store: Store<ReduxState>) {}
+  constructor(
+    public readonly store: Store<ReduxState>,
+    public readonly accessor?: (state: ReduxState) => Loadable<ARG, RESULT>,
+  ) {}
 
     public request(arg: ARG) {
       this.store.dispatch(actionCreators.request(arg));

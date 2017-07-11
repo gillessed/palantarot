@@ -8,6 +8,7 @@ import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
+import { Routes } from '../../routes';
 
 interface OwnProps {
   children: any[];
@@ -58,11 +59,13 @@ class Internal extends React.PureComponent<Props, State> {
       return <SpinnerOverlay size='pt-large'/>;
     } else if (this.props.players.value && this.props.recentGames.value) {
       return (
-        <GameTable
-          games={this.props.recentGames.value}
-          players={this.props.players.value}
-          onRowClick={this.onRowClick}
-        />
+        <div className='recent-table-container'>
+          <GameTable
+            games={this.props.recentGames.value}
+            players={this.props.players.value}
+            onRowClick={this.onRowClick}
+          />
+        </div>
       );
     } else if (this.props.players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
@@ -74,7 +77,7 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private onRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(`/game/${game.id}`);
+    this.dispatchers.navigation.push(Routes.game(game.id));
   }
 }
 

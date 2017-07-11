@@ -11,7 +11,7 @@ import { DispatchersContextType, DispatchContext } from '../../dispatchProvider'
 import { Dispatchers } from '../../services/dispatchers';
 
 export interface PlayerState {
-  name: string;
+  role: string;
   player?: Player;
   error?: string;
   showed: boolean;
@@ -19,6 +19,7 @@ export interface PlayerState {
 }
 
 interface OwnProps {
+  role: string;
   player: PlayerState;
   label: string;
   players: Player[];
@@ -78,7 +79,9 @@ export class Internal extends React.PureComponent<Props, State> {
 
   public componentWillUnmount() {
     this.props.onChange({
-      name: this.props.player.name,
+      role: this.props.role,
+      player: undefined,
+      error: undefined,
       showed: false,
       oneLast: false,
     });
@@ -94,13 +97,13 @@ export class Internal extends React.PureComponent<Props, State> {
             justifyContent: 'center',
           }}
         >
-           <p style={{marginBottom: 0}}>{this.props.label} <a className="pt-link add-player-link" onClick={this.openDialog}>Add Player</a></p>
+           <p style={{marginBottom: 0}}>{this.props.label} <a className='pt-link add-player-link' onClick={this.openDialog}>Add Player</a></p>
         </label>
         <div className='tarot-player-selector-content pt-form-content'>
           <div className={`tarot-player-selector-group pt-input-group ${this.props.player.error ? 'pt-intent-danger' : ''}`}>
-            <div className="pt-select tarot-player-selector-select">
+            <div className='pt-select tarot-player-selector-select'>
               <select value={this.props.player.player ? this.props.player.player.id : ''} onChange={this.onChange}>
-                <option value=""></option>
+                <option value=''></option>
                 {this.props.players.map(this.renderPlayerOption)}
               </select>
             </div>
@@ -147,12 +150,12 @@ export class Internal extends React.PureComponent<Props, State> {
   private renderDialog() {
     return (
       <Dialog
-        iconName="add"
+        iconName='add'
         isOpen={this.state.openDialog}
         onClose={this.closeDialog}
-        title="Add Player"
+        title='Add Player'
       >
-        <div className="pt-dialog-body">
+        <div className='pt-dialog-body'>
           <AddPlayerForm
             onSubmit={(newPlayer: NewPlayer) => {
               this.dispatchers.addPlayer.request({newPlayer, source: this.props.label});
@@ -166,7 +169,7 @@ export class Internal extends React.PureComponent<Props, State> {
 
   private renderDialogSpinner() {
     if (this.props.addPlayerService.loading) {
-      return <SpinnerOverlay text="Adding Player..."/>;
+      return <SpinnerOverlay text='Adding Player...'/>;
     }
   }
 

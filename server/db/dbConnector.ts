@@ -21,10 +21,11 @@ export class Database {
         if (err) {
           reject(err);
         }
-        if (values) {
+        if (values && values.length) {
           connection.query(query, values, (queryError, result) => {
             connection.release();
             if (queryError) {
+              console.log('Rolling back transaction', queryError);
               reject(queryError);
             } else {
               resolve(result);
@@ -34,6 +35,7 @@ export class Database {
           connection.query(query, (queryError, result) => {
             connection.release();
             if (queryError) {
+              console.log('Rolling back transaction', queryError);
               reject(queryError);
             } else {
               resolve(result);
@@ -62,10 +64,13 @@ export class Transaction {
 
   public query = (query: string, values?: any[]): Promise<any> => {
     return new Promise((resolve: (result: any) => void, reject: (reason: any) => void) => {
-      if (values) {
+      if (values && values.length) {
         this.connection.query(query, values, (queryError, result) => {
           if (queryError) {
-            this.connection.rollback(() => reject(queryError));
+            console.log('Rolling back transaction', queryError);
+            this.connection.rollback(() => {
+              reject(queryError)
+            });
           } else {
             resolve(result);
           }
@@ -73,7 +78,10 @@ export class Transaction {
       } else {
         this.connection.query(query, (queryError, result) => {
           if (queryError) {
-            this.connection.rollback(() => reject(queryError));
+            console.log('Rolling back transaction', queryError);
+            this.connection.rollback(() => {
+              reject(queryError)
+            });
           } else {
             resolve(result);
           }

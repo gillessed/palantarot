@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { Player } from '../../../server/model/Player';
 import { PlayerBanner } from '../../components/player/PlayerBanner';
-import { IMonth } from '../../../server/model/Month';
+import { IMonth, Month } from '../../../server/model/Month';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { PlayersService } from '../../services/players/index';
@@ -14,7 +14,9 @@ import { Tab2, Tabs2 } from '@blueprintjs/core';
 import { RecentGamesService } from '../../services/recentGames/index';
 import { Game } from '../../../server/model/Game';
 import { GameTable } from '../../components/gameTable/GameTable';
-import { PlayerGraph } from '../../components/player/PlayerGraph';
+import { MonthGamesService } from '../../services/monthGames/index';
+import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
+import { Routes } from '../../routes';
 
 interface OwnProps {
   params: {
@@ -23,6 +25,7 @@ interface OwnProps {
 }
 
 interface StateProps {
+  monthGames: MonthGamesService;
   players: PlayersService;
   results: ResultsService;
   recentGames: RecentGamesService;
@@ -43,6 +46,7 @@ class Internal extends React.PureComponent<Props, void> {
     this.dispatchers.players.request(undefined);
     this.dispatchers.results.request([IMonth.now()]);
     this.dispatchers.recentGames.request({count: 20, player: this.props.params.playerId});
+    this.dispatchers.monthGames.requestSingle(IMonth.now());
   }
 
   public render() {
@@ -96,31 +100,13 @@ class Internal extends React.PureComponent<Props, void> {
       />
     );
 
-    let data = [
-      { 'date': '4/1/2015 00:00:00', 'score': 0 },
-      { 'date': '4/1/2015 11:25:00', 'score': 10 },
-      { 'date': '4/4/2015 9:25:00', 'score': 150 },
-      { 'date': '4/5/2015 12:41:00', 'score': 50 },
-      { 'date': '4/5/2015 12:50:00', 'score': -100 },
-      { 'date': '4/8/2015 12:01:00', 'score': 120 },
-      { 'date': '4/8/2015 12:04:00', 'score': 150 },
-      { 'date': '4/8/2015 12:12:00', 'score': 100 },
-      { 'date': '4/8/2015 12:24:00', 'score': 80 },
-      { 'date': '4/8/2015 12:35:00', 'score': 20 },
-      { 'date': '4/8/2015 18:25:00', 'score': 120 },
-      { 'date': '4/8/2015 18:32:00', 'score': 100 },
-      { 'date': '4/8/2015 18:36:00', 'score': 130 },
-      { 'date': '4/8/2015 18:39:00', 'score': 20 },
-      { 'date': '4/8/2015 18:50:00', 'score': -100 },
-    ];
-
     const graphTab = (
-      <PlayerGraph
-        timeseries={data}
-        range={[new Date('4/1/2015'), new Date('4/10/2015')]}
+      <PlayerGraphContainer 
+        player={player}
+        monthGames={this.props.monthGames}
+        dispatchRequest={this.requestMonthGames}
       />
     );
-    
 
     return (
       <div className='player-view-container'>
@@ -132,14 +118,18 @@ class Internal extends React.PureComponent<Props, void> {
         <Tabs2 id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
           <Tab2 id='PlayerRecentGamesTab' title='Recent Games' panel={recentGamesTab} />
           <Tab2 id='PlayerGraphsTab' title='Graphs' panel={graphTab} />
-          <Tab2 id='PlayerStatsTab' title='Stats' panel={<div>Stats</div>} />
+          <Tab2 id='PlayerStatsTab' title='Stats' panel={<h4>Under Construction...</h4>} />
         </Tabs2>
       </div>
     );
   }
 
+  private requestMonthGames = (month: Month) => {
+    this.dispatchers.monthGames.requestSingle(month);
+  }
+
   private onRecentRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(`/game/${game.id}`);
+    this.dispatchers.navigation.push(Routes.game(game.id));
   }
 }
 
@@ -149,6 +139,7 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
     players: state.players,
     results: state.results,
     recentGames: state.recentGames,
+    monthGames: state.monthGames,
   };
 }
 

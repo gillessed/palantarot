@@ -1,0 +1,16 @@
+export const Routes = {
+  index: () => '/',
+  app: () => '/app',
+  home: () => '/app/home',
+  enter: () => '/app/enter',
+  recent: () => '/app/recent',
+  game: (gameId: string) => `/app/game/${gameId}`,
+  results: () => '/app/results',
+  addPlayer: () => '/app/add-player',
+  player: (playerId: string) => `/app/player/${playerId}`,
+  edit: (gameId: string) => `/app/edit/${gameId}`,
+  search: () => '/app/search',
+  records: () => '/app/records',
+  tarothon: () => '/app/tarothon',
+  login: () => '/login',
+};

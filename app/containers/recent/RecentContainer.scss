@@ -1,4 +1,14 @@
-.enter-container {
-  margin: 60px auto;
-  width: 80%;
+.recent-container {
+  @media (max-width: 700px) {
+    margin: 10 auto;
+    width: 90%;
+  }
+  @media (min-width: 700px) {
+    margin: 60px auto;
+    width: 70%;
+  }
+
+  .recent-table-container {
+    overflow-x: scroll;
+  }
 }

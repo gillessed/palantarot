@@ -60,3 +60,11 @@ export function randomString(): string {
 export function formatTimestamp(timestamp: string) {
     return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
 }
+
+export function pTimeout(ms: number) {
+  return new Promise<void>((resolve: () => void) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+}

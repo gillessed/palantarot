@@ -1,9 +1,9 @@
 .enter-container {
-  margin: 0 auto;
+  margin: 10 auto;
   @media (max-width: 400px) {
-    width: 100%;
+    width: 90%;
   }
   @media (min-width: 700px) {
-    width: 80%;
+    width: 70%;
   }
 }
