@@ -30,6 +30,7 @@ bin/
 build/
 out/
 reports/
+dist/
 
 # Log Files
 */var/log/

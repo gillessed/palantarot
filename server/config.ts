@@ -7,7 +7,8 @@ export interface Config {
     secret: string;
     token: string;
     authHeaderName: string;
-  }
+  };
+  assetDir: string;
 }
 
 export function readConfig(): Config {

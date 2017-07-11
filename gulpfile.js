@@ -23,6 +23,8 @@ gulp.task('copy-static', () => {
     .pipe(gulp.dest('build/static'));
   gulp.src('index.html')
     .pipe(gulp.dest('build'));
+  gulp.src('config.json')
+    .pipe(gulp.dest('build'));
 });
 
 gulp.task('compile-styles', () => {
