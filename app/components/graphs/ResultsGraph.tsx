@@ -12,6 +12,7 @@ interface Props {
 }
 
 export class ResultsGraph extends PureComponent<Props, void> {
+  static colors: string[] = Array.from(Timeseries.colors);
   private divRef: any;
 
   constructor(props: Props) {
@@ -29,6 +30,7 @@ export class ResultsGraph extends PureComponent<Props, void> {
   }
 
   private renderChart() {
+    this.extendColors();
     const xScale = new Plottable.Scales.Time()
       .domain(this.props.dateRange);
     const xAxis = new Plottable.Axes.Time(xScale, Plottable.AxisOrientation.bottom);
@@ -55,14 +57,14 @@ export class ResultsGraph extends PureComponent<Props, void> {
     panZoom.attachTo(plot);
 
     this.props.results.forEach((result, index: number) => {
-      let dataset = new Plottable.Dataset(result.series, { color: Timeseries.colors[index] } );
+      let dataset = new Plottable.Dataset(result.series, { color: ResultsGraph.colors[index] } );
       plot.addDataset(dataset);
     });
 
     const colorScale = new Plottable.Scales.Color();
     colorScale
       .domain(this.props.results.map((result) => `${result.player.firstName} ${result.player.lastName}`))
-      .range(Timeseries.colors.slice(0, this.props.results.length));
+      .range(ResultsGraph.colors.slice(0, this.props.results.length));
     const legend = new Plottable.Components.Legend(colorScale)
       .xAlignment(Plottable.XAlignment.center)
       .yAlignment(Plottable.YAlignment.center)
@@ -79,9 +81,28 @@ export class ResultsGraph extends PureComponent<Props, void> {
     chart.renderTo('div#player-graph');
   }
 
+  private extendColors() {
+    while (ResultsGraph.colors.length < this.props.results.length) {
+      ResultsGraph.colors.push(this.randomColor());
+    }
+  }
+
   public render() {
     return (
       <div ref={(ref) => this.divRef = ref} id='player-graph' style={{width: '100%', height: '100%'}}/>
     );
+  }
+
+  private randomColor(): string {
+    let r: number = 255;
+    let g: number = 255;
+    let b: number = 255;
+    while (Math.sqrt(r * r + g * g + b * b) > 410) {
+      r = Math.floor(Math.random() * 255);
+      g = Math.floor(Math.random() * 255);
+      b = Math.floor(Math.random() * 255);
+    }
+    const color = `rgb(${r}, ${g}, ${b})`;
+    return color;
   }
 }

@@ -14,10 +14,12 @@ import { DispatchContext, DispatchersContextType } from '../../dispatchProvider'
 import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
 import { StaticRoutes } from '../../routes';
+import { RecentGamesService } from '../../services/recentGames/index';
 
 interface StateProps {
   players: PlayersService;
   saveGame: SaveGameService;
+  recentGames: RecentGamesService;
 }
 
 type Props = StateProps;
@@ -56,6 +58,7 @@ export class Internal extends React.PureComponent<Props, void> {
     this.sagas.register(this.gameSavedListener);
     this.sagas.register(this.gameSaveErrorListener);
     this.dispatchers.players.request(undefined);
+    this.dispatchers.recentGames.request({ count: 2, full: true });
   }
 
   public componentWillUnmount() {
@@ -63,15 +66,50 @@ export class Internal extends React.PureComponent<Props, void> {
     this.sagas.unregister(this.gameSaveErrorListener);
   }
 
-  private getPlayerList() {
-    if (this.props.players.value) {
-      const list = Array.from(this.props.players.value.values());
-      return list.sort((p1: Player, p2: Player) => {
+  private getPlayerList(players: Map<string, Player>) {
+    const list = Array.from(players.values());
+    return list.sort((p1: Player, p2: Player) => {
+      const n1 = `${p1.firstName}${p1.lastName}`;
+      const n2 = `${p2.firstName}${p2.lastName}`;
+      return n1.localeCompare(n2);
+    });
+  }
+
+  private getRecentPlayerList(players: Map<string, Player>, recentGames: Game[]): Player[] | undefined {
+    if (recentGames.length >= 2) {
+      const playerSet = new Set<string>();
+      recentGames
+        .map((game) => this.getPlayersInGame(game))
+        .forEach((playerIds: string[]) => {
+          playerIds.forEach((playerId) => playerSet.add(playerId));
+        });
+      const recentPlayers: Player[] = [];
+      playerSet.forEach((playerId) => {
+        const maybePlayer = players.get(playerId);
+        if (maybePlayer) {
+          recentPlayers.push(maybePlayer);
+        }
+      });
+      return recentPlayers.sort((p1: Player, p2: Player) => {
         const n1 = `${p1.firstName}${p1.lastName}`;
         const n2 = `${p2.firstName}${p2.lastName}`;
         return n1.localeCompare(n2);
       });
+    } else {
+      return undefined;
     }
+  }
+
+  private getPlayersInGame(game: Game): string[] {
+    const playerIds: string[] = [];
+    playerIds.push(game.handData.bidder.id);
+    if (game.handData.partner) {
+      playerIds.push(game.handData.partner.id);
+    }
+    game.handData.opposition.forEach((hand) => {
+      playerIds.push(hand.id);
+    });
+    return playerIds;
   }
 
   public render() {
@@ -88,21 +126,36 @@ export class Internal extends React.PureComponent<Props, void> {
   private renderContainer() {
     const players = this.props.players;
     const saveGame = this.props.saveGame;
-    if (players.loading || saveGame.loading) {
+    const recentGames = this.props.recentGames;
+    if (players.loading || saveGame.loading || recentGames.loading) {
       return <SpinnerOverlay size='pt-large'/>;
-    } else if (players.value) {
-      return (
-        <GameForm
-          players={this.getPlayerList()!}
-          submitText='Enter Score'
-          onSubmit={this.onSubmit}
-        />
-      );
+    } else if (players.value && recentGames.value) {
+      return this.renderPage(players.value, recentGames.value);
     } else if (players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
+    } else if (recentGames.error) {
+      return <p>Error loading recent games: {this.props.recentGames.error}</p>;
     } else {
       return <p>Something went wrong...</p>;
     }
+  }
+
+  private renderPage(players: Map<string, Player>, recentGames: Game[]) {
+    const recentPlayers = this.getRecentPlayerList(players, recentGames);
+    let playerList = this.getPlayerList(players);
+    if (recentPlayers) {
+      playerList = playerList.filter((player: Player) => {
+        return recentPlayers.indexOf(player) < 0;
+      });
+    }
+    return (
+      <GameForm
+        recentPlayers={recentPlayers}
+        players={playerList}
+        submitText='Enter Score'
+        onSubmit={this.onSubmit}
+      />
+    );
   }
 
   private onSubmit = (newGame: Game) => {
@@ -114,6 +167,7 @@ const mapStateToProps = (state: ReduxState): StateProps => {
   return {
     players: state.players,
     saveGame: state.saveGame,
+    recentGames: state.recentGames,
   }
 }
 

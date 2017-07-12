@@ -2,11 +2,13 @@ import { Database } from './dbConnector';
 import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
 import { QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
+import { GamePartial } from '../model/Game';
 
 export interface RecentGameQuery {
   count: number;
   player?: string;
   offset?: number;
+  full?: boolean;
 }
 
 export class GameQuerier {
@@ -33,7 +35,10 @@ export class GameQuerier {
     });
   }
 
-  public queryRecentGames = (query: RecentGameQuery): Promise<Game[]> => {
+  public queryRecentGames = (query: RecentGameQuery): Promise<GamePartial[] | Game[]> => {
+    if (query.player && query.full) {
+      throw Error('Cannot set both player and game queries.');
+    }
     const sqlQuery = QueryBuilder.select('hand').star();
     if (query.player) {
       sqlQuery.join('player_hand',
@@ -41,13 +46,23 @@ export class GameQuerier {
           .equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
           .equals('player_hand.player_fk_id', '=', query.player),
       );
+    } else if (query.full) {
+      sqlQuery.join('player_hand',
+        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+      )
     }
     sqlQuery.orderBy('hand.timestamp', 'desc');
-    sqlQuery.limit(query.count, query.offset);
+    sqlQuery.limit(query.full ? query.count * 5 : query.count, query.offset);
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
-      return result.map(this.getGameData);
-    });
+    if (query.full) {
+      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
+        return this.getGamesFromResults(handEntries).slice(0, query.count);
+      });
+    } else {
+      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
+        return result.map(this.getGameData);
+      });
+    }
   }
 
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
@@ -178,14 +193,14 @@ export class GameQuerier {
     };
   }
 
-  private getGameData(hand: any): Game {
+  private getGameData(hand: any): GamePartial {
     let id;
     if (hand['hand_fk_id']) {
       id = hand['hand_fk_id'] + '';
     } else {
       id = hand['id'] + '';
     }
-    const game: Game = {
+    const game: GamePartial = {
       id,
       bidderId: hand['bidder_fk_id'] + '',
       partnerId: hand['partner_fk_id'] ? hand['partner_fk_id'] + '' : undefined,

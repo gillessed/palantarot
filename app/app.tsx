@@ -37,11 +37,16 @@ const reducer = combineReducers({
 });
 
 const sagaMiddleware = createSagaMiddleware();
-const createStoreWithMiddleware = applyMiddleware(
+const middleware = [
   routerMiddleware(browserHistory),
   sagaMiddleware,
-  logger)
-  (createStore);
+];
+
+if (process.env['NODE_ENV'] !== 'production') {
+  middleware.push(logger);
+}
+
+const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
 const store = createStoreWithMiddleware(reducer);
 const history = syncHistoryWithStore(browserHistory, store);
 const api = new ServerApi('/api/v1', store);

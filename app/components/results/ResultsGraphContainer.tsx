@@ -18,7 +18,6 @@ export class ResultsGraphContainer extends PureComponent<Props, void> {
   }
 
   public render() {
-    console.log(this.props.games);
     return (
       <div style={{display: 'flex', flexDirection: 'column'}}>
         <div className='results-graph-container'>

@@ -22,6 +22,7 @@ interface OwnProps {
   role: string;
   player: PlayerState;
   label: string;
+  recentPlayers?: Player[];
   players: Player[];
   onChange: (player: PlayerState) => void;
 }
@@ -103,8 +104,7 @@ export class Internal extends React.PureComponent<Props, State> {
           <div className={`tarot-player-selector-group pt-input-group ${this.props.player.error ? 'pt-intent-danger' : ''}`}>
             <div className='pt-select tarot-player-selector-select'>
               <select value={this.props.player.player ? this.props.player.player.id : ''} onChange={this.onChange}>
-                <option value=''></option>
-                {this.props.players.map(this.renderPlayerOption)}
+                {this.renderOptions()}
               </select>
             </div>
           </div>
@@ -139,6 +139,28 @@ export class Internal extends React.PureComponent<Props, State> {
         {this.renderDialog()}
       </div>
     );
+  }
+
+  private renderOptions(): JSX.Element[] {
+    const elements: JSX.Element[] = [];
+    elements.push(<option key='empty' value=''></option>);
+    if (this.props.recentPlayers) {
+      const recentPlayersGroup = (
+        <optgroup key='opt1' label='Recent Players'>
+          {this.props.recentPlayers.map(this.renderPlayerOption)}
+        </optgroup>
+      );
+      elements.push(recentPlayersGroup);
+      const otherPlayersGroup = (
+        <optgroup key='opt2' label='Others'>
+          {this.props.players.map(this.renderPlayerOption)}
+        </optgroup>
+      );
+      elements.push(otherPlayersGroup);
+    } else {
+      elements.push(...this.props.players.map(this.renderPlayerOption));
+    }
+    return elements;
   }
 
   private renderErrorText() {
@@ -185,7 +207,7 @@ export class Internal extends React.PureComponent<Props, State> {
     });
   }
 
-  private renderPlayerOption(player: Player) {
+  private renderPlayerOption(player: Player): JSX.Element {
     return <option key={player.id} value={player.id}>{player.firstName} {player.lastName}</option>;
   }
 

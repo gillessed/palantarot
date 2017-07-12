@@ -5,6 +5,7 @@ import { TextInput, SelectInput } from './Elements';
 import { PlayerSelector, PlayerState } from '../../containers/playerSelector/PlayerSelector';
 
 interface Props {
+  recentPlayers?: Player[];
   players: Player[];
   game?: Game;
   submitText: string;
@@ -191,6 +192,7 @@ export class GameForm extends React.PureComponent<Props, State> {
       <PlayerSelector
         key={playerRole}
         role={playerRole}
+        recentPlayers={this.props.recentPlayers}
         players={this.props.players}
         player={this.state.players[playerRole]}
         label={`${playerRole}:`}

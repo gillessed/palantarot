@@ -1,4 +1,4 @@
-export interface Game {
+export interface GamePartial {
   id: string;
   bidderId: string;
   partnerId?: string;
@@ -6,8 +6,11 @@ export interface Game {
   numberOfPlayers: number;
   bidAmount: number;
   points: number;
-  slam: boolean,
-  handData?: HandData;
+  slam: boolean;
+}
+
+export interface Game extends GamePartial {
+  handData: HandData;
 }
 
 export interface HandData {

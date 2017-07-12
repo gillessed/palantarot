@@ -36,6 +36,6 @@ ssh -p 7822 palantar@palantarot.a2hosted.com << EOF
   rm -rf upgrade
 
   cd palantarot
-  nohup node server/index.js > palantarot.log 2> palantarot.err < /dev/null &
+  NODE_ENV=production nohup node server/index.js > palantarot.log 2> palantarot.err < /dev/null &
   exit
 EOF
