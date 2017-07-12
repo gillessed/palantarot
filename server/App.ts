@@ -48,13 +48,17 @@ export class App {
       } else {
         if (this.isProtectedPath(req.path) && !authedRequest) {
           res.clearCookie(this.config.auth.cookieName);
+          console.log('redirect 1');
           res.redirect('/login');
         } else if (req.path === '/login' && authedRequest) {
+          console.log('redirect 2');
           res.redirect(StaticRoutes.home());
         } else if(req.path === '/logout') {
           res.clearCookie(this.config.auth.cookieName);
+          console.log('redirect 3');
           res.redirect('/login');
         } else {
+          console.log('go to next router for path: ' + req.path);
           next();
         }
       }
@@ -95,9 +99,14 @@ export class App {
 
   private redirectRoute() {
     this.express.use('/', (req, res) => {
+      if (!this.isProtectedPath(req.path)) {
+        console.log('huuuuuh');
+      }
+      
       if (req.path.startsWith('/api')) {
         res.sendStatus(404);
       } else if (!this.isAppRoute(req.path))  {
+        console.log('redirect 4');
         res.redirect('/');
       } else {
         res.sendFile(path.join(__dirname, '..', 'index.html'));
