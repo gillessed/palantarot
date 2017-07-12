@@ -16,7 +16,7 @@ import { mergeContexts } from '../../app';
 import { SagaListener } from '../../services/sagaListener';
 import { deleteGameActions, DeleteGameService } from '../../services/deleteGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { Routes } from '../../routes';
+import { StaticRoutes, DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   children: any[];
@@ -48,7 +48,7 @@ class Internal extends React.PureComponent<Props, State> {
         message: 'Game ' + this.props.params.gameId + ' Deleted Successfully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(Routes.home());
+      this.dispatchers.navigation.push(StaticRoutes.home());
     },
   };
   private gameDeletedErrorListener: SagaListener<Game> = {
@@ -86,7 +86,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div className='game-container pt-ui-text-large'>
+      <div className='game-container page-container'>
         {this.renderContainer()}
         {this.renderDeleteDialog()}
       </div>
@@ -177,7 +177,7 @@ class Internal extends React.PureComponent<Props, State> {
       return (
         <div key={handData.id} className={containerStyle}>
           <h4>{tag}</h4>
-          <div><Link to={Routes.player(player.id)}>{playerName}</Link> ({points > 0 ? '+' + points : points})</div>
+          <div><Link to={DynamicRoutes.player(player.id)}>{playerName}</Link> ({points > 0 ? '+' + points : points})</div>
         </div>
       );
     }
@@ -216,7 +216,7 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private onEditClicked = () => {
-    this.dispatchers.navigation.push(Routes.edit(this.props.params.gameId));
+    this.dispatchers.navigation.push(DynamicRoutes.edit(this.props.params.gameId));
   }
 
   private onDeleteClicked = () => {

@@ -8,7 +8,7 @@ import { AddPlayerService } from '../../services/addPlayer/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
-import { Routes } from '../../routes';
+import { StaticRoutes } from '../../routes';
 
 interface StateProps {
   addPlayerService: AddPlayerService,
@@ -59,7 +59,7 @@ export class Internal extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div className='add-player-container pt-ui-text-large'>
+      <div className='add-player-container page-container'>
         <div className='title'>
           <h1>Add Player</h1>
         </div>
@@ -83,7 +83,7 @@ export class Internal extends React.PureComponent<Props, State> {
     return (
       <AddPlayerForm
         onSubmit={(newPlayer: NewPlayer) => {
-          this.dispatchers.addPlayer.request({newPlayer, redirect: Routes.home()});
+          this.dispatchers.addPlayer.request({newPlayer, redirect: StaticRoutes.home()});
         }}
       />
     );

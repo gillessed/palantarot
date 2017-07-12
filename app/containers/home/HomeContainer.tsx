@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Routes } from '../../routes';
+import { Button, Intent } from '@blueprintjs/core';
+import { StaticRoutes } from '../../routes';
 
 interface Props {
   children: any[];
@@ -11,17 +12,16 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
   public render() {
     return (
       <div className='home-container pt-ui-text-large'>
-        <div className='logo'>
-          <p className='pt-running-text'>Welcome to the new French Tarot website, where the points are fake, and no one really knows that they are doing.</p>
-        </div>
+        <div className='logo dark'>Palantarot</div>
+        <div className='subtitle dark'>Where all the points are fake</div>
         <div className='menu'>
-          {this.renderMenuItem('Enter Score', 'pt-icon-manually-entered-data', Routes.enter())}
-          {this.renderMenuItem('Results', 'pt-icon-th', Routes.results())}
-          {this.renderMenuItem('Recent Games', 'pt-icon-history', Routes.recent())}
-          {this.renderMenuItem('Advanced Search', 'pt-icon-search', Routes.search())}
-          {this.renderMenuItem('Records', 'pt-icon-glass', Routes.records())}
-          {this.renderMenuItem('Add New Player', 'pt-icon-add', Routes.addPlayer())}
-          {this.renderMenuItem('Tarothon', 'pt-icon-ninja', Routes.tarothon())}
+          {this.renderMenuItem('Enter Score', 'manually-entered-data', StaticRoutes.enter(), Intent.SUCCESS)}
+          {this.renderMenuItem('Results', 'th', StaticRoutes.results())}
+          {this.renderMenuItem('Recent Games', 'history', StaticRoutes.recent())}
+          {this.renderMenuItem('Advanced Search', 'search', StaticRoutes.search())}
+          {this.renderMenuItem('Records', 'glass', StaticRoutes.records())}
+          {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
+          {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), Intent.WARNING)}
         </div>
       </div>
     );
@@ -31,13 +31,19 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
     title: string,
     logo: string,
     to: string,
+    intent?: Intent,
   ) {
     return (
       <div className='menu-item'>
         <Link className='link' to={to}>
-          <div className={`${logo}`} />
+          <Button
+            className='pt-large'
+            type='button'
+            iconName={logo}
+            text={title}
+            intent={intent || Intent.PRIMARY}
+          />
         </Link>
-        <h4>{title}</h4>
       </div>
     );
   }

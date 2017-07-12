@@ -16,7 +16,7 @@ import { Game } from '../../../server/model/Game';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
-import { Routes } from '../../routes';
+import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   params: {
@@ -109,7 +109,7 @@ class Internal extends React.PureComponent<Props, void> {
     );
 
     return (
-      <div className='player-view-container'>
+      <div className='player-view-container page-container'>
         <PlayerBanner
           playerName={playerName}
           playerRank={rank}
@@ -129,7 +129,7 @@ class Internal extends React.PureComponent<Props, void> {
   }
 
   private onRecentRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(Routes.game(game.id));
+    this.dispatchers.navigation.push(DynamicRoutes.game(game.id));
   }
 }
 

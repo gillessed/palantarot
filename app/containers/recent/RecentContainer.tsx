@@ -8,7 +8,7 @@ import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
-import { Routes } from '../../routes';
+import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   children: any[];
@@ -44,7 +44,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div className='recent-container pt-ui-text-large'>
+      <div className='recent-container page-container pt-ui-text-large'>
         <div className='title'>
           <h1>Recent Games</h1>
         </div>
@@ -77,7 +77,7 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private onRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(Routes.game(game.id));
+    this.dispatchers.navigation.push(DynamicRoutes.game(game.id));
   }
 }
 

@@ -8,7 +8,7 @@ import { mergeContexts } from '../../app';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { SagaListener } from '../../services/sagaListener';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { Routes } from '../../routes';
+import { StaticRoutes } from '../../routes';
 import { Button, Intent } from '@blueprintjs/core';
 
 interface Props {
@@ -25,7 +25,7 @@ export class Internal extends React.PureComponent<Props, State> {
   private loginListener: SagaListener<AuthRequest> = {
     actionType: authActions.SUCCESS,
     callback: () => {
-      this.dispatchers.navigation.push(Routes.home());
+      this.dispatchers.navigation.push(StaticRoutes.home());
     },
   };
   private failedLoginListener: SagaListener<AuthRequest> = {

@@ -10,7 +10,7 @@ import { pTimeout } from '../../server/utils/index';
 import { Store } from 'redux';
 import { ReduxState } from '../services/rootReducer';
 import { push } from 'react-router-redux';
-import { Routes } from '../routes';
+import { StaticRoutes } from '../routes';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -79,7 +79,7 @@ export class ServerApi {
           return data;
         }
       } else if (response.status === 403) {
-        this.store.dispatch(push(Routes.login()));
+        this.store.dispatch(push(StaticRoutes.login()));
         throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);
@@ -97,7 +97,7 @@ export class ServerApi {
           return data;
         }
       } else if (response.status === 403) {
-        this.store.dispatch(push(Routes.login()));
+        this.store.dispatch(push(StaticRoutes.login()));
         throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);

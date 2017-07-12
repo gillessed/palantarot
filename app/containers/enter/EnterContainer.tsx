@@ -13,7 +13,7 @@ import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
-import { Routes } from '../../routes';
+import { StaticRoutes } from '../../routes';
 
 interface StateProps {
   players: PlayersService;
@@ -32,7 +32,7 @@ export class Internal extends React.PureComponent<Props, void> {
         message: 'Game Saved Succesufully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(Routes.recent());
+      this.dispatchers.navigation.push(StaticRoutes.recent());
     },
   };
   private gameSaveErrorListener: SagaListener<Game> = {
@@ -76,7 +76,7 @@ export class Internal extends React.PureComponent<Props, void> {
 
   public render() {
     return (
-      <div className='enter-container pt-ui-text-large'>
+      <div className='enter-container page-container'>
         <div className='title'>
           <h1>Enter Score</h1>
         </div>

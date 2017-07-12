@@ -13,7 +13,7 @@ import { MonthGamesService } from '../../services/monthGames/index';
 import { Game } from '../../../server/model/Game';
 import { Tabs2, Tab2 } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
-import { Routes } from '../../routes';
+import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   children: any[];
@@ -51,7 +51,7 @@ class Internal extends React.PureComponent<Props, State> {
   public render() {
     const zeroPadMonth = `00${this.state.month.month + 1}`.slice(-2);
     return (
-      <div className='results-container pt-ui-text-large'>
+      <div className='results-container page-container'>
         <div className='results-header'>
           <button
             type='button'
@@ -165,7 +165,7 @@ class Internal extends React.PureComponent<Props, State> {
     const playerName = player ? `${player.firstName} ${player.lastName}` : `Unknown Player: ${result.id}`;
     const onRowClick = () => {
       if (player) {
-        this.dispatchers.navigation.push(Routes.player(player.id));
+        this.dispatchers.navigation.push(DynamicRoutes.player(player.id));
       }
     }
     return (

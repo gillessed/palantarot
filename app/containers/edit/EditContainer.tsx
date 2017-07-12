@@ -14,7 +14,7 @@ import { DispatchContext, DispatchersContextType } from '../../dispatchProvider'
 import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
 import { GameService } from '../../services/game';
-import { Routes } from '../../routes';
+import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   params: {
@@ -40,7 +40,7 @@ export class Internal extends React.PureComponent<Props, void> {
         message: 'Game ' + this.props.params.gameId + ' Updated Succesfully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(Routes.game(this.props.params.gameId));
+      this.dispatchers.navigation.push(DynamicRoutes.game(this.props.params.gameId));
     },
   };
   private gameSaveErrorListener: SagaListener<Game> = {
@@ -85,7 +85,7 @@ export class Internal extends React.PureComponent<Props, void> {
 
   public render() {
     return (
-      <div className='enter-container pt-ui-text-large'>
+      <div className='enter-container page-container'>
         <div className='title'>
           <h1>Edit Game {this.props.params.gameId}</h1>
         </div>

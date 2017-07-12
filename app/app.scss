@@ -8,7 +8,9 @@
 @import './containers/login/LoginContainer.scss';
 @import './containers/game/GameContainer.scss';
 @import './containers/recent/RecentContainer.scss';
+@import './containers/records/RecordsContainer.scss';
 @import './containers/results/ResultsContainer.scss';
+@import './containers/search/SearchContainer.scss';
 @import './containers/player/PlayerContainer.scss';
 @import './containers/playerSelector/PlayerSelector.scss';
 @import './components/spinnerOverlay/SpinnerOverlay.scss';
@@ -58,4 +60,47 @@ h6 {
 th {
   font-family: blenderProBold;
   font-size: 18;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: blenderProBold;
+  margin-bottom: 20;
+  color: #F5F8FA;
+  @media (max-width: 700px) {
+    font-size: 48px;
+  }
+  @media (min-width: 700px) {
+    font-size: 82px;
+  }
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.logo.dark {
+  color: black;
+}
+
+.subtitle {
+  font-size: 12;
+  font-family: dinNextItalic;
+  margin-bottom: 50;
+  color: #F5F8FA;
+}
+
+.subtitle.dark {
+  color: black;
+}
+
+.page-container {
+  @media (max-width: 700px) {
+    margin: 10 auto;
+    width: 90%;
+  }
+  @media (min-width: 700px) {
+    margin: 60 auto;
+    width: 80%;
+  }
 }

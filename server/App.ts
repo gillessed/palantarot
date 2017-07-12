@@ -9,8 +9,10 @@ import { PlayerService } from './api/PlayerService';
 import { GameService } from './api/GameService';
 import { Config } from './config';
 import { AuthService, createRequestValidator } from './api/AuthService';
-import { Routes } from '../app/routes';
 import { Request } from 'express';
+import { StaticRoutes, DynamicRoutes } from '../app/routes';
+
+const unauthedRoutes = ['/login', '/favicon.ico', '/resources', '/static'];
 
 export class App {
   public express: express.Application;
@@ -37,21 +39,37 @@ export class App {
   private auth() {
     this.express.use('/', (req, res, next) => {
       const authedRequest = this.requestValidator(req);
-      if ((req.path.startsWith('/app') || req.path === '/') && !authedRequest) {
-        res.clearCookie(this.config.auth.cookieName);
-        res.redirect('/login');
-      } else if (
-          req.path.startsWith('/api') &&
-          !req.path.startsWith('/api/v1/login') && 
-          !authedRequest) {
-        res.sendStatus(403);
-      } else if (req.path === '/login' && authedRequest) {
-        res.redirect(Routes.home());
+      if (req.path.startsWith('/api')) {
+        if (!req.path.startsWith('/api/v1/login') && !authedRequest) {
+          res.sendStatus(403);
+        } else {
+          next();
+        }
       } else {
-        next();
+        if (this.isProtectedPath(req.path) && !authedRequest) {
+          res.clearCookie(this.config.auth.cookieName);
+          res.redirect('/login');
+        } else if (req.path === '/login' && authedRequest) {
+          res.redirect(StaticRoutes.home());
+        } else if(req.path === '/logout') {
+          res.clearCookie(this.config.auth.cookieName);
+          res.redirect('/login');
+        } else {
+          next();
+        }
       }
     });
   }
+
+  private isProtectedPath(path: string) {
+    for (let start of unauthedRoutes) {
+      if (path.startsWith(start)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private routes() {
     this.staticRoutes();
     this.apiRoutes();
@@ -79,9 +97,25 @@ export class App {
     this.express.use('/', (req, res) => {
       if (req.path.startsWith('/api')) {
         res.sendStatus(404);
+      } else if (!this.isAppRoute(req.path))  {
+        res.redirect('/');
       } else {
         res.sendFile(path.join(__dirname, '..', 'index.html'));
       }
     });
+  }
+
+  private isAppRoute(path: string): boolean {
+    const staticRoutes = Object.keys(StaticRoutes).map((route) => StaticRoutes[route]());
+    const staticMatch = staticRoutes.find((route) => path === route);
+    if (staticMatch) {
+      return true;
+    }
+    const dynamicRoutes = Object.keys(DynamicRoutes).map((route) => new RegExp(DynamicRoutes[route]('[^/]+')));
+    const dynamicMatch = dynamicRoutes.find((routeRegex) => routeRegex.test(path));
+    if (dynamicMatch) {
+      return true;
+    }
+    return false;
   }
 }

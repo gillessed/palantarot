@@ -15,8 +15,8 @@ time webpack --optimize-minimize
 rm -rf dist
 mkdir dist
 
-cp -r node_modules dist
 cp -r build/* dist
+cp package.json dist
 
 cd dist
 tar -cf palantarot.tar *

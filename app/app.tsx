@@ -25,6 +25,9 @@ import { DispatcherProvider } from './dispatchProvider';
 import { dispatcherCreators } from './services/dispatchers';
 import { EditContainer } from './containers/edit/EditContainer';
 import { LoginContainer } from './containers/login/LoginContainer';
+import { RecordsContainer } from './containers/records/RecordsContainer';
+import { SearchContainer } from './containers/search/SearchContainer';
+import { TarothonContainer } from './containers/tarothon/TarothonContainer';
 
 const logger = createLogger();
 
@@ -60,6 +63,9 @@ if (appElement != null) {
         <Route path='add-player' component={AddPlayerContainer} />
         <Route path='player/:playerId' component={PlayerContainer} />
         <Route path='edit/:gameId' component={EditContainer} />
+        <Route path='records' component={RecordsContainer} />
+        <Route path='search' component={SearchContainer} />
+        <Route path='tarothon' component={TarothonContainer} />
       </Route>
       <Route path='login' component={LoginContainer} />
     </Route>

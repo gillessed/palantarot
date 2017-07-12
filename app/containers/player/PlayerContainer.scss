@@ -1,23 +1,15 @@
 .player-view-container {
-  @media (max-width: 700px) {
-    margin: 10 auto;
-    width: 90%;
+  
+  .player-tabs {
+    background-color: #F5F8FA;
+    padding: 10;
+    .pt-tab {
+      font-family: blenderProBold;
+      font-size: 18;
+    }
   }
-  @media (min-width: 700px) {
-    margin: 60px auto;
-    width: 70%;
-  }
-}
 
-.player-tabs {
-  background-color: #F5F8FA;
-  padding: 10;
-  .pt-tab {
-    font-family: blenderProBold;
-    font-size: 18;
+  #player-graph {
+    background-color: #FFFFFF;
   }
-}
-
-#player-graph {
-  background-color: #FFFFFF;
 }
