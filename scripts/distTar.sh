@@ -4,7 +4,7 @@ set -ex
 
 cd "$(dirname "$0")"/..
 
-rm -rf build
+#rm -rf build
 
 yarn
 gulp compile
@@ -17,6 +17,7 @@ mkdir dist
 
 cp -r build/* dist
 cp package.json dist
+cp -f index.prod.html dist/index.html
 
 cd dist
 tar -cf palantarot.tar *

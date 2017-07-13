@@ -1,6 +1,7 @@
 import { Database } from './db/dbConnector';
 import path from 'path';
 import express from 'express';
+import cors from 'cors';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -29,6 +30,7 @@ export class App {
   }
 
   private middleware() {
+    this.express.use(cors())
     this.express.use(logger('dev'));
     this.express.use(cookieParser());
     this.express.use(bodyParser.json());
@@ -48,17 +50,13 @@ export class App {
       } else {
         if (this.isProtectedPath(req.path) && !authedRequest) {
           res.clearCookie(this.config.auth.cookieName);
-          console.log('redirect 1');
           res.redirect('/login');
         } else if (req.path === '/login' && authedRequest) {
-          console.log('redirect 2');
           res.redirect(StaticRoutes.home());
         } else if(req.path === '/logout') {
           res.clearCookie(this.config.auth.cookieName);
-          console.log('redirect 3');
           res.redirect('/login');
         } else {
-          console.log('go to next router for path: ' + req.path);
           next();
         }
       }
@@ -81,7 +79,7 @@ export class App {
   }
 
   private staticRoutes() {
-    this.express.use('/favicon.ico', express.static(this.config.assetDir + '/static/favicon.ico'));
+    this.express.use('/favicon.ico', express.static(this.config.assetDir + '/static/images/favicon.ico'));
     this.express.use('/resources', express.static(this.config.assetDir + '/app'));
     this.express.use('/static', express.static(this.config.assetDir + '/static'));
   }
@@ -99,14 +97,9 @@ export class App {
 
   private redirectRoute() {
     this.express.use('/', (req, res) => {
-      if (!this.isProtectedPath(req.path)) {
-        console.log('huuuuuh');
-      }
-      
       if (req.path.startsWith('/api')) {
         res.sendStatus(404);
       } else if (!this.isAppRoute(req.path))  {
-        console.log('redirect 4');
         res.redirect('/');
       } else {
         res.sendFile(path.join(__dirname, '..', 'index.html'));

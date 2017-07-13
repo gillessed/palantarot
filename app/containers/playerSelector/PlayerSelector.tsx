@@ -212,7 +212,11 @@ export class Internal extends React.PureComponent<Props, State> {
   }
 
   private onChange = (e: {target: {value: string}}) => {
-    const player = this.props.players.find((player: Player) => {
+    const allPlayers = [...this.props.players];
+    if (this.props.recentPlayers) {
+      allPlayers.push(...this.props.recentPlayers);
+    }
+    const player = allPlayers.find((player: Player) => {
       return player.id === e.target.value;
     });
     this.props.onChange({

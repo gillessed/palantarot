@@ -42,7 +42,10 @@ const middleware = [
   sagaMiddleware,
 ];
 
-if (process.env['NODE_ENV'] !== 'production') {
+declare const DEV: boolean | undefined;
+
+if (DEV) {
+  console.log('Initializing redux logger for debug...');
   middleware.push(logger);
 }
 

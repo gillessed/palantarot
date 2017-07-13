@@ -101,6 +101,9 @@ export class Internal extends React.PureComponent<Props, void> {
   }
 
   private getPlayersInGame(game: Game): string[] {
+    if (!game.handData) {
+      return [];
+    }
     const playerIds: string[] = [];
     playerIds.push(game.handData.bidder.id);
     if (game.handData.partner) {
