@@ -1,3 +1,46 @@
 .records-container {
+
+  .records-tabs {
+    background-color: #FFFFFF;
+    padding: 10;
+    .pt-tab {
+      font-family: blenderProBold;
+      font-size: 18;
+    }
+  }
+
+  .tab-container, .sub-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    h3 {
+      margin-top: 30px;
+    }
+  }
   
+  .slam-table-container, .all-time-table-container {
+    width: 100%;
+  }
+  
+  .slam-count-table {
+    white-space: nowrap;
+    thead tr th {
+      background-color: #EBF1F5;
+    }
+    tbody tr td {
+      background-color: white;
+    }
+  }
+
+  td.medal-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  img.player-medal {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
 }

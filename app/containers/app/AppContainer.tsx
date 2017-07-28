@@ -21,7 +21,10 @@ class Internal extends React.PureComponent<Props, {}> {
         <div className='tarot-navbar pt-navbar pt-dark pt-fixed-top'>
           <div className='pt-navbar-group pt-align-left'>
             <div className='pt-navbar-heading'>
-              <IndexLink className='pt-minimal pt-button brand-link' to='/'>Palantarot V3</IndexLink>
+              <IndexLink className='pt-minimal pt-button brand-link' to='/'>
+                <img src='/static/images/joker.png' style={{ height: 40 }}/>
+                Palantarot V3
+              </IndexLink>
             </div>
           </div>
           <div className='pt-navbar-group pt-align-right collapsable'>

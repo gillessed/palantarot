@@ -1,7 +1,15 @@
 @import '~@blueprintjs/core/dist/variables';
 
-.brand-link {
-  font-size: 24px 
+.pt-navbar-heading {
+  .brand-link {
+    font-size: 24px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    img {
+      margin-right: 10;
+    }
+  }
 }
 
 .pt-app {

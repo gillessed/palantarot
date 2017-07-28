@@ -2,11 +2,13 @@ import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
 import { formatTimestamp } from '../../../server/utils/index';
+import { DynamicRoutes } from '../../routes';
+import { NavigationDispatcher } from '../../services/navigation/index';
 
 class Props {
   players: Map<string, Player>;
   games: Game[];
-  onRowClick: (game: Game) => void;
+  navigationDispatcher: NavigationDispatcher;
 }
 
 export class GameTable extends React.PureComponent<Props, {}> {
@@ -40,7 +42,7 @@ export class GameTable extends React.PureComponent<Props, {}> {
       partnerName = partner ? `${partner.firstName} ${partner.lastName}` : `Unknown Player: ${game.partnerId}`;
     }
     return (
-      <tr key={game.id} onClick={() => this.props.onRowClick(game)}>
+      <tr key={game.id} onClick={() => this.props.navigationDispatcher.push(DynamicRoutes.game(game.id))}>
         <td>{bidderName}</td>
         <td>{partnerName}</td>
         <td>{game.bidAmount}</td>

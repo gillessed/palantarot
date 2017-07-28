@@ -68,3 +68,50 @@ export function pTimeout(ms: number) {
     }, ms);
   });
 }
+
+
+interface MaxObj<T> {
+  obj: T;
+  value: number;
+}
+export function arrayMax<T>(array: T[], max: (t: T) => number): T | undefined {
+  let maxObj: MaxObj<T> | undefined = undefined;
+  for (let obj of array) {
+    const value = max(obj);
+    if (!maxObj || value > maxObj.value) {
+      maxObj = { obj, value };
+    }
+  }
+  return maxObj ? maxObj.obj : undefined;
+}
+
+export type SortOrder = 'asc' | 'desc';
+export type Comparator<T> = (t1: T, T2: T) => number;
+
+export function integerComparator<T>(
+    map: (t: T) => number,
+    order: SortOrder,
+    fallback?: Comparator<T>,
+): Comparator<T> {
+  return (t1: T, t2: T) => {
+    const n1 = map(t1);
+    const n2 = map(t2);
+    if (n1 < n2) {
+      if (order === 'asc') {
+        return -1;
+      } else {
+        return 1;
+      }
+    } else if (n1 > n2) {
+      if (order === 'asc') {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else if (fallback) {
+      return fallback(t1, t2);
+    } else {
+      return 0;
+    }
+  };
+}

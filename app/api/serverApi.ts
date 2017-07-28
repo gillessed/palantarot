@@ -11,6 +11,7 @@ import { Store } from 'redux';
 import { ReduxState } from '../services/rootReducer';
 import { push } from 'react-router-redux';
 import { StaticRoutes } from '../routes';
+import { Records } from '../../server/model/Records';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -65,6 +66,10 @@ export class ServerApi {
 
   public deleteGame = (gameId: string): Promise<void> => {
     return this.wrapPost<void>('/game/delete', { gameId });
+  }
+
+  public getRecords = (): Promise<Records> => {
+    return this.wrapGet<Records>('/game/records');
   }
 
   // Helpers

@@ -126,6 +126,7 @@ class SelectBuilder implements QueryBuilder {
   private _join?: JoinBuilder;
   private _orderBy?: string;
   private _orderDirection?: 'desc';
+  private _groupBy?: string[];
 
   constructor(private readonly _table: string) {};
 
@@ -154,9 +155,10 @@ class SelectBuilder implements QueryBuilder {
     return this;
   }
 
-  public orderBy(column: string, direction?: 'desc') {
+  public orderBy(column: string, direction?: 'desc'): SelectBuilder {
     this._orderBy = column;
     this._orderDirection = direction;
+    return this
   }
 
   public limit(limit: number, offset?: number): SelectBuilder {
@@ -165,14 +167,18 @@ class SelectBuilder implements QueryBuilder {
     return this;
   }
 
+  public groupBy(...columns: string[]) {
+    this._groupBy = columns;
+    return this;
+  }
+
   public getQueryString(): string {
     let queryString = 'SELECT ';
     if (this._star) {
       queryString += '*';
     } else {
-      queryString += '(';
+      queryString += ' ';
       queryString += this._columns.join(', ');
-      queryString += ')';
     }
     queryString += ' FROM ';
     queryString += this._table;
@@ -183,6 +189,10 @@ class SelectBuilder implements QueryBuilder {
     if (this._where) {
       queryString += ' ';
       queryString += this._where.getQueryString();
+    }
+    if (this._groupBy) {
+      queryString += ' GROUP BY ';
+      queryString += this._groupBy.join(', ');
     }
     if (this._orderBy) {
       queryString += ' ORDER BY ';

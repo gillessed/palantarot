@@ -1,11 +1,6 @@
-export type Result = BaseResult & Delta;
-
-export interface BaseResult {
+export interface Result {
   id: string;
   points: number;
   gamesPlayed: number;
-}
-
-export interface Delta {
-  delta: number;
+  delta?: number
 }

@@ -6,22 +6,6 @@
     align-items: center;
   }
 
-  .results-table {
-    white-space: nowrap;
-    width: 100%;
-    thead tr th {
-      background-color: #EBF1F5;
-    }
-    td.rank-row {
-      display: flex;
-      justify-content: center;
-    }
-  }
-
-  .result-delta {
-    margin-left: 10px;
-  }
-
   .results-tabs-container {
     background-color: #FFFFFF;
     padding: 10;
@@ -32,9 +16,5 @@
         font-size: 18;
       }
     }
-  }
-
-  .results-table-container {
-    overflow-x: scroll;
   }
 }

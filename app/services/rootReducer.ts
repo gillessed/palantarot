@@ -8,6 +8,7 @@ import { MonthGamesService, monthGamesReducer } from './monthGames/index';
 import { SaveGameService, saveGameReducer } from './saveGame/index';
 import { DeleteGameService, deleteGameReducer } from './deleteGame/index';
 import { AuthService, authReducer } from './auth/index';
+import { RecordsService, recordsReducer } from './records/index';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -17,6 +18,7 @@ export interface ReduxState {
   monthGames: MonthGamesService;
   players: PlayersService;
   recentGames: RecentGamesService;
+  records: RecordsService;
   results: ResultsService;
   saveGame: SaveGameService;
 }
@@ -29,6 +31,7 @@ export const rootReducer = {
   monthGames: monthGamesReducer,
   players: playersReducer,
   recentGames: recentGamesReducer,
+  records: recordsReducer,
   results: resultsReducer,
   saveGame: saveGameReducer,
 };

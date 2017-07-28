@@ -3,6 +3,8 @@ import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
 import { QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
 import { GamePartial } from '../model/Game';
+import { MonthlyScore } from '../model/Records';
+import { Result } from '../model/Result';
 
 export interface RecentGameQuery {
   count: number;
@@ -32,6 +34,29 @@ export class GameQuerier {
     
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
       return this.getGameFromResults(result);
+    });
+  }
+
+  public queryResultsBetweenDates = (startDate: string, endDate: string): Promise<Result[]> => {
+    const sqlQuery = QueryBuilder.select('player_hand')
+      .c('player_fk_id')
+      .c("COUNT(*)")
+      .c('SUM(points_earned)')
+      .where(
+        QueryBuilder.condition()
+          .equals('timestamp', '>=', startDate)
+          .equals('timestamp', '<', endDate)
+      )
+      .groupBy('player_fk_id');
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
+      return results.map((result) => {
+        return {
+          id: `${result['player_fk_id']}`,
+          points: +result['SUM(points_earned)'],
+          gamesPlayed: +result['COUNT(*)'],
+        };
+      });
     });
   }
 
@@ -65,6 +90,9 @@ export class GameQuerier {
     }
   }
 
+  /**
+   * This is an expensive function... call at your own peril
+   */
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
@@ -165,6 +193,44 @@ export class GameQuerier {
     });
   }
 
+  public getSlamGames = (): Promise<Game[]> => {
+    const sqlQuery = QueryBuilder.select('hand')
+      .star()
+      .join('player_hand',
+        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+      )
+      .where(
+        QueryBuilder.condition().equals('hand.points', '>=', 260)
+      )
+      .orderBy('hand.timestamp', 'desc');
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
+      return this.getGamesFromResults(handEntries);
+    });
+  }
+
+  public getAllMonhtlyTotals = (): Promise<MonthlyScore[]> => {
+    const sqlQuery = QueryBuilder.select('player_hand')
+      .c('player_fk_id')
+      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
+      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
+      .c("COUNT(*)")
+      .c('SUM(points_earned)')
+      .groupBy('player_fk_id', 'h_year', 'h_month');
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
+      return results.map((result: {[key: string]: any}): MonthlyScore => {
+        return {
+          playerId: `${result['player_fk_id']}`,
+          month: +result['h_month'] - 1,
+          year: +result['h_year'],
+          gameCount: +result['COUNT(*)'],
+          score: +result['SUM(points_earned)'],
+        };
+      });
+    });
+  }
+
   // Helpers
 
   private getGamesFromResults(handEntries: any[]): Game[] {
@@ -208,7 +274,7 @@ export class GameQuerier {
       numberOfPlayers: hand['players'],
       bidAmount: hand['bid_amt'],
       points: hand['points'],
-      slam: hand['slam'],
+      slam:  (+hand['points'] >= 270),
     };
     return game;
   }

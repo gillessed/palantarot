@@ -10,10 +10,11 @@ import moment from 'moment';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { MonthGamesService } from '../../services/monthGames/index';
-import { Game } from '../../../server/model/Game';
 import { Tabs2, Tab2 } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
-import { DynamicRoutes } from '../../routes';
+import { ScoreTable } from '../../components/scoreTable/ScoreTable';
+import { Player } from '../../../server/model/Player';
+import { integerComparator } from '../../../server/utils/index';
 
 interface OwnProps {
   children: any[];
@@ -45,11 +46,9 @@ class Internal extends React.PureComponent<Props, State> {
   public componentWillMount() {
     this.dispatchers.players.request(undefined);
     this.dispatchers.results.requestSingle(this.state.month);
-    this.dispatchers.monthGames.requestSingle(this.state.month);
   }
 
   public render() {
-    const zeroPadMonth = `00${this.state.month.month + 1}`.slice(-2);
     return (
       <div className='results-container page-container'>
         <div className='results-header'>
@@ -59,7 +58,7 @@ class Internal extends React.PureComponent<Props, State> {
             onClick={this.previousMonth}
           />
           <div className='title'>
-            <h1 style={{textAlign: 'center'}}>Results for {this.state.month.year}/{zeroPadMonth}</h1>
+            <h1 style={{textAlign: 'center'}}>Results for {this.state.month.getHumanReadableString()}</h1>
           </div>
           <button
             type='button'
@@ -75,39 +74,27 @@ class Internal extends React.PureComponent<Props, State> {
   private renderContainer() {
     const players = this.props.players;
     const results = this.props.results.get(this.state.month);
-    const games = this.props.monthGames.get(this.state.month);
-    if (players.loading || results.loading || games.loading) {
+    if (players.loading || results.loading) {
       return <SpinnerOverlay size='pt-large' />;
-    } else if (players.value && results.value && games.value) {
-      return this.renderTabs(results.value, games.value);
+    } else if (players.value && results.value) {
+      return this.renderTabs(players.value, results.value,);
     } else if (players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
     } else if (results.error) {
       return <p>Error loading results: {results.error.message}</p>;
-    } else if (games.error) {
-      return <p>Error loading games: {games.error.message}</p>;
     } else {
       return <p>Something went wrong...</p>;
     }
   }
 
-  private renderTabs(resultList: Result[], games: Game[]) {
+  private renderTabs(players: Map<string, Player>, resultList: Result[]) {
     if (resultList.length) {
-      const tableTab = this.renderResultsTable(resultList);
-
-      const sortedGames = games.sort((g1: Game, g2: Game) => {
-        if (moment(g1.timestamp).isBefore(moment(g2.timestamp))) {
-          return -1;
-        } else if (moment(g1.timestamp).isAfter(moment(g2.timestamp))) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+      const tableTab = this.renderResultsTable(players, resultList);
       const graphTab = (
         <ResultsGraphContainer
-          players={this.props.players.value!}
-          games={sortedGames}
+          players={players}
+          monthGames={this.props.monthGames}
+          monthGamesDispatcher={this.dispatchers.monthGames}
           month={this.state.month}
         />
       );
@@ -115,7 +102,7 @@ class Internal extends React.PureComponent<Props, State> {
       return (
         <div className='results-tabs-container'>
           <Tabs2 id='ResultsTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
-            <Tab2 id='ResultsTableTab' title='Recent Games' panel={tableTab} />
+            <Tab2 id='ResultsTableTab' title='Score Chart' panel={tableTab} />
             <Tab2 id='ResultsGraphTab' title='Graph' panel={graphTab} />
           </Tabs2>
         </div>
@@ -129,76 +116,18 @@ class Internal extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderResultsTable = (resultList: Result[]) => {
-    const results = Array.from(resultList).sort((r1: Result, r2: Result) => {
-      if (r1.points > r2.points) {
-        return -1;
-      } else if (r1.points < r2.points) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+  private renderResultsTable (players: Map<string, Player>, resultList: Result[]) {
+    const results = Array.from(resultList).sort(integerComparator((r: Result) => r.points, 'desc'));
     return (
-      <div className='results-table-container'>
-        <table className='results-table pt-table pt-bordered pt-interactive'>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Player</th>
-              <th>Total Score</th>
-              <th>#</th>
-              <th>Avg</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map(this.renderResultRow)}
-          </tbody>
-        </table>
+      <div className='results-table-container table-container'>
+        <ScoreTable
+          results={results}
+          players={players}
+          navigationDispatcher={this.dispatchers.navigation}
+          renderDelta={true}
+        />
       </div>
     );
-  }
-
-  private renderResultRow = (result: Result, index: number) => {
-    const players = this.props.players.value!;
-    const player = players.get(result.id);
-    const playerName = player ? `${player.firstName} ${player.lastName}` : `Unknown Player: ${result.id}`;
-    const onRowClick = () => {
-      if (player) {
-        this.dispatchers.navigation.push(DynamicRoutes.player(player.id));
-      }
-    }
-    return (
-      <tr key={result.id} onClick={onRowClick}>
-        <td className='rank-row'>{index + 1}</td>
-        <td>{playerName}</td>
-        <td>{result.points} {this.renderDelta(result.delta)}</td>
-        <td>{result.gamesPlayed}</td>
-        <td>{(result.points / result.gamesPlayed).toFixed(2)}</td>
-      </tr>
-    );
-  }
-
-  private renderDelta = (delta?: number) => {
-    if (!delta) {
-      return '';
-    }
-    if (delta < 0) {
-      return (
-        <span className='result-delta' style={{color: 'red'}}>
-          <span className='pt-icon pt-icon-arrow-down'></span>
-          {delta}
-        </span>
-      );
-    } else {
-    if (delta > 0) {
-      return (
-        <span className='result-delta' style={{color: 'green'}}>
-          <span className='pt-icon pt-icon-arrow-up'></span>
-          {delta}
-        </span>
-      );
-    }}
   }
 
   private isCurrentMonth() {

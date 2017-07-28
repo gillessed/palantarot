@@ -1,4 +1,5 @@
 import moment from 'moment-timezone';
+import { integerComparator, SortOrder, Comparator } from '../utils/index';
 
 export interface Month {
   year: number;
@@ -14,6 +15,11 @@ export class IMonth implements Month {
   private constructor(m: Month) {
     this.year = m.year;
     this.month = m.month;
+  }
+
+  public getHumanReadableString() {
+    const zeroPadMonth = `00${this.month + 1}`.slice(-2);
+    return `${this.year}/${zeroPadMonth}`;
   }
 
   public static get(m: Month): IMonth {
@@ -47,6 +53,10 @@ export class IMonth implements Month {
     return IMonth.get({ month: nextMonth, year: nextMonth == 0 ? this.year + 1 : this.year });
   }
 
+  public static n(m: number, y: number) {
+    return IMonth.get(new IMonth({ month: m, year: y }));
+  }
+
   public static m(m: Month) {
     return IMonth.get(m);
   }
@@ -61,5 +71,21 @@ export class IMonth implements Month {
 
   public static fromString(string: string): Month {
     return JSON.parse(string);
+  }
+
+  public static comparator<T>(
+      map: (t: T) => IMonth,
+      order: SortOrder,
+  ): Comparator<T> {
+    return (t1: T, t2: T): number => {
+      return integerComparator<IMonth>(
+        (m: IMonth) => m.year,
+        order,
+        integerComparator<IMonth>(
+          (m: IMonth) => m.month,
+          order
+        )
+      )(map(t1), map(t2));
+    };
   }
 }

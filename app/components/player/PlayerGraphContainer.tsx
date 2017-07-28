@@ -61,7 +61,7 @@ export class PlayerGraphContainer extends PureComponent<Props, State> {
     const games = this.props.monthGames.get(this.state.month);
     if (games.loading) {
       return (
-        <div className={`pt-spinner .pt-large .pt-intent-primary`}>
+        <div className='pt-spinner .pt-large .pt-intent-primary'>
           <div className='pt-spinner-svg-container'>
             <svg viewBox='0 0 100 100'>
               <path className='pt-spinner-track' d="M 50,50 m 0,-44.5 a 44.5,44.5 0 1 1 0,89 a 44.5,44.5 0 1 1 0,-89"></path>

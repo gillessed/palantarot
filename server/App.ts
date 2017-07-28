@@ -79,7 +79,8 @@ export class App {
   }
 
   private staticRoutes() {
-    this.express.use('/favicon.ico', express.static(this.config.assetDir + '/static/images/favicon.ico'));
+    this.express.use('/favicon-16x16.png', express.static(this.config.assetDir + '/static/images/favicon-16x16.png'));
+    this.express.use('/favicon-32x32.png', express.static(this.config.assetDir + '/static/images/favicon-32x32.png'));
     this.express.use('/resources', express.static(this.config.assetDir + '/app'));
     this.express.use('/static', express.static(this.config.assetDir + '/static'));
   }

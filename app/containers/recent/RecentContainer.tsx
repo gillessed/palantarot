@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
-import { Game } from '../../../server/model/Game';
 import { PlayersService } from '../../services/players';
 import { RecentGamesService } from '../../services/recentGames';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
-import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   children: any[];
@@ -59,11 +57,11 @@ class Internal extends React.PureComponent<Props, State> {
       return <SpinnerOverlay size='pt-large'/>;
     } else if (this.props.players.value && this.props.recentGames.value) {
       return (
-        <div className='recent-table-container'>
+        <div className='recent-table-container table-container'>
           <GameTable
             games={this.props.recentGames.value}
             players={this.props.players.value}
-            onRowClick={this.onRowClick}
+            navigationDispatcher={this.dispatchers.navigation}
           />
         </div>
       );
@@ -74,10 +72,6 @@ class Internal extends React.PureComponent<Props, State> {
     } else {
       return <p>Something went wrong...</p>;
     }
-  }
-
-  private onRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(DynamicRoutes.game(game.id));
   }
 }
 

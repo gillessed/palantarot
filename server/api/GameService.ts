@@ -1,5 +1,5 @@
-import { Result, BaseResult } from './../model/Result';
-import { Game, PlayerHand } from './../model/Game';
+import { Result } from './../model/Result';
+import { Game } from './../model/Game';
 import { PlayerQuerier } from './../db/PlayerQuerier';
 import { GameQuerier } from './../db/GameQuerier';
 import { Database } from './../db/dbConnector';
@@ -7,6 +7,8 @@ import { Router, Request, Response } from 'express';
 import { Month, IMonth } from '../model/Month';
 import moment from 'moment-timezone';
 import { RecentGameQuery } from '../db/GameQuerier';
+import { Records } from '../model/Records';
+import {  } from '../model/Result';
 
 const westernTimezone = 'America/Los_Angeles';
 
@@ -19,6 +21,7 @@ export class GameService {
     this.router = Router();
     this.playerDb = new PlayerQuerier(db);
     this.gameDb = new GameQuerier(db);
+    this.router.get('/records', this.getRecords);
     this.router.post('/month', this.getMonthResults);
     this.router.post('/month/all', this.getMonthGames);
     this.router.post('/recent', this.getRecentGames);
@@ -40,19 +43,31 @@ export class GameService {
 
     const startDate = this.convertToSql(month);
     const endDate = this.convertToSql(month.next());
+    const deltaCutoff = moment.tz(westernTimezone).startOf('day').format('YYYY-MM-DDThh:mm:ssZ');
 
-    this.gameDb.queryGamesBetweenDates(startDate, endDate).then((results: Game[]) => {
-      const games = results;
-      const baseResult = this.computeScoresForGames(games);
-      const deltaCutoff = moment.tz(westernTimezone).startOf('day');
-      const deltaGames = games.filter((game: Game) => {
-        return moment(game.timestamp).isAfter(deltaCutoff);
+    this.gameDb.queryResultsBetweenDates(startDate, endDate).then((results: Result[]) => {
+      return this.gameDb.queryResultsBetweenDates(deltaCutoff, endDate).then((deltaResults: Result[]) => {
+        const fullResults: Map<string, Result> = new Map();
+        results.forEach((result) => {
+          fullResults.set(result.id, result);
+        });
+        deltaResults.forEach((result) => {
+          if (fullResults.has(result.id)) {
+            fullResults.set(
+              result.id,
+              {
+                ...fullResults.get(result.id)!,
+                delta: result.points,
+              }
+            );
+          }
+        });
+        return Array.from(fullResults.values());
       });
-      const deltaResult = this.computeScoresForGames(deltaGames);
-      const finalResult = this.combineBaseAndDelta(baseResult, deltaResult);
-      res.send(finalResult);
+    }).then((results: Result[]) => {
+      res.send(results);
     }).catch((error: any) => {
-      res.send({ error: `Error loading games for ${startDate}: ${error}` });
+      res.send({ error: `Error getting results for month: ${error}` });
     });
   }
 
@@ -111,64 +126,77 @@ export class GameService {
     });
   }
 
+  public getRecords = (_: Request, res: Response) => {
+    let records: Partial<Records> = {};
+    this.gameDb.getAllMonhtlyTotals().then((scores) => {
+      records = { ...records, scores };
+      return this.gameDb.getSlamGames();
+    }).then((slamGames: Game[]) => {
+      records = { ... records, slamGames };
+      res.send(records);
+    }).catch((e) => {
+      res.send({ error: 'Could not get scores: ' + e});
+    });
+  }
+
   // Helpers
 
   private convertToSql(date: Month): string {
     const month = `00${date.month + 1}`.slice(-2);
     const dateString = `${date.year}-${month}-01`;
-    // Lock months to Mountain time.
+    // Lock months to Western time.
     return moment.tz(dateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
   }
 
-  private computeScoresForGames(games: Game[]): BaseResult[] {
-    var results = new Map<string, BaseResult>();
-    const hands: PlayerHand[] = [];
-    games.forEach((game: Game) => {
-      if (game.handData) {
-        hands.push(game.handData.bidder);
-        if (game.handData.partner) {
-          hands.push(game.handData.partner);
-        }
-        game.handData.opposition.forEach((hand: PlayerHand) => {
-          hands.push(hand);
-        });
-      }
-    });
-    hands.forEach((hand: PlayerHand) => {
-      if (!results.has(hand.id)) {
-        results.set(hand.id, {
-          id: hand.id,
-          points: 0,
-          gamesPlayed: 0,
-        });
-      }
-      const result = results.get(hand.id)!;
-      results.set(hand.id, {
-        id: result.id,
-        points: result.points + hand.pointsEarned,
-        gamesPlayed: result.gamesPlayed + 1,
-      });
-    });
-    return Array.from(results.values());
-  }
+  // private computeScoresForGames(games: Game[]): BaseResult[] {
+  //   var results = new Map<string, BaseResult>();
+  //   const hands: PlayerHand[] = [];
+  //   games.forEach((game: Game) => {
+  //     if (game.handData) {
+  //       hands.push(game.handData.bidder);
+  //       if (game.handData.partner) {
+  //         hands.push(game.handData.partner);
+  //       }
+  //       game.handData.opposition.forEach((hand: PlayerHand) => {
+  //         hands.push(hand);
+  //       });
+  //     }
+  //   });
+  //   hands.forEach((hand: PlayerHand) => {
+  //     if (!results.has(hand.id)) {
+  //       results.set(hand.id, {
+  //         id: hand.id,
+  //         points: 0,
+  //         gamesPlayed: 0,
+  //       });
+  //     }
+  //     const result = results.get(hand.id)!;
+  //     results.set(hand.id, {
+  //       id: result.id,
+  //       points: result.points + hand.pointsEarned,
+  //       gamesPlayed: result.gamesPlayed + 1,
+  //     });
+  //   });
+  //   return Array.from(results.values());
+  // }
 
-  private combineBaseAndDelta(results: BaseResult[], deltas: BaseResult[]): Result[] {
-    const deltaMap = new Map<string, BaseResult>(
-      deltas.map((result: Result) => [result.id, result] as [string, BaseResult])
-    );
-    const finalResults: Result[] = results.map((result: BaseResult) => {
-      if (deltaMap.has(result.id)) {
-        return {
-          ...result,
-          delta: deltaMap.get(result.id)!.points,
-        }
-      } else {
-        return {
-          ...result,
-          delta: 0,
-        };
-      }
-    });
-    return finalResults;
-  }
+  // private combineBaseAndDelta(results: BaseResult[], deltas: BaseResult[]): Result[] {
+  //   const deltaMap = new Map<string, BaseResult>(
+  //     deltas.map((result: Result) => [result.id, result] as [string, BaseResult])
+  //   );
+  //   const finalResults: Result[] = results.map((result: BaseResult) => {
+  //     if (deltaMap.has(result.id)) {
+  //       return {
+  //         ...result,
+  //         delta: deltaMap.get(result.id)!.points,
+  //       }
+  //     } else {
+  //       return {
+  //         ...result,
+  //         delta: 0,
+  //       };
+  //     }
+  //   });
+  //   return finalResults;
+  // }
 }

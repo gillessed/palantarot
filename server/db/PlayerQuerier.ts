@@ -22,7 +22,6 @@ export class PlayerQuerier {
           id: player['id'] + '',
           firstName: player['first_name'],
           lastName: player['last_name'],
-          email: player['email'],
         } as Player;
       });
     });

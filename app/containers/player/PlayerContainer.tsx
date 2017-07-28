@@ -16,7 +16,6 @@ import { Game } from '../../../server/model/Game';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
-import { DynamicRoutes } from '../../routes';
 
 interface OwnProps {
   params: {
@@ -93,11 +92,13 @@ class Internal extends React.PureComponent<Props, void> {
     const score = playerResult ? playerResult.points : undefined;
 
     const recentGamesTab = (
-      <GameTable
-        players={players}
-        games={recentGames}
-        onRowClick={this.onRecentRowClick}
-      />
+      <div className='player-games-table-container table-container'>
+        <GameTable
+          players={players}
+          games={recentGames}
+          navigationDispatcher={this.dispatchers.navigation}
+        />
+      </div>
     );
 
     const graphTab = (
@@ -126,10 +127,6 @@ class Internal extends React.PureComponent<Props, void> {
 
   private requestMonthGames = (month: Month) => {
     this.dispatchers.monthGames.requestSingle(month);
-  }
-
-  private onRecentRowClick = (game: Game) => {
-    this.dispatchers.navigation.push(DynamicRoutes.game(game.id));
   }
 }
 

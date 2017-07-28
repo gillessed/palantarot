@@ -23,6 +23,7 @@
 @import './components/results/ResultsGraphContainer.scss';
 @import './components/graphs/ResultsGraph.scss';
 @import './components/forms/Elements.scss';
+@import './components/scoreTable/ScoreTable.scss';
 
 .title {
   display: flex;
@@ -47,6 +48,10 @@
 
 p, span.text, .pt-label, td {
   font-family: dinNextRegular;
+}
+
+span.bold {
+  font-family: blenderProBold;
 }
 
 h1, h2, h3, h4, h5 {
@@ -103,4 +108,12 @@ th {
     margin: 60 auto;
     width: 80%;
   }
+}
+
+.table-container {
+  overflow-x: scroll;
+}
+
+.pt-tab-list {
+  overflow-x: scroll;
 }
