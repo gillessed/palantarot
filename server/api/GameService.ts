@@ -24,7 +24,7 @@ export class GameService {
     this.router.get('/records', this.getRecords);
     this.router.post('/month', this.getMonthResults);
     this.router.post('/month/all', this.getMonthGames);
-    this.router.post('range', this.getGamesInRange);
+    this.router.post('/range', this.getGamesInRange);
     this.router.post('/recent', this.getRecentGames);
     this.router.get('/:id', this.getGame);
     this.router.post('/save', this.saveGame);
