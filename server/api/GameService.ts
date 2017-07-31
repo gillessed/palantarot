@@ -24,6 +24,7 @@ export class GameService {
     this.router.get('/records', this.getRecords);
     this.router.post('/month', this.getMonthResults);
     this.router.post('/month/all', this.getMonthGames);
+    this.router.post('range', this.getGamesInRange);
     this.router.post('/recent', this.getRecentGames);
     this.router.get('/:id', this.getGame);
     this.router.post('/save', this.saveGame);
@@ -68,6 +69,22 @@ export class GameService {
       res.send(results);
     }).catch((error: any) => {
       res.send({ error: `Error getting results for month: ${error}` });
+    });
+  }
+
+  public getGamesInRange = (req: Request, res: Response) => {
+    const body = req.body as {
+      startDateString: string,
+      endDateString: string,
+    };
+
+    const startDate = moment.tz(body.startDateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+    const endDate = moment.tz(body.endDateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+
+    this.gameDb.queryGamesBetweenDates(startDate, endDate).then((results: Game[]) => {
+      res.send(results);
+    }).catch((error: any) => {
+      res.send({ error: `Error loading games between ${startDate} and ${endDate}: ${error}` });
     });
   }
 
@@ -147,56 +164,4 @@ export class GameService {
     // Lock months to Western time.
     return moment.tz(dateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
   }
-
-  // private computeScoresForGames(games: Game[]): BaseResult[] {
-  //   var results = new Map<string, BaseResult>();
-  //   const hands: PlayerHand[] = [];
-  //   games.forEach((game: Game) => {
-  //     if (game.handData) {
-  //       hands.push(game.handData.bidder);
-  //       if (game.handData.partner) {
-  //         hands.push(game.handData.partner);
-  //       }
-  //       game.handData.opposition.forEach((hand: PlayerHand) => {
-  //         hands.push(hand);
-  //       });
-  //     }
-  //   });
-  //   hands.forEach((hand: PlayerHand) => {
-  //     if (!results.has(hand.id)) {
-  //       results.set(hand.id, {
-  //         id: hand.id,
-  //         points: 0,
-  //         gamesPlayed: 0,
-  //       });
-  //     }
-  //     const result = results.get(hand.id)!;
-  //     results.set(hand.id, {
-  //       id: result.id,
-  //       points: result.points + hand.pointsEarned,
-  //       gamesPlayed: result.gamesPlayed + 1,
-  //     });
-  //   });
-  //   return Array.from(results.values());
-  // }
-
-  // private combineBaseAndDelta(results: BaseResult[], deltas: BaseResult[]): Result[] {
-  //   const deltaMap = new Map<string, BaseResult>(
-  //     deltas.map((result: Result) => [result.id, result] as [string, BaseResult])
-  //   );
-  //   const finalResults: Result[] = results.map((result: BaseResult) => {
-  //     if (deltaMap.has(result.id)) {
-  //       return {
-  //         ...result,
-  //         delta: deltaMap.get(result.id)!.points,
-  //       }
-  //     } else {
-  //       return {
-  //         ...result,
-  //         delta: 0,
-  //       };
-  //     }
-  //   });
-  //   return finalResults;
-  // }
 }
