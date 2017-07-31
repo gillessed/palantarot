@@ -21,21 +21,21 @@ export class ResultsGraph extends PureComponent<Props, void> {
 
   public componentWillReceiveProps(nextProps: Props) {
     if (this.props !== nextProps && this.divRef) {
-      this.renderChart();
+      this.renderChart(nextProps);
     }
   }
 
   public componentDidMount() {
-    this.renderChart();
+    this.renderChart(this.props);
   }
 
-  private renderChart() {
+  private renderChart(props: Props) {
     this.extendColors();
     const xScale = new Plottable.Scales.Time()
-      .domain(this.props.dateRange);
+      .domain(props.dateRange);
     const xAxis = new Plottable.Axes.Time(xScale, Plottable.AxisOrientation.bottom);
 
-    const { max, tickDistance } = Timeseries.findMaximumAndTicks(this.props.results.map((result) => result.series));
+    const { max, tickDistance } = Timeseries.findMaximumAndTicks(props.results.map((result) => result.series));
     const yScale = new Plottable.Scales.Linear().domain([-max, max]);
     const yScaleTickGenerator = Plottable.Scales.TickGenerators.intervalTickGenerator(tickDistance);
     yScale.tickGenerator(yScaleTickGenerator);
@@ -51,20 +51,20 @@ export class ResultsGraph extends PureComponent<Props, void> {
       .attr('stroke', (_: ScorePoint, __: any, ds: { metadata: () => Metadata }) => ds.metadata().color)
       .animated(true);
     const panZoom = new Plottable.Interactions.PanZoom(xScale, undefined)
-      .maxDomainExtent(xScale, this.props.dateRange[1].valueOf() - this.props.dateRange[0].valueOf())
-      .minDomainValue(xScale, this.props.dateRange[0].valueOf())
-      .maxDomainValue(xScale, this.props.dateRange[1].valueOf());
+      .maxDomainExtent(xScale, props.dateRange[1].valueOf() - props.dateRange[0].valueOf())
+      .minDomainValue(xScale, props.dateRange[0].valueOf())
+      .maxDomainValue(xScale, props.dateRange[1].valueOf());
     panZoom.attachTo(plot);
 
-    this.props.results.forEach((result, index: number) => {
+    props.results.forEach((result, index: number) => {
       let dataset = new Plottable.Dataset(result.series, { color: ResultsGraph.colors[index] } );
       plot.addDataset(dataset);
     });
 
     const colorScale = new Plottable.Scales.Color();
     colorScale
-      .domain(this.props.results.map((result) => `${result.player.firstName} ${result.player.lastName}`))
-      .range(ResultsGraph.colors.slice(0, this.props.results.length));
+      .domain(props.results.map((result) => `${result.player.firstName} ${result.player.lastName}`))
+      .range(ResultsGraph.colors.slice(0, props.results.length));
     const legend = new Plottable.Components.Legend(colorScale)
       .xAlignment(Plottable.XAlignment.center)
       .yAlignment(Plottable.YAlignment.center)
@@ -78,6 +78,11 @@ export class ResultsGraph extends PureComponent<Props, void> {
       [null, null, xAxis],
     ]);
 
+    // delete previous rendering data if available
+    const playerGraph = document.getElementById("player-graph");
+    if (playerGraph != null) {
+      playerGraph.innerHTML = "";
+    }
     chart.renderTo('div#player-graph');
   }
 
