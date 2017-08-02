@@ -103,7 +103,8 @@ export class GameQuerier {
         QueryBuilder.condition()
           .equals('hand.timestamp', '>=', startDate)
           .equals('hand.timestamp', '<', endDate)
-      );
+      )
+      .orderBy('hand.timestamp');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
       return this.getGamesFromResults(handEntries);
