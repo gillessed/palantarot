@@ -171,6 +171,14 @@ export class GameForm extends React.PureComponent<Props, State> {
                 if (!Number.isInteger(number) || number % 10 !== 0) {
                   return 'Points must be divisible by 10.';
                 }
+                // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
+                // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
+                if (this.state.bidAmount) {
+                  const bound = this.state.bidAmount + 60 + 400 + 20 + 10;
+                  if (number > bound || number < -bound) {
+                    return 'Points exceed theoretical bound on possible game outcome.';
+                  }
+                }
               }}
             />
 

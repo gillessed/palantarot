@@ -38,21 +38,21 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
           label="First Name: "
           classNames={['pt-add-player-input']}
           onChange={this.onFirstNameChange}
-          validator={this.emptyValidator('Please enter a first name.')}
+          validator={this.fieldValidator('Please enter a first name.')}
         />
 
         <TextInput
           label="Last Name: "
           classNames={['pt-add-player-input']}
           onChange={this.onLastNameChange}
-          validator={this.emptyValidator('Please enter a last name.')}
+          validator={this.fieldValidator('Please enter a last name.')}
         />
 
         <TextInput
           label="Email: "
           classNames={['pt-add-player-input']}
           onChange={this.onEmailChange}
-          validator={this.emptyValidator('Please enter an email.')}
+          validator={this.fieldValidator('Please enter an email.')}
         />
 
         <div className="add-player-button-container">
@@ -83,12 +83,15 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
     });
   }
 
-  private emptyValidator = (message: string) => {
+  private fieldValidator = (emptyMessage: string) => {
     return (value: string) => {
       if (value.length < 1) {
-        return message;
+        return emptyMessage;
+      } else if (value.length > 30) {
+        return "Field exceeds character limit.";
+      } else {
+        return undefined;
       }
-      return undefined;
     };
   }
   
