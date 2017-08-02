@@ -386,7 +386,7 @@ export class GameForm extends React.PureComponent<Props, State> {
       numberOfPlayers,
       bidderCalledSelf,
       players: newPlayers,
-    }, () =>this. validatePlayers());
+    }, () =>this.validatePlayers());
   }
 
   private getActivePlayerStates = () => {
@@ -437,11 +437,39 @@ export class GameForm extends React.PureComponent<Props, State> {
           };
         }
       });
+    this.validateOnes(newPlayersArray);
+    this.validateShows(newPlayersArray);
     const newPlayers: {[key: string]: PlayerState} = {};
     newPlayersArray.forEach((newPlayer) => newPlayers[newPlayer.role] = newPlayer);
     this.setState({
       players: newPlayers,
     });
+  }
+
+  private validateOnes(newPlayersArray: PlayerState[]) {
+    const oneLastPlayers = newPlayersArray
+      .filter(player => player.oneLast);
+    if (oneLastPlayers.length > 1) {
+      oneLastPlayers
+        .forEach(player => {
+          if (player.error === undefined) {
+            player.error = "Multiple players played one last.";
+          }
+        });
+    }
+  }
+
+  private validateShows(newPlayersArray: PlayerState[]) {
+    const showedPlayers = newPlayersArray
+        .filter(player => player.showed);
+    if (showedPlayers.length > 2) {
+      showedPlayers
+        .forEach(player => {
+          if (player.error === undefined) {
+            player.error = "More than two people showed.";
+          }
+        });
+    }
   }
 
   private errorCount = (): number => {
