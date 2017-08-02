@@ -166,10 +166,10 @@ export class GameForm extends React.PureComponent<Props, State> {
               validator={(value: string) => {
                 const number = +value;
                 if (isNaN(number)) {
-                  return 'Poinst must be a number.';
+                  return 'Points must be a number.';
                 }
-                if (!Number.isInteger(number) || number % 10 != 0) {
-                  return 'Points must be divisble by 10.';
+                if (!Number.isInteger(number) || number % 10 !== 0) {
+                  return 'Points must be divisible by 10.';
                 }
               }}
             />
@@ -213,7 +213,7 @@ export class GameForm extends React.PureComponent<Props, State> {
     const buttonClass = `${baseButtonClass} ${active ? '' : 'pt-disabled'}`;
     return (
       <div className='enter-score-button-container'>
-        <button className={buttonClass} style={{marginTop: 20}} onClick={this.onSubmitPress}>
+        <button className={buttonClass} style={{marginTop: 20}} onClick={() => active ? this.onSubmitPress() : null}>
           {this.props.submitText}
         </button>
       </div>
