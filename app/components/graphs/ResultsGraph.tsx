@@ -46,6 +46,7 @@ export class ResultsGraph extends PureComponent<Props, void> {
     const yLabel = new Plottable.Components.AxisLabel('Points', -90);
 
     const plot = new Plottable.Plots.Line()
+      .croppedRenderingEnabled(false)
       .x(function(d: ScorePoint) { return new Date(d.date); }, xScale)
       .y(function(d: ScorePoint) { return d.score; }, yScale)
       .attr('stroke', (_: ScorePoint, __: any, ds: { metadata: () => Metadata }) => ds.metadata().color)
