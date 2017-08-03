@@ -13,6 +13,7 @@ import { AuthService, createRequestValidator } from './api/AuthService';
 import { Request } from 'express';
 import { StaticRoutes, DynamicRoutes } from '../app/routes';
 
+const oneDayMs = 1000 * 60 * 60 * 24;
 const unauthedRoutes = ['/login', '/favicon.ico', '/resources', '/static'];
 
 export class App {
@@ -48,9 +49,14 @@ export class App {
           next();
         }
       } else {
-        if (this.isProtectedPath(req.path) && !authedRequest) {
-          res.clearCookie(this.config.auth.cookieName);
-          res.redirect('/login');
+        if (this.isProtectedPath(req.path)) {
+          if (authedRequest) {
+            res.cookie(this.config.auth.cookieName, this.config.auth.token, { maxAge: oneDayMs * 30, httpOnly: true});
+            next()
+          } else {
+            res.clearCookie(this.config.auth.cookieName);
+            res.redirect('/login');
+          }
         } else if (req.path === '/login' && authedRequest) {
           res.redirect(StaticRoutes.home());
         } else if(req.path === '/logout') {

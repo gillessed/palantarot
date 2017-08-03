@@ -166,10 +166,18 @@ export class GameForm extends React.PureComponent<Props, State> {
               validator={(value: string) => {
                 const number = +value;
                 if (isNaN(number)) {
-                  return 'Poinst must be a number.';
+                  return 'Points must be a number.';
                 }
-                if (!Number.isInteger(number) || number % 10 != 0) {
-                  return 'Points must be divisble by 10.';
+                if (!Number.isInteger(number) || number % 10 !== 0) {
+                  return 'Points must be divisible by 10.';
+                }
+                // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
+                // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
+                if (this.state.bidAmount) {
+                  const bound = this.state.bidAmount + 60 + 400 + 20 + 10;
+                  if (number > bound || number < -bound) {
+                    return 'Points exceed theoretical bound on possible game outcome.';
+                  }
                 }
               }}
             />
@@ -213,7 +221,7 @@ export class GameForm extends React.PureComponent<Props, State> {
     const buttonClass = `${baseButtonClass} ${active ? '' : 'pt-disabled'}`;
     return (
       <div className='enter-score-button-container'>
-        <button className={buttonClass} style={{marginTop: 20}} onClick={this.onSubmitPress}>
+        <button className={buttonClass} style={{marginTop: 20}} onClick={() => active ? this.onSubmitPress() : null}>
           {this.props.submitText}
         </button>
       </div>
@@ -386,7 +394,7 @@ export class GameForm extends React.PureComponent<Props, State> {
       numberOfPlayers,
       bidderCalledSelf,
       players: newPlayers,
-    }, () =>this. validatePlayers());
+    }, () =>this.validatePlayers());
   }
 
   private getActivePlayerStates = () => {
@@ -437,11 +445,39 @@ export class GameForm extends React.PureComponent<Props, State> {
           };
         }
       });
+    this.validateOnes(newPlayersArray);
+    this.validateShows(newPlayersArray);
     const newPlayers: {[key: string]: PlayerState} = {};
     newPlayersArray.forEach((newPlayer) => newPlayers[newPlayer.role] = newPlayer);
     this.setState({
       players: newPlayers,
     });
+  }
+
+  private validateOnes(newPlayersArray: PlayerState[]) {
+    const oneLastPlayers = newPlayersArray
+      .filter(player => player.oneLast);
+    if (oneLastPlayers.length > 1) {
+      oneLastPlayers
+        .forEach(player => {
+          if (player.error === undefined) {
+            player.error = "Multiple players played one last.";
+          }
+        });
+    }
+  }
+
+  private validateShows(newPlayersArray: PlayerState[]) {
+    const showedPlayers = newPlayersArray
+        .filter(player => player.showed);
+    if (showedPlayers.length > 2) {
+      showedPlayers
+        .forEach(player => {
+          if (player.error === undefined) {
+            player.error = "More than two people showed.";
+          }
+        });
+    }
   }
 
   private errorCount = (): number => {
