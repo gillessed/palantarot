@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 class InputProps {
   label: string;
   initialValue?: string;
+  initialError?: string;
   onChange?: (value: string, error?: string) => void;
   validator?: (value: string) => string | undefined;
   classNames?: string[];
@@ -13,11 +14,20 @@ class InputState {
   error?: string;
 }
 
-export class TextInput extends PureComponent<InputProps, InputState> {
+export class TextInput extends React.PureComponent<InputProps, InputState> {
   constructor(props: InputProps) {
     super(props);
-    this.state = {
-      value: this.props.initialValue || '',
+    this.state = this.getStateFromProps(props);
+  }
+
+  public componentWillReceiveProps(nextProps: InputProps) {
+    this.setState(this.getStateFromProps(nextProps));
+  }
+
+  private getStateFromProps(props: InputProps) {
+    return {
+      value: props.initialValue || '',
+      error: props.initialError || '',
     };
   }
 
