@@ -352,7 +352,7 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private onBidChanged = (bid?: string, error?: string,) => {
     const bidAmount = bid ? +bid : undefined;
-    const pointsError = this.validatePoints(this.state.points + "", bidAmount);
+    const pointsError = this.validatePoints(this.state.points + '', bidAmount);
     this.setState({
       bidAmount,
       bidAmountError: error,
