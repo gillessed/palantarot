@@ -161,27 +161,11 @@ export class GameForm extends React.PureComponent<Props, State> {
             <TextInput
               label='Points:'
               initialValue={this.state.points === undefined ? '' : `${this.state.points}`}
+              initialError={this.state.pointsError === undefined ? '' : this.state.pointsError}
               classNames={['pt-game-points-input']}
               onChange={this.onPointsChanged}
-              validator={(value: string) => {
-                const number = +value;
-                if (isNaN(number)) {
-                  return 'Points must be a number.';
-                }
-                if (!Number.isInteger(number) || number % 10 !== 0) {
-                  return 'Points must be divisible by 10.';
-                }
-                // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
-                // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
-                if (this.state.bidAmount) {
-                  const bound = this.state.bidAmount + 60 + 400 + 20 + 10;
-                  if (number > bound || number < -bound) {
-                    return 'Points exceed theoretical bound on possible game outcome.';
-                  }
-                }
-              }}
+              validator={(value: string) => this.validatePoints(value, this.state.bidAmount)}
             />
-
             {this.renderPartnerSelector()}
           </div>
 
@@ -367,9 +351,12 @@ export class GameForm extends React.PureComponent<Props, State> {
   }
 
   private onBidChanged = (bid?: string, error?: string,) => {
+    const bidAmount = bid ? +bid : undefined;
+    const pointsError = this.validatePoints(this.state.points + '', bidAmount);
     this.setState({
-      bidAmount: bid ? +bid : undefined,
+      bidAmount,
       bidAmountError: error,
+      pointsError,
     });
   }
 
@@ -402,7 +389,25 @@ export class GameForm extends React.PureComponent<Props, State> {
       return this.state.players[role];
     })
   }
-  
+
+  private validatePoints = (value: string, bidAmount: number | undefined) => {
+    const number = +value;
+    if (isNaN(number)) {
+      return 'Points must be a number.';
+    }
+    if (!Number.isInteger(number) || number % 10 !== 0) {
+      return 'Points must be divisible by 10.';
+    }
+    // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
+    // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
+    if (bidAmount) {
+      const bound = bidAmount + 60 + 400 + 20 + 10;
+      if (number > bound || number < -bound) {
+        return 'Points exceed theoretical bound on possible game outcome.';
+      }
+    }
+  }
+
   private validatePlayers = () => {
     const players = this.getActivePlayerStates();
     const sorted = players
