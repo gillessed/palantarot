@@ -245,6 +245,15 @@ export class GameQuerier {
         currentGameHands.push(hand);
         gameHands.set(gameId, currentGameHands);
       });
+      // last game might be incomplete
+      if (handEntries.length > 0) {
+        const lastHand = handEntries[handEntries.length - 1];
+        const expectedNumPlayers = lastHand['players'] as number;
+        const actualNumPlayers = gameHands.get(lastHand['hand_fk_id'])!.length;
+        if (actualNumPlayers !== expectedNumPlayers) {
+          gameHands.delete(lastHand['hand_fk_id']);
+        }
+      }
       const games: Game[] = [];
       gameHands.forEach((currentPlayerHands: any[]) => {
         games.push(this.getGameFromResults(currentPlayerHands));
