@@ -23,6 +23,18 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
           {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), Intent.WARNING)}
         </div>
+        <div className='info-overlay'>
+          <span className='callout'>
+            <span className='callout-text'>Join us on our </span>
+            <img className='slack-logo' src='/static/images/Slack_Mark_Web.png'/>
+            <span className='callout-text'><a href='https://join.slack.com/t/palantarot/shared_invite/MjQxOTUyMjE3NjAzLTE1MDU1MDcwNjMtMDBjMjIyNDYyNQ'>Slack Channel</a></span>
+          </span>
+          <span className='callout'>
+            <span className='callout-text'>Contribute on </span>
+            <img className='github-logo' src='/static/images/GitHub-Mark-32px.png'/>
+            <span className='callout-text'><a href='https://github.com/gillessed/palantarot'>Github</a></span>
+          </span>
+        </div>
       </div>
     );
   }
