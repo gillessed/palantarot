@@ -17,18 +17,16 @@ class InputState {
 export class TextInput extends React.PureComponent<InputProps, InputState> {
   constructor(props: InputProps) {
     super(props);
-    this.state = this.getStateFromProps(props);
+    this.state = {
+      value: props.initialValue || '',
+      error: props.initialError || '',
+    }
   }
 
   public componentWillReceiveProps(nextProps: InputProps) {
-    this.setState(this.getStateFromProps(nextProps));
-  }
-
-  private getStateFromProps(props: InputProps) {
-    return {
-      value: props.initialValue || '',
-      error: props.initialError || '',
-    };
+    this.setState({
+      error: nextProps.initialError,
+    });
   }
 
   public render() {

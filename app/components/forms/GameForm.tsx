@@ -405,6 +405,8 @@ export class GameForm extends React.PureComponent<Props, State> {
       if (number > bound || number < -bound) {
         return 'Points exceed theoretical bound on possible game outcome.';
       }
+    } else {
+      return 'Must select a bid amount.';
     }
   }
 
