@@ -112,11 +112,17 @@ th {
 
 .table-container {
   overflow-x: scroll;
+  -ms-overflow-style:none;
+  overflow:-moz-scrollbars-none;
 }
+.table-container::-webkit-scrollbar{width:0px}
 
 .pt-tab-list {
   overflow-x: scroll;
+  -ms-overflow-style:none;
+  overflow:-moz-scrollbars-none;
 }
+.pt-tab-list::-webkit-scrollbar{width:0px}
 
 .pt-input {
   -webkit-appearance: none;
