@@ -76,7 +76,6 @@ export class Internal extends React.PureComponent<Props, void> {
   }
 
   private getRecentPlayerList(players: Map<string, Player>, recentGames: Game[]): Player[] | undefined {
-    console.log(recentGames);
     if (recentGames.length >= 2) {
       const playerSet = new Set<string>();
       recentGames
