@@ -59,11 +59,11 @@ export const Timeseries = {
           const series = resultMap.get(player)!;
 
           const dupe = {
-            date: moment(game.timestamp).format('YYYY-MM-DD HH:mm:ss'),
+            date: moment(game.timestamp).format('YYYY-MM-DDTHH:mm:ss'),
             score: series[series.length - 1].score,
           };
           const scorePoint: ScorePoint = {
-            date: moment(game.timestamp).format('YYYY-MM-DD HH:mm:ss'),
+            date: moment(game.timestamp).format('YYYY-MM-DDTHH:mm:ss'),
             score: dupe.score + delta,
           };
           resultMap.get(player)!.push(...[dupe, scorePoint]);

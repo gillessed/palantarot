@@ -69,13 +69,13 @@ export class ResultsGraphContainer extends PureComponent<Props, void> {
   }
 
   private renderChart(games: Game[]) {
-    const rangeStartString = moment().year(this.props.month.year).month(this.props.month.month).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss');
+    const rangeStartString = moment().year(this.props.month.year).month(this.props.month.month).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ss');
     const rangeStart = new Date(rangeStartString);
     let rangeEndString: string;
     if (this.props.month === IMonth.now()) {
-      rangeEndString = moment(games[games.length - 1].timestamp).add(1, 'days').hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss');
+      rangeEndString = moment(games[games.length - 1].timestamp).add(1, 'days').hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ss');
     } else {
-      rangeEndString = moment(rangeStart).add(1, 'month').format('YYYY-MM-DD HH:mm:ss');
+      rangeEndString = moment(rangeStart).add(1, 'month').format('YYYY-MM-DDTHH:mm:ss');
     }
     const rangeEnd = new Date(rangeEndString);
 

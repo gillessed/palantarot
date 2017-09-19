@@ -85,13 +85,13 @@ export class PlayerGraphContainer extends PureComponent<Props, State> {
 
   private renderChart(games: Game[]) {
 
-    const rangeStartString = moment().year(this.state.month.year).month(this.state.month.month).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss');
+    const rangeStartString = moment().year(this.state.month.year).month(this.state.month.month).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ss');
     const rangeStart = new Date(rangeStartString);
     let rangeEndString: string;
     if (this.state.month === IMonth.now()) {
-      rangeEndString = moment(games[games.length - 1].timestamp).add(1, 'days').hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss');
+      rangeEndString = moment(games[games.length - 1].timestamp).add(1, 'days').hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ss');
     } else {
-      rangeEndString = moment(rangeStart).add(1, 'month').format('YYYY-MM-DD HH:mm:ss');
+      rangeEndString = moment(rangeStart).add(1, 'month').format('YYYY-MM-DDTHH:mm:ss');
     }
     const rangeEnd = new Date(rangeEndString);
 
