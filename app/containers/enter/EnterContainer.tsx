@@ -58,7 +58,7 @@ export class Internal extends React.PureComponent<Props, void> {
     this.sagas.register(this.gameSavedListener);
     this.sagas.register(this.gameSaveErrorListener);
     this.dispatchers.players.request(undefined);
-    this.dispatchers.recentGames.request({ count: 2, full: true });
+    this.dispatchers.recentGames.request({ count: 5, full: true });
   }
 
   public componentWillUnmount() {
@@ -76,12 +76,17 @@ export class Internal extends React.PureComponent<Props, void> {
   }
 
   private getRecentPlayerList(players: Map<string, Player>, recentGames: Game[]): Player[] | undefined {
+    console.log(recentGames);
     if (recentGames.length >= 2) {
       const playerSet = new Set<string>();
       recentGames
         .map((game) => this.getPlayersInGame(game))
         .forEach((playerIds: string[]) => {
-          playerIds.forEach((playerId) => playerSet.add(playerId));
+          playerIds.forEach((playerId) => {
+            if (playerSet.size < 10) {
+              playerSet.add(playerId);
+            }
+          });
         });
       const recentPlayers: Player[] = [];
       playerSet.forEach((playerId) => {
