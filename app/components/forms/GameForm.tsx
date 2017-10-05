@@ -165,6 +165,7 @@ export class GameForm extends React.PureComponent<Props, State> {
               classNames={['pt-game-points-input']}
               onChange={this.onPointsChanged}
               validator={(value: string) => this.validatePoints(value, this.state.bidAmount)}
+              type='number'
             />
             {this.renderPartnerSelector()}
           </div>
