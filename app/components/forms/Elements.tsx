@@ -7,6 +7,7 @@ class InputProps {
   onChange?: (value: string, error?: string) => void;
   validator?: (value: string) => string | undefined;
   classNames?: string[];
+  type?: 'text' | 'number';
 }
 
 class InputState {
@@ -38,10 +39,11 @@ export class TextInput extends React.PureComponent<InputProps, InputState> {
           <div className={`tarot-text-input-group pt-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
             <input 
               className={inputClassName}
-              type='text'
+              type={this.props.type || 'text'}
               dir='auto'
               value={this.state.value}
               onChange={this.onChange}
+              pattern={this.props.type === 'number' ? '\\d*' : ''}
             />
           </div>
         </div>
