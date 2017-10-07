@@ -13,7 +13,7 @@ import { Result } from '../../../server/model/Result';
 import { Tab2, Tabs2 } from '@blueprintjs/core';
 import { RecentGamesService } from '../../services/recentGames/index';
 import { Game } from '../../../server/model/Game';
-import { GameTable } from '../../components/gameTable/GameTable';
+import { GameTable, GameOutcome } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
 
@@ -90,6 +90,21 @@ class Internal extends React.PureComponent<Props, void> {
     const rank = rankIndex >= 0 ? rankIndex + 1 : undefined;
     const playerResult = sortedResults.find((result) => result.id === player.id);
     const score = playerResult ? playerResult.points : undefined;
+    const gameWinLossValidator = (game: Game): GameOutcome => {
+      if (!game.handData) {
+        return GameOutcome.UNKNOWN;
+      }
+      let playerOnBidderTeam = false;
+      if (game.handData.bidder.id === player.id ||
+        (game.handData.partner && game.handData.partner.id === player.id)) {
+        playerOnBidderTeam = true;
+      }
+      if (playerOnBidderTeam === (game.points >= 0)) {
+        return GameOutcome.WIN;
+      } else {
+        return GameOutcome.LOSS;
+      }
+    };
 
     const recentGamesTab = (
       <div className='player-games-table-container table-container'>
@@ -97,6 +112,7 @@ class Internal extends React.PureComponent<Props, void> {
           players={players}
           games={recentGames}
           navigationDispatcher={this.dispatchers.navigation}
+          winLossValidator={gameWinLossValidator}
         />
       </div>
     );

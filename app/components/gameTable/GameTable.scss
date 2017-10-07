@@ -4,7 +4,25 @@
   thead tr th {
     background-color: #EBF1F5;
   }
-  tbody tr td {
-    background-color: white;
+  tbody tr.outcome-unknown {
+    td {
+      background-color: white;
+    }
+  }
+  tbody tr.outcome-win {
+    &:hover {
+      background-color: #11A867;
+    }
+    td {
+      background-color: #3DCC91;
+    }
+  }
+  tbody tr.outcome-loss {
+    &:hover {
+      background-color: #EC4949;
+    }
+    td {
+      background-color: #FF7373;
+    }
   }
 }

@@ -4,7 +4,7 @@ import { ReduxState } from '../../services/rootReducer';
 import { PlayersService } from '../../services/players';
 import { RecentGamesService } from '../../services/recentGames';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { GameTable } from '../../components/gameTable/GameTable';
+import { GameTable, BidderWonValidator } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 
@@ -62,6 +62,7 @@ class Internal extends React.PureComponent<Props, State> {
             games={this.props.recentGames.value}
             players={this.props.players.value}
             navigationDispatcher={this.dispatchers.navigation}
+            winLossValidator={BidderWonValidator}
           />
         </div>
       );

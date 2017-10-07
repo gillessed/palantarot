@@ -1,14 +1,28 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
-import { formatTimestamp } from '../../../server/utils/index';
-import { DynamicRoutes } from '../../routes';
 import { NavigationDispatcher } from '../../services/navigation/index';
+import { GameTableRow } from './GameTableRow';
+
+export enum GameOutcome {
+  WIN,
+  LOSS,
+  UNKNOWN,
+}
+
+export const BidderWonValidator = (game: Game) => {
+  if (game.points >= 0) {
+    return GameOutcome.WIN;
+  } else {
+    return GameOutcome.LOSS;
+  }
+}
 
 class Props {
   players: Map<string, Player>;
   games: Game[];
   navigationDispatcher: NavigationDispatcher;
+  winLossValidator?: (game: Game) => GameOutcome;
 }
 
 export class GameTable extends React.PureComponent<Props, {}> {
@@ -34,22 +48,18 @@ export class GameTable extends React.PureComponent<Props, {}> {
   }
 
   private renderGameTableRow = (game: Game) => {
-    const bidder = this.props.players.get(game.bidderId);
-    const bidderName = bidder ? `${bidder.firstName} ${bidder.lastName}` : `Unknown Player: ${game.bidderId}`;
-    let partnerName = '';
-    if (game.partnerId) {
-      const partner = this.props.players.get(game.partnerId);
-      partnerName = partner ? `${partner.firstName} ${partner.lastName}` : `Unknown Player: ${game.partnerId}`;
+    let outcome = GameOutcome.UNKNOWN;
+    if (this.props.winLossValidator) {
+      outcome = this.props.winLossValidator(game);
     }
     return (
-      <tr key={game.id} onClick={() => this.props.navigationDispatcher.push(DynamicRoutes.game(game.id))}>
-        <td>{bidderName}</td>
-        <td>{partnerName}</td>
-        <td>{game.bidAmount}</td>
-        <td>{game.points}</td>
-        <td>{game.numberOfPlayers}</td>
-        <td>{formatTimestamp(game.timestamp)}</td>
-      </tr>
+      <GameTableRow
+        key={game.id}
+        players={this.props.players}
+        game={game}
+        navigationDispatcher={this.props.navigationDispatcher}
+        outcome={outcome}
+      />
     );
   }
 }
