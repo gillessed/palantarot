@@ -13,7 +13,7 @@ import { Result } from '../../../server/model/Result';
 import { Tab2, Tabs2 } from '@blueprintjs/core';
 import { RecentGamesService } from '../../services/recentGames/index';
 import { Game } from '../../../server/model/Game';
-import { GameTable, GameOutcome } from '../../components/gameTable/GameTable';
+import { GameTable, GameOutcome, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
 
@@ -32,20 +32,27 @@ interface StateProps {
 
 type Props = OwnProps & StateProps;
 
-class Internal extends React.PureComponent<Props, void> {
+interface State {
+  page: number;
+}
+
+class Internal extends React.PureComponent<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
 
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
     this.dispatchers = context.dispatchers;
+    this.state = {
+      page: 0,
+    };
   }
 
   public componentWillMount() {
     this.dispatchers.players.request(undefined);
     this.dispatchers.results.request([IMonth.now()]);
-    this.dispatchers.recentGames.request({count: 20, player: this.props.params.playerId});
     this.dispatchers.monthGames.requestSingle(IMonth.now());
+    this.dispatchers.recentGames.request({count: DEFAULT_COUNT, player: this.props.params.playerId});
   }
 
   public render() {
@@ -88,8 +95,10 @@ class Internal extends React.PureComponent<Props, void> {
     const playerOrder = sortedResults.map((result) => result.id);
     const rankIndex = playerOrder.indexOf(player.id);
     const rank = rankIndex >= 0 ? rankIndex + 1 : undefined;
+    const playerCount = playerOrder.length;
     const playerResult = sortedResults.find((result) => result.id === player.id);
     const score = playerResult ? playerResult.points : undefined;
+
     const gameWinLossValidator = (game: Game): GameOutcome => {
       if (!game.handData) {
         return GameOutcome.UNKNOWN;
@@ -105,7 +114,18 @@ class Internal extends React.PureComponent<Props, void> {
         return GameOutcome.LOSS;
       }
     };
-
+    const pageState = {
+      offset: this.state.page,
+      onOffsetChange: (offset: number) => {
+        this.setState({ page: offset }, () => {
+          this.dispatchers.recentGames.request({
+            count: DEFAULT_COUNT,
+            offset: this.state.page * DEFAULT_COUNT,
+            player: this.props.params.playerId,
+          });
+        });
+      },
+    };
     const recentGamesTab = (
       <div className='player-games-table-container table-container'>
         <GameTable
@@ -113,6 +133,7 @@ class Internal extends React.PureComponent<Props, void> {
           games={recentGames}
           navigationDispatcher={this.dispatchers.navigation}
           winLossValidator={gameWinLossValidator}
+          pageState={pageState}
         />
       </div>
     );
@@ -130,6 +151,7 @@ class Internal extends React.PureComponent<Props, void> {
         <PlayerBanner
           playerName={playerName}
           playerRank={rank}
+          playerCount={rank === undefined ? undefined : playerCount}
           playerScore={score}
         />
         <Tabs2 id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>

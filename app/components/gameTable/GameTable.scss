@@ -1,28 +1,40 @@
-.game-table {
-  white-space: nowrap;
-  width: 100%;
-  thead tr th {
-    background-color: #EBF1F5;
-  }
-  tbody tr.outcome-unknown {
-    td {
-      background-color: white;
+.game-table-container {
+  .pager-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .pt-button {
+      margin-right: 10px;
     }
   }
-  tbody tr.outcome-win {
-    &:hover {
-      background-color: #11A867;
+  .game-table {
+    white-space: nowrap;
+    width: 100%;
+    thead tr th {
+      background-color: #EBF1F5;
     }
-    td {
-      background-color: #3DCC91;
+    tbody tr.outcome-unknown {
+      td {
+        background-color: white;
+      }
     }
-  }
-  tbody tr.outcome-loss {
-    &:hover {
-      background-color: #EC4949;
+    tbody tr.outcome-win {
+      &:hover {
+        background-color: #11A867;
+      }
+      td {
+        background-color: #3DCC91;
+      }
     }
-    td {
-      background-color: #FF7373;
+    tbody tr.outcome-loss {
+      &:hover {
+        background-color: #EC4949;
+      }
+      td {
+        background-color: #FF7373;
+      }
     }
   }
 }
