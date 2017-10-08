@@ -9,6 +9,7 @@ import { SaveGameService, saveGameReducer } from './saveGame/index';
 import { DeleteGameService, deleteGameReducer } from './deleteGame/index';
 import { AuthService, authReducer } from './auth/index';
 import { RecordsService, recordsReducer } from './records/index';
+import { statsReducer, StatsService } from './stats/index';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -21,6 +22,7 @@ export interface ReduxState {
   records: RecordsService;
   results: ResultsService;
   saveGame: SaveGameService;
+  stats: StatsService;
 }
 
 export const rootReducer = {
@@ -34,4 +36,5 @@ export const rootReducer = {
   records: recordsReducer,
   results: resultsReducer,
   saveGame: saveGameReducer,
+  stats: statsReducer,
 };

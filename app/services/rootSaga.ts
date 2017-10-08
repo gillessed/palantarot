@@ -13,6 +13,7 @@ import { monthGamesSaga } from './monthGames/index';
 import { deleteGameSaga } from './deleteGame/index';
 import { authSaga } from './auth/index';
 import { recordsSaga } from './records/index';
+import { statsSaga } from './stats/index';
 
 export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
   yield [
@@ -30,5 +31,6 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(recordsSaga, api),
     fork(resultsSaga, api),
     fork(saveGameSaga, api),
+    fork(statsSaga, api),
   ];
 }

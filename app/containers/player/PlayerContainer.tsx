@@ -13,9 +13,11 @@ import { Result } from '../../../server/model/Result';
 import { Tab2, Tabs2 } from '@blueprintjs/core';
 import { RecentGamesService } from '../../services/recentGames/index';
 import { Game } from '../../../server/model/Game';
-import { GameTable } from '../../components/gameTable/GameTable';
+import { GameTable, GameOutcome, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
+import { StatsService } from '../../services/stats/index';
+import { PlayerStatsTab } from './PlayerStatsTab';
 
 interface OwnProps {
   params: {
@@ -28,24 +30,33 @@ interface StateProps {
   players: PlayersService;
   results: ResultsService;
   recentGames: RecentGamesService;
+  stats: StatsService;
 }
 
 type Props = OwnProps & StateProps;
 
-class Internal extends React.PureComponent<Props, void> {
+interface State {
+  page: number;
+}
+
+class Internal extends React.PureComponent<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
 
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
     this.dispatchers = context.dispatchers;
+    this.state = {
+      page: 0,
+    };
   }
 
   public componentWillMount() {
     this.dispatchers.players.request(undefined);
     this.dispatchers.results.request([IMonth.now()]);
-    this.dispatchers.recentGames.request({count: 20, player: this.props.params.playerId});
     this.dispatchers.monthGames.requestSingle(IMonth.now());
+    this.dispatchers.recentGames.request({count: DEFAULT_COUNT, player: this.props.params.playerId});
+    this.dispatchers.stats.request(undefined);
   }
 
   public render() {
@@ -88,15 +99,45 @@ class Internal extends React.PureComponent<Props, void> {
     const playerOrder = sortedResults.map((result) => result.id);
     const rankIndex = playerOrder.indexOf(player.id);
     const rank = rankIndex >= 0 ? rankIndex + 1 : undefined;
+    const playerCount = playerOrder.length;
     const playerResult = sortedResults.find((result) => result.id === player.id);
     const score = playerResult ? playerResult.points : undefined;
 
+    const gameWinLossValidator = (game: Game): GameOutcome => {
+      if (!game.handData) {
+        return GameOutcome.UNKNOWN;
+      }
+      let playerOnBidderTeam = false;
+      if (game.handData.bidder.id === player.id ||
+        (game.handData.partner && game.handData.partner.id === player.id)) {
+        playerOnBidderTeam = true;
+      }
+      if (playerOnBidderTeam === (game.points >= 0)) {
+        return GameOutcome.WIN;
+      } else {
+        return GameOutcome.LOSS;
+      }
+    };
+    const pageState = {
+      offset: this.state.page,
+      onOffsetChange: (offset: number) => {
+        this.setState({ page: offset }, () => {
+          this.dispatchers.recentGames.request({
+            count: DEFAULT_COUNT,
+            offset: this.state.page * DEFAULT_COUNT,
+            player: this.props.params.playerId,
+          });
+        });
+      },
+    };
     const recentGamesTab = (
       <div className='player-games-table-container table-container'>
         <GameTable
           players={players}
           games={recentGames}
           navigationDispatcher={this.dispatchers.navigation}
+          winLossValidator={gameWinLossValidator}
+          pageState={pageState}
         />
       </div>
     );
@@ -109,17 +150,25 @@ class Internal extends React.PureComponent<Props, void> {
       />
     );
 
+    const statsTab = (
+      <PlayerStatsTab
+        player={player}
+        stats={this.props.stats}
+      />
+    );
+
     return (
       <div className='player-view-container page-container'>
         <PlayerBanner
           playerName={playerName}
           playerRank={rank}
+          playerCount={rank === undefined ? undefined : playerCount}
           playerScore={score}
         />
         <Tabs2 id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
           <Tab2 id='PlayerRecentGamesTab' title='Recent Games' panel={recentGamesTab} />
           <Tab2 id='PlayerGraphsTab' title='Graphs' panel={graphTab} />
-          <Tab2 id='PlayerStatsTab' title='Stats' panel={<h4>Under Construction...</h4>} />
+          <Tab2 id='PlayerStatsTab' title='Stats' panel={statsTab} />
         </Tabs2>
       </div>
     );
@@ -137,6 +186,7 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
     results: state.results,
     recentGames: state.recentGames,
     monthGames: state.monthGames,
+    stats: state.stats,
   };
 }
 

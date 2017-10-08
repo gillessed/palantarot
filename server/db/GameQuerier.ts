@@ -25,11 +25,11 @@ export class GameQuerier {
   public queryGameWithId = (gameId: string): Promise<Game> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
-        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id'),
+      .join('player_hand', 'INNER',
+        QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id'),
       )
       .where(
-        QueryBuilder.condition().equals('hand.id', '=', gameId),
+        QueryBuilder.compare().compare('hand.id', '=', gameId),
       );
     
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
@@ -43,9 +43,9 @@ export class GameQuerier {
       .c("COUNT(*)")
       .c('SUM(points_earned)')
       .where(
-        QueryBuilder.condition()
-          .equals('timestamp', '>=', startDate)
-          .equals('timestamp', '<', endDate)
+        QueryBuilder.compare()
+          .compare('timestamp', '>=', startDate)
+          .compare('timestamp', '<', endDate)
       )
       .groupBy('player_fk_id');
 
@@ -66,28 +66,40 @@ export class GameQuerier {
     }
     const sqlQuery = QueryBuilder.select('hand').star();
     if (query.player) {
-      sqlQuery.join('player_hand',
-        QueryBuilder.condition()
-          .equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
-          .equals('player_hand.player_fk_id', '=', query.player),
+      sqlQuery.join(
+        QueryBuilder
+          .subselect('player_hand', 'p')
+          .star()
+          .where(
+            QueryBuilder.compare().compare('player_fk_id', '=', query.player)
+          )
+          .orderBy('timestamp', 'desc')
+          .limit(query.count, query.offset),
+          'INNER',
+        QueryBuilder.contains('hand.id', 'p.hand_fk_id')
       );
-    } else if (query.full) {
-      sqlQuery.join('player_hand',
-        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
-      )
-    }
-    sqlQuery.orderBy('hand.timestamp', 'desc');
-    sqlQuery.limit(query.full ? query.count * 5 : query.count, query.offset);
-
-    if (query.full) {
-      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
-        return this.getGamesFromResults(handEntries).slice(0, query.count);
-      });
     } else {
-      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
-        return result.map(this.getGameData);
-      });
+      sqlQuery.join(
+        QueryBuilder
+          .subselect('hand', 'p')
+          .star()
+          .orderBy('timestamp', 'desc')
+          .limit(query.count, query.offset),
+          'INNER',
+        QueryBuilder.compare().compareColumn('hand.id', '=', 'p.id')
+      );
     }
+
+    sqlQuery.join('player_hand', 'INNER',
+      QueryBuilder.compare()
+        .compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
+    );
+
+    sqlQuery.orderBy('hand.timestamp', 'desc');
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
+      return this.getGamesFromResults(handEntries).slice(0, query.count);
+    });
   }
 
   /**
@@ -96,13 +108,13 @@ export class GameQuerier {
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
-        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+      .join('player_hand', 'INNER',
+        QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
       .where(
-        QueryBuilder.condition()
-          .equals('hand.timestamp', '>=', startDate)
-          .equals('hand.timestamp', '<', endDate)
+        QueryBuilder.compare()
+          .compare('hand.timestamp', '>=', startDate)
+          .compare('hand.timestamp', '<', endDate)
       )
       .orderBy('hand.timestamp');
 
@@ -121,7 +133,7 @@ export class GameQuerier {
     if (game.id) {
       timestamp = moment(game.timestamp).format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.update('hand')
-        .where(QueryBuilder.condition().equals('id', '=', game.id));
+        .where(QueryBuilder.compare().compare('id', '=', game.id));
     } else {
       timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.insert('hand')
@@ -141,7 +153,7 @@ export class GameQuerier {
         // If the game has an id, we are updating, so delete the old hands so we can add the new ones.
         const deleteOldHandsSqlQuery = QueryBuilder.delete('player_hand')
           .where(
-            QueryBuilder.condition().equals('hand_fk_id', '=', game.id),
+            QueryBuilder.compare().compare('hand_fk_id', '=', game.id),
           );
         maybeDelete = transaction.query(deleteOldHandsSqlQuery.getQueryString(), deleteOldHandsSqlQuery.getValues());
       } else {
@@ -178,11 +190,11 @@ export class GameQuerier {
   public deleteGame = (gameId: string): Promise<any> => {
     const deleteHandSqlQuery = QueryBuilder.delete('hand')
       .where(
-        QueryBuilder.condition().equals('id', '=', gameId),
+        QueryBuilder.compare().compare('id', '=', gameId),
       );
     const deletePlayerHandsSqlQuery = QueryBuilder.delete('player_hand')
       .where(
-        QueryBuilder.condition().equals('hand_fk_id', '=', gameId),
+        QueryBuilder.compare().compare('hand_fk_id', '=', gameId),
       );
 
     return this.db.beginTransaction().then((transaction) => {
@@ -197,11 +209,11 @@ export class GameQuerier {
   public getSlamGames = (): Promise<Game[]> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
-        QueryBuilder.condition().equalsColumn('hand.id', '=', 'player_hand.hand_fk_id')
+      .join('player_hand', 'INNER',
+        QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
       .where(
-        QueryBuilder.condition().equals('hand.points', '>=', 260)
+        QueryBuilder.compare().compare('hand.points', '>=', 260)
       )
       .orderBy('hand.timestamp', 'desc');
 
@@ -210,7 +222,7 @@ export class GameQuerier {
     });
   }
 
-  public getAllMonhtlyTotals = (): Promise<MonthlyScore[]> => {
+  public getAllMonthlyTotals = (): Promise<MonthlyScore[]> => {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
       .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")

@@ -145,7 +145,7 @@ export class GameService {
 
   public getRecords = (_: Request, res: Response) => {
     let records: Partial<Records> = {};
-    this.gameDb.getAllMonhtlyTotals().then((scores) => {
+    this.gameDb.getAllMonthlyTotals().then((scores) => {
       records = { ...records, scores };
       return this.gameDb.getSlamGames();
     }).then((slamGames: Game[]) => {
