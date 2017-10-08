@@ -16,6 +16,8 @@ import { Game } from '../../../server/model/Game';
 import { GameTable, GameOutcome, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
 import { MonthGamesService } from '../../services/monthGames/index';
 import { PlayerGraphContainer } from '../../components/player/PlayerGraphContainer';
+import { StatsService } from '../../services/stats/index';
+import { PlayerStatsTab } from './PlayerStatsTab';
 
 interface OwnProps {
   params: {
@@ -28,6 +30,7 @@ interface StateProps {
   players: PlayersService;
   results: ResultsService;
   recentGames: RecentGamesService;
+  stats: StatsService;
 }
 
 type Props = OwnProps & StateProps;
@@ -53,6 +56,7 @@ class Internal extends React.PureComponent<Props, State> {
     this.dispatchers.results.request([IMonth.now()]);
     this.dispatchers.monthGames.requestSingle(IMonth.now());
     this.dispatchers.recentGames.request({count: DEFAULT_COUNT, player: this.props.params.playerId});
+    this.dispatchers.stats.request(undefined);
   }
 
   public render() {
@@ -146,6 +150,13 @@ class Internal extends React.PureComponent<Props, State> {
       />
     );
 
+    const statsTab = (
+      <PlayerStatsTab
+        player={player}
+        stats={this.props.stats}
+      />
+    );
+
     return (
       <div className='player-view-container page-container'>
         <PlayerBanner
@@ -157,7 +168,7 @@ class Internal extends React.PureComponent<Props, State> {
         <Tabs2 id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
           <Tab2 id='PlayerRecentGamesTab' title='Recent Games' panel={recentGamesTab} />
           <Tab2 id='PlayerGraphsTab' title='Graphs' panel={graphTab} />
-          <Tab2 id='PlayerStatsTab' title='Stats' panel={<h4>Under Construction...</h4>} />
+          <Tab2 id='PlayerStatsTab' title='Stats' panel={statsTab} />
         </Tabs2>
       </div>
     );
@@ -175,6 +186,7 @@ const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & Sta
     results: state.results,
     recentGames: state.recentGames,
     monthGames: state.monthGames,
+    stats: state.stats,
   };
 }
 

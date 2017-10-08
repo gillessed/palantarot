@@ -11,4 +11,35 @@
   #player-graph {
     background-color: #FFFFFF;
   }
+
+  .player-stats-table {
+    white-space: nowrap;
+    width: 100%;
+
+    thead tr th {
+      background-color: #EBF1F5;
+    }
+
+    td.averages {
+      font-family: blenderProBold;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    tbody tr td {
+      background-color: white;
+      
+      &.not-applicable {
+        background-color: #CED9E0;
+      }
+      
+      &.greater {
+        background-color: #3DCC91;
+      }
+      
+      &.lesser {
+        background-color: #FF7373;
+      }
+    }
+  }
 }

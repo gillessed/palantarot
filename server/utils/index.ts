@@ -115,3 +115,8 @@ export function integerComparator<T>(
     }
   };
 }
+
+export function chop(value: number, places: number) {
+  const pow = Math.pow(10, places);
+  return Math.floor(value * pow) / pow;
+}

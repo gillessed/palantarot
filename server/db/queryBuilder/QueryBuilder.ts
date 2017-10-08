@@ -1,13 +1,15 @@
 /*
  * Simple query builders that should do most things need. If need more, implement more.
  */
+export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
+
 export const QueryBuilder = {
   insert: (table: string) => new InsertBuilder(table),
   update: (table: string) => new UpdateBuilder(table),
   delete: (table: string) => new DeleteBuilder(table),
   select: (table: string) => new SelectBuilder(table),
   subselect: (table: string, name: string) => new SelectBuilder(table, name),
-  join: (table: string, condition: ComparisonBuilder) => new JoinBuilder(table, condition),
+  join: (table: string, type: JoinType, condition: ComparisonBuilder) => new JoinBuilder(table, type, condition),
   where: (condition: ComparisonBuilder) => new WhereBuilder(condition),
   compare: () => new ComparisonBuilder(),
   contains: (column: string, value: string) => new ContainsBuilder(column, value),
@@ -129,16 +131,23 @@ class SelectBuilder implements QueryBuilder {
   private _orderBy?: string;
   private _orderDirection?: 'asc' | 'desc';
   private _groupBy?: string[];
+  private _name: string;
 
   constructor(
     private readonly _table: string,
-    private readonly _name?: string,
+    name?: string,
   ) {
+    this._name = name || 'no name set';
     this._joins = [];
   };
 
   public getName(): string | undefined {
     return this._name;
+  }
+
+  public name(name: string): SelectBuilder {
+    this._name = name;
+    return this;
   }
 
   public star(): SelectBuilder {
@@ -151,13 +160,13 @@ class SelectBuilder implements QueryBuilder {
     return this;
   }
 
-  public columns(newColunn: string[]): SelectBuilder {
+  public cs(...newColunn: string[]): SelectBuilder {
     this._columns.push(...newColunn);
     return this;
   }
 
-  public join(table: string | SelectBuilder, condition: ConditionBuilder): SelectBuilder {
-    this._joins.push(new JoinBuilder(table, condition));
+  public join(table: string | SelectBuilder, type: JoinType, condition: ConditionBuilder): SelectBuilder {
+    this._joins.push(new JoinBuilder(table, type, condition));
     return this;
   }
 
@@ -188,7 +197,6 @@ class SelectBuilder implements QueryBuilder {
     if (this._star) {
       queryString += '*';
     } else {
-      queryString += ' ';
       queryString += this._columns.join(', ');
     }
     queryString += ' FROM ';
@@ -238,11 +246,13 @@ class SelectBuilder implements QueryBuilder {
 class JoinBuilder implements QueryBuilder {
   constructor(
     private readonly _table: string | SelectBuilder,
+    private readonly _type: JoinType,
     private readonly _condition: ConditionBuilder
   ) {}
 
   public getQueryString(): string {
-    let queryString = 'JOIN ';
+    let queryString = this._type;
+    queryString += ' JOIN ';
     if (this._table instanceof SelectBuilder) {
       queryString += '(';
       queryString += this._table.getQueryString();
@@ -291,8 +301,9 @@ class ComparisonBuilder implements ConditionBuilder {
 
   public compare(column: string, comparator: Comparator, value: any): ComparisonBuilder {
     let clause = column;
+    clause += ' '
     clause += comparator;
-    clause += '?';
+    clause += ' ? ';
     this.clauses.push(clause);
     this.values.push(value);
     return this;
@@ -300,7 +311,9 @@ class ComparisonBuilder implements ConditionBuilder {
 
   public compareColumn(column1: string, comparator: Comparator, column2: string): ComparisonBuilder {
     let clause = column1;
+    clause += ' ';
     clause += comparator;
+    clause += ' ';
     clause += column2;
     this.clauses.push(clause);
     return this;

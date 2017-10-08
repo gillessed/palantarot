@@ -25,7 +25,7 @@ export class GameQuerier {
   public queryGameWithId = (gameId: string): Promise<Game> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
+      .join('player_hand', 'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id'),
       )
       .where(
@@ -75,6 +75,7 @@ export class GameQuerier {
           )
           .orderBy('timestamp', 'desc')
           .limit(query.count, query.offset),
+          'INNER',
         QueryBuilder.contains('hand.id', 'p.hand_fk_id')
       );
     } else {
@@ -84,11 +85,12 @@ export class GameQuerier {
           .star()
           .orderBy('timestamp', 'desc')
           .limit(query.count, query.offset),
+          'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'p.id')
       );
     }
 
-    sqlQuery.join('player_hand',
+    sqlQuery.join('player_hand', 'INNER',
       QueryBuilder.compare()
         .compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
     );
@@ -106,7 +108,7 @@ export class GameQuerier {
   public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
+      .join('player_hand', 'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
       .where(
@@ -207,7 +209,7 @@ export class GameQuerier {
   public getSlamGames = (): Promise<Game[]> => {
     const sqlQuery = QueryBuilder.select('hand')
       .star()
-      .join('player_hand',
+      .join('player_hand', 'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
       .where(

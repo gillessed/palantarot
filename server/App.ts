@@ -12,6 +12,7 @@ import { Config } from './config';
 import { AuthService, createRequestValidator } from './api/AuthService';
 import { Request } from 'express';
 import { StaticRoutes, DynamicRoutes } from '../app/routes';
+import { StatsService } from './api/StatsService';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 const unauthedRoutes = ['/login', '/favicon.ico', '/resources', '/static'];
@@ -97,6 +98,9 @@ export class App {
 
     const gameService = new GameService(this.db);
     this.express.use('/api/v1/game', gameService.router);
+    
+    const statsService = new StatsService(this.db);
+    this.express.use('/api/v1/stats', statsService.router);
 
     const authService = new AuthService(this.config);
     this.express.use('/api/v1/login', authService.router);

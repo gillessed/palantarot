@@ -11,6 +11,7 @@ import { ReduxState } from './rootReducer';
 import { AuthDispatcher } from './auth/index';
 import { RecordsDispatcher } from './records/index';
 import { CacheFunctions } from './redux/serviceDispatcher';
+import { StatsDispatcher } from './stats/index';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
@@ -24,6 +25,7 @@ export interface Dispatchers {
   records: RecordsDispatcher;
   results: ResultsDispatcher;
   saveGame: SaveGameDispatcher;
+  stats: StatsDispatcher;
 }
 
 export const dispatcherCreators = (dispatch: any): Dispatchers => {
@@ -64,6 +66,10 @@ export const dispatcherCreators = (dispatch: any): Dispatchers => {
     saveGame: new SaveGameDispatcher(
       dispatch,
       (state: ReduxState) => state.saveGame
+    ),
+    stats: new StatsDispatcher(
+      dispatch,
+      (state: ReduxState) => state.stats,
     ),
   };
 };
