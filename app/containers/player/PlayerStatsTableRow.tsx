@@ -76,7 +76,7 @@ export class PlayerStatsTableRow extends React.PureComponent<Props, {}> {
         greater: win >= average.win,
         lesser: win < average.win,
       })
-      return <td className={classes}>{chop(win, 2)}%</td>;
+      return <td className={classes}>+{chop(win, 2)}</td>;
     } else {
       return <td className='not-applicable'>N/A</td>;
     }
