@@ -1,7 +1,7 @@
 import React from 'react';
 import { Game, PlayerHand } from '../../../server/model/Game';
 import { Player } from '../../../server/model/Player';
-import { TextInput, SelectInput } from './Elements';
+import { SelectInput, PointsInput } from './Elements';
 import { PlayerSelector, PlayerState } from '../../containers/playerSelector/PlayerSelector';
 
 interface Props {
@@ -158,15 +158,16 @@ export class GameForm extends React.PureComponent<Props, State> {
               }}
             />
 
-            <TextInput
+            <PointsInput
               label='Points:'
               initialValue={this.state.points === undefined ? '' : `${this.state.points}`}
               initialError={this.state.pointsError === undefined ? '' : this.state.pointsError}
               classNames={['pt-game-points-input']}
               onChange={this.onPointsChanged}
               validator={(value: string) => this.validatePoints(value, this.state.bidAmount)}
-              type='number'
+              points={this.state.points}
             />
+            
             {this.renderPartnerSelector()}
           </div>
 
