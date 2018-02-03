@@ -19,6 +19,9 @@ import { DynamicRoutes } from '../../routes';
 import { count, Aggregator, Aggregate } from '../../../server/utils/count';
 import { IMonth } from '../../../server/model/Month';
 import { Checkbox } from '@blueprintjs/core';
+import { StatsService } from '../../services/stats/index';
+import { AggregatedStats } from '../../../server/model/Stats';
+import { WinPercentagesTab } from './WinPercentagesTab';
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -33,6 +36,7 @@ interface SlamRecord {
 interface Props {
   players: PlayersService;
   records: RecordsService;
+  stats: StatsService;
 }
 
 interface State {
@@ -73,6 +77,7 @@ class Internal extends React.PureComponent<Props, State> {
   public componentWillMount() {
     this.dispatchers.players.request(undefined);
     this.dispatchers.records.request(undefined);
+    this.dispatchers.stats.request(undefined);
   }
 
   public render() {
@@ -87,10 +92,10 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private renderContainer() {
-    if (this.props.players.loading || this.props.records.loading) {
+    if (this.props.players.loading || this.props.records.loading || this.props.stats.loading) {
       return <SpinnerOverlay size='pt-large'/>;
-    } else if (this.props.players.value && this.props.records.value) {
-      return this.renderContents(this.props.players.value, this.props.records.value);
+    } else if (this.props.players.value && this.props.records.value && this.props.stats.value) {
+      return this.renderContents(this.props.players.value, this.props.records.value, this.props.stats.value);
     } else if (this.props.players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
     } else if (this.props.records.error) {
@@ -100,11 +105,17 @@ class Internal extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderContents(players: Map<string, Player>, records: Records) {
+  private renderContents(players: Map<string, Player>, records: Records, stats: AggregatedStats) {
     const allTimeTab = this.renderAllTimeTab(players, records.scores);
     const monthlyTab = this.renderMonthlyTab(players, records.scores);
     const slamTab = this.renderSlamTab(players, records.slamGames);
-    const winPercentagesTab = this.renderWinPercentagesTab(players);
+    const winPercentagesTab = (
+      <WinPercentagesTab
+        dispatchers={this.dispatchers}
+        players={players}
+        stats={stats}
+      />
+    );
     return (
       <div className='records-tabs-container'>
         <Tabs2 id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
@@ -476,24 +487,13 @@ class Internal extends React.PureComponent<Props, State> {
     });
     return Array.from(counts.values());
   }
-
-  /*
-   * Win Percentages Tab
-   */
-
-  private renderWinPercentagesTab(_: Map<string, Player>) {
-    return (
-      <div className='slam-tab-container tab-container'>
-        <p>TODO: This will be a table showing players' win percentages overall, as the bidder, as the partner, and as the opposition.</p>
-      </div>
-    );
-  }
 }
 
 const mapStateToProps = (state: ReduxState): Props => {
   return {
     players: state.players,
     records: state.records,
+    stats: state.stats,
   }
 }
 
