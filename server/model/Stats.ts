@@ -41,4 +41,6 @@ export interface StatAverages {
 export interface StatAverage {
   per: number;
   win?: number;
+  rate?: number;
+  totalCount: number;
 }
