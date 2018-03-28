@@ -1,4 +1,5 @@
 import { Game } from './Game';
+
 export interface Records {
   scores: MonthlyScore[];
   slamGames: Game[];

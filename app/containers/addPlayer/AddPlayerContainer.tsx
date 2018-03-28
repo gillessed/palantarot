@@ -9,6 +9,7 @@ import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { StaticRoutes } from '../../routes';
+import history from '../../history';
 
 interface StateProps {
   addPlayerService: AddPlayerService,
@@ -20,7 +21,7 @@ interface State {
   numberOfPlayers: 5,
 }
 
-export class Internal extends React.PureComponent<Props, State> {
+export class Internal extends React.Component<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
 
@@ -36,7 +37,7 @@ export class Internal extends React.PureComponent<Props, State> {
     this.dispatchers.players.request(undefined);
   }
 
-  public componentWillReceiveProps = (nextProps: Props) => {
+  public componentWillReceiveProps(nextProps: Props) {
     if (nextProps.addPlayerService.error && nextProps.addPlayerService.error !== this.props.addPlayerService.error) {
       Palantoaster.show({
         message: nextProps.addPlayerService.error.message,
@@ -52,7 +53,7 @@ export class Internal extends React.PureComponent<Props, State> {
       if (nextProps.addPlayerService.redirect) {
         const redirect = nextProps.addPlayerService.redirect;
         this.dispatchers.addPlayer.clear();
-        this.dispatchers.navigation.push(redirect);
+        history.push(redirect);
       }
     }
   }

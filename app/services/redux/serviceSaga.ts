@@ -1,10 +1,7 @@
-import { LoadablePropertyActionCreators, LoadableServiceActionCreators } from './serviceActions';
-import {
-  ActionType,
-  TypedAction,
-} from './typedAction';
 import { SagaIterator } from 'redux-saga';
 import { put, call, takeEvery, takeLatest } from 'redux-saga/effects';
+import { TypedAction } from 'redoodle';
+import { ServiceActions, PropertyActions } from './serviceActions';
 
 export interface AsyncOperationBasePayload<T> {
   arg: T;
@@ -25,48 +22,48 @@ export interface IObject<O> {
 
 export function createSagaServiceOperation<ARG, RESULT>(
   operation: (arg: ARG[]) => Promise<Map<ARG, RESULT>> | Map<ARG, RESULT>,
-  actionCreators: LoadableServiceActionCreators<ARG, RESULT>) {
+  actions: ServiceActions<ARG, RESULT>) {
   return function* (action: TypedAction<ARG[]>): SagaIterator {
     const arg = action.payload;
     try {
-      yield put(actionCreators.loading(arg));
+      yield put(actions.loading(arg));
       const result = yield call(operation, arg);
-      yield put(actionCreators.success({ arg, result }));
+      yield put(actions.success({ arg, result }));
     } catch (error) {
-      yield put(actionCreators.error({ arg, error }));
+      yield put(actions.error({ arg, error }));
     }
   };
 }
 
 export function createSagaPropertyOperation<ARG, RESULT>(
   operation: (arg: ARG) => Promise<RESULT> | RESULT,
-  actionCreators: LoadablePropertyActionCreators<ARG, RESULT>) {
+  actions: PropertyActions<ARG, RESULT>) {
   return function* (action: TypedAction<ARG>): SagaIterator {
     const arg = action.payload;
     try {
-      yield put(actionCreators.loading(undefined));
+      yield put(actions.loading(undefined));
       const result = yield call(operation, arg);
-      yield put(actionCreators.success({ result }));
+      yield put(actions.success({ result }));
     } catch (error) {
-      yield put(actionCreators.error({ error }));
+      yield put(actions.error({ error }));
     }
   };
 }
 
 export function takeLatestTyped<ARG>(
-  actionType: ActionType<ARG>,
+  actionType: TypedAction.Definition<string, ARG>,
   saga: (action: TypedAction<ARG>) => IterableIterator<any>) {
-  return takeLatest(actionType, saga);
+  return takeLatest(actionType.TYPE, saga);
 }
 
 export function takeEveryTyped<ARG>(
-  actionType: ActionType<ARG>,
+  actionType: TypedAction.Definition<string, ARG>,
   saga: (action: TypedAction<ARG>) => IterableIterator<any>) {
-  return takeEvery(actionType, saga);
+  return takeEvery(actionType.TYPE, saga);
 }
 
 export function takeEveryPayload<ARG>(
-  actionType: ActionType<ARG>,
+  actionType: TypedAction.Definition<string, ARG>,
   saga: (payload: ARG) => IterableIterator<any>) {
   return takeEveryTyped(actionType, (action) => saga(action.payload));
 }

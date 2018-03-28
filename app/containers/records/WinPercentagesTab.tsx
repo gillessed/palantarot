@@ -150,7 +150,7 @@ export class WinPercentagesTab extends React.PureComponent<Props, State> {
     return (
       <div className='win-percentages-container table-container'>
         {this.renderFilter()}
-        <table className='player-stats-table pt-table pt-bordered'>
+        <table className='player-stats-table pt-html-table pt-html-table-bordered'>
           <thead>
             <tr>
               <th></th>

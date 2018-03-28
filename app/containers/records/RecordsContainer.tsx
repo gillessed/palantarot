@@ -8,13 +8,13 @@ import { RecordsService } from '../../services/records/index';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { Player } from '../../../server/model/Player';
 import { Records, MonthlyScore } from '../../../server/model/Records';
-import { Tabs2, Tab2 } from '@blueprintjs/core';
+import { Tabs, Tab } from '@blueprintjs/core';
 import { Result } from '../../../server/model/Result';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
 import { Game } from '../../../server/model/Game';
 import { GameTable } from '../../components/gameTable/GameTable';
 import { arrayMax, integerComparator } from '../../../server/utils/index';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { DynamicRoutes } from '../../routes';
 import { count, Aggregator, Aggregate } from '../../../server/utils/count';
 import { IMonth } from '../../../server/model/Month';
@@ -22,6 +22,7 @@ import { Checkbox } from '@blueprintjs/core';
 import { StatsService } from '../../services/stats/index';
 import { AggregatedStats } from '../../../server/model/Stats';
 import { WinPercentagesTab } from './WinPercentagesTab';
+import { DeltasTab } from './DeltasTab';
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -116,14 +117,18 @@ class Internal extends React.PureComponent<Props, State> {
         stats={stats}
       />
     );
+    const deltasTab = (
+      <DeltasTab />
+    );
     return (
       <div className='records-tabs-container'>
-        <Tabs2 id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
-          <Tab2 id='RecordsAllTimeTab' title='All-Time' panel={allTimeTab} />
-          <Tab2 id='RecordsMonthlyTab' title='Monthly' panel={monthlyTab} />
-          <Tab2 id='RecordsSlamTab' title='Slams' panel={slamTab} />
-          <Tab2 id='RecordsWinPercentagesTab' title='Win Percentages' panel={winPercentagesTab} />
-        </Tabs2>
+        <Tabs id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
+          <Tab id='RecordsAllTimeTab' title='All-Time' panel={allTimeTab} />
+          <Tab id='RecordsMonthlyTab' title='Monthly' panel={monthlyTab} />
+          <Tab id='RecordsSlamTab' title='Slams' panel={slamTab} />
+          <Tab id='RecordsWinPercentagesTab' title='Win Percentages' panel={winPercentagesTab} />
+          <Tab id='DeltasTab' title='Deltas' panel={deltasTab} />
+        </Tabs>
       </div>
     );
   }
@@ -150,7 +155,6 @@ class Internal extends React.PureComponent<Props, State> {
           <ScoreTable
             results={results}
             players={players}
-            navigationDispatcher={this.dispatchers.navigation}
           />
         </div>
       </div>
@@ -235,7 +239,7 @@ class Internal extends React.PureComponent<Props, State> {
     return (
       <div className='sub-container'>
         <h3> Month Winners </h3>
-        <table className='slam-count-table pt-table pt-bordered'>
+        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
           <thead>
             <tr>
               <th>Month</th>
@@ -288,7 +292,7 @@ class Internal extends React.PureComponent<Props, State> {
     return (
       <div className='sub-container'>
         <h3> Month Win Counts </h3>
-        <table className='slam-count-table pt-table pt-bordered'>
+        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
           <thead>
             <tr>
               <th>Player</th>
@@ -422,7 +426,6 @@ class Internal extends React.PureComponent<Props, State> {
           <GameTable
             players={players}
             games={slamGames}
-            navigationDispatcher={this.dispatchers.navigation}
           />
         </div>
       </div>
@@ -432,7 +435,7 @@ class Internal extends React.PureComponent<Props, State> {
   private renderSlamCountTable(players: Map<string, Player>, slams: SlamRecord[]) {
     return (
       <div className='slam-count-table-container'>
-        <table className='slam-count-table pt-table pt-bordered'>
+        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
           <thead>
             <tr>
               <th>Player</th>

@@ -7,19 +7,18 @@ import { mapFromCollection } from '../../server/utils';
 import { RecentGameQuery } from '../../server/db/GameQuerier';
 import { AuthRequest } from '../services/auth/index';
 import { pTimeout } from '../../server/utils/index';
-import { Store } from 'redux';
-import { ReduxState } from '../services/rootReducer';
-import { push } from 'react-router-redux';
 import { StaticRoutes } from '../routes';
 import { Records } from '../../server/model/Records';
 import { Stats } from '../../server/model/Stats';
+import { DeltasRequest } from '../../server/api/StatsService';
+import { Deltas } from '../../server/model/Delta';
+import history from '../history';
 
 export class ServerApi {
   private api: ApisauceInstance;
 
   constructor(
     baseURL: string,
-    private readonly store: Store<ReduxState>,
   ) {
     this.api = create({
       baseURL
@@ -77,6 +76,10 @@ export class ServerApi {
     return this.wrapGet<Stats>('/stats');
   }
 
+  public getDeltas = (request: DeltasRequest) => {
+    return this.wrapPost<Deltas>('/stats/deltas', request);
+  }
+
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
@@ -89,7 +92,7 @@ export class ServerApi {
           return data;
         }
       } else if (response.status === 403) {
-        this.store.dispatch(push(StaticRoutes.login()));
+        history.push(StaticRoutes.login());
         throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);
@@ -107,7 +110,7 @@ export class ServerApi {
           return data;
         }
       } else if (response.status === 403) {
-        this.store.dispatch(push(StaticRoutes.login()));
+        history.push(StaticRoutes.login());
         throw new Error('Unauthaurized');
       } else {
         throw new Error(response.problem);

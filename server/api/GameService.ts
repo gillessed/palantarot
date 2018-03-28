@@ -1,6 +1,5 @@
 import { Result } from './../model/Result';
 import { Game } from './../model/Game';
-import { PlayerQuerier } from './../db/PlayerQuerier';
 import { GameQuerier } from './../db/GameQuerier';
 import { Database } from './../db/dbConnector';
 import { Router, Request, Response } from 'express';
@@ -8,18 +7,15 @@ import { Month, IMonth } from '../model/Month';
 import moment from 'moment-timezone';
 import { RecentGameQuery } from '../db/GameQuerier';
 import { Records } from '../model/Records';
-import {  } from '../model/Result';
 
 const westernTimezone = 'America/Los_Angeles';
 
 export class GameService {
   public router: Router;
-  private playerDb: PlayerQuerier;
   private gameDb: GameQuerier;
 
   constructor(db: Database) {
     this.router = Router();
-    this.playerDb = new PlayerQuerier(db);
     this.gameDb = new GameQuerier(db);
     this.router.get('/records', this.getRecords);
     this.router.post('/month', this.getMonthResults);
@@ -44,7 +40,7 @@ export class GameService {
 
     const startDate = this.convertToSql(month);
     const endDate = this.convertToSql(month.next());
-    const deltaCutoff = moment.tz(westernTimezone).startOf('day').format('YYYY-MM-DDThh:mm:ssZ');
+    const deltaCutoff = moment.tz(westernTimezone).startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
 
     this.gameDb.queryResultsBetweenDates(startDate, endDate).then((results: Result[]) => {
       return this.gameDb.queryResultsBetweenDates(deltaCutoff, endDate).then((deltaResults: Result[]) => {
@@ -149,7 +145,7 @@ export class GameService {
       records = { ...records, scores };
       return this.gameDb.getSlamGames();
     }).then((slamGames: Game[]) => {
-      records = { ... records, slamGames };
+      records = { ...records, slamGames };
       res.send(records);
     }).catch((e) => {
       res.send({ error: 'Could not get scores: ' + e});

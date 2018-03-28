@@ -1,11 +1,11 @@
 import { Loadable, LoadableCache } from './loadable';
-import { newTypedReducer } from './typedReducer';
-import { LoadableServiceActions, LoadablePropertyActions } from './serviceActions';
+import { TypedReducer } from 'redoodle';
+import { ServiceActions, PropertyActions } from './serviceActions';
 
 export function generateServiceReducer<ARG, RESULT>(
-  actions: LoadableServiceActions<ARG, RESULT>,
-  reducerBuilder = newTypedReducer<LoadableCache<ARG, RESULT>>()
-    .handleDefault((state = LoadableCache.create<ARG, RESULT>()) => state)) {
+  actions: ServiceActions<ARG, RESULT>,
+  reducerBuilder = TypedReducer.builder<LoadableCache<ARG, RESULT>>()
+    .withDefaultHandler((state = LoadableCache.create<ARG, RESULT>()) => state)) {
   function loadingReducer(
     cache: LoadableCache<ARG, RESULT>,
     keys: ARG[]) {
@@ -30,17 +30,17 @@ export function generateServiceReducer<ARG, RESULT>(
     return cache.clearAll();
   }
   return reducerBuilder
-    .handlePayload(actions.SUCCESS, successReducer)
-    .handlePayload(actions.LOADING, loadingReducer)
-    .handlePayload(actions.ERROR, errorReducer)
-    .handlePayload(actions.CLEAR, clearReducer)
-    .handlePayload(actions.CLEAR_ALL, clearAllReducer);
+    .withHandler(actions.success.TYPE, successReducer)
+    .withHandler(actions.loading.TYPE, loadingReducer)
+    .withHandler(actions.error.TYPE, errorReducer)
+    .withHandler(actions.clear.TYPE, clearReducer)
+    .withHandler(actions.clearAll.TYPE, clearAllReducer);
 }
 
 export function generatePropertyReducer<RESULT>(
-  actions: LoadablePropertyActions<void, RESULT>,
-  reducerBuilder = newTypedReducer<Loadable<void, RESULT>>()
-    .handleDefault((state = { key: undefined, loading: false }) => state)) {
+  actions: PropertyActions<any, RESULT>,
+  reducerBuilder = TypedReducer.builder<Loadable<void, RESULT>>()
+    .withDefaultHandler((state = { key: undefined, loading: false }) => state)) {
   function loadingReducer(state: Loadable<void, RESULT>, _: void) {
     return { ...state, loading: true };
   }
@@ -54,8 +54,8 @@ export function generatePropertyReducer<RESULT>(
     return { key: undefined, loading: false };
   }
   return reducerBuilder
-    .handlePayload(actions.SUCCESS, successReducer)
-    .handlePayload(actions.LOADING, loadingReducer)
-    .handlePayload(actions.ERROR, errorReducer)
-    .handlePayload(actions.CLEAR, clearReducer);
+    .withHandler(actions.success.TYPE, successReducer)
+    .withHandler(actions.loading.TYPE, loadingReducer)
+    .withHandler(actions.error.TYPE, errorReducer)
+    .withHandler(actions.clear.TYPE, clearReducer);
 }

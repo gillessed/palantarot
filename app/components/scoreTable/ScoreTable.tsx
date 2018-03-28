@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Result } from '../../../server/model/Result';
-import { NavigationDispatcher } from '../../services/navigation/index';
 import { DynamicRoutes } from '../../routes';
+import history from '../../history';
 
 class Props {
   players: Map<string, Player>;
   results: Result[];
-  navigationDispatcher: NavigationDispatcher;
   renderDelta?: boolean;
 }
 
@@ -16,7 +15,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
   public render() {
     return (
       <div className='score-table-container'>
-        <table className='score-table pt-table pt-bordered pt-interactive'>
+        <table className='score-table pt-html-table pt-html-table-bordered pt-interactive'>
           <thead>
             <tr>
               <th></th>
@@ -39,7 +38,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
     const playerName = Player.getName(result.id, player);
     const onRowClick = () => {
       if (player) {
-        this.props.navigationDispatcher.push(DynamicRoutes.player(player.id));
+        history.push(DynamicRoutes.player(player.id));
       }
     }
     return (

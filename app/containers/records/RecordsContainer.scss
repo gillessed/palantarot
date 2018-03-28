@@ -48,4 +48,29 @@
     display: flex;
     flex-direction: column;
   }
+
+  .delta-percentages-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .deltas-table {
+    white-space: nowrap;
+    width: 100%;
+    margin-bottom: 40px;
+
+    thead tr th {
+      background-color: #EBF1F5;
+    }
+
+    td.averages {
+      font-family: blenderProBold;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    tbody tr td {
+      background-color: white;
+    }
+  }
 }

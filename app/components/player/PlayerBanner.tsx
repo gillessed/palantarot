@@ -7,7 +7,7 @@ interface Props {
   playerScore?: number;
 }
 
-export class PlayerBanner extends PureComponent<Props, void> {
+export class PlayerBanner extends PureComponent<Props, {}> {
 
   constructor(props: Props) {
     super(props);

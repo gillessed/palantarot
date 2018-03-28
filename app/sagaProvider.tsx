@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { Store } from 'redux';
 import { SagaListener, resetListeners } from './services/sagaListener';
 import { ReduxState } from './services/rootReducer';
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export const SagaContextType: React.ValidationMap<any> = {
-  sagaListeners: React.PropTypes.object.isRequired,
+  sagaListeners: PropTypes.object.isRequired,
 };
 
 export interface SagaRegistration {
@@ -24,7 +25,7 @@ export function getSagaContext(context: any): SagaRegistration {
   return context.sagaListeners as SagaRegistration;
 }
 
-export class SagaProvider extends React.Component<Props, void> {
+export class SagaProvider extends React.Component<Props, {}> {
   private listeners: Set<SagaListener<any>>;
   private sagaRegister: SagaRegistration = {
     register: (listener: SagaListener<any>) => {
@@ -56,5 +57,5 @@ export class SagaProvider extends React.Component<Props, void> {
   }
 
   public static childContextTypes = SagaContextType;
-  public static contextTypes = { store: React.PropTypes.object.isRequired };
+  public static contextTypes = { store: PropTypes.object.isRequired };
 }

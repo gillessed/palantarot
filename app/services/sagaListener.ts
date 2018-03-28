@@ -1,9 +1,9 @@
-import { ActionType, createActionType, createActionCreator } from './redux/typedAction';
 import { call, take, fork, cancel } from 'redux-saga/effects';
 import { Task } from 'redux-saga';
+import { TypedAction } from 'redoodle';
 
 export interface SagaListener<PAYLOAD> {
-  actionType: ActionType<PAYLOAD>;
+  actionType: TypedAction.Definition<string, PAYLOAD>;
   callback: (payload: PAYLOAD) => void;
 }
 
@@ -14,7 +14,7 @@ export const listenerLoop = function*(listeners: Set<SagaListener<any>>) {
     listeners.forEach((listener) => {
       const handler = function*() {
         while (true) {
-          const action = yield take(listener.actionType);
+          const action = yield take(listener.actionType.TYPE);
           yield call(listener.callback, action.payload);
         }
       };
@@ -27,7 +27,7 @@ export const listenerLoop = function*(listeners: Set<SagaListener<any>>) {
       forks.push(listenerFork);
     }
 
-    yield take(LISTENER_RESET);
+    yield take(resetListeners.TYPE);
 
     for (let listenerFork of forks) {
       yield cancel(listenerFork);
@@ -35,5 +35,4 @@ export const listenerLoop = function*(listeners: Set<SagaListener<any>>) {
   }
 };
 
-export const LISTENER_RESET = createActionType<void>('LISTENERS // RESET');
-export const resetListeners = createActionCreator<void>(LISTENER_RESET);
+export const resetListeners = TypedAction.define('LISTENERS // RESET')<void>();

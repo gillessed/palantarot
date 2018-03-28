@@ -15,6 +15,7 @@ import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
 import { StaticRoutes } from '../../routes';
 import { RecentGamesService } from '../../services/recentGames/index';
+import history from '../../history';
 
 interface StateProps {
   players: PlayersService;
@@ -24,21 +25,21 @@ interface StateProps {
 
 type Props = StateProps;
 
-export class Internal extends React.PureComponent<Props, void> {
+export class Internal extends React.PureComponent<Props, {}> {
   public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
-  private gameSavedListener: SagaListener<Game> = {
-    actionType: saveGameActions.SUCCESS,
+  private gameSavedListener: SagaListener<{ result: void }> = {
+    actionType: saveGameActions.success,
     callback: () => {
       Palantoaster.show({
         message: 'Game Saved Succesufully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(StaticRoutes.recent());
+      history.push(StaticRoutes.recent());
     },
   };
-  private gameSaveErrorListener: SagaListener<Game> = {
-    actionType: saveGameActions.ERROR,
+  private gameSaveErrorListener: SagaListener<{ error: Error }> = {
+    actionType: saveGameActions.error,
     callback: () => {
       Palantoaster.show({
         message: 'Server Error: Game was not saved correctly.',

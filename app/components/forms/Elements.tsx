@@ -101,7 +101,7 @@ export class PointsInput extends React.PureComponent<PointsInputProps, InputStat
           <Button
             active={plusActive}
             intent={Intent.SUCCESS}
-            iconName='plus'
+            icon='plus'
             onClick={this.onPlusPress}
           />
           <div className={`tarot-points-input pt-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
@@ -117,7 +117,7 @@ export class PointsInput extends React.PureComponent<PointsInputProps, InputStat
           <Button
             active={minusActive}
             intent={Intent.DANGER}
-            iconName='minus'
+            icon='minus'
             onClick={this.onMinusPress}
           />
         </div>

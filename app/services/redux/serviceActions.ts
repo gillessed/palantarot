@@ -1,90 +1,50 @@
-import {
-  ActionType,
-  createActionType,
-  TypedActionCreator,
-  createActionCreator,
-} from './typedAction';
+// import {
+//   ActionType,
+//   createActionType,
+//   TypedActionCreator,
+//   createActionCreator,
+// } from './typedAction';
+
+import { TypedAction } from 'redoodle';
 
 // Service
 
-export interface LoadableServiceActions<REQUEST, RESULT> {
-  REQUEST: ActionType<REQUEST[]>;
-  LOADING: ActionType<REQUEST[]>;
-  SUCCESS: ActionType<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>;
-  ERROR: ActionType<{ arg: REQUEST[], error: Error }>;
-  CLEAR: ActionType<REQUEST[]>;
-  CLEAR_ALL: ActionType<void>;
+export interface ServiceActions<REQUEST, RESULT> {
+  request: TypedAction.Definition<string, REQUEST[]>;
+  loading: TypedAction.Definition<string, REQUEST[]>;
+  success: TypedAction.Definition<string, { arg: REQUEST[], result: Map<REQUEST, RESULT> }>;
+  error: TypedAction.Definition<string, { arg: REQUEST[], error: Error }>;
+  clear: TypedAction.Definition<string, REQUEST[]>;
+  clearAll: TypedAction.Definition<string, void>;
 }
 
-export function generateServiceActions<REQUEST, RESULT>(prefix: string): LoadableServiceActions<REQUEST, RESULT> {
+export function generateServiceActions<REQUEST, RESULT>(prefix: string): ServiceActions<REQUEST, RESULT> {
   return {
-    REQUEST: createActionType<REQUEST[]>(prefix + ' // REQUEST'),
-    LOADING: createActionType<REQUEST[]>(prefix + ' // LOADING'),
-    SUCCESS: createActionType<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>(prefix + ' // SUCCESS'),
-    ERROR: createActionType<{ arg: REQUEST[], error: Error }>(prefix + ' // ERROR'),
-    CLEAR: createActionType<REQUEST[]>(prefix + ' // CLEAR'),
-    CLEAR_ALL: createActionType<void>(prefix + ' // CLEAR ALL'),
-  };
-}
-
-export interface LoadableServiceActionCreators<REQUEST, RESULT> {
-  request: TypedActionCreator<REQUEST[]>;
-  loading: TypedActionCreator<REQUEST[]>;
-  success: TypedActionCreator<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>;
-  error: TypedActionCreator<{ arg: REQUEST[], error: Error }>;
-  clear: TypedActionCreator<REQUEST[]>;
-  clearAll: TypedActionCreator<void>;
-}
-
-export function generateServiceActionCreators<REQUEST, RESULT>(
-  actions: LoadableServiceActions<REQUEST, RESULT>,
-): LoadableServiceActionCreators<REQUEST, RESULT> {
-  return {
-    request: createActionCreator(actions.REQUEST),
-    loading: createActionCreator(actions.LOADING),
-    success: createActionCreator(actions.SUCCESS),
-    error: createActionCreator(actions.ERROR),
-    clear: createActionCreator(actions.CLEAR),
-    clearAll: createActionCreator(actions.CLEAR_ALL),
+    request: TypedAction.define(prefix + ' // REQUEST')<REQUEST[]>(),
+    loading: TypedAction.define(prefix + ' // LOADING')<REQUEST[]>(),
+    success: TypedAction.define(prefix + ' // SUCCESS')<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>(),
+    error: TypedAction.define(prefix + ' // ERROR')<{ arg: REQUEST[], error: Error }>(),
+    clear: TypedAction.define(prefix + ' // CLEAR')<REQUEST[]>(),
+    clearAll: TypedAction.define(prefix + ' // CLEAR ALL')<void>(),
   };
 }
 
 // Properties
 
-export interface LoadablePropertyActions<ARG, RESULT> {
-  REQUEST: ActionType<ARG>;
-  LOADING: ActionType<void>;
-  SUCCESS: ActionType<{result: RESULT}>;
-  ERROR: ActionType<{error: Error}>;
-  CLEAR: ActionType<void>;
+export interface PropertyActions<REQUEST, RESULT> {
+  request: TypedAction.Definition<string, REQUEST>;
+  loading: TypedAction.Definition<string, void>;
+  success: TypedAction.Definition<string, { result: RESULT }>;
+  error: TypedAction.Definition<string, { error: Error }>;
+  clear: TypedAction.Definition<string, void>;
 }
 
-export function generatePropertyActions<ARG, RESULT>(prefix: string): LoadablePropertyActions<ARG, RESULT> {
+export function generatePropertyActions<REQUEST, RESULT>(prefix: string): PropertyActions<REQUEST, RESULT> {
   return {
-    REQUEST: createActionType<{arg: ARG}>(prefix + ' // REQUEST'),
-    LOADING: createActionType<void>(prefix + ' // LOADING'),
-    SUCCESS: createActionType<{result: RESULT}>(prefix + ' // SUCCESS'),
-    ERROR: createActionType<{error: Error}>(prefix + ' // ERROR'),
-    CLEAR: createActionType<void>(prefix + ' // CLEAR'),
-  };
-}
-
-export interface LoadablePropertyActionCreators<ARG, RESULT> {
-  request: TypedActionCreator<ARG>;
-  loading: TypedActionCreator<void>;
-  success: TypedActionCreator<{result: RESULT}>;
-  error: TypedActionCreator<{error: Error}>;
-  clear: TypedActionCreator<void>;
-}
-
-export function generatePropertyActionCreators<ARG, RESULT>(
-  actions: LoadablePropertyActions<ARG, RESULT>,
-): LoadablePropertyActionCreators<ARG, RESULT> {
-  return {
-    request: createActionCreator(actions.REQUEST),
-    loading: createActionCreator(actions.LOADING),
-    success: createActionCreator(actions.SUCCESS),
-    error: createActionCreator(actions.ERROR),
-    clear: createActionCreator(actions.CLEAR),
+    request: TypedAction.define(prefix + ' // REQUEST')<REQUEST>(),
+    loading: TypedAction.define(prefix + ' // LOADING')<void>(),
+    success: TypedAction.define(prefix + ' // SUCCESS')<{ result: RESULT }>(),
+    error: TypedAction.define(prefix + ' // ERROR')<{ error: Error }>(),
+    clear: TypedAction.define(prefix + ' // CLEAR')<void>(),
   };
 }

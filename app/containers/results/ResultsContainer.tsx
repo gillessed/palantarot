@@ -10,22 +10,18 @@ import moment from 'moment';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { MonthGamesService } from '../../services/monthGames/index';
-import { Tabs2, Tab2 } from '@blueprintjs/core';
+import { Tabs, Tab } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
 import { Player } from '../../../server/model/Player';
 import { integerComparator } from '../../../server/utils/index';
-
-interface OwnProps {
-  children: any[];
-}
 
 interface StateProps {
   players: PlayersService;
   results: ResultsService;
   monthGames: MonthGamesService;
 }
-type Props = OwnProps & StateProps;
+type Props = StateProps;
 
 interface State {
   month: IMonth,
@@ -101,10 +97,10 @@ class Internal extends React.PureComponent<Props, State> {
 
       return (
         <div className='results-tabs-container'>
-          <Tabs2 id='ResultsTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
-            <Tab2 id='ResultsTableTab' title='Score Chart' panel={tableTab} />
-            <Tab2 id='ResultsGraphTab' title='Graph' panel={graphTab} />
-          </Tabs2>
+          <Tabs id='ResultsTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
+            <Tab id='ResultsTableTab' title='Score Chart' panel={tableTab} />
+            <Tab id='ResultsGraphTab' title='Graph' panel={graphTab} />
+          </Tabs>
         </div>
       );
     } else {
@@ -123,7 +119,6 @@ class Internal extends React.PureComponent<Props, State> {
         <ScoreTable
           results={results}
           players={players}
-          navigationDispatcher={this.dispatchers.navigation}
           renderDelta={true}
         />
       </div>
@@ -158,9 +153,8 @@ class Internal extends React.PureComponent<Props, State> {
 
 
 
-const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & StateProps => {
+const mapStateToProps = (state: ReduxState): StateProps => {
   return {
-    ...ownProps,
     players: state.players,
     results: state.results,
     monthGames: state.monthGames,

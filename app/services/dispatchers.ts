@@ -2,7 +2,6 @@ import { AddNewPlayerDispatcher } from './addPlayer/index';
 import { GameDispatcher } from './game/index';
 import { PlayersDispatcher } from './players/index';
 import { RecentGamesDispatcher } from './recentGames/index';
-import { NavigationDispatcher } from './navigation/index';
 import { ResultsDispatcher } from './results/index';
 import { MonthGamesDispatcher } from './monthGames/index';
 import { SaveGameDispatcher } from './saveGame/index';
@@ -12,14 +11,15 @@ import { AuthDispatcher } from './auth/index';
 import { RecordsDispatcher } from './records/index';
 import { CacheFunctions } from './redux/serviceDispatcher';
 import { StatsDispatcher } from './stats/index';
+import { DeltasDispatcher } from './deltas/index';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
   auth: AuthDispatcher;
   deleteGame: DeleteGameDispatcher;
+  deltas: DeltasDispatcher;
   games: GameDispatcher;
   monthGames: MonthGamesDispatcher;
-  navigation: NavigationDispatcher;
   players: PlayersDispatcher;
   recentGames: RecentGamesDispatcher;
   records: RecordsDispatcher;
@@ -40,12 +40,12 @@ export const dispatcherCreators = (dispatch: any): Dispatchers => {
       dispatch,
       (state: ReduxState) => state.games
     ),
+    deltas: new DeltasDispatcher(dispatch),
     monthGames: new MonthGamesDispatcher(
       dispatch, 
       (state: ReduxState) => state.monthGames,
       CacheFunctions.notThisMonth(),
     ),
-    navigation: new NavigationDispatcher(dispatch),
     players: new PlayersDispatcher(
       dispatch,
       (state: ReduxState) => state.players,

@@ -1,4 +1,4 @@
-import { LoadableServiceActionCreators, LoadablePropertyActionCreators } from './serviceActions';
+import { ServiceActions, PropertyActions } from './serviceActions';
 import { Store } from 'redux';
 import { ReduxState } from '../rootReducer';
 import { Loadable, LoadableCache } from './loadable';
@@ -6,7 +6,7 @@ import { Month, IMonth } from '../../../server/model/Month';
 
 export type CacheFunction<ARG, RESULT> = (arg: ARG, loadable?: Loadable<ARG, RESULT>) => boolean;
 
-export function generateServiceDispatcher<ARG, RESULT>(actionCreators: LoadableServiceActionCreators<ARG, RESULT>) {
+export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
   constructor(
     private readonly store: Store<ReduxState>,
@@ -49,7 +49,7 @@ export interface ServiceDispatcher<ARG> {
     clearAll(): void;
 }
 
-export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: LoadablePropertyActionCreators<ARG, RESULT>) {
+export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: PropertyActions<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
   constructor(
     private readonly store: Store<ReduxState>,

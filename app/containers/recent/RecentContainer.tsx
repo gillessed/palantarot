@@ -8,16 +8,12 @@ import { GameTable, BidderWonValidator, DEFAULT_COUNT } from '../../components/g
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 
-interface OwnProps {
-  children: any[];
-}
-
 interface StateProps {
   players: PlayersService;
   recentGames: RecentGamesService;
 }
 
-type Props = OwnProps & StateProps;
+type Props = StateProps;
 
 interface State {
   page: number,
@@ -71,7 +67,6 @@ class Internal extends React.PureComponent<Props, State> {
           <GameTable
             games={this.props.recentGames.value}
             players={this.props.players.value}
-            navigationDispatcher={this.dispatchers.navigation}
             winLossValidator={BidderWonValidator}
             pageState={pageState}
           />
@@ -87,9 +82,8 @@ class Internal extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & StateProps => {
+const mapStateToProps = (state: ReduxState): StateProps => {
   return {
-    ...ownProps,
     players: state.players,
     recentGames: state.recentGames,
   }

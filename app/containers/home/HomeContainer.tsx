@@ -1,13 +1,9 @@
 import * as React from 'react';
-import { Link } from 'react-router';
-import { Button, Intent } from '@blueprintjs/core';
+import { Link } from 'react-router-dom';
+import { IconName } from '@blueprintjs/core';
 import { StaticRoutes } from '../../routes';
 
-interface Props {
-  children: any[];
-}
-
-export class HomeContainer extends React.PureComponent<Props, {}> {
+export class HomeContainer extends React.PureComponent<{}, {}> {
 
   public render() {
     return (
@@ -15,13 +11,13 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
         <div className='logo dark'>Palantarot</div>
         <div className='subtitle dark'>Where all the points are fake</div>
         <div className='menu'>
-          {this.renderMenuItem('Enter Score', 'manually-entered-data', StaticRoutes.enter(), Intent.SUCCESS)}
+          {this.renderMenuItem('Enter Score', 'manually-entered-data', StaticRoutes.enter(), 'pt-intent-success')}
           {this.renderMenuItem('Results', 'th', StaticRoutes.results())}
           {this.renderMenuItem('Recent Games', 'history', StaticRoutes.recent())}
           {this.renderMenuItem('Advanced Search', 'search', StaticRoutes.search())}
           {this.renderMenuItem('Records', 'glass', StaticRoutes.records())}
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
-          {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), Intent.WARNING)}
+          {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), 'pt-intent-warning')}
         </div>
         <div className='info-overlay'>
           <span className='callout'>
@@ -41,20 +37,18 @@ export class HomeContainer extends React.PureComponent<Props, {}> {
 
   private renderMenuItem(
     title: string,
-    logo: string,
+    logo: IconName,
     to: string,
-    intent?: Intent,
+    intent: string = 'pt-intent-primary',
   ) {
     return (
       <div className='menu-item'>
         <Link className='link' to={to}>
-          <Button
-            className='pt-large'
-            type='button'
-            iconName={logo}
-            text={title}
-            intent={intent || Intent.PRIMARY}
-          />
+          <button
+            className={'pt-button pt-large pt-icon-' + logo + ' ' + intent}
+          >
+            {title}
+          </button>
         </Link>
       </div>
     );

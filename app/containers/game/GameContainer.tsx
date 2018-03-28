@@ -9,7 +9,7 @@ import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { formatTimestamp } from '../../../server/utils/index';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Dialog } from '@blueprintjs/core';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { mergeContexts } from '../../app';
@@ -17,12 +17,14 @@ import { SagaListener } from '../../services/sagaListener';
 import { deleteGameActions, DeleteGameService } from '../../services/deleteGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { StaticRoutes, DynamicRoutes } from '../../routes';
+import history from '../../history';
 
 interface OwnProps {
-  children: any[];
-  params: {
-    gameId: string;
-  };
+  match: {
+    params: {
+      gameId: string;
+    };
+  }
 }
 
 interface StateProps {
@@ -41,18 +43,18 @@ interface State {
 class Internal extends React.PureComponent<Props, State> {
   public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
-  private gameDeletedListener: SagaListener<Game> = {
-    actionType: deleteGameActions.SUCCESS,
+  private gameDeletedListener: SagaListener<{ result: void }> = {
+    actionType: deleteGameActions.success,
     callback: () => {
       Palantoaster.show({
-        message: 'Game ' + this.props.params.gameId + ' Deleted Successfully',
+        message: 'Game ' + this.props.match.params.gameId + ' Deleted Successfully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(StaticRoutes.home());
+      history.push(StaticRoutes.home());
     },
   };
-  private gameDeletedErrorListener: SagaListener<Game> = {
-    actionType: deleteGameActions.ERROR,
+  private gameDeletedErrorListener: SagaListener<{ error: Error }> = {
+    actionType: deleteGameActions.error,
     callback: () => {
       Palantoaster.show({
         message: 'Server Error: Game was not deleted correctly.',
@@ -76,7 +78,7 @@ class Internal extends React.PureComponent<Props, State> {
     this.sagas.register(this.gameDeletedListener);
     this.sagas.register(this.gameDeletedErrorListener);
     this.dispatchers.players.request(undefined);
-    this.dispatchers.games.request([this.props.params.gameId]);
+    this.dispatchers.games.request([this.props.match.params.gameId]);
   }
 
   public componentWillUnmount() {
@@ -95,7 +97,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   private renderContainer() {
     const players = this.props.players;
-    const game = this.props.games.get(this.props.params.gameId);
+    const game = this.props.games.get(this.props.match.params.gameId);
     const deleteGame = this.props.deleteGame;
     if (players.loading || game.loading || deleteGame.loading) {
       return <SpinnerOverlay size='pt-large'/>;
@@ -112,7 +114,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   private renderGame = () => {
     const players = this.props.players.value!;
-    const game = this.props.games.get(this.props.params.gameId).value!;
+    const game = this.props.games.get(this.props.match.params.gameId).value!;
 
     if (game.handData) {
       return (
@@ -186,13 +188,13 @@ class Internal extends React.PureComponent<Props, State> {
   private renderDeleteDialog() {
     return (
       <Dialog
-        iconName='inbox'
+        icon='inbox'
         isOpen={this.state.deleteDialogOpen}
         onClose={this.toggleDialog}
         title='Dialog header'
       >
         <div className='pt-dialog-body'>
-            <p>Are you sure you want to delete Game {this.props.params.gameId}?</p>
+            <p>Are you sure you want to delete Game {this.props.match.params.gameId}?</p>
         </div>
         <div className='pt-dialog-footer'>
           <div className='pt-dialog-footer-actions'>
@@ -206,7 +208,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   private deleteGame = () => {
     this.toggleDialog();
-    this.dispatchers.deleteGame.request(this.props.params.gameId);
+    this.dispatchers.deleteGame.request(this.props.match.params.gameId);
   }
 
   private toggleDialog = () => {
@@ -216,7 +218,7 @@ class Internal extends React.PureComponent<Props, State> {
   }
 
   private onEditClicked = () => {
-    this.dispatchers.navigation.push(DynamicRoutes.edit(this.props.params.gameId));
+    history.push(DynamicRoutes.edit(this.props.match.params.gameId));
   }
 
   private onDeleteClicked = () => {
@@ -224,9 +226,8 @@ class Internal extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & StateProps => {
+const mapStateToProps = (state: ReduxState): StateProps => {
   return {
-    ...ownProps,
     players: state.players,
     games: state.games,
     deleteGame: state.deleteGame,

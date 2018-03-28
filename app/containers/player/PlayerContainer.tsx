@@ -10,7 +10,7 @@ import { Dispatchers } from '../../services/dispatchers';
 import { PlayersService } from '../../services/players/index';
 import { ResultsService } from '../../services/results/index';
 import { Result } from '../../../server/model/Result';
-import { Tab2, Tabs2 } from '@blueprintjs/core';
+import { Tab, Tabs } from '@blueprintjs/core';
 import { RecentGamesService } from '../../services/recentGames/index';
 import { Game } from '../../../server/model/Game';
 import { GameTable, GameOutcome, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
@@ -20,8 +20,10 @@ import { StatsService } from '../../services/stats/index';
 import { PlayerStatsTab } from './PlayerStatsTab';
 
 interface OwnProps {
-  params: {
-    playerId: string;
+  match: {
+    params: {
+      playerId: string;
+    };
   };
 }
 
@@ -45,6 +47,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
+    console.log(this.props);
     this.dispatchers = context.dispatchers;
     this.state = {
       page: 0,
@@ -55,7 +58,7 @@ class Internal extends React.PureComponent<Props, State> {
     this.dispatchers.players.request(undefined);
     this.dispatchers.results.request([IMonth.now()]);
     this.dispatchers.monthGames.requestSingle(IMonth.now());
-    this.dispatchers.recentGames.request({count: DEFAULT_COUNT, player: this.props.params.playerId});
+    this.dispatchers.recentGames.request({count: DEFAULT_COUNT, player: this.props.match.params.playerId});
     this.dispatchers.stats.request(undefined);
   }
 
@@ -66,11 +69,11 @@ class Internal extends React.PureComponent<Props, State> {
     if (players.loading || results.loading || recentGames.loading) {
       return <SpinnerOverlay size='pt-large'/>;
     } else if (players.value && results.value && recentGames.value) {
-      const player = players.value.get(this.props.params.playerId);
+      const player = players.value.get(this.props.match.params.playerId);
       if (player) {
         return this.renderPlayer(players.value, player, results.value, recentGames.value);
       } else {
-        return <p>Player with id {this.props.params.playerId} does not exist.</p>;
+        return <p>Player with id {this.props.match.params.playerId} does not exist.</p>;
       }
     } else if (players.error) {
       return <p>Error loading player: {players.error}</p>;
@@ -125,7 +128,7 @@ class Internal extends React.PureComponent<Props, State> {
           this.dispatchers.recentGames.request({
             count: DEFAULT_COUNT,
             offset: this.state.page * DEFAULT_COUNT,
-            player: this.props.params.playerId,
+            player: this.props.match.params.playerId,
           });
         });
       },
@@ -135,7 +138,6 @@ class Internal extends React.PureComponent<Props, State> {
         <GameTable
           players={players}
           games={recentGames}
-          navigationDispatcher={this.dispatchers.navigation}
           winLossValidator={gameWinLossValidator}
           pageState={pageState}
         />
@@ -165,11 +167,11 @@ class Internal extends React.PureComponent<Props, State> {
           playerCount={rank === undefined ? undefined : playerCount}
           playerScore={score}
         />
-        <Tabs2 id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
-          <Tab2 id='PlayerRecentGamesTab' title='Recent Games' panel={recentGamesTab} />
-          <Tab2 id='PlayerGraphsTab' title='Graphs' panel={graphTab} />
-          <Tab2 id='PlayerStatsTab' title='Stats' panel={statsTab} />
-        </Tabs2>
+        <Tabs id='PlayerTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
+          <Tab id='PlayerRecentGamesTab' title='Recent Games' panel={recentGamesTab} />
+          <Tab id='PlayerGraphsTab' title='Graphs' panel={graphTab} />
+          <Tab id='PlayerStatsTab' title='Stats' panel={statsTab} />
+        </Tabs>
       </div>
     );
   }
@@ -179,9 +181,8 @@ class Internal extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & StateProps => {
+const mapStateToProps = (state: ReduxState): StateProps => {
   return {
-    ...ownProps,
     players: state.players,
     results: state.results,
     recentGames: state.recentGames,

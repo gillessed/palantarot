@@ -172,7 +172,7 @@ export class Internal extends React.PureComponent<Props, State> {
   private renderDialog() {
     return (
       <Dialog
-        iconName='add'
+        icon='add'
         isOpen={this.state.openDialog}
         onClose={this.closeDialog}
         title='Add Player'

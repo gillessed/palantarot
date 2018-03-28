@@ -16,7 +16,6 @@ const saveGameOperation = (api: ServerApi) => {
 const saveGameService = generatePropertyService<Game, void>('SAVE_GAME', saveGameOperation);
 
 export const saveGameActions = saveGameService.actions;
-export const saveGameActionCreators = saveGameService.actionCreators;
 export const SaveGameDispatcher = saveGameService.dispatcher;
 export type SaveGameDispatcher = PropertyDispatcher<Game>;
 export const saveGameReducer = saveGameService.reducer.build();
@@ -24,8 +23,8 @@ export const saveGameReducer = saveGameService.reducer.build();
 export const saveGameSaga = function* (api: ServerApi) {
   yield [
     takeEveryTyped(
-      saveGameActions.REQUEST,
-      createSagaPropertyOperation(saveGameOperation(api), saveGameActionCreators),
+      saveGameActions.request,
+      createSagaPropertyOperation(saveGameOperation(api), saveGameActions),
     )
   ];
 }

@@ -1,6 +1,7 @@
 import { Database } from './dbConnector';
 import { QueryBuilder } from './queryBuilder/QueryBuilder';
 import { Stat, Stats } from '../model/Stats';
+import { Delta, Deltas } from '../model/Delta';
 
 export class StatsQuerier {
   private db: Database;
@@ -59,6 +60,32 @@ export class StatsQuerier {
     });
   }
 
+  public getAllDeltas = (length: number): Promise<Deltas> => {
+    const sqlQuery = QueryBuilder.select('player_hand')
+      .c('player_fk_id')
+      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
+      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
+      .c("DAY(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_day")
+      .c('SUM(points_earned) AS delta')
+      .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
+
+      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
+        const allDeltas = results.map(this.toDelta);
+        allDeltas.sort(this.deltaComparator);
+        if (allDeltas.length <= length) {
+          return {
+            maximums: [...allDeltas].reverse(),
+            minimums: [...allDeltas],
+          };
+        } else {
+          return {
+            maximums: allDeltas.slice(allDeltas.length - length, allDeltas.length).reverse(),
+            minimums: allDeltas.slice(0, length),
+          };
+        }
+      });
+  }
+
   // Helpers
 
   private toStat = (result: {[key: string]: any}): Stat => {
@@ -74,4 +101,20 @@ export class StatsQuerier {
       wonScore: result['winSum'] || 0,
     };
   };
+
+  private toDelta = (result: {[key: string]: any}): Delta => {
+    const month = +result['h_month'];
+    const zeroPadMonth = `00${month}`.slice(-2);
+    const day = +result['h_day'];
+    const zeroPadDay = `00${day}`.slice(-2);
+    return {
+      playerId: `${result['player_fk_id']}`,
+      date: `${+result['h_year']}-${zeroPadMonth}-${zeroPadDay}`,
+      delta: +result['delta'],
+    };
+  };
+
+  private deltaComparator = (d1: Delta, d2: Delta) => {
+    return d1.delta - d2.delta;
+  }
 }

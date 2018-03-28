@@ -15,7 +15,6 @@ const deleteGameOperation = (api: ServerApi) => {
 const deleteGameService = generatePropertyService<string, void>('DELETE_GAME', deleteGameOperation);
 
 export const deleteGameActions = deleteGameService.actions;
-export const deleteGameActionCreators = deleteGameService.actionCreators;
 export const DeleteGameDispatcher = deleteGameService.dispatcher;
 export type DeleteGameDispatcher = PropertyDispatcher<string>;
 export const deleteGameReducer = deleteGameService.reducer.build();
@@ -23,8 +22,8 @@ export const deleteGameReducer = deleteGameService.reducer.build();
 export const deleteGameSaga = function* (api: ServerApi) {
   yield [
     takeEveryTyped(
-      deleteGameActions.REQUEST,
-      createSagaPropertyOperation(deleteGameOperation(api), deleteGameActionCreators),
+      deleteGameActions.request,
+      createSagaPropertyOperation(deleteGameOperation(api), deleteGameActions),
     )
   ];
 }

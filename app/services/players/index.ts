@@ -19,7 +19,7 @@ export const playersActions = playersService.actions;
 export const PlayersDispatcher = playersService.dispatcher;
 export type PlayersDispatcher = PropertyDispatcher<void>;
 export const playersReducer = playersService.reducer
-  .handlePayload(addNewPlayerActions.SUCCESS, (loadable: Loadable<void, Map<string, Player>>, player: Player) => {
+  .withHandler(addNewPlayerActions.success.TYPE, (loadable: Loadable<void, Map<string, Player>>, player: Player) => {
     const map = loadable.value || new Map<string, Player>();
     map.set(player.id, player);
     return {

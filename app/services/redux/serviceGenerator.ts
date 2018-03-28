@@ -1,9 +1,7 @@
 import { ServerApi } from './../../api/serverApi';
 import {
   generateServiceActions,
-  generateServiceActionCreators,
   generatePropertyActions,
-  generatePropertyActionCreators,
 } from './serviceActions';
 import { generatePropertyReducer, generateServiceReducer } from './serviceReducer';
 import { generateServiceDispatcher, generatePropertyDispatcher } from './serviceDispatcher';
@@ -18,18 +16,16 @@ export function generatePropertyService<ARG, RESULT>(
   operation: (api: ServerApi) => (arg: ARG) => Promise<RESULT> | RESULT,
 ) {
   const actions = generatePropertyActions<ARG, RESULT>(prefix);
-  const actionCreators = generatePropertyActionCreators<ARG, RESULT>(actions);
-  const dispatcher = generatePropertyDispatcher(actionCreators);
+  const dispatcher = generatePropertyDispatcher(actions);
   const reducer = generatePropertyReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
-      actions.REQUEST,
-      createSagaPropertyOperation<ARG, RESULT>(operation(api), actionCreators),
+      actions.request,
+      createSagaPropertyOperation<ARG, RESULT>(operation(api), actions),
     );
   }
   return {
     actions,
-    actionCreators,
     dispatcher,
     reducer,
     saga,
@@ -41,18 +37,16 @@ export function generateService<ARG, RESULT>(
   operation: (api: ServerApi) => (arg: ARG[]) => Promise<Map<ARG, RESULT>> | Map<ARG, RESULT>,
 ) {
   const actions = generateServiceActions<ARG, RESULT>(prefix);
-  const actionCreators = generateServiceActionCreators<ARG, RESULT>(actions);
-  const dispatcher = generateServiceDispatcher(actionCreators);
+  const dispatcher = generateServiceDispatcher(actions);
   const reducer = generateServiceReducer(actions);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
-      actions.REQUEST,
-      createSagaServiceOperation<ARG, RESULT>(operation(api), actionCreators),
+      actions.request,
+      createSagaServiceOperation<ARG, RESULT>(operation(api), actions),
     );
   }
   return {
     actions,
-    actionCreators,
     dispatcher,
     reducer,
     saga,

@@ -15,10 +15,13 @@ import { mergeContexts } from '../../app';
 import { Dispatchers } from '../../services/dispatchers';
 import { GameService } from '../../services/game';
 import { DynamicRoutes } from '../../routes';
+import history from '../../history';
 
 interface OwnProps {
-  params: {
-    gameId: string;
+  match: {
+    params: {
+      gameId: string;
+    };
   };
 }
 
@@ -30,21 +33,21 @@ interface StateProps {
 
 type Props = OwnProps & StateProps;
 
-export class Internal extends React.PureComponent<Props, void> {
+export class Internal extends React.PureComponent<Props, {}> {
   public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
-  private gameSavedListener: SagaListener<Game> = {
-    actionType: saveGameActions.SUCCESS,
+  private gameSavedListener: SagaListener<{ result: void }> = {
+    actionType: saveGameActions.success,
     callback: () => {
       Palantoaster.show({
-        message: 'Game ' + this.props.params.gameId + ' Updated Succesfully',
+        message: 'Game ' + this.props.match.params.gameId + ' Updated Succesfully',
         intent: TIntent.SUCCESS,
       });
-      this.dispatchers.navigation.push(DynamicRoutes.game(this.props.params.gameId));
+      history.push(DynamicRoutes.game(this.props.match.params.gameId));
     },
   };
-  private gameSaveErrorListener: SagaListener<Game> = {
-    actionType: saveGameActions.ERROR,
+  private gameSaveErrorListener: SagaListener<{ error: Error }> = {
+    actionType: saveGameActions.error,
     callback: () => {
       Palantoaster.show({
         message: 'Server Error: Game was not updated correctly.',
@@ -64,7 +67,7 @@ export class Internal extends React.PureComponent<Props, void> {
     this.sagas.register(this.gameSavedListener);
     this.sagas.register(this.gameSaveErrorListener);
     this.dispatchers.players.request(undefined);
-    this.dispatchers.games.requestSingle(this.props.params.gameId);
+    this.dispatchers.games.requestSingle(this.props.match.params.gameId);
   }
 
   public componentWillUnmount() {
@@ -87,7 +90,7 @@ export class Internal extends React.PureComponent<Props, void> {
     return (
       <div className='enter-container page-container'>
         <div className='title'>
-          <h1>Edit Game {this.props.params.gameId}</h1>
+          <h1>Edit Game {this.props.match.params.gameId}</h1>
         </div>
         {this.renderContainer()}
       </div>
@@ -96,7 +99,7 @@ export class Internal extends React.PureComponent<Props, void> {
 
   private renderContainer() {
     const players = this.props.players;
-    const game = this.props.games.get(this.props.params.gameId);
+    const game = this.props.games.get(this.props.match.params.gameId);
     const saveGame = this.props.saveGame;
     if (players.loading || game.loading || saveGame.loading) {
       return <SpinnerOverlay size='pt-large'/>;
@@ -122,9 +125,8 @@ export class Internal extends React.PureComponent<Props, void> {
   }
 }
 
-const mapStateToProps = (state: ReduxState, ownProps?: OwnProps): OwnProps & StateProps => {
+const mapStateToProps = (state: ReduxState): StateProps => {
   return {
-    ...ownProps,
     games: state.games,
     players: state.players,
     saveGame: state.saveGame,

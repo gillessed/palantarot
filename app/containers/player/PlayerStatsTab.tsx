@@ -35,7 +35,7 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
 
     return (
       <div className='table-container'>
-        <table className='player-stats-table pt-table pt-bordered'>
+        <table className='player-stats-table pt-html-table pt-html-table-bordered'>
           <thead>
             <tr>
               <th>Role</th>

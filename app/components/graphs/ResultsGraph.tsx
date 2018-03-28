@@ -11,7 +11,7 @@ interface Props {
   dateRange: [Date, Date];
 }
 
-export class ResultsGraph extends PureComponent<Props, void> {
+export class ResultsGraph extends PureComponent<Props, {}> {
   static colors: string[] = Array.from(Timeseries.colors);
   private divRef: any;
 

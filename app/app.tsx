@@ -1,16 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { IndexRedirect, Route, Router, browserHistory } from 'react-router';
-import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
-import { applyMiddleware, combineReducers, createStore } from 'redux';
+import { Router } from 'react-router-dom';
+import history from './history';
+import { Route, Redirect } from 'react-router';
+import { applyMiddleware, createStore, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import createLogger from 'redux-logger';
-
+import logger from 'redux-logger';
 import { ServerApi } from './api/serverApi';
-import { rootReducer } from './services/rootReducer';
+import { rootReducer, ReduxState } from './services/rootReducer';
 import { rootSaga } from './services/rootSaga';
-
 import { AppContainer } from './containers/app/AppContainer';
 import { HomeContainer } from './containers/home/HomeContainer';
 import { EnterContainer } from './containers/enter/EnterContainer';
@@ -29,16 +28,8 @@ import { RecordsContainer } from './containers/records/RecordsContainer';
 import { SearchContainer } from './containers/search/SearchContainer';
 import { TarothonContainer } from './containers/tarothon/TarothonContainer';
 
-const logger = createLogger();
-
-const reducer = combineReducers({
-  ...rootReducer,
-  routing: routerReducer,
-});
-
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [
-  routerMiddleware(browserHistory),
   sagaMiddleware,
 ];
 
@@ -46,13 +37,12 @@ declare const DEV: boolean | undefined;
 
 if (DEV) {
   console.log('Initializing redux logger for debug...');
-  middleware.push(logger);
+  middleware.push(logger as any);
 }
 
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
-const store = createStoreWithMiddleware(reducer);
-const history = syncHistoryWithStore(browserHistory, store);
-const api = new ServerApi('/api/v1', store);
+const store: Store<ReduxState> = createStoreWithMiddleware(rootReducer) as any;
+const api = new ServerApi('/api/v1');
 const sagaListeners: Set<SagaListener<any>> = new Set();
 sagaMiddleware.run(rootSaga, api, sagaListeners);
 
@@ -60,23 +50,22 @@ const appElement = document.getElementById('app');
 
 if (appElement != null) {
   const routes = (
-    <Route path='/'>
-      <IndexRedirect to='/app/home' />
-      <Route path='app' component={AppContainer}>
-        <Route path='home' component={HomeContainer} />
-        <Route path='enter' component={EnterContainer} />
-        <Route path='recent' component={RecentContainer} />
-        <Route path='game/:gameId' component={GameContainer} />
-        <Route path='results' component={ResultsContainer} />
-        <Route path='add-player' component={AddPlayerContainer} />
-        <Route path='player/:playerId' component={PlayerContainer} />
-        <Route path='edit/:gameId' component={EditContainer} />
-        <Route path='records' component={RecordsContainer} />
-        <Route path='search' component={SearchContainer} />
-        <Route path='tarothon' component={TarothonContainer} />
-      </Route>
-      <Route path='login' component={LoginContainer} />
-    </Route>
+    <div>
+      <Route path='/' exact render={() => <Redirect from='/' to='/app/home' />}/>
+      <Route path='/app' component={AppContainer} />
+      <Route path='/app/home' component={HomeContainer} />
+      <Route path='/app/enter' component={EnterContainer} />
+      <Route path='/app/recent' component={RecentContainer} />
+      <Route path='/app/game/:gameId' component={GameContainer} />
+      <Route path='/app/results' component={ResultsContainer} />
+      <Route path='/app/add-player' component={AddPlayerContainer} />
+      <Route path='/app/player/:playerId' component={PlayerContainer} />
+      <Route path='/app/edit/:gameId' component={EditContainer} />
+      <Route path='/app/records' component={RecordsContainer} />
+      <Route path='/app/search' component={SearchContainer} />
+      <Route path='/app/tarothon' component={TarothonContainer} />
+      <Route path='/login' component={LoginContainer} />
+    </div>
   );
 
   ReactDOM.render((

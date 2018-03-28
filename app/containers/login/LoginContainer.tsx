@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AuthService, AuthRequest, authActions } from '../../services/auth/index';
+import { AuthService, authActions } from '../../services/auth/index';
 import { ReduxState } from '../../services/rootReducer';
 import { connect } from 'react-redux';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
@@ -10,6 +10,7 @@ import { SagaListener } from '../../services/sagaListener';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { StaticRoutes } from '../../routes';
 import { Button, Intent } from '@blueprintjs/core';
+import history from '../../history';
 
 interface Props {
   auth: AuthService;
@@ -22,14 +23,14 @@ interface State {
 export class Internal extends React.PureComponent<Props, State> {
   public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
   private sagas: SagaRegistration;
-  private loginListener: SagaListener<AuthRequest> = {
-    actionType: authActions.SUCCESS,
+  private loginListener: SagaListener<{ result: void }> = {
+    actionType: authActions.success,
     callback: () => {
-      this.dispatchers.navigation.push(StaticRoutes.home());
+      history.push(StaticRoutes.home());
     },
   };
-  private failedLoginListener: SagaListener<AuthRequest> = {
-    actionType: authActions.ERROR,
+  private failedLoginListener: SagaListener<{ error: Error }> = {
+    actionType: authActions.error,
     callback: () => {
       Palantoaster.show({
         message: 'Failed to Login. Maybe you don\'t know the password?',
@@ -75,7 +76,7 @@ export class Internal extends React.PureComponent<Props, State> {
             <Button
               type='submit'
               loading={this.props.auth.loading}
-              iconName='log-in'
+              icon='log-in'
               disabled={this.state.secret.length === 0}
               intent={Intent.PRIMARY}
               text='Login'

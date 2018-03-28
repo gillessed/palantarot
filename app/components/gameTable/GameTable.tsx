@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
-import { NavigationDispatcher } from '../../services/navigation/index';
 import { GameTableRow } from './GameTableRow';
 
 export const DEFAULT_COUNT = 20;
@@ -28,7 +27,6 @@ export const BidderWonValidator = (game: Game) => {
 interface Props {
   players: Map<string, Player>;
   games: Game[];
-  navigationDispatcher: NavigationDispatcher;
   winLossValidator?: (game: Game) => GameOutcome;
   pageState?: PageState;
 }
@@ -78,7 +76,7 @@ export class GameTable extends React.PureComponent<Props, {}> {
 
   private renderTable() {
     return (
-      <table className='game-table pt-table pt-bordered pt-interactive'>
+      <table className='game-table pt-html-table pt-html-table-bordered pt-interactive'>
         <thead>
           <tr>
             <th>Bidder</th>
@@ -106,7 +104,6 @@ export class GameTable extends React.PureComponent<Props, {}> {
         key={game.id}
         players={this.props.players}
         game={game}
-        navigationDispatcher={this.props.navigationDispatcher}
         outcome={outcome}
       />
     );

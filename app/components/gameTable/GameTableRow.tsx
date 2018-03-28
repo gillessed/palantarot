@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
-import { NavigationDispatcher } from '../../services/navigation/index';
 import { GameOutcome } from './GameTable';
 import { DynamicRoutes } from '../../routes';
 import { formatTimestamp } from '../../../server/utils/index';
 import classNames from 'classnames';
+import history from '../../history';
 
 interface Props {
   players: Map<string, Player>;
   game: Game;
-  navigationDispatcher: NavigationDispatcher;
   outcome: GameOutcome;
 }
 
@@ -45,6 +44,6 @@ export class GameTableRow extends React.PureComponent<Props, {}> {
     }
 
     private onClick = () => {
-      this.props.navigationDispatcher.push(DynamicRoutes.game(this.props.game.id))
+      history.push(DynamicRoutes.game(this.props.game.id))
     }
   }

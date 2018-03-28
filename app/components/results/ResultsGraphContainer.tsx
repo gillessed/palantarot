@@ -14,7 +14,7 @@ interface Props {
   month: Month;
 }
 
-export class ResultsGraphContainer extends PureComponent<Props, void> {
+export class ResultsGraphContainer extends PureComponent<Props, {}> {
   constructor(props: Props) {
     super(props);
   }
