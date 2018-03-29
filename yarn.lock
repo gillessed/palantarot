@@ -15,10 +15,31 @@
     react-popper "^0.8.2"
     tslib "^1.9.0"
 
+"@blueprintjs/core@^2.0.0":
+  version "2.0.1"
+  resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/@blueprintjs/core/-/core-2.0.1.tgz?dl=https://registry.npmjs.org/@blueprintjs/core/-/core-2.0.1.tgz#0b2cf9b477c8a0d102030a5de0465c1709eb99e7"
+  dependencies:
+    "@blueprintjs/icons" "^2.0.0"
+    "@types/dom4" "^2.0.0"
+    classnames "^2.2"
+    dom4 "^2.0.1"
+    normalize.css "^7.0.0"
+    popper.js "^1.14.1"
+    react-popper "^0.8.2"
+    tslib "^1.9.0"
+
 "@blueprintjs/icons@^2.0.0":
   version "2.0.0"
   resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/@blueprintjs/icons/-/icons-2.0.0.tgz?dl=https://registry.npmjs.org/@blueprintjs/icons/-/icons-2.0.0.tgz#d3c149b0c70de20f16bf46eff30caa60b3e74370"
   dependencies:
+    classnames "^2.2"
+    tslib "^1.9.0"
+
+"@blueprintjs/select@^2.0.0":
+  version "2.0.0"
+  resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/@blueprintjs/select/-/select-2.0.0.tgz?dl=https://registry.npmjs.org/@blueprintjs/select/-/select-2.0.0.tgz#35c1e05e1171774fe4cb6772f5f8f77d5be80c4d"
+  dependencies:
+    "@blueprintjs/core" "^2.0.0"
     classnames "^2.2"
     tslib "^1.9.0"
 
@@ -322,6 +343,12 @@
   resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/@types/redux-logger/-/redux-logger-3.0.5.tgz?dl=https://registry.npmjs.org/@types/redux-logger/-/redux-logger-3.0.5.tgz#d1a02758f90845899cd304aa0912daeba2028eb6"
   dependencies:
     redux "^3.6.0"
+
+"@types/reselect@^2.2.0":
+  version "2.2.0"
+  resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/@types/reselect/-/reselect-2.2.0.tgz?dl=https://registry.npmjs.org/@types/reselect/-/reselect-2.2.0.tgz#c667206cfdc38190e1d379babe08865b2288575f"
+  dependencies:
+    reselect "*"
 
 "@types/serve-static@*":
   version "1.7.31"
@@ -4657,6 +4684,10 @@ require-directory@^2.1.1:
 require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
+
+reselect@*, reselect@^3.0.1:
+  version "3.0.1"
+  resolved "https://artifactory.palantir.build:443/artifactory/api/npm/all-npm/reselect/-/reselect-3.0.1.tgz?dl=https://registry.npmjs.org/reselect/-/reselect-3.0.1.tgz#efdaa98ea7451324d092b2b2163a6a1d7a9a2147"
 
 resolve-dir@^0.1.0:
   version "0.1.1"

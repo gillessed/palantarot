@@ -8,6 +8,11 @@ import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { Player } from '../../../server/model/Player';
 import { Deltas, Delta } from '../../../server/model/Delta';
 import { connect } from 'react-redux';
+import { Select, ItemRenderer } from '@blueprintjs/select';
+import { createSelector } from 'reselect';
+import { MenuItem, Button, Classes } from '@blueprintjs/core';
+
+const PlayerSelect = Select.ofType<Player | undefined>();
 
 interface Props {
   players: PlayersService;
@@ -15,16 +20,17 @@ interface Props {
 }
 
 interface State {
-    filterPlayer?: string;
+  filterPlayer?: Player;
 }
 
 class DeltasTabComponent extends React.PureComponent<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
-  
+
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
     this.dispatchers = context.dispatchers;
+    this.state = {};
   }
 
   public componentWillMount() {
@@ -36,17 +42,29 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
   public render() {
     return (
       <div className='deltas-table-container table-container'>
-        {this.renderFilter()}
-        {this.renderContainer()}
+        {this.renderFilterContainer()}
+        {this.renderTableContainer()}
       </div>
     );
   }
 
-  private renderContainer() {
+  private renderFilterContainer = () => {
+    if (this.props.players.loading) {
+      return <SpinnerOverlay size='pt-large' />;
+    } else if (this.props.players.value) {
+      return this.renderFilter(this.props.players.value);
+    } else if (this.props.players.error) {
+      return <p>Error loading players: {this.props.players.error}</p>;
+    } else {
+      return <p>Something went wrong...</p>;
+    }
+  }
+
+  private renderTableContainer() {
     if (this.props.players.loading || this.props.deltas.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size='pt-large' />;
     } else if (this.props.players.value && this.props.deltas.value) {
-      return this.renderContents(this.props.players.value, this.props.deltas.value);
+      return this.renderTable(this.props.players.value, this.props.deltas.value)
     } else if (this.props.players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
     } else if (this.props.deltas.error) {
@@ -56,11 +74,11 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderContents(players: Map<string, Player>, deltas: Deltas) {
+  private renderTable(players: Map<string, Player>, deltas: Deltas) {
     return [
-      <h3> Highest Deltas </h3>,
+      <h3 key='1'> Highest Deltas </h3>,
       this.renderDeltaTable(players, deltas.maximums, 'Highest Deltas'),
-      <h3> Lowest Deltas </h3>,
+      <h3 key='2'> Lowest Deltas </h3>,
       this.renderDeltaTable(players, deltas.minimums, 'Lowest Deltas'),
     ];
   }
@@ -73,6 +91,7 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
             <th>Player</th>
             <th>{title}</th>
             <th>Date</th>
+            <th>Games Played</th>
           </tr>
         </thead>
         <tbody>
@@ -93,6 +112,7 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
         <td>{playerName}</td>
         <td>{this.renderDeltaNumber(delta.delta)}</td>
         <td>{delta.date}</td>
+        <td>{delta.gameCount}</td>
       </tr>
     );
   }
@@ -100,102 +120,102 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
   private renderDeltaNumber(delta: number) {
     if (delta < 0) {
       return (
-        <span className='score-delta' style={{color: 'red'}}>
+        <span className='score-delta' style={{ color: 'red' }}>
           <span className='pt-icon pt-icon-arrow-down'></span>
           {delta}
         </span>
       );
     } else if (delta > 0) {
       return (
-        <span className='score-delta' style={{color: 'green'}}>
+        <span className='score-delta' style={{ color: 'green' }}>
           <span className='pt-icon pt-icon-arrow-up'></span>
           {delta}
         </span>
       );
     } else {
-      return <div/>;
+      return (
+        <span className='score-delta'>
+          {delta}
+        </span>
+      );
     }
   }
 
-  private renderFilter = () => {
-    // return (
-    //   <select
-    //     label='Filter by player'
-    //   />
-    // );
+  private getPlayerList = createSelector(
+    (playerMap: Map<string, Player>) => playerMap,
+    (playerMap: Map<string, Player>) => {
+      const players: Array<Player> = Array.from(playerMap.values());
+      players.sort((p1, p2) => {
+        return `${p1.firstName} ${p1.lastName}`.localeCompare(`${p2.firstName} ${p2.lastName}`);
+      });
+      const all = (players as Array<Player | undefined>);
+      all.unshift(undefined);
+      return all;
+    },
+  );
+
+  private renderFilter = (players: Map<string, Player>) => {
+    const playerList = this.getPlayerList(players);
+    let filterText = 'All Players';
+    if (this.state.filterPlayer) {
+      filterText = `${this.state.filterPlayer.firstName} ${this.state.filterPlayer.lastName}`;
+    }
+    return (
+      <div style={{ marginBottom: 20 }}>
+        <PlayerSelect
+          resetOnClose
+          resetOnSelect
+          items={playerList}
+          itemRenderer={this.renderPlayer}
+          itemPredicate={this.queryPlayers}
+          onItemSelect={this.onPlayerSelected}
+          noResults={<MenuItem disabled={true} text='No results.' />}
+        >
+          <Button text={filterText} rightIcon='caret-down' />
+        </PlayerSelect>
+      </div>
+    );
   }
 
-  // private renderLowTable() {
+  private queryPlayers = (query: string, player?: Player) => {
+    if (!player) { 
+      return true;
+    }
+    const name = `${player.firstName} ${player.lastName}`;
+    return name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+  }
 
-  // }
+  private renderPlayer: ItemRenderer<Player | undefined> = (player, { handleClick, modifiers }) => {
+    if (!player) {
+      return (
+        <MenuItem
+          className={modifiers.active ? Classes.ACTIVE : ''}
+          key={'All'}
+          text='All Players'
+          onClick={handleClick}
+        />
+      );
+    }
+    return (
+      <MenuItem
+        className={modifiers.active ? Classes.ACTIVE : ''}
+        key={player.id}
+        text={`${player.firstName} ${player.lastName}`}
+        onClick={handleClick}
+      />
+    );
+  }
 
-//   private renderHeader = (text: string, index: number) => {
-//     let sort: 'asc' | 'desc' | undefined;
-//     if (this.state.sort === index) {
-//       sort = this.state.order;
-//     }
-//     return (
-//       <WinPercentagesTableHeader
-//         key={index}
-//         text={text}
-//         index={index}
-//         sort={sort}
-//         onClick={this.onHeaderClicked}
-//       />
-//     );
-//   }
-
-//   private onHeaderClicked = (index: number) => {
-//     if (index === this.state.sort) {
-//       this.setState({
-//         order: this.state.order === 'asc' ? 'desc' : 'asc',
-//       });
-//     } else {
-//       this.setState({
-//         sort: index,
-//         order: 'asc',
-//       });
-//     }
-//   }
-
-//   private onFilterRecordsChanged = () => {
-//     this.setState({
-//       filterPlayers: !this.state.filterPlayers,
-//     });
-//   }
-
-//   private renderRow = (row: Row) => {
-//     return (
-//       <tr key={row[0]}>
-//         {this.renderCell(row[0])}
-//         {this.renderCell(row[1], true)}
-//         {this.renderCell(row[2])}
-//         {this.renderCell(row[3], true)}
-//         {this.renderCell(row[4], true)}
-//         {this.renderCell(row[5])}
-//         {this.renderCell(row[6], true)}
-//         {this.renderCell(row[7], true)}
-//         {this.renderCell(row[8])}
-//         {this.renderCell(row[9], true)}
-//         {this.renderCell(row[10], true)}
-//         {this.renderCell(row[11])}
-//       </tr>
-//     );
-//   }
-
-//   private renderCell = (entry: string | number | undefined, percent?: boolean) => {
-//     if (typeof entry === 'string') {
-//       return <td>{entry}</td>;
-//     } else if (entry !== undefined) {
-//       let value = `${chop(entry * (percent ? 100 : 1), 1)}`;
-//       if (percent) {
-//         value += '%';
-//       }
-//       return <td>{value}</td>
-//     } else {
-//       return <td className='not-applicable'>N/A</td>;
-//     }
-//   }
+  private onPlayerSelected = (player?: Player) => {
+    this.setState({
+      filterPlayer: player,
+    }, () => {
+      this.dispatchers.deltas.request({
+        playerId: player ? player.id : undefined,
+        length: 10,
+      });
+    });
+  }
 }
 
 const mapStateToProps = (state: ReduxState): Props => {

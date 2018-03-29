@@ -26,7 +26,13 @@ export class StatsService {
 
   public getDeltas = (req: Request, res: Response) => {
     const body = req.body as DeltasRequest;
-    this.statsDb.getAllDeltas(body.length).then((deltas: Deltas) => {
+    let promise: Promise<Deltas>;
+    if (body.playerId) {
+      promise = this.statsDb.getPlayerDeltas(body.length, body.playerId);
+    } else {
+      promise = this.statsDb.getAllDeltas(body.length);
+    }
+    promise.then((deltas: Deltas) => {
       res.send(deltas);
     }).catch((error: any) => {
       res.send({ error: `Error getting stats: ${error}` });

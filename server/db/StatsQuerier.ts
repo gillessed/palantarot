@@ -63,27 +63,56 @@ export class StatsQuerier {
   public getAllDeltas = (length: number): Promise<Deltas> => {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
+      .c('COUNT(*) as count')
       .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
       .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
       .c("DAY(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_day")
       .c('SUM(points_earned) AS delta')
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
-      return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
-        const allDeltas = results.map(this.toDelta);
-        allDeltas.sort(this.deltaComparator);
-        if (allDeltas.length <= length) {
-          return {
-            maximums: [...allDeltas].reverse(),
-            minimums: [...allDeltas],
-          };
-        } else {
-          return {
-            maximums: allDeltas.slice(allDeltas.length - length, allDeltas.length).reverse(),
-            minimums: allDeltas.slice(0, length),
-          };
-        }
-      });
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
+      const allDeltas = results.map(this.toDelta);
+      allDeltas.sort(this.deltaComparator);
+      if (allDeltas.length <= length) {
+        return {
+          maximums: [...allDeltas].reverse(),
+          minimums: [...allDeltas],
+        };
+      } else {
+        return {
+          maximums: allDeltas.slice(allDeltas.length - length, allDeltas.length).reverse(),
+          minimums: allDeltas.slice(0, length),
+        };
+      }
+    });
+  }
+
+  public getPlayerDeltas = (length: number, playerId: string): Promise<Deltas> => {
+    const sqlQuery = QueryBuilder.select('player_hand')
+      .c('player_fk_id')
+      .c('COUNT(*) as count')
+      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
+      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
+      .c("DAY(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_day")
+      .c('SUM(points_earned) AS delta')
+      .where(QueryBuilder.compare().compare('player_fk_id', '=', playerId))
+      .groupBy('h_year', 'h_month', 'h_day');
+
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
+      const allDeltas = results.map(this.toDelta);
+      allDeltas.sort(this.deltaComparator);
+      if (allDeltas.length <= length) {
+        return {
+          maximums: [...allDeltas].reverse(),
+          minimums: [...allDeltas],
+        };
+      } else {
+        return {
+          maximums: allDeltas.slice(allDeltas.length - length, allDeltas.length).reverse(),
+          minimums: allDeltas.slice(0, length),
+        };
+      }
+    });
   }
 
   // Helpers
@@ -111,6 +140,7 @@ export class StatsQuerier {
       playerId: `${result['player_fk_id']}`,
       date: `${+result['h_year']}-${zeroPadMonth}-${zeroPadDay}`,
       delta: +result['delta'],
+      gameCount: +result['count'],
     };
   };
 
