@@ -12,7 +12,7 @@ import { Select, ItemRenderer } from '@blueprintjs/select';
 import { createSelector } from 'reselect';
 import { MenuItem, Button, Classes } from '@blueprintjs/core';
 
-const PlayerSelect = Select.ofType<Player | undefined>();
+const PlayerSelect = Select.ofType<Player | string>();
 
 interface Props {
   players: PlayersService;
@@ -148,8 +148,8 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
       players.sort((p1, p2) => {
         return `${p1.firstName} ${p1.lastName}`.localeCompare(`${p2.firstName} ${p2.lastName}`);
       });
-      const all = (players as Array<Player | undefined>);
-      all.unshift(undefined);
+      const all = (players as Array<Player | string>);
+      all.unshift('All Players');
       return all;
     },
   );
@@ -177,16 +177,16 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
     );
   }
 
-  private queryPlayers = (query: string, player?: Player) => {
-    if (!player) { 
+  private queryPlayers = (query: string, player: Player | string) => {
+    if (typeof player === 'string') { 
       return true;
     }
     const name = `${player.firstName} ${player.lastName}`;
     return name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   }
 
-  private renderPlayer: ItemRenderer<Player | undefined> = (player, { handleClick, modifiers }) => {
-    if (!player) {
+  private renderPlayer: ItemRenderer<Player | string> = (player, { handleClick, modifiers }) => {
+    if (typeof player === 'string') {
       return (
         <MenuItem
           className={modifiers.active ? Classes.ACTIVE : ''}
@@ -206,12 +206,12 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
     );
   }
 
-  private onPlayerSelected = (player?: Player) => {
+  private onPlayerSelected = (player: Player | string) => {
     this.setState({
-      filterPlayer: player,
+      filterPlayer: (typeof player === 'string' ? undefined : player),
     }, () => {
       this.dispatchers.deltas.request({
-        playerId: player ? player.id : undefined,
+        playerId: typeof player === 'string' ? undefined : player.id,
         length: 10,
       });
     });
