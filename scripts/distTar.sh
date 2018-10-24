@@ -10,7 +10,7 @@ yarn
 gulp compile
 gulp compile-styles
 gulp copy-static
-time webpack --optimize-minimize
+time yarn webpack-min --optimize-minimize
 
 rm -rf dist
 mkdir dist
