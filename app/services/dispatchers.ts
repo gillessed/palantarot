@@ -12,10 +12,12 @@ import { RecordsDispatcher } from './records/index';
 import { CacheFunctions } from './redux/serviceDispatcher';
 import { StatsDispatcher } from './stats/index';
 import { DeltasDispatcher } from './deltas/index';
+import { BidsDispatcher } from './bids/index';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
   auth: AuthDispatcher;
+  bids: BidsDispatcher;
   deleteGame: DeleteGameDispatcher;
   deltas: DeltasDispatcher;
   games: GameDispatcher;
@@ -34,6 +36,10 @@ export const dispatcherCreators = (dispatch: any): Dispatchers => {
     auth: new AuthDispatcher(
       dispatch,
       (state: ReduxState) => state.auth,
+    ),
+    bids: new BidsDispatcher(
+      dispatch,
+      (state: ReduxState) => state.bids,
     ),
     deleteGame: new DeleteGameDispatcher(dispatch),
     games: new GameDispatcher(

@@ -23,6 +23,7 @@ import { StatsService } from '../../services/stats/index';
 import { AggregatedStats } from '../../../server/model/Stats';
 import { WinPercentagesTab } from './WinPercentagesTab';
 import { DeltasTab } from './DeltasTab';
+import { BidsTab } from './BidsTab';
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -120,6 +121,9 @@ class Internal extends React.PureComponent<Props, State> {
     const deltasTab = (
       <DeltasTab />
     );
+    const bidsTab = (
+      <BidsTab />
+    );
     return (
       <div className='records-tabs-container'>
         <Tabs id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
@@ -128,6 +132,7 @@ class Internal extends React.PureComponent<Props, State> {
           <Tab id='RecordsSlamTab' title='Slams' panel={slamTab} />
           <Tab id='RecordsWinPercentagesTab' title='Win Percentages' panel={winPercentagesTab} />
           <Tab id='DeltasTab' title='Deltas' panel={deltasTab} />
+          <Tab id='BidsTab' title='Bids' panel={bidsTab} />
         </Tabs>
       </div>
     );

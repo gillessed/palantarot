@@ -13,6 +13,7 @@ import { Stats } from '../../server/model/Stats';
 import { DeltasRequest } from '../../server/api/StatsService';
 import { Deltas } from '../../server/model/Delta';
 import history from '../history';
+import { BidRequest, BidStats } from '../../server/model/Bid';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -78,6 +79,10 @@ export class ServerApi {
 
   public getDeltas = (request: DeltasRequest) => {
     return this.wrapPost<Deltas>('/stats/deltas', request);
+  }
+
+  public getBids = (request: BidRequest) => {
+    return this.wrapPost<BidStats>('/stats/bids', request);
   }
 
   // Helpers

@@ -19,7 +19,9 @@ export class Database {
     return new Promise((resolve: (result: any[]) => void, reject: (reason: any) => void) => {
       this.pool.getConnection((err, connection) => {
         if (err) {
+          console.log(err);
           reject(err);
+          return;
         }
         if (values && values.length) {
           connection.query(query, values, (queryError, result) => {

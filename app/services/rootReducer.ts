@@ -12,10 +12,12 @@ import { RecordsService, recordsReducer } from './records/index';
 import { statsReducer, StatsService } from './stats/index';
 import { DeltasService, deltasReducer } from './deltas/index';
 import { combineReducers } from 'redux';
+import { BidsService, bidsReducer } from './bids/index';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
   auth: AuthService;
+  bids: BidsService,
   deleteGame: DeleteGameService;
   deltas: DeltasService;
   games: GameService;
@@ -31,6 +33,7 @@ export interface ReduxState {
 export const rootReducer = combineReducers({
   addPlayer: addPlayerReducer,
   auth: authReducer,
+  bids: bidsReducer,
   deleteGame: deleteGameReducer,
   deltas: deltasReducer,
   games: gameReducer,

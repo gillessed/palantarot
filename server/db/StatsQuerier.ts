@@ -2,6 +2,7 @@ import { Database } from './dbConnector';
 import { QueryBuilder } from './queryBuilder/QueryBuilder';
 import { Stat, Stats } from '../model/Stats';
 import { Delta, Deltas } from '../model/Delta';
+import { BidStats } from '../model/Bid';
 
 export class StatsQuerier {
   private db: Database;
@@ -115,7 +116,62 @@ export class StatsQuerier {
     });
   }
 
+  public getPlayerBids = (playerId: string): Promise<BidStats> => {
+    return Promise.all([
+      this.bidQuery(playerId, 10, true),
+      this.bidQuery(playerId, 10, false),
+      this.bidQuery(playerId, 20, true),
+      this.bidQuery(playerId, 20, false),
+      this.bidQuery(playerId, 40, true),
+      this.bidQuery(playerId, 40, false),
+      this.bidQuery(playerId, 80, true),
+      this.bidQuery(playerId, 80, false),
+      this.bidQuery(playerId, 160, true),
+      this.bidQuery(playerId, 160, false),
+    ]).then((agg) => {
+      return {
+        playerId,
+        ten: {
+          won: agg[0],
+          lost: agg[1],
+        },
+        twenty: {
+          won: agg[2],
+          lost: agg[3],
+        },
+        fourty: {
+          won: agg[4],
+          lost: agg[5],
+        },
+        eighty: {
+          won: agg[6],
+          lost: agg[7],
+        },
+        onesixty:{
+          won: agg[8],
+          lost: agg[9],
+        },
+      };
+    });
+  }
+
   // Helpers
+
+  private bidQuery = (playerId: string, bidAmount: number, won: boolean): Promise<number> => {
+    const sqlQuery = QueryBuilder.select('player_hand')
+      .c('COUNT(*) as count')
+      .join('hand', 'INNER', QueryBuilder.compare().compareColumn('player_hand.hand_fk_id', '=', 'hand.id'))
+      .where(
+        QueryBuilder.compare()
+        .compare('player_fk_id', '=', playerId)
+        .compare('was_bidder', '=', true)
+        .compare('bid_amt', '=', bidAmount)
+        .compare('points_earned', won ? '>=' : '<', 0)
+      );
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result) => {
+      return result[0]['count'];
+    });
+  }
 
   private toStat = (result: {[key: string]: any}): Stat => {
     return {

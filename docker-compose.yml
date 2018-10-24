@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  postgresql:
+    container_name: mysql.palantarot.com
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=Palantir1!
+      - MYSQL_DATABASE=palantir
+      - MYSQL_USER=palantir
+      - MYSQL_PASSWORD=Palantir1!
+
