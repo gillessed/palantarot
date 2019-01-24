@@ -11,4 +11,3 @@ services:
       - MYSQL_DATABASE=palantir
       - MYSQL_USER=palantir
       - MYSQL_PASSWORD=Palantir1!
-

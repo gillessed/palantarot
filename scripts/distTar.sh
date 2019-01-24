@@ -4,22 +4,14 @@ set -ex
 
 cd "$(dirname "$0")"/..
 
-#rm -rf build
+rm -rf build/*
 
-yarn
-gulp compile
-gulp compile-styles
-gulp copy-static
-time yarn webpack-min --optimize-minimize
+yarn dist:app
+yarn dist:server
 
-rm -rf dist
-mkdir dist
+cp package.json build
 
-cp -r build/* dist
-cp package.json dist
-cp -f index.prod.html dist/index.html
-
-cd dist
+cd build
 tar -cf palantarot.tar *
 
-echo "Distribution tarball ready at dist/palantarot.tar"
+echo "Distribution tarball ready at build/palantarot.tar"

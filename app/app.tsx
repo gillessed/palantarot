@@ -1,3 +1,4 @@
+import './app.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -33,9 +34,7 @@ const middleware = [
   sagaMiddleware,
 ];
 
-declare const DEV: boolean | undefined;
-
-if (DEV) {
+if (process.env.NODE_ENV === 'development') {
   console.log('Initializing redux logger for debug...');
   middleware.push(logger as any);
 }

@@ -11,14 +11,21 @@ TODO
 Development
 -----------
 
-To run the server locally, you first need a mysql. I haven't any docker stuff for this. I'm not doing that.
+There are a few things you will need to run the app locally.
 
-Then there are three commands to run, all in the package.json:
-
+Start up a mysql database:
 ```
-yarn run gulp
-yarn run webpack
-yarn run server
+docker-compose up -d
 ```
 
-After that, you should have a server running on your machine. All the commands will watch for changes. The server will restart automatically, but I didn't do anything with hotloading on the frontend, so you'll have to refresh that.
+You will need to seed the database with the schema file `palantar_tarot.sql`.
+
+Once your database is up and running, run the following commands:
+
+```
+yarn run start:app
+yarn run watch:server
+yarn run start:server
+```
+
+After that, you should have a server running on your machine. The frontend will update automatically, but any changes to the server will require a restart.

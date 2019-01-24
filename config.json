@@ -1,5 +1,5 @@
 {
-  "port": 7456,
+  "port": 4567,
   "auth": {
     "cookieDurationDays": 30,
     "cookieName": "palantarot-session",
@@ -7,7 +7,7 @@
     "token": "2343rg34fg3q34fv3tbn2w45bgwstysqwerq",
     "authHeaderName": "tarot-token"
   },
-  "assetDir": "build",
+  "assetDir": "./",
   "database": {
     "host": "localhost",
     "port": 3306,

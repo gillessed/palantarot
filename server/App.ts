@@ -88,8 +88,12 @@ export class App {
   private staticRoutes() {
     this.express.use('/favicon-16x16.png', express.static(this.config.assetDir + '/static/images/favicon-16x16.png'));
     this.express.use('/favicon-32x32.png', express.static(this.config.assetDir + '/static/images/favicon-32x32.png'));
-    this.express.use('/resources', express.static(this.config.assetDir + '/app'));
-    this.express.use('/static', express.static(this.config.assetDir + '/static'));
+    this.express.use('/src', express.static(path.resolve(this.config.assetDir, 'src')));
+    this.express.use('/static', express.static(path.resolve(this.config.assetDir, 'static')));
+    this.express.get('/icons-*', (req, res) => {
+      const filename = path.basename(req.path);
+      res.sendFile(path.resolve(this.config.assetDir, filename));
+    });
   }
 
   private apiRoutes() {
@@ -113,7 +117,7 @@ export class App {
       } else if (!this.isAppRoute(req.path))  {
         res.redirect('/');
       } else {
-        res.sendFile(path.join(__dirname, '..', 'index.html'));
+        res.sendFile(path.join(path.resolve(), 'index.html'));
       }
     });
   }
@@ -127,6 +131,9 @@ export class App {
     const dynamicRoutes = Object.keys(DynamicRoutes).map((route) => new RegExp(DynamicRoutes[route]('[^/]+')));
     const dynamicMatch = dynamicRoutes.find((routeRegex) => routeRegex.test(path));
     if (dynamicMatch) {
+      return true;
+    }
+    if (path === '/') {
       return true;
     }
     return false;
