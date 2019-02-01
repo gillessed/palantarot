@@ -3,6 +3,7 @@ import { QueryBuilder } from './queryBuilder/QueryBuilder';
 import { Stat, Stats } from '../model/Stats';
 import { Delta, Deltas } from '../model/Delta';
 import { BidStats } from '../model/Bid';
+import { QueryResult } from 'pg';
 
 export class StatsQuerier {
   private db: Database;
@@ -56,8 +57,8 @@ export class StatsQuerier {
         .compareColumn('allGames.was_partner', '=', 'win.was_partner')
     );
 
-    return this.db.query(allPlayers.getQueryString(), allPlayers.getValues()).then((results: any[]): Stats => {
-      return results.map(this.toStat);
+    return this.db.query(allPlayers.getQueryString(), allPlayers.getValues()).then((result: QueryResult): Stats => {
+      return result.rows.map(this.toStat);
     });
   }
 
@@ -71,8 +72,8 @@ export class StatsQuerier {
       .c('SUM(points_earned) AS delta')
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
-      const allDeltas = results.map(this.toDelta);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      const allDeltas = result.rows.map(this.toDelta);
       allDeltas.sort(this.deltaComparator);
       if (allDeltas.length <= length) {
         return {
@@ -99,8 +100,8 @@ export class StatsQuerier {
       .where(QueryBuilder.compare().compare('player_fk_id', '=', playerId))
       .groupBy('h_year', 'h_month', 'h_day');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
-      const allDeltas = results.map(this.toDelta);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      const allDeltas = result.rows.map(this.toDelta);
       allDeltas.sort(this.deltaComparator);
       if (allDeltas.length <= length) {
         return {
@@ -169,7 +170,7 @@ export class StatsQuerier {
         .compare('points_earned', won ? '>=' : '<', 0)
       );
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result) => {
-      return result[0]['count'];
+      return result.rows[0]['count'];
     });
   }
 

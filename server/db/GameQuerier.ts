@@ -5,6 +5,7 @@ import { QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
 import { GamePartial } from '../model/Game';
 import { MonthlyScore } from '../model/Records';
 import { Result } from '../model/Result';
+import { QueryResult } from 'pg';
 
 export interface RecentGameQuery {
   count: number;
@@ -32,8 +33,8 @@ export class GameQuerier {
         QueryBuilder.compare().compare('hand.id', '=', gameId),
       );
     
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: any[]) => {
-      return this.getGameFromResults(result);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return this.getGameFromResults(result.rows);
     });
   }
 
@@ -49,12 +50,12 @@ export class GameQuerier {
       )
       .groupBy('player_fk_id');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
-      return results.map((result) => {
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return result.rows.map((row) => {
         return {
-          id: `${result['player_fk_id']}`,
-          points: +result['SUM(points_earned)'],
-          gamesPlayed: +result['COUNT(*)'],
+          id: `${row['player_fk_id']}`,
+          points: +row['SUM(points_earned)'],
+          gamesPlayed: +row['COUNT(*)'],
         };
       });
     });
@@ -97,8 +98,8 @@ export class GameQuerier {
 
     sqlQuery.orderBy('hand.timestamp', 'desc');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
-      return this.getGamesFromResults(handEntries).slice(0, query.count);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return this.getGamesFromResults(result.rows).slice(0, query.count);
     });
   }
 
@@ -118,8 +119,8 @@ export class GameQuerier {
       )
       .orderBy('hand.timestamp');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
-      return this.getGamesFromResults(handEntries);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return this.getGamesFromResults(result.rows);
     });
   }
 
@@ -217,8 +218,8 @@ export class GameQuerier {
       )
       .orderBy('hand.timestamp', 'desc');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((handEntries: any[]) => {
-      return this.getGamesFromResults(handEntries);
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return this.getGamesFromResults(result.rows);
     });
   }
 
@@ -231,8 +232,8 @@ export class GameQuerier {
       .c('SUM(points_earned)')
       .groupBy('player_fk_id', 'h_year', 'h_month');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((results: any[]) => {
-      return results.map((result: {[key: string]: any}): MonthlyScore => {
+    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return result.rows.map((result: {[key: string]: any}): MonthlyScore => {
         return {
           playerId: `${result['player_fk_id']}`,
           month: +result['h_month'] - 1,

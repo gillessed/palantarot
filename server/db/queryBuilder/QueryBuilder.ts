@@ -1,3 +1,4 @@
+import { indexFlags } from './indexFlags';
 /*
  * Simple query builders that should do most things need. If need more, implement more.
  */
@@ -79,7 +80,7 @@ class UpdateBuilder implements UpsertBuilder {
       queryString += ' ';
       queryString += this._where.getQueryString();
     }
-    return queryString;
+    return indexFlags(queryString);
   }
 
   public getValues(): any[] {
@@ -109,7 +110,7 @@ class DeleteBuilder implements QueryBuilder {
       queryString += ' ';
       queryString += this._where.getQueryString();
     }
-    return queryString;
+    return indexFlags(queryString);
   }
 
   public getValues(): any[] {
@@ -228,7 +229,7 @@ class SelectBuilder implements QueryBuilder {
         queryString += this._offset;
       }
     }
-    return queryString;
+    return indexFlags(queryString);
   }
 
   public getValues(): any[] {

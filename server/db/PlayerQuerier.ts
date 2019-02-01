@@ -2,6 +2,7 @@ import { Database } from './dbConnector';
 import { Player } from './../model/Player';
 import { NewPlayer } from '../model/Player';
 import { QueryBuilder } from './queryBuilder/QueryBuilder';
+import { QueryResult } from 'pg';
 
 export class PlayerQuerier {
   private db: Database;
@@ -16,8 +17,8 @@ export class PlayerQuerier {
     
     const query = QueryBuilder.select('players').star();
 
-    return this.db.query(query.getQueryString()).then((players: any[]) => {
-      return players.map((player: any) => {
+    return this.db.query(query.getQueryString()).then((result: QueryResult) => {
+      return result.rows.map((player: any) => {
         return {
           id: player['id'] + '',
           firstName: player['first_name'],
@@ -37,11 +38,9 @@ export class PlayerQuerier {
       .v('last_name', player.lastName)
       .v('email', player.email);
       
-    return this.db.query(query.getQueryString(), query.getValues()).then((results: {insertId: number}) => {
-      return {
-        ...player,
-        id: `${results.insertId}`,
-      };
+    return this.db.query(query.getQueryString(), query.getValues()).then((result: QueryResult) => {
+      const id = result.rows[0].id;
+      return { ...player, id };
     });
   }
 }

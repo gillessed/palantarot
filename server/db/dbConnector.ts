@@ -1,111 +1,51 @@
-import mysql, { IPool, IConnection } from 'mysql';
-
-interface ConnectionOptions {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
+import { Pool, PoolClient, ConnectionConfig, QueryResult } from 'pg';
 
 export class Database {
-  private pool: IPool;
+  private pool: Pool;
 
-  constructor(options: ConnectionOptions) {
-    this.pool = mysql.createPool(options);
+  constructor(options: ConnectionConfig) {
+    this.pool = new Pool(options);
   }
 
-  public query = (query: string, values?: any[]): Promise<any> => {
-    return new Promise((resolve: (result: any[]) => void, reject: (reason: any) => void) => {
-      this.pool.getConnection((err, connection) => {
-        if (err) {
-          console.log(err);
-          reject(err);
-          return;
-        }
-        if (values && values.length) {
-          connection.query(query, values, (queryError, result) => {
-            connection.release();
-            if (queryError) {
-              console.log('Rolling back transaction', queryError);
-              reject(queryError);
-            } else {
-              resolve(result);
-            }
-          });
-        } else {
-          connection.query(query, (queryError, result) => {
-            connection.release();
-            if (queryError) {
-              console.log('Rolling back transaction', queryError);
-              reject(queryError);
-            } else {
-              resolve(result);
-            }
-          });
-        }
-      });
-    })
+  public query = async (query: string, values?: any[]): Promise<QueryResult> => {
+    if (values && values.length) {
+      return this.pool.query(query, values);
+    } else {
+      return this.pool.query(query);
+    }
   }
 
-  public beginTransaction = (): Promise<Transaction> => {
-    return new Promise((resolve: (result: Transaction) => void, reject: (reason: any) => void) => {
-      this.pool.getConnection((err, connection) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(new Transaction(connection));
-        }
-      });
-    });
+  public beginTransaction = async (): Promise<Transaction> => {
+    const client = await this.pool.connect();
+    return new Transaction(client);
   }
 }
 
 export class Transaction {
-  constructor(private readonly connection: IConnection) {}
+  constructor(public readonly client: PoolClient) {}
 
-  public query = (query: string, values?: any[]): Promise<any> => {
-    return new Promise((resolve: (result: any) => void, reject: (reason: any) => void) => {
+  public query = async (query: string, values?: any[]): Promise<QueryResult> => {
+    try {
       if (values && values.length) {
-        this.connection.query(query, values, (queryError, result) => {
-          if (queryError) {
-            console.log('Rolling back transaction', queryError);
-            this.connection.rollback(() => {
-              reject(queryError)
-            });
-          } else {
-            resolve(result);
-          }
-        });
+        const result = await this.client.query(query, values);
+        return result;
       } else {
-        this.connection.query(query, (queryError, result) => {
-          if (queryError) {
-            console.log('Rolling back transaction', queryError);
-            this.connection.rollback(() => {
-              reject(queryError)
-            });
-          } else {
-            resolve(result);
-          }
-        });
+        const result = await this.client.query(query);
+        return result;
       }
-    });
+    } catch (error) {
+      await this.client.query('ROLLBACK');
+      await this.client.release();
+      return Promise.reject(error);
+    }
   }
 
-  public commit = (): Promise<void> => {
-    return new Promise((resolve: (result: void) => void, reject: (reason: any) => void) => {
-      this.connection.commit((error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(undefined);
-        }
-      });
-    });
+  public commit = async () => {
+    await this.client.query('COMMIT');
   }
 }
 
-export function connect(options: ConnectionOptions, callback: (db: Database) => void) {
+export function connect(options: ConnectionConfig, callback: (db: Database) => void) {
   const db = new Database(options);
   callback(db);
 }

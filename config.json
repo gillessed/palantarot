@@ -10,9 +10,9 @@
   "assetDir": "./",
   "database": {
     "host": "localhost",
-    "port": 3306,
-    "user": "palantir",
-    "password": "Palantir1!",
-    "database": "palantir"
+    "port": 5552,
+    "user": "tarot_user",
+    "password": "tarot1",
+    "database": "tarot_data"
   }
 }
