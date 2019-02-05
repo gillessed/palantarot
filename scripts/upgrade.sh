@@ -6,38 +6,29 @@ if [[ -z "$1" ]]; then
 fi
 
 TARBALL=$1
-scp -P 7822 $TARBALL palantar@palantarot.a2hosted.com:~
+
+scp $TARBALL gcole@138.197.202.206:~
 
 NAME=$(basename "$TARBALL")
 
-ssh -p 7822 palantar@palantarot.a2hosted.com << EOF
-  pkill node
-  mkdir upgrade
-  mv $NAME upgrade
-  cd upgrade
-  tar -xf $NAME
+ssh gcole@138.197.202.206 << EOF
 
-  rm -rf ../palantarot/app
-  mv app ../palantarot
+    mkdir -p palantarot
+    mkdir -p backup
 
-  rm -rf ../palantarot/index.html
-  mv index.html ../palantarot
+    pkill node
+    rm backup/*
+    mv palantarot/config.json backup/config.json
+    mv palantarot/node_modules backup/node_modules
+    rm -rf palantarot/*
+    mv $NAME palantarot
+    cd palantarot
+    tar -xf $NAME
 
-  rm -rf ../palantarot/package.json
-  mv package.json ../palantarot
+    mv ../backup/config.json .
+    mv ../backup/node_modules .
 
-  rm -rf ../palantarot/server
-  mv server ../palantarot
-
-  rm -rf ../palantarot/static
-  mv static ../palantarot
-
-  cd ../
-  rm -rf upgrade
-
-  cd palantarot
-  export NODE_ENV=production
-  nohup node server/index.js > palantarot.log 2> palantarot.err < /dev/null &
-  exit
+    npm install
+    export NODE_ENV=production
+    nohup node server.js > palantarot.log 2> palantarot.err < /dev/null &
 EOF
-

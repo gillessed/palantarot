@@ -15,7 +15,7 @@ import { StaticRoutes, DynamicRoutes } from '../app/routes';
 import { StatsService } from './api/StatsService';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
-const unauthedRoutes = ['/login', '/favicon.ico', '/resources', '/static'];
+const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon'];
 
 export class App {
   public express: express.Application;

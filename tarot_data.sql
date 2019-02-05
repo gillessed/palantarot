@@ -2,7 +2,7 @@
 
 CREATE TABLE hand (
     id             SERIAL,
-    timestamp      timestamp NOT NULL DEFAULT now(),
+    timestamp      TIMESTAMPTZ NOT NULL DEFAULT now(),
     players        INT NOT NULL,
     bidder_fk_id   INT NOT NULL,
     partner_fk_id  INT DEFAULT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE players (
 
 CREATE TABLE player_hand (
     id             SERIAL,
-    timestamp      TIMESTAMP NOT NULL DEFAULT now(),
+    timestamp      TIMESTAMPTZ NOT NULL DEFAULT now(),
     hand_fk_id     INT NOT NULL,
     player_fk_id   INT NOT NULL,
     was_bidder     BOOLEAN DEFAULT false,

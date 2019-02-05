@@ -40,7 +40,7 @@ export class GameService {
 
     const startDate = this.convertToSql(month);
     const endDate = this.convertToSql(month.next());
-    const deltaCutoff = moment.tz(westernTimezone).startOf('day').local().format('YYYY-MM-DD HH:mm:ss');
+    const deltaCutoff = moment.tz(westernTimezone).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
 
     this.gameDb.queryResultsBetweenDates(startDate, endDate).then((results: Result[]) => {
       return this.gameDb.queryResultsBetweenDates(deltaCutoff, endDate).then((deltaResults: Result[]) => {

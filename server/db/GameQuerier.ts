@@ -1,7 +1,7 @@
 import { Database } from './dbConnector';
 import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
-import { QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
+import { QueryBuilder, UpsertBuilder, Queries } from './queryBuilder/QueryBuilder';
 import { GamePartial } from '../model/Game';
 import { MonthlyScore } from '../model/Records';
 import { Result } from '../model/Result';
@@ -41,8 +41,8 @@ export class GameQuerier {
   public queryResultsBetweenDates = (startDate: string, endDate: string): Promise<Result[]> => {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
-      .c("COUNT(*)")
-      .c('SUM(points_earned)')
+      .c("COUNT(*) as count")
+      .c('SUM(points_earned) as sum')
       .where(
         QueryBuilder.compare()
           .compare('timestamp', '>=', startDate)
@@ -52,11 +52,12 @@ export class GameQuerier {
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return result.rows.map((row) => {
-        return {
+        const foo = {
           id: `${row['player_fk_id']}`,
-          points: +row['SUM(points_earned)'],
-          gamesPlayed: +row['COUNT(*)'],
+          points: +row['sum'],
+          gamesPlayed: +row['count'],
         };
+        return foo;
       });
     });
   }
@@ -132,13 +133,14 @@ export class GameQuerier {
     let upsertHandSqlQuery: UpsertBuilder;
     let timestamp: string;
     if (game.id) {
-      timestamp = moment(game.timestamp).format('YYYY-MM-DD HH:mm:ss');
+      timestamp = moment(game.timestamp).utc().format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.update('hand')
         .where(QueryBuilder.compare().compare('id', '=', game.id));
     } else {
-      timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+      timestamp = moment().utc().format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.insert('hand')
-        .v('timestamp', timestamp);
+        .v('timestamp', timestamp)
+        .return('id');
     }
 
     upsertHandSqlQuery
@@ -160,16 +162,16 @@ export class GameQuerier {
       } else {
         maybeDelete = Promise.resolve();
       }
-      return maybeDelete.then((): Promise<any> => {
+      return maybeDelete.then((): Promise<QueryResult> => {
         return transaction.query(upsertHandSqlQuery.getQueryString(), upsertHandSqlQuery.getValues());
-      }).then((results: { insertId?: number }) => {
+      }).then((result: QueryResult) => {
         let gameId: string;
         if (game.id) {
           gameId = game.id;
-        } else if (results.insertId !== undefined) {
-          gameId = results.insertId.toString()
+        } else if (result.rowCount > 0) {
+          gameId = result.rows[0].id.toString()
         } else {
-          throw Error('Error: could not determine game idea to insert game.');
+          throw Error('Error: could not determine game id to insert game.');
         }
         const insertPlayerHandsSqlQueries: QueryBuilder[] = [];
         insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.bidder, gameId, timestamp, true, false));
@@ -226,10 +228,10 @@ export class GameQuerier {
   public getAllMonthlyTotals = (): Promise<MonthlyScore[]> => {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
-      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
-      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
-      .c("COUNT(*)")
-      .c('SUM(points_earned)')
+      .c(Queries.selectYear())
+      .c(Queries.selectMonth())
+      .c("COUNT(*) as count")
+      .c('SUM(points_earned) as sum')
       .groupBy('player_fk_id', 'h_year', 'h_month');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
@@ -238,8 +240,8 @@ export class GameQuerier {
           playerId: `${result['player_fk_id']}`,
           month: +result['h_month'] - 1,
           year: +result['h_year'],
-          gameCount: +result['COUNT(*)'],
-          score: +result['SUM(points_earned)'],
+          gameCount: +result['count'],
+          score: +result['sum'],
         };
       });
     });
@@ -341,6 +343,7 @@ export class GameQuerier {
       .v('was_partner', isPartner ? 1 : 0)
       .v('showed_trump', playerHand.showedTrump)
       .v('one_last', playerHand.oneLast)
-      .v('points_earned', playerHand.pointsEarned);
+      .v('points_earned', playerHand.pointsEarned)
+      .return('id');
   }
 }

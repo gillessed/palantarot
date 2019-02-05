@@ -31,7 +31,7 @@ export const statsSaga = statsService.saga;
 const aggregateStats = (stats: Stats): AggregatedStats => {
   const aggregates = new Map<string, Partial<AggregatedStat>>();
   for (const stat of stats) {
-    const key = `${stat.playerId}${stat.month}${stat.year}`;
+    const key = `${stat.playerId}.${stat.month}.${stat.year}`;
     let value = aggregates.get(key);
     if (!value) {
       value = {

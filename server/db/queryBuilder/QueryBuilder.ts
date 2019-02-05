@@ -21,6 +21,15 @@ export interface QueryBuilder {
   getValues: () => any[];
 }
 
+//const convertTimestamp = "CONVERT_TZ(timestamp, '+00:00', '-08:00')";
+const convertTimestamp = "timestamp AT TIME ZONE 'UTC' AT TIME ZONE '-8'";
+
+export const Queries = {
+  selectYear: (name: string = 'h_year') => `EXTRACT(YEAR FROM (${convertTimestamp})) AS ${name}`,
+  selectMonth: (name: string = 'h_month') => `EXTRACT(MONTH FROM (${convertTimestamp})) AS ${name}`,
+  selectDay: (name: string = 'h_day') => `EXTRACT(DAY FROM (${convertTimestamp})) AS ${name}`,
+};
+
 export interface UpsertBuilder extends QueryBuilder {
   v: (column: string, value: any) => UpsertBuilder;
 }
@@ -28,12 +37,18 @@ export interface UpsertBuilder extends QueryBuilder {
 class InsertBuilder implements UpsertBuilder {
   private columns: string[] = [];
   private values: any[] = [];
+  private returning?: string;
 
   public constructor(private readonly table: string) {}
 
   public v(column: string, value: any): InsertBuilder {
     this.columns.push(column);
     this.values.push(value);
+    return this;
+  }
+
+  public return(value: string): InsertBuilder {
+    this.returning = value;
     return this;
   }
 
@@ -45,7 +60,11 @@ class InsertBuilder implements UpsertBuilder {
     queryString += ') VALUES (';
     queryString += this.values.map(() => '?').join(', ');
     queryString += ')';
-    return queryString;
+    if (this.returning) {
+      queryString += ' RETURNING ';
+      queryString += this.returning;
+    }
+    return indexFlags(queryString);
   }
 
   public getValues(): any[] {

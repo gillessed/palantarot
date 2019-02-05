@@ -1,5 +1,5 @@
 import { Database } from './dbConnector';
-import { QueryBuilder } from './queryBuilder/QueryBuilder';
+import { QueryBuilder, Queries } from './queryBuilder/QueryBuilder';
 import { Stat, Stats } from '../model/Stats';
 import { Delta, Deltas } from '../model/Delta';
 import { BidStats } from '../model/Bid';
@@ -25,8 +25,8 @@ export class StatsQuerier {
       .c('was_bidder')
       .c('was_partner')
       .c('player_fk_id')
-      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
-      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
+      .c(Queries.selectYear())
+      .c(Queries.selectMonth())
       .c('COUNT(*) as c')
       .c('SUM(points_earned) as s')
       .groupBy('player_fk_id', 'h_year', 'h_month', 'was_bidder', 'was_partner');
@@ -37,8 +37,8 @@ export class StatsQuerier {
       .c('was_bidder')
       .c('was_partner')
       .c('player_fk_id')
-      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
-      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
+      .c(Queries.selectYear())
+      .c(Queries.selectMonth())
       .c('COUNT(*) as wc')
       .c('SUM(points_earned) as ws')
       .where(
@@ -66,9 +66,9 @@ export class StatsQuerier {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
       .c('COUNT(*) as count')
-      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
-      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
-      .c("DAY(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_day")
+      .c(Queries.selectYear())
+      .c(Queries.selectMonth())
+      .c(Queries.selectDay())
       .c('SUM(points_earned) AS delta')
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
@@ -93,9 +93,9 @@ export class StatsQuerier {
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
       .c('COUNT(*) as count')
-      .c("YEAR(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_year")
-      .c("MONTH(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_month")
-      .c("DAY(CONVERT_TZ(timestamp, '+00:00', '-08:00')) AS h_day")
+      .c(Queries.selectYear())
+      .c(Queries.selectMonth())
+      .c(Queries.selectDay())
       .c('SUM(points_earned) AS delta')
       .where(QueryBuilder.compare().compare('player_fk_id', '=', playerId))
       .groupBy('h_year', 'h_month', 'h_day');
@@ -170,7 +170,7 @@ export class StatsQuerier {
         .compare('points_earned', won ? '>=' : '<', 0)
       );
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result) => {
-      return result.rows[0]['count'];
+      return +result.rows[0]['count'];
     });
   }
 
@@ -181,10 +181,10 @@ export class StatsQuerier {
       year: +result['year'],
       wasBidder: !!result['was_bidder'],
       wasPartner: !!result['was_partner'],
-      totalGames: result['allGamesCount'] || 0,
-      totalScore: result['allGamesSum'] || 0,
-      wonGames: result['winCount'] || 0,
-      wonScore: result['winSum'] || 0,
+      totalGames: +(result['allgamescount'] || 0),
+      totalScore: +(result['allgamessum'] || 0),
+      wonGames: +(result['wincount'] || 0),
+      wonScore: +(result['winsum'] || 0),
     };
   };
 

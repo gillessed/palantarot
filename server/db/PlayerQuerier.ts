@@ -36,9 +36,11 @@ export class PlayerQuerier {
       .insert('players')
       .v('first_name', player.firstName)
       .v('last_name', player.lastName)
-      .v('email', player.email);
+      .v('email', player.email)
+      .return('id');
       
     return this.db.query(query.getQueryString(), query.getValues()).then((result: QueryResult) => {
+      console.log(result);
       const id = result.rows[0].id;
       return { ...player, id };
     });
