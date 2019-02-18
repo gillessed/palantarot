@@ -16,7 +16,6 @@ CREATE TABLE players (
     id          SERIAL,
     first_name  TEXT NOT NULL,
     last_name   TEXT NOT NULL,
-    email       TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 

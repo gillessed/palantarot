@@ -11,8 +11,6 @@ interface State {
   firstNameError?: string;
   lastName: string;
   lastNameError?: string;
-  email: string;
-  emailError?: string;
 }
 
 export class AddPlayerForm extends React.PureComponent<Props, State> {
@@ -24,8 +22,6 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
       firstNameError: ' ',
       lastName: '',
       lastNameError: ' ',
-      email: '',
-      emailError: ' ',
     };
   }
 
@@ -46,13 +42,6 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
           classNames={['pt-add-player-input']}
           onChange={this.onLastNameChange}
           validator={this.fieldValidator('Please enter a last name.')}
-        />
-
-        <TextInput
-          label="Email: "
-          classNames={['pt-add-player-input']}
-          onChange={this.onEmailChange}
-          validator={this.fieldValidator('Please enter an email.')}
         />
 
         <div className="add-player-button-container">
@@ -76,13 +65,6 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
     });
   }
 
-  private onEmailChange = (value: string, error?: string) => {
-    this.setState({
-      email: value,
-      emailError: error,
-    });
-  }
-
   private fieldValidator = (emptyMessage: string) => {
     return (value: string) => {
       if (value.length < 1) {
@@ -96,7 +78,7 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
   }
   
   private submitEnabled = () => {
-    return !this.state.firstNameError && !this.state.lastNameError && !this.state.emailError;
+    return !this.state.firstNameError && !this.state.lastNameError;
   }
 
   private onClickButton = () => {
