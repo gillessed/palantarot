@@ -1,35 +1,30 @@
-import mysql from 'mysql';
+import { Client } from 'pg';
 import * as fs from 'fs';
 import { Player } from '../server/model/Player';
 import { SqlConfig, Hand, PlayerHand } from './dump';
 
 if (process.argv.length !== 4) {
-    console.log('Usage: node mysqlDump.js CONFIG_FILE DUMP_FILE');
+    console.log('Usage: node psqlDump.js CONFIG_FILE DUMP_FILE');
     process.exit(1);
 }
-
 const config: SqlConfig = JSON.parse(fs.readFileSync(process.argv[2], { encoding: 'utf8' }));
-const conn = mysql.createConnection(config);
-let players: Player[];
-let hands: Hand[];
-let playerHands: PlayerHand[];
+const client = new Client(config);
 
-dumpPlayers();
-function dumpPlayers() {
-    conn.query('SELECT * FROM players', (_err, values: any[]) => {
-        players = values.map((player: any) => {
+dumpAll();
+async function dumpAll() {
+    await client.connect();
+
+    try {
+        const playerResult = await client.query('SELECT * FROM players');
+        const players: Player[] = playerResult.rows.map((player: any) => {
             return {
                 id: player['id'],
                 firstName: player['first_name'],
                 lastName: player['last_name'],
             };
         });
-        dumpHands();
-    });
-}
-function dumpHands() {
-    conn.query('SELECT * FROM hand', (_err, values: any[]) => {
-        hands = values.map((hand: any) => {
+        const handsResult = await client.query('SELECT * FROM hand');
+        const hands: Hand[] = handsResult.rows.map((hand: any) => {
             return {
                 id: hand['id'],
                 timestamp: hand['timestamp'],
@@ -41,12 +36,8 @@ function dumpHands() {
                 slam: !!hand['slam'],
             };
         });
-        dumpPlayerHands();
-    });
-}
-function dumpPlayerHands() {
-    conn.query('SELECT * FROM player_hand', (_err, values: any[]) => {
-        playerHands = values.map((playerHand: any) => {
+        const playerHandsResult = await client.query('SELECT * FROM player_hand');
+        const playerHands: PlayerHand[] = playerHandsResult.rows.map((playerHand: any) => {
             return {
                 id: playerHand['id'],
                 timestamp: playerHand['timestamp'],
@@ -59,13 +50,11 @@ function dumpPlayerHands() {
                 points: playerHand['points_earned'],
             };
         });
-        dumpedAll();
-    });
-}
-function dumpedAll() {
-    const dump = { players, hands, playerHands };
-    const serialized = JSON.stringify(dump);
-    console.log('Writing ' + serialized.length + ' characters to file ' + process.argv[3]);
-    fs.writeFileSync(process.argv[3], serialized, { encoding: 'utf8' });
-    conn.end();
+        const dump = { players, hands, playerHands };
+        const serialized = JSON.stringify(dump);
+        console.log('Writing ' + serialized.length + ' characters to file ' + process.argv[3]);
+        fs.writeFileSync(process.argv[3], serialized, { encoding: 'utf8' });
+    } finally {
+        client.end();
+    }
 }

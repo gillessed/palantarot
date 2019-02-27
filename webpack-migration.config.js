@@ -4,7 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
   target: 'node',
   entry: {
-    mysqlDump: './migration/mysqlDump.ts',
+    psqlDump: './migration/psqlDump.ts',
     psqlIngest: './migration/psqlIngest.ts',
   },
   output: {
