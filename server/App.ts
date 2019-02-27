@@ -15,7 +15,7 @@ import { StaticRoutes, DynamicRoutes } from '../app/routes';
 import { StatsService } from './api/StatsService';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
-const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon'];
+const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon', '/.well-known'];
 
 export class App {
   public express: express.Application;
@@ -53,7 +53,7 @@ export class App {
         if (this.isProtectedPath(req.path)) {
           if (authedRequest) {
             res.cookie(this.config.auth.cookieName, this.config.auth.token, { maxAge: oneDayMs * 30, httpOnly: true});
-            next()
+            next();
           } else {
             res.clearCookie(this.config.auth.cookieName);
             res.redirect('/login');
@@ -71,7 +71,7 @@ export class App {
   }
 
   private isProtectedPath(path: string) {
-    for (let start of unauthedRoutes) {
+    for (const start of unauthedRoutes) {
       if (path.startsWith(start)) {
         return false;
       }
@@ -86,6 +86,7 @@ export class App {
   }
 
   private staticRoutes() {
+    this.express.use('/.well-known', express.static(path.join(this.config.assetDir, '.well-known'), { dotfiles: 'allow' } ));
     this.express.use('/favicon-16x16.png', express.static(this.config.assetDir + '/static/images/favicon-16x16.png'));
     this.express.use('/favicon-32x32.png', express.static(this.config.assetDir + '/static/images/favicon-32x32.png'));
     this.express.use('/src', express.static(path.resolve(this.config.assetDir, 'src')));
@@ -111,8 +112,10 @@ export class App {
   }
 
   private redirectRoute() {
-    this.express.use('/', (req, res) => {
-      if (req.path.startsWith('/api')) {
+    this.express.use('/', (req, res, next) => {
+      if (req.path.startsWith('/.well-known')) {
+        next();
+      } else if (req.path.startsWith('/api')) {
         res.sendStatus(404);
       } else if (!this.isAppRoute(req.path))  {
         res.redirect('/');

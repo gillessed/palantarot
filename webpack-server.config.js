@@ -4,7 +4,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const copyStatic = new CopyWebpackPlugin([
   { from: './static', to: './static'},
-  { from: './config.json'}
+  { from: './config.json'},
+  { from: './localtest.cert'},
+  { from: './localtest.key'},
 ]);
 
 module.exports = {

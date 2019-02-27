@@ -42,6 +42,7 @@ export class Transaction {
 
   public commit = async () => {
     await this.client.query('COMMIT');
+    await this.client.release();
   }
 }
 

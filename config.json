@@ -1,4 +1,10 @@
 {
+  "https": {
+    "enabled": false,
+    "key": "./localtest.key",
+    "cert": "./localtest.cert",
+    "httpRedirectPort": 4566
+  },
   "port": 4567,
   "auth": {
     "cookieDurationDays": 30,

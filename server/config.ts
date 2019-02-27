@@ -1,6 +1,13 @@
 import * as fs from 'fs';
 
 export interface Config {
+  https: {
+    enabled: false;
+    key: string;
+    cert: string;
+    ca?: string;
+    httpRedirectPort: number;
+  };
   port: number;
   auth: {
     cookieDurationDays: number;

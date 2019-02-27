@@ -7,10 +7,12 @@
   "license": "MIT",
   "scripts": {
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
+    "watch:migration": "webpack -w --config webpack-migration.config.js --mode development",
     "start:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
     "start:server": "node build/server.js",
     "dist:app": "webpack --config webpack-app.config.js --mode production",
-    "dist:server": "webpack --config webpack-server.config.js --mode production"
+    "dist:server": "webpack --config webpack-server.config.js --mode production",
+    "dist:migration": "webpack --config webpack-migration.config.js --mode production"
   },
   "dependencies": {
     "@blueprintjs/core": "2.0.0",
