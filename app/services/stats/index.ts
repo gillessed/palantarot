@@ -9,6 +9,9 @@ import {
   RoleStats,
 } from '../../../server/model/Stats';
 import { IMonth } from '../../../server/model/Month';
+import { Loader } from '../loader';
+import { ReduxState } from '../rootReducer';
+import { Dispatchers } from '../dispatchers';
 
 export type StatsService = Loadable<void, AggregatedStats>;
 
@@ -27,6 +30,10 @@ export const StatsDispatcher = statsService.dispatcher;
 export type StatsDispatcher = PropertyDispatcher<void>;
 export const statsReducer = statsService.reducer.build();
 export const statsSaga = statsService.saga;
+export const statsLoader: Loader<ReduxState, void, AggregatedStats> = {
+  get: (state: ReduxState, _: undefined) => state.stats,
+  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.stats.request(undefined),
+};
 
 const aggregateStats = (stats: Stats): AggregatedStats => {
   const aggregates = new Map<string, Partial<AggregatedStat>>();

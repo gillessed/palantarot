@@ -7,7 +7,7 @@ interface Props {
     onClick: (index: number) => void;
 }
 
-export class WinPercentagesTableHeader extends React.PureComponent<Props, {}> {
+export class AllWinPercentagesTableHeader extends React.PureComponent<Props, {}> {
     public render() {
         return (
             <th className='sortable' onClick={this.onClick}>{this.props.text}{this.renderIcon()}</th>

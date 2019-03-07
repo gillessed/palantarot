@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { AggregatedStat, StatAverages, StatAverage } from '../../../server/model/Stats';
-import { chop } from '../../../server/utils/index';
+import { AggregatedStat, StatAverages, StatAverage } from '../../../../server/model/Stats';
+import { chop } from '../../../../server/utils/index';
 import classNames from 'classnames';
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
   averages: StatAverages;
 }
 
-export class PlayerStatsTableRow extends React.PureComponent<Props, {}> {
+export class PlayerWinPercentagesTableRow extends React.PureComponent<Props, {}> {
 
   public render() {
     let allWinPer: number | undefined;

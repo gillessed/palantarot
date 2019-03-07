@@ -1,28 +1,29 @@
 import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { AggregatedStats, StatEntry, getAverages } from '../../../server/model/Stats';
-import { chop } from '../../../server/utils/index';
+import { StatEntry, AggregatedStats, getAverages } from '../../../../server/model/Stats';
 import { Checkbox } from '@blueprintjs/core';
-import { Dispatchers } from '../../services/dispatchers';
-import { WinPercentagesTableHeader } from './WinPercentagesTableHeader';
+import { chop } from '../../../../server/utils';
+import { Player } from '../../../../server/model/Player';
+import { playersLoader } from '../../../services/players/index';
+import { loadContainer } from '../../LoadingContainer';
+import { statsLoader } from '../../../services/stats/index';
+import { AllWinPercentagesTableHeader } from './AllWinPercentagesTableHeader';
 
 interface Props {
-  dispatchers: Dispatchers;
   players: Map<string, Player>;
   stats: AggregatedStats;
 }
 
 interface State {
-    filterPlayers: boolean;
-    sort: number;
-    order: 'asc' | 'desc';
+  filterPlayers: boolean;
+  sort: number;
+  order: 'asc' | 'desc';
 }
 
 type Entry = string | number | undefined;
 type Row = Array<Entry>;
 type Table = Array<Row>;
 
-export class WinPercentagesTab extends React.PureComponent<Props, State> {
+class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
 
   private headers = [
     'Player',
@@ -58,7 +59,7 @@ export class WinPercentagesTab extends React.PureComponent<Props, State> {
         });
       }
     });
-    return this.state.filterPlayers ? 
+    return this.state.filterPlayers ?
       playerAverages.filter((entry) => {
         if (!entry.stats.allRoles) {
           return false;
@@ -68,7 +69,7 @@ export class WinPercentagesTab extends React.PureComponent<Props, State> {
       : playerAverages;
   }
 
-  private tableifyStats = (stats: StatEntry[]): Table=> {
+  private tableifyStats = (stats: StatEntry[]): Table => {
     const table: Table = [];
     stats.forEach((stat) => {
       const row: Row = [];
@@ -177,7 +178,7 @@ export class WinPercentagesTab extends React.PureComponent<Props, State> {
       sort = this.state.order;
     }
     return (
-      <WinPercentagesTableHeader
+      <AllWinPercentagesTableHeader
         key={index}
         text={text}
         index={index}
@@ -249,3 +250,10 @@ export class WinPercentagesTab extends React.PureComponent<Props, State> {
     }
   }
 }
+
+const loaders = {
+  players: playersLoader,
+  stats: statsLoader,
+};
+
+export const AllWinPercentagesTab = loadContainer(loaders)(AllWinPercentagesTabInternal);

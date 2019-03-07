@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { StatsService } from '../../services/stats/index';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from '../../../server/model/Stats';
-import { IMonth } from '../../../server/model/Month';
-import { PlayerStatsTableRow } from './PlayerStatsTableRow';
-import { chop } from '../../../server/utils/index';
+import { Player } from '../../../../server/model/Player';
+import { StatsService } from '../../../services/stats/index';
+import { SpinnerOverlay } from '../../../components/spinnerOverlay/SpinnerOverlay';
+import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from '../../../../server/model/Stats';
+import { IMonth } from '../../../../server/model/Month';
+import { PlayerStatsTableRow } from '../winPercentages/PlayerStatsTableRow';
+import { chop } from '../../../../server/utils/index';
 
 interface Props {
   player: Player;

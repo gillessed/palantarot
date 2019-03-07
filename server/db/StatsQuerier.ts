@@ -98,7 +98,7 @@ export class StatsQuerier {
       .c(Queries.selectDay())
       .c('SUM(points_earned) AS delta')
       .where(QueryBuilder.compare().compare('player_fk_id', '=', playerId))
-      .groupBy('h_year', 'h_month', 'h_day');
+      .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       const allDeltas = result.rows.map(this.toDelta);

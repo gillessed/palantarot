@@ -93,7 +93,7 @@ async function updateSequenceToMax(table: string, column: string = 'id') {
     const sequence = `${table}_${column}_seq`;
     const maxIdResult = await client.query(`SELECT max(${column}) FROM ${table}`);
     const maxId = maxIdResult.rows[0].max;
-    await client.query(`ALTER SEQUENCE ${sequence} RESTART ${maxId}`);
+    await client.query(`ALTER SEQUENCE ${sequence} RESTART ${maxId + 1}`);
 }
 
 function chunkify<T>(array: Array<T>, count: number = 100): Array<Array<T>> {

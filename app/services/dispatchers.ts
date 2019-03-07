@@ -9,7 +9,7 @@ import { DeleteGameDispatcher } from './deleteGame/index';
 import { ReduxState } from './rootReducer';
 import { AuthDispatcher } from './auth/index';
 import { RecordsDispatcher } from './records/index';
-import { CacheFunctions } from './redux/serviceDispatcher';
+import { CacheFunction } from './redux/serviceDispatcher';
 import { StatsDispatcher } from './stats/index';
 import { DeltasDispatcher } from './deltas/index';
 import { BidsDispatcher } from './bids/index';
@@ -35,47 +35,54 @@ export const dispatcherCreators = (dispatch: any): Dispatchers => {
     addPlayer: new AddNewPlayerDispatcher(dispatch),
     auth: new AuthDispatcher(
       dispatch,
-      (state: ReduxState) => state.auth,
     ),
     bids: new BidsDispatcher(
       dispatch,
-      (state: ReduxState) => state.bids,
     ),
     deleteGame: new DeleteGameDispatcher(dispatch),
     games: new GameDispatcher(
       dispatch,
-      (state: ReduxState) => state.games
     ),
     deltas: new DeltasDispatcher(dispatch),
     monthGames: new MonthGamesDispatcher(
-      dispatch, 
-      (state: ReduxState) => state.monthGames,
-      CacheFunctions.notThisMonth(),
+      dispatch,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.monthGames,
+          isCached: CacheFunction.notThisMonth(),
+        },
+      },
     ),
     players: new PlayersDispatcher(
       dispatch,
-      (state: ReduxState) => state.players,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.players,
+          isCached: CacheFunction.loading(),
+        },
+        debounce: 500,
+      },
     ),
     recentGames: new RecentGamesDispatcher(
       dispatch,
-      (state: ReduxState) => state.recentGames
     ),
     records: new RecordsDispatcher(
       dispatch,
-      (state: ReduxState) => state.records
     ),
     results: new ResultsDispatcher(
       dispatch,
-      (state: ReduxState) => state.results,
-      CacheFunctions.notThisMonth(),
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.results,
+          isCached: CacheFunction.notThisMonth(),
+        }
+      }
     ),
     saveGame: new SaveGameDispatcher(
       dispatch,
-      (state: ReduxState) => state.saveGame
     ),
     stats: new StatsDispatcher(
       dispatch,
-      (state: ReduxState) => state.stats,
     ),
   };
 };

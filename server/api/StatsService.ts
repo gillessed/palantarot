@@ -37,7 +37,7 @@ export class StatsService {
     promise.then((deltas: Deltas) => {
       res.send(deltas);
     }).catch((error: any) => {
-      res.send({ error: `Error getting stats: ${error}` });
+      res.send({ error: `Error getting deltas: ${error}` });
     });
   }
 

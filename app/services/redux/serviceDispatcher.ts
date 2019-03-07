@@ -3,29 +3,45 @@ import { Store } from 'redux';
 import { ReduxState } from '../rootReducer';
 import { Loadable, LoadableCache } from './loadable';
 import { Month, IMonth } from '../../../server/model/Month';
-
-export type CacheFunction<ARG, RESULT> = (arg: ARG, loadable?: Loadable<ARG, RESULT>) => boolean;
+import * as _ from 'lodash';
+import { debounce } from 'plottable/build/src/utils/windowUtils';
 
 export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
-  constructor(
-    private readonly store: Store<ReduxState>,
-    private readonly accessor?: (state: ReduxState) => LoadableCache<ARG, RESULT>,
-    private readonly cacheFunction?: CacheFunction<ARG, RESULT>,
-  ) {}
+    private debounce: number;
+    private caching?: ServiceCachingState<ARG, RESULT>;
+    constructor(
+      private readonly store: Store<ReduxState>,
+      options?: {
+        caching?: ServiceCachingState<ARG, RESULT>,
+        debounce?: number,
+      }
+    ) {
+      this.debounce = 0;
+      if (options) {
+        this.debounce = options.debounce || 0;
+        this.caching = options.caching;
+      }
+    }
 
     public request(args: ARG[]) {
       let uncachedArgs = Array.from(args);
-      if (this.accessor && this.cacheFunction) {
-        const _cacheFunction = this.cacheFunction;
-        const state = this.accessor(this.store.getState());
+      if (this.caching) {
+        const { isCached } = this.caching;
+        const state = this.caching.accessor(this.store.getState());
         uncachedArgs = uncachedArgs.filter((arg: ARG) => {
-          return !_cacheFunction(arg, state.get(arg));
+          return !isCached(arg, state.get(arg));
         });
       }
       if (uncachedArgs.length >= 1) {
-        this.store.dispatch(actionCreators.request(uncachedArgs));
+        debounce ? this.requestDebounced(uncachedArgs) : this.requestInternal(uncachedArgs);
       }
+    }
+
+    private requestDebounced = _.debounce(this.requestInternal, this.debounce || 0);
+
+    private requestInternal(arg: ARG[]) {
+      this.store.dispatch(actionCreators.request(arg));
     }
 
     public requestSingle(arg: ARG) {
@@ -51,16 +67,35 @@ export interface ServiceDispatcher<ARG> {
 
 export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: PropertyActions<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
-  constructor(
-    private readonly store: Store<ReduxState>,
-    private readonly accessor?: (state: ReduxState) => Loadable<ARG, RESULT>,
-    private readonly cacheFunction?: CacheFunction<ARG, RESULT>,
-  ) {}
+    private debounce: number;
+    private caching?: PropertyCachingState<ARG, RESULT>;
+    constructor(
+      private readonly store: Store<ReduxState>,
+      options?: {
+        caching?: PropertyCachingState<ARG, RESULT>,
+        debounce?: number,
+      }
+    ) {
+      this.debounce = 0;
+      if (options) {
+        this.debounce = options.debounce || 0;
+        this.caching = options.caching;
+      }
+    }
 
     public request(arg: ARG) {
-      if (this.accessor && this.cacheFunction && this.cacheFunction(arg, this.accessor(this.store.getState()))) {
-        return;
+      if (this.caching) {
+        const state = this.caching.accessor(this.store.getState());
+        if (this.caching.isCached(arg, state)) {
+          return;
+        }
       }
+      debounce ? this.requestDebounced(arg) : this.requestInternal(arg);
+    }
+
+    private requestDebounced = _.debounce(this.requestInternal, this.debounce || 0);
+
+    private requestInternal(arg: ARG) {
       this.store.dispatch(actionCreators.request(arg));
     }
 
@@ -75,14 +110,26 @@ export interface PropertyDispatcher<ARG> {
     clear(): void;
 }
 
-export class CacheFunctions {
-  static loading<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
+export type CacheFunction<ARG, RESULT> = (arg: ARG, loadable?: Loadable<ARG, RESULT>) => boolean;
+
+export interface ServiceCachingState<ARG, RESULT> {
+  accessor: (state: ReduxState) => LoadableCache<ARG, RESULT>,
+  isCached: CacheFunction<ARG, RESULT>,
+}
+
+export interface PropertyCachingState<ARG, RESULT> {
+  accessor: (state: ReduxState) => Loadable<ARG, RESULT>,
+  isCached: CacheFunction<ARG, RESULT>,
+}
+
+export namespace CacheFunction {
+  export function loading<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
     return (_: ARG, loadable?: Loadable<ARG, RESULT>) => loadable ? loadable.loading : false;
   }
   /**
    * Cache all results that are not recent (from this month)
    */
-  static notThisMonth<RESULT>(): CacheFunction<Month, RESULT> {
+  export function notThisMonth<RESULT>(): CacheFunction<Month, RESULT> {
     return (arg: Month, loadable?: Loadable<Month, RESULT>) => {
       if (arg === IMonth.now()) {
         return false;

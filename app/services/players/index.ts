@@ -4,6 +4,9 @@ import { Player } from './../../../server/model/Player';
 import { generatePropertyService } from '../redux/serviceGenerator';
 import { addNewPlayerActions } from '../addPlayer/index';
 import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { ReduxState } from '../rootReducer';
+import { Loader } from '../loader';
+import { Dispatchers } from '../dispatchers';
 
 export type PlayersService = Loadable<void, Map<string, Player>>;
 
@@ -29,3 +32,7 @@ export const playersReducer = playersService.reducer
   })
   .build();
 export const playersSaga = playersService.saga;
+export const playersLoader: Loader<ReduxState, void, Map<string, Player>> = {
+  get: (state: ReduxState, _: undefined) => state.players,
+  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.players.request(undefined),
+};
