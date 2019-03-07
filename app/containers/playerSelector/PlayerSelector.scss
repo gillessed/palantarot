@@ -1,4 +1,4 @@
-.pt-link.add-player-link {
+.bp3-link.add-player-link {
   margin-left: 10;
   font-size: 12;
 }
@@ -12,4 +12,13 @@
 
 .player-selector-check-label {
   font-size: 14;
+}
+
+.player-selector-checkbox-row {
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+  .bp3-checkbox {
+    margin-right: 30px;
+  }
 }

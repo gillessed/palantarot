@@ -124,7 +124,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     return (
       <div className='enter-container page-container'>
         <div className='title'>
-          <h1>Enter Score</h1>
+          <h1 className='bp3-heading'>Enter Score</h1>
         </div>
         {this.renderContainer()}
       </div>

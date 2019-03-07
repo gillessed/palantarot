@@ -20,7 +20,7 @@ export class RecordsContainer extends React.PureComponent<{}, {}> {
     return (
       <div className='records-container page-container'>
         <div className='title'>
-          <h1>Records</h1>
+          <h1 className='bp3-heading'>Records</h1>
         </div>
         {this.renderContainer()}
       </div>

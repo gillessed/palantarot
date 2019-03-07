@@ -3,27 +3,30 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { StaticRoutes } from '../../routes';
 import { withRouter } from 'react-router-dom';
 import history from '../../history';
+import { Navbar, Classes, Alignment, Button } from '@blueprintjs/core';
+import classNames from 'classnames';
 
 type Props = RouteComponentProps<any>;
 
 class Internal extends React.PureComponent<Props, {}> {
   public render() {
+    const navbarClasses = classNames('tarot-navbar', Classes.DARK);
     return (
       <div>
-        <div className='tarot-navbar pt-navbar pt-dark pt-fixed-top'>
-          <div className='pt-navbar-group pt-align-left'>
-            <div className='pt-navbar-heading'>
-              <Link className='pt-minimal pt-button brand-link' to='/'>
+        <Navbar className={navbarClasses} fixedToTop={true}>
+          <Navbar.Group align={Alignment.LEFT}>
+            <Navbar.Heading>
+              <Link className='bp3-minimal bp3-button brand-link' to='/'>
                 <img src='/static/images/joker.png' style={{ height: 40 }}/>
                 Palantarot V3
               </Link>
-            </div>
-          </div>
-            <div className='pt-navbar-group pt-align-right collapsable'>
-              {this.renderEnter()}
-              {this.renderResults()}
-            </div>
-        </div>
+            </Navbar.Heading>
+          </Navbar.Group>
+          <Navbar.Group align={Alignment.RIGHT}>
+            {this.renderEnter()}
+            {this.renderResults()}
+          </Navbar.Group>
+        </Navbar>
         <div className='pt-app'>
           <div>
             {this.props.children}
@@ -35,24 +38,22 @@ class Internal extends React.PureComponent<Props, {}> {
 
   private renderEnter() {
     if (!this.props.location || this.props.location.pathname !== StaticRoutes.enter()) {
-      return (
-        <button className='pt-button pt-minimal pt-icon-manually-entered-data'
-                onClick={() => history.push(StaticRoutes.enter())}>
-          <span className='text hide-on-small'>Enter Score</span>
-        </button>
-      );
+      return <Button className='hide-on-small' icon='manually-entered-data' minimal onClick={this.onEnterPressed} text='Enter Score'/>;
     }
+  }
+
+  private onEnterPressed = () => {
+    history.push(StaticRoutes.enter());
   }
 
   private renderResults() {
     if (!this.props.location || this.props.location.pathname !== StaticRoutes.results()) {
-      return (
-        <button className='pt-button pt-minimal pt-icon-th'
-                onClick={() => history.push(StaticRoutes.results())}>
-          <span className='text hide-on-small'>Results</span>
-        </button>
-      );
+      return <Button className='hide-on-small' icon='th' minimal onClick={this.onResultsPressed} text='Results'/>;
     }
+  }
+
+  private onResultsPressed = () => {
+    history.push(StaticRoutes.results())
   }
 }
 

@@ -90,7 +90,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     return (
       <div className='enter-container page-container'>
         <div className='title'>
-          <h1>Edit Game {this.props.match.params.gameId}</h1>
+          <h1 className='bp3-heading'>Edit Game {this.props.match.params.gameId}</h1>
         </div>
         {this.renderContainer()}
       </div>

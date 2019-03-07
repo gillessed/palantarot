@@ -47,7 +47,7 @@
   }
 }
 
-p, span.text, .pt-label, td {
+p, span.text, .bp3-label, td {
   font-family: dinNextRegular;
 }
 
@@ -118,14 +118,14 @@ th {
 }
 .table-container::-webkit-scrollbar{width:0px}
 
-.pt-tab-list {
+.bp3-tab-list {
   overflow-x: scroll;
   -ms-overflow-style:none;
   overflow:-moz-scrollbars-none;
 }
-.pt-tab-list::-webkit-scrollbar{width:0px}
+.bp3-tab-list::-webkit-scrollbar{width:0px}
 
-.pt-input {
+.bp3-input {
   -webkit-appearance: none;
 }
 
@@ -162,4 +162,9 @@ th {
 
 th.sortable {
   cursor: pointer;
+}
+
+.bp3-tab {
+  font-family: blenderProBold;
+  font-size: 18;
 }

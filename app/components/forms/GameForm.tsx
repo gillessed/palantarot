@@ -3,6 +3,8 @@ import { Game, PlayerHand } from '../../../server/model/Game';
 import { Player } from '../../../server/model/Player';
 import { SelectInput, PointsInput } from './Elements';
 import { PlayerSelector, PlayerState } from '../../containers/playerSelector/PlayerSelector';
+import { ButtonGroup, Button, Checkbox, Alignment, Intent } from '@blueprintjs/core';
+import classNames from 'classnames';
 
 interface Props {
   recentPlayers?: Player[];
@@ -123,24 +125,25 @@ export class GameForm extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    const calledSelfDisplay = this.state.numberOfPlayers === 5 ? 'flex' : 'none';
+    const calledSelfClasses = classNames({
+      'hide-called-self': this.state.numberOfPlayers !== 5,
+    });
     return (
       <div className='game-form'>
         {this.renderPlayerNumberButtonRow()}
         <div className='card-container'>
-          <div className='pt-card' style={{marginTop: 50}}>
+          <div className='bp3-card' style={{marginTop: 50}}>
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-              <h3>Bidder's Team</h3>
+              <h3 className='bp3-heading'>Bidder's Team</h3>
 
-              <label className='pt-control pt-checkbox pt-align-right' style={{marginRight: 10, display: calledSelfDisplay}}>
-                <input
-                  type='checkbox'
-                  onChange={this.onCalledSelfPressed}
-                  checked={this.state.bidderCalledSelf}
-                />
-                <span className='pt-control-indicator'></span>
+              <Checkbox
+                className={calledSelfClasses}
+                alignIndicator={Alignment.RIGHT}
+                onChange={this.onCalledSelfPressed}
+                checked={this.state.bidderCalledSelf}
+              >
                 <span className='text'>Called Self</span>
-              </label>
+              </Checkbox>
             </div>
 
             {this.renderPlayerSelector(PlayerRoles.BIDDER)}
@@ -171,8 +174,8 @@ export class GameForm extends React.PureComponent<Props, State> {
             {this.renderPartnerSelector()}
           </div>
 
-          <div className='pt-card' style={{marginTop: 50}}>
-            <h3>Opposition</h3>
+          <div className='bp3-card' style={{marginTop: 50}}>
+            <h3 className='bp3-heading'>Opposition</h3>
             {this.renderOppositionSelectors()}
           </div>
         </div>
@@ -203,13 +206,17 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private renderSubmitButton() {
     const active = this.errorCount() === 0 && this.missingValues() === 0;
-    const baseButtonClass = 'enter-score-button pt-button pt-large pt-intent-success pt-icon-manually-entered-data';
-    const buttonClass = `${baseButtonClass} ${active ? '' : 'pt-disabled'}`;
     return (
       <div className='enter-score-button-container'>
-        <button className={buttonClass} style={{marginTop: 20}} onClick={() => active ? this.onSubmitPress() : null}>
-          {this.props.submitText}
-        </button>
+        <Button
+          className='enter-score-button'
+          icon='manually-entered-data'
+          large
+          intent={Intent.SUCCESS}
+          disabled={!active}
+          text={this.props.submitText}
+          onClick={this.onSubmitPress}
+        />
       </div>
     );
   }
@@ -279,33 +286,18 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private renderPlayerNumberButtonRow() {
     return (
-      <div className='player-selector-container pt-ui-text-large'>
-        <div className='player-select-bar pt-button-group pt-large'>
-          <a 
-            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(3)}`}
-            onClick={() => {this.setPlayerCount(3)}}
-            tabIndex={0}
-            role='button'
-          >
-            3<span className='text hide-on-small'> Players</span>
-          </a>
-          <a
-            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(4)}`}
-            onClick={() => {this.setPlayerCount(4)}}
-            tabIndex={0}
-            role='button'
-          >
-            4<span className='text hide-on-small'> Players</span>
-          </a>
-          <a
-            className={`player-button pt-button pt-icon-people ${this.numberButtonEnabled(5)}`}
-            onClick={() => {this.setPlayerCount(5)}}
-            tabIndex={0}
-            role='button'
-          >
-            5<span className='text hide-on-small'> Players</span>
-          </a>
-        </div>
+      <div className='player-selector-container bp3-ui-text-large'>
+        <ButtonGroup className='player-select-bar' large>
+          <Button icon='people' active={!!this.numberButtonEnabled(3)} onClick={this.setPlayerCount3}>
+            <span className='text'>3<span className='text hide-on-small'> Players</span></span>
+          </Button>
+          <Button icon='people' active={!!this.numberButtonEnabled(4)} onClick={this.setPlayerCount4}>
+            <span className='text'>4<span className='text hide-on-small'> Players</span></span>
+          </Button>
+          <Button icon='people' active={!!this.numberButtonEnabled(5)} onClick={this.setPlayerCount5}>
+            <span className='text'>5<span className='text hide-on-small'> Players</span></span>
+          </Button>
+        </ButtonGroup>
       </div>
     );
   }
@@ -339,11 +331,17 @@ export class GameForm extends React.PureComponent<Props, State> {
   }
 
   private setPlayerCount(count: number) {
-    if (this.state.numberOfPlayers !== count) {
-      const calledSelf = count === 5 ? this.state.bidderCalledSelf : false;
-      this.updateActivePlayers(count, calledSelf);
-    }
+    return () => {
+      if (this.state.numberOfPlayers !== count) {
+        const calledSelf = count === 5 ? this.state.bidderCalledSelf : false;
+        this.updateActivePlayers(count, calledSelf);
+      }
+    };
   }
+
+  private setPlayerCount3 = this.setPlayerCount(3);
+  private setPlayerCount4 = this.setPlayerCount(4);
+  private setPlayerCount5 = this.setPlayerCount(5);
 
   private onPointsChanged = (points?: string, error?: string,) => {
     this.setState({
@@ -362,7 +360,7 @@ export class GameForm extends React.PureComponent<Props, State> {
     });
   }
 
-  private onCalledSelfPressed = (e: {target: {checked: boolean}}) => {
+  private onCalledSelfPressed = (e: any) => {
     this.updateActivePlayers(this.state.numberOfPlayers, e.target.checked);
   }
 

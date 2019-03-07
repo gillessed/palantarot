@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Player, NewPlayer } from '../../../server/model/Player';
-import { Dialog } from '@blueprintjs/core';
+import { Dialog, Checkbox, Alignment, FormGroup, InputGroup, Intent } from '@blueprintjs/core';
 import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { AddPlayerService } from '../../services/addPlayer/index';
@@ -40,7 +40,7 @@ interface State {
 export class Internal extends React.PureComponent<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
-  
+
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
     this.dispatchers = context.dispatchers;
@@ -89,55 +89,46 @@ export class Internal extends React.PureComponent<Props, State> {
   }
 
   public render() {
+    const label = (
+      <p style={{ marginBottom: 0 }}>
+        {this.props.label} 
+        <a className='bp3-link add-player-link' onClick={this.openDialog}>
+          Add Player
+        </a>
+      </p>
+    );
     return (
-      <div className={`tarot-player-selector-input-group pt-form-group ${this.props.player.error ? 'pt-intent-danger' : ''}`}>
-        <label
-          className='tarot-player-selector-label pt-label'
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-          }}
+      <>
+        <FormGroup
+          label={label}
+          labelFor='player-selector-element'
+          helperText={this.props.player.error}
+          intent={this.props.player.error ? Intent.DANGER : Intent.NONE}
         >
-           <p style={{marginBottom: 0}}>{this.props.label} <a className='pt-link add-player-link' onClick={this.openDialog}>Add Player</a></p>
-        </label>
-        <div className='tarot-player-selector-content pt-form-content'>
-          <div className={`tarot-player-selector-group pt-input-group ${this.props.player.error ? 'pt-intent-danger' : ''}`}>
-            <div className='pt-select tarot-player-selector-select'>
-              <select value={this.props.player.player ? this.props.player.player.id : ''} onChange={this.onChange}>
-                {this.renderOptions()}
-              </select>
-            </div>
+          <div className='bp3-select tarot-player-selector-select'>
+            <select value={this.props.player.player ? this.props.player.player.id : ''} onChange={this.onChange}>
+              {this.renderOptions()}
+            </select>
           </div>
-        </div>
-        {this.renderErrorText()}
-        <div 
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            marginTop: 10,
-          }}
-        >
-          <label className='pt-control pt-checkbox .modifier' style={{marginRight: 30}}>
-            <input
-              type='checkbox'
-              onChange={this.onShowedTrumpChanged}
-              checked={this.props.player.showed}
-            />
-            <span className='pt-control-indicator'></span>
+        </FormGroup>
+        <div className='player-selector-checkbox-row'>
+          <Checkbox
+            alignIndicator={Alignment.LEFT}
+            onChange={this.onShowedTrumpChanged}
+            checked={this.props.player.showed}
+          >
             <span className='text player-selector-check-label'>Showed Trump</span>
-          </label>
-          <label className='pt-control pt-checkbox .modifier'>
-            <input
-              type='checkbox'
-              onChange={this.onOneLastChanged}
-              checked={this.props.player.oneLast}
-            />
-            <span className='pt-control-indicator'></span>
+          </Checkbox>
+          <Checkbox
+            alignIndicator={Alignment.LEFT}
+            onChange={this.onOneLastChanged}
+            checked={this.props.player.oneLast}
+          >
             <span className='text player-selector-check-label'>One Last</span>
-          </label>
+          </Checkbox>
         </div>
         {this.renderDialog()}
-      </div>
+      </>
     );
   }
 
@@ -165,7 +156,7 @@ export class Internal extends React.PureComponent<Props, State> {
 
   private renderErrorText() {
     if (this.props.player.error) {
-      return <div className='pt-form-helper-text'>{this.props.player.error}</div>;
+      return <div className='bp3-form-helper-text'>{this.props.player.error}</div>;
     }
   }
 
@@ -177,11 +168,9 @@ export class Internal extends React.PureComponent<Props, State> {
         onClose={this.closeDialog}
         title='Add Player'
       >
-        <div className='pt-dialog-body'>
+        <div className='bp3-dialog-body'>
           <AddPlayerForm
-            onSubmit={(newPlayer: NewPlayer) => {
-              this.dispatchers.addPlayer.request({newPlayer, source: this.props.label});
-            }}
+            onSubmit={this.onAddNewPlayer}
           />
           {this.renderDialogSpinner()}
         </div>
@@ -189,9 +178,13 @@ export class Internal extends React.PureComponent<Props, State> {
     );
   }
 
+  private onAddNewPlayer(newPlayer: NewPlayer) {
+    this.dispatchers.addPlayer.request({ newPlayer, source: this.props.label });
+  }
+
   private renderDialogSpinner() {
     if (this.props.addPlayerService.loading) {
-      return <SpinnerOverlay text='Adding Player...'/>;
+      return <SpinnerOverlay text='Adding Player...' />;
     }
   }
 
@@ -211,7 +204,7 @@ export class Internal extends React.PureComponent<Props, State> {
     return <option key={player.id} value={player.id}>{player.firstName} {player.lastName}</option>;
   }
 
-  private onChange = (e: {target: {value: string}}) => {
+  private onChange = (e: { target: { value: string } }) => {
     const allPlayers = [...this.props.players];
     if (this.props.recentPlayers) {
       allPlayers.push(...this.props.recentPlayers);
@@ -225,14 +218,14 @@ export class Internal extends React.PureComponent<Props, State> {
     });
   }
 
-  private onShowedTrumpChanged = (e: {target: {checked: boolean}}) => {
+  private onShowedTrumpChanged = (e: any) => {
     this.props.onChange({
       ...this.props.player,
       showed: e.target.checked,
     })
   }
 
-  private onOneLastChanged = (e: {target: {checked: boolean}}) => {
+  private onOneLastChanged = (e: any) => {
     this.props.onChange({
       ...this.props.player,
       oneLast: e.target.checked,

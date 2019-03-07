@@ -31,7 +31,7 @@ class Internal extends React.PureComponent<Props, {}> {
     return (
       <div className='search-container page-container'>
         <div className='title'>
-          <h1>Search</h1>
+          <h1 className='bp3-heading'>Search</h1>
         </div>
         <p className='pt-running-text'>Under construction...</p>
       </div>

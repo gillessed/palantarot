@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IconName } from '@blueprintjs/core';
+import { IconName, Button, Intent } from '@blueprintjs/core';
 import { StaticRoutes } from '../../routes';
 
 export class HomeContainer extends React.PureComponent<{}, {}> {
@@ -11,13 +11,13 @@ export class HomeContainer extends React.PureComponent<{}, {}> {
         <div className='logo dark'>Palantarot</div>
         <div className='subtitle dark'>Where all the points are fake</div>
         <div className='menu'>
-          {this.renderMenuItem('Enter Score', 'manually-entered-data', StaticRoutes.enter(), 'pt-intent-success')}
+          {this.renderMenuItem('Enter Score', 'manually-entered-data', StaticRoutes.enter(), Intent.SUCCESS)}
           {this.renderMenuItem('Results', 'th', StaticRoutes.results())}
           {this.renderMenuItem('Recent Games', 'history', StaticRoutes.recent())}
           {this.renderMenuItem('Advanced Search', 'search', StaticRoutes.search())}
           {this.renderMenuItem('Records', 'glass', StaticRoutes.records())}
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
-          {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), 'pt-intent-warning')}
+          {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothon(), Intent.WARNING)}
         </div>
         <div className='info-overlay'>
           <span className='callout'>
@@ -39,16 +39,12 @@ export class HomeContainer extends React.PureComponent<{}, {}> {
     title: string,
     logo: IconName,
     to: string,
-    intent: string = 'pt-intent-primary',
+    intent: Intent = Intent.PRIMARY,
   ) {
     return (
       <div className='menu-item'>
         <Link className='link' to={to}>
-          <button
-            className={'pt-button pt-large pt-icon-' + logo + ' ' + intent}
-          >
-            {title}
-          </button>
+          <Button icon={logo} intent={intent} large text={title}/>
         </Link>
       </div>
     );

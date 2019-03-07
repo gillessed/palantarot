@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StatEntry, AggregatedStats, getAverages } from '../../../../server/model/Stats';
-import { Checkbox } from '@blueprintjs/core';
+import { Checkbox, HTMLTable } from '@blueprintjs/core';
 import { chop } from '../../../../server/utils';
 import { Player } from '../../../../server/model/Player';
 import { playersLoader } from '../../../services/players/index';
@@ -151,7 +151,7 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
     return (
       <div className='win-percentages-container table-container'>
         {this.renderFilter()}
-        <table className='player-stats-table pt-html-table pt-html-table-bordered'>
+        <HTMLTable className='player-stats-table' bordered>
           <thead>
             <tr>
               <th></th>
@@ -167,7 +167,7 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
           <tbody>
             {table.map(this.renderRow)}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

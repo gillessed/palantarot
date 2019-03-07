@@ -10,7 +10,7 @@ import moment from 'moment';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { MonthGamesService } from '../../services/monthGames/index';
-import { Tabs, Tab } from '@blueprintjs/core';
+import { Tabs, Tab, Button } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
 import { Player } from '../../../server/model/Player';
@@ -48,18 +48,21 @@ class Internal extends React.PureComponent<Props, State> {
     return (
       <div className='results-container page-container'>
         <div className='results-header'>
-          <button
-            type='button'
-            className={'pt-button pt-large pt-icon-chevron-left'}
+          <Button
+            icon='chevron-left'
+            large
             onClick={this.previousMonth}
           />
           <div className='title'>
-            <h1 style={{textAlign: 'center'}}>Results for {this.state.month.getHumanReadableString()}</h1>
+            <h1 className='bp3-heading' style={{textAlign: 'center'}}>
+              Results for {this.state.month.getHumanReadableString()}
+            </h1>
           </div>
-          <button
-            type='button'
-            className={`pt-button pt-large pt-icon-chevron-right ${this.isCurrentMonth() ? 'pt-disabled' : ''}`}
+          <Button
+            icon='chevron-right'
+            large
             onClick={this.nextMonth}
+            disabled={this.isCurrentMonth()}
           />
         </div>
         {this.renderContainer()}
@@ -106,7 +109,7 @@ class Internal extends React.PureComponent<Props, State> {
     } else {
       return (
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 200}}>
-          <h4> No results for this month!</h4>
+          <h4 className='bp3-heading'> No results for this month!</h4>
         </div>
       );
     }

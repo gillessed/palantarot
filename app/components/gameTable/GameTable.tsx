@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Game } from '../../../server/model/Game';
 import { GameTableRow } from './GameTableRow';
+import { HTMLTable, Button } from '@blueprintjs/core';
 
 export const DEFAULT_COUNT = 20;
 
@@ -56,18 +57,16 @@ export class GameTable extends React.PureComponent<Props, {}> {
       const nextDisabled = offset === 0;
       return (
         <div className='pager-container'>
-          <button 
-            className='pt-button pt-icon-chevron-left'
-            role='button'
+          <Button
+            icon='chevron-left'
             onClick={this.onPreviousClicked}
             disabled={this.props.games.length < DEFAULT_COUNT}
-          ></button>
-          <button
-            className='pt-button pt-icon-chevron-right'
-            role='button'
+          />
+          <Button
+            icon='chevron-right'
             onClick={this.onNextClicked}
-            disabled={nextDisabled}            
-          ></button>
+            disabled={nextDisabled}
+          />
           <span className='text'> {pagerText} </span>
         </div>
       );
@@ -76,7 +75,7 @@ export class GameTable extends React.PureComponent<Props, {}> {
 
   private renderTable() {
     return (
-      <table className='game-table pt-html-table pt-html-table-bordered pt-interactive'>
+      <HTMLTable className='game-table' bordered interactive>
         <thead>
           <tr>
             <th>Bidder</th>
@@ -90,7 +89,7 @@ export class GameTable extends React.PureComponent<Props, {}> {
         <tbody>
           {this.props.games.map(this.renderGameTableRow)}
         </tbody>
-      </table>
+      </HTMLTable>
     );
   }
 

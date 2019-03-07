@@ -10,7 +10,7 @@ import { Deltas, Delta } from '../../../server/model/Delta';
 import { connect } from 'react-redux';
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { createSelector } from 'reselect';
-import { MenuItem, Button, Classes } from '@blueprintjs/core';
+import { MenuItem, Button, Classes, HTMLTable } from '@blueprintjs/core';
 
 const PlayerSelect = Select.ofType<Player | string>();
 
@@ -75,17 +75,19 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
   }
 
   private renderTable(players: Map<string, Player>, deltas: Deltas) {
-    return [
-      <h3 key='1'> Highest Deltas </h3>,
-      this.renderDeltaTable(players, deltas.maximums, 'Highest Deltas'),
-      <h3 key='2'> Lowest Deltas </h3>,
-      this.renderDeltaTable(players, deltas.minimums, 'Lowest Deltas'),
-    ];
+    return (
+      <>
+        <h3 className='bp3-heading'> Highest Deltas </h3>,
+        {this.renderDeltaTable(players, deltas.maximums, 'Highest Deltas')}
+        <h3 className='bp3-heading'> Lowest Deltas </h3>,
+        {this.renderDeltaTable(players, deltas.minimums, 'Lowest Deltas')}
+      </>
+    );
   }
 
   private renderDeltaTable(players: Map<string, Player>, deltaList: Delta[], title: string) {
     return (
-      <table key={title} className='deltas-table pt-html-table pt-html-table-bordered'>
+      <HTMLTable className='deltas-table' bordered>
         <thead>
           <tr>
             <th>Player</th>
@@ -97,7 +99,7 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
         <tbody>
           {deltaList.map((delta, index) => this.renderDelta(players, delta, index))}
         </tbody>
-      </table>
+      </HTMLTable>
     );
   }
 

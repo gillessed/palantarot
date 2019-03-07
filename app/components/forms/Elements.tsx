@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Button, Intent, FormGroup, InputGroup } from '@blueprintjs/core';
 
 interface InputProps {
   label: string;
@@ -25,36 +25,27 @@ export class TextInput extends React.PureComponent<InputProps, InputState> {
   }
 
   public componentWillReceiveProps(nextProps: InputProps) {
-    this.setState({
-      error: nextProps.initialError,
-    });
+    if (nextProps.initialError) {
+      this.setState({
+        error: nextProps.initialError,
+      });
+    }
   }
 
   public render() {
-    const inputClassName = `tarot-text-input pt-input ${this.props.classNames ? this.props.classNames.join(' ') : ''}`;
     return (
-      <div className={`tarot-text-input-group pt-form-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
-        <label className='tarot-text-input-label pt-label'> {this.props.label} </label>
-        <div className='tarot-text-input-content pt-form-content'>
-          <div className={`tarot-text-input-group pt-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
-            <input 
-              className={inputClassName}
-              type={'text'}
-              dir='auto'
-              value={this.state.value}
-              onChange={this.onChange}
-            />
-          </div>
-        </div>
-        {this.renderErrorText()}
-      </div>
+      <FormGroup
+        label={this.props.label}
+        labelFor='text-input'
+      >
+        <InputGroup
+          id='text-input'
+          value={this.state.value}
+          onChange={this.onChange}
+          intent={this.state.error ? Intent.DANGER : Intent.NONE}
+        />
+      </FormGroup>
     );
-  }
-
-  private renderErrorText = () => {
-    if (this.state.error) {
-      return <div className='pt-form-helper-text'>{this.state.error}</div>;
-    }
   }
 
   private onChange = (event: any) => {
@@ -91,20 +82,20 @@ export class PointsInput extends React.PureComponent<PointsInputProps, InputStat
   }
 
   public render() {
-    const inputClassName = `tarot-points-input pt-input ${this.props.classNames ? this.props.classNames.join(' ') : ''}`;
+    const inputClassName = `tarot-points-input bp3-input ${this.props.classNames ? this.props.classNames.join(' ') : ''}`;
     const plusActive = this.props.points !== undefined && this.props.points >= 0;
     const minusActive = this.props.points !== undefined && this.props.points < 0;
     return (
-      <div className={`tarot-points-input-group pt-form-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
-        <label className='tarot-points-input-label pt-label'> {this.props.label} </label>
-        <div className='tarot-points-input-content pt-form-content'>
+      <div className={`tarot-points-input-group bp3-form-group ${this.state.error ? 'bp3-intent-danger' : ''}`}>
+        <label className='tarot-points-input-label bp3-label'> {this.props.label} </label>
+        <div className='tarot-points-input-content bp3-form-content'>
           <Button
             active={plusActive}
             intent={Intent.SUCCESS}
             icon='plus'
             onClick={this.onPlusPress}
           />
-          <div className={`tarot-points-input pt-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
+          <div className={`tarot-points-input bp3-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
             <input 
               className={inputClassName}
               type={'number'}
@@ -128,7 +119,7 @@ export class PointsInput extends React.PureComponent<PointsInputProps, InputStat
 
   private renderErrorText = () => {
     if (this.state.error) {
-      return <div className='pt-form-helper-text'>{this.state.error}</div>;
+      return <div className='bp3-form-helper-text'>{this.state.error}</div>;
     }
   }
 
@@ -190,9 +181,9 @@ export class SelectInput extends PureComponent<SelectProps, InputState> {
 
   public render() {
     return (
-      <div className={`tarot-select-input-group pt-form-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
+      <div className={`tarot-select-input-group bp3-form-group ${this.state.error ? 'bp3-intent-danger' : ''}`}>
         <label
-          className='tarot-select-label pt-label'
+          className='tarot-select-label bp3-label'
           style={{
             display: 'flex',
             justifyContent: 'center',
@@ -200,9 +191,9 @@ export class SelectInput extends PureComponent<SelectProps, InputState> {
         >
           {this.props.label}
         </label>
-        <div className='tarot-select-content pt-form-content'>
-          <div className={`tarot-select-group pt-input-group ${this.state.error ? 'pt-intent-danger' : ''}`}>
-            <div className="pt-select tarot-select">
+        <div className='tarot-select-content bp3-form-content'>
+          <div className={`tarot-select-group bp3-input-group ${this.state.error ? 'bp3-intent-danger' : ''}`}>
+            <div className="bp3-select tarot-select">
               <select value={this.state.value} onChange={this.onChange}>
                 <option value=""></option>
                 {this.props.values.map((option) => <option value={option.value} key={option.value}>{option.display}</option>)}

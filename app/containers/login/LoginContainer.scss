@@ -16,7 +16,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      .pt-input {
+      .bp3-input {
         font-family: blenderProMedium;
         width: 200;
         color: #F5F8FA;
@@ -24,25 +24,25 @@
         margin-bottom: 10;
       }
       $placeholderColor: #BFCCD6;
-      .pt-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+      .bp3-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
         color: $placeholderColor;
       }
-      .pt-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-        color: $placeholderColor;
-        opacity: 1;
-      }
-      .pt-input::-moz-placeholder { /* Mozilla Firefox 19+ */
+      .bp3-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
         color: $placeholderColor;
         opacity: 1;
       }
-      .pt-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+      .bp3-input::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: $placeholderColor;
+        opacity: 1;
+      }
+      .bp3-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
         color: $placeholderColor;
       }
-      .pt-input::-ms-input-placeholder { /* Microsoft Edge */
+      .bp3-input::-ms-input-placeholder { /* Microsoft Edge */
         color: $placeholderColor;
       }
 
-      .pt-button {
+      .bp3-button {
         width: 200;
         font-family: blenderProBold;
         font-size: 18;

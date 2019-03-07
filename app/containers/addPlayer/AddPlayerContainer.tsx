@@ -62,7 +62,7 @@ export class Internal extends React.Component<Props, State> {
     return (
       <div className='add-player-container page-container'>
         <div className='title'>
-          <h1>Add Player</h1>
+          <h1 className='bp3-heading'>Add Player</h1>
         </div>
         {this.renderContainer()}
         {this.renderSpinner()}

@@ -9,6 +9,7 @@ import { loadContainer } from '../LoadingContainer';
 import { playersLoader } from '../../services/players';
 import { monthGamesLoader } from '../../services/monthGames/index';
 import { Dispatchers } from '../../services/dispatchers';
+import { Button } from '@blueprintjs/core';
 
 interface InternalProps {
   playerId: string;
@@ -55,7 +56,7 @@ class PlayerGraphTabInternal extends PureComponent<InternalProps, {}> {
   }
 
   private renderEmpty() {
-    return <h4>No games for this month.</h4>;
+    return <h4 className='bp3-heading'>No games for this month.</h4>;
   }
 }
 
@@ -101,18 +102,21 @@ export class PlayerGraphTab extends React.PureComponent<Props, State> {
     const zeroPadMonth = `00${this.state.month.month + 1}`.slice(-2);
     return (
         <div className='player-graph-header'>
-          <button
-            type='button'
-            className={'pt-button pt-large pt-icon-chevron-left'}
+          <Button
+            icon='chevron-left'
+            large
             onClick={this.previousMonth}
           />
           <div className='title'>
-            <h1 style={{textAlign: 'center'}}>Results for {this.state.month.year}/{zeroPadMonth}</h1>
+            <h1 className='bp3-heading' style={{textAlign: 'center'}}>
+              Results for {this.state.month.year}/{zeroPadMonth}
+            </h1>
           </div>
-          <button
-            type='button'
-            className={`pt-button pt-large pt-icon-chevron-right ${this.isCurrentMonth() ? 'pt-disabled' : ''}`}
+          <Button
+            icon='chevron-left'
+            large
             onClick={this.nextMonth}
+            disabled={this.isCurrentMonth()}
           />
         </div>
     );

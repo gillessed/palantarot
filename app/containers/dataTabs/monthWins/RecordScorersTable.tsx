@@ -23,7 +23,7 @@ export class RecordScorersTable extends React.PureComponent<Props, {}> {
     const minMonth = IMonth.get({ month: minMonthlyScore.month, year: minMonthlyScore.year});
     return (
       <div className='sub-container'>
-        <h3> Month Records </h3>
+        <h3 className='bp3-heading'> Month Records </h3>
         <p>
           <span className='bold'>Highest Monthly Score: </span>
           <Link to={DynamicRoutes.player(maxMonthlyScore.playerId)}>{Player.getName(maxMonthlyScore.playerId, maxMonthlyScorePlayer)}</Link>

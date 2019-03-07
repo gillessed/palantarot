@@ -10,7 +10,7 @@ import { formatTimestamp } from '../../../server/utils/index';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { Link } from 'react-router-dom';
-import { Dialog } from '@blueprintjs/core';
+import { Dialog, Button, Intent } from '@blueprintjs/core';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { mergeContexts } from '../../app';
 import { SagaListener } from '../../services/sagaListener';
@@ -100,7 +100,7 @@ class Internal extends React.PureComponent<Props, State> {
     const game = this.props.games.get(this.props.match.params.gameId);
     const deleteGame = this.props.deleteGame;
     if (players.loading || game.loading || deleteGame.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size='pt-large' />;
     } else if (players.value && game.value) {
       return this.renderGame();
     } else if (players.error) {
@@ -123,11 +123,11 @@ class Internal extends React.PureComponent<Props, State> {
           <div className='game-banner'>
             <div className='game-title-container'>
               <div className='game-title-name'>
-                <h1> Game {game.id} </h1>
-                <button type='button' className='pt-button pt-icon-edit' onClick={this.onEditClicked} />
-                <button type='button' className='pt-button pt-icon-trash' onClick={this.onDeleteClicked} />
+                <h1 className='bp3-heading'> Game {game.id} </h1>
+                <Button icon='edit' onClick={this.onEditClicked} />
+                <Button icon='trash' onClick={this.onDeleteClicked} />
               </div>
-              <h6> {formatTimestamp(game.timestamp)} </h6>
+              <h6 className='bp3-heading'> {formatTimestamp(game.timestamp)} </h6>
             </div>
             <div className={'game-point-display' + (game.points >= 0 ? ' game-win' : ' game-loss')}>
               {game.points > 0 ? '+' + game.points : game.points}
@@ -155,7 +155,7 @@ class Internal extends React.PureComponent<Props, State> {
     if (game.slam) {
       return (
         <div className='slam-banner'>
-          <h4>SLAM!!!</h4>
+          <h4 className='bp3-heading'>SLAM!!!</h4>
         </div>
       );
     }
@@ -178,7 +178,7 @@ class Internal extends React.PureComponent<Props, State> {
       }
       return (
         <div key={handData.id} className={containerStyle}>
-          <h4>{tag}</h4>
+          <h4 className='bp3-heading'>{tag}</h4>
           <div><Link to={DynamicRoutes.player(player.id)}>{playerName}</Link> ({points > 0 ? '+' + points : points})</div>
         </div>
       );
@@ -193,13 +193,13 @@ class Internal extends React.PureComponent<Props, State> {
         onClose={this.toggleDialog}
         title='Dialog header'
       >
-        <div className='pt-dialog-body'>
-            <p>Are you sure you want to delete Game {this.props.match.params.gameId}?</p>
+        <div className='bp3-dialog-body'>
+          <p>Are you sure you want to delete Game {this.props.match.params.gameId}?</p>
         </div>
-        <div className='pt-dialog-footer'>
-          <div className='pt-dialog-footer-actions'>
-            <button type='button' className='pt-button pt-icon-delete pt-intent-danger' onClick={this.deleteGame}> Delete </button>
-            <button type='button' className='pt-button' onClick={this.toggleDialog} >Cancel </button>
+        <div className='bp3-dialog-footer'>
+          <div className='bp3-dialog-footer-actions'>
+            <Button icon='delete' text='Delete' intent={Intent.DANGER} onClick={this.deleteGame} />
+            <Button icon='cross' text='Cancel' onClick={this.toggleDialog} />
           </div>
         </div>
       </Dialog>

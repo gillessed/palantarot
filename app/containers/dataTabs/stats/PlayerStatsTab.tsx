@@ -4,8 +4,8 @@ import { StatsService } from '../../../services/stats/index';
 import { SpinnerOverlay } from '../../../components/spinnerOverlay/SpinnerOverlay';
 import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from '../../../../server/model/Stats';
 import { IMonth } from '../../../../server/model/Month';
-import { PlayerStatsTableRow } from '../winPercentages/PlayerStatsTableRow';
 import { chop } from '../../../../server/utils/index';
+import { PlayerWinPercentagesTableRow } from '../winPercentages/PlayerWinPercentagesTableRow';
 
 interface Props {
   player: Player;
@@ -75,7 +75,7 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
               {this.renderAverageWin(averages.opposition)}
             </tr>
             {playerStats.map((stat) => 
-              <PlayerStatsTableRow
+              <PlayerWinPercentagesTableRow
                 stat={stat}
                 averages={averages}
                 key={stat.month.getHumanReadableString()}

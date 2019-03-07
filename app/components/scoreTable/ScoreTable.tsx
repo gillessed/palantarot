@@ -3,6 +3,7 @@ import { Player } from '../../../server/model/Player';
 import { Result } from '../../../server/model/Result';
 import { DynamicRoutes } from '../../routes';
 import history from '../../history';
+import { HTMLTable } from '@blueprintjs/core';
 
 class Props {
   players: Map<string, Player>;
@@ -15,7 +16,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
   public render() {
     return (
       <div className='score-table-container'>
-        <table className='score-table pt-html-table pt-html-table-bordered pt-interactive'>
+        <HTMLTable className='score-table' bordered interactive>
           <thead>
             <tr>
               <th></th>
@@ -28,7 +29,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
           <tbody>
             {this.props.results.map(this.renderResultRow)}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

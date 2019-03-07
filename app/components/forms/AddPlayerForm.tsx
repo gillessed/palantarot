@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextInput } from './Elements';
 import { NewPlayer } from '../../../server/model/Player';
+import { Button, Intent } from '@blueprintjs/core';
 
 interface Props {
   onSubmit: (newPlayer: NewPlayer) => void;
@@ -13,7 +14,23 @@ interface State {
   lastNameError?: string;
 }
 
+
+const fieldValidator = (emptyMessage: string) => {
+  return (value: string) => {
+    if (value.length < 1) {
+      return emptyMessage;
+    } else if (value.length > 30) {
+      return "Field exceeds character limit.";
+    } else {
+      return undefined;
+    }
+  };
+}
+
 export class AddPlayerForm extends React.PureComponent<Props, State> {
+
+  private firstNameValidator = fieldValidator('Please enter a first name.');
+  private lastNameValidator = fieldValidator('Please enter a last name.');
 
   constructor(props: Props) {
     super(props);
@@ -26,26 +43,26 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    const baseButtonClass = 'add-player-score-button pt-button pt-large pt-icon-add pt-intent-success';
-    const buttonClass = `${baseButtonClass} ${this.submitEnabled() ? '' : 'pt-disabled'}`;
+    // const baseButtonClass = 'add-player-score-button pt-button pt-large pt-icon-add pt-intent-success';
+    // // const buttonClass = `${baseButtonClass} ${this.submitEnabled() ? '' : 'pt-disabled'}`;
     return (
       <div className="add-player-form">
         <TextInput
           label="First Name: "
-          classNames={['pt-add-player-input']}
+          classNames={['bp3-add-player-input']}
           onChange={this.onFirstNameChange}
-          validator={this.fieldValidator('Please enter a first name.')}
+          validator={this.firstNameValidator}
         />
 
         <TextInput
           label="Last Name: "
-          classNames={['pt-add-player-input']}
+          classNames={['bp3-add-player-input']}
           onChange={this.onLastNameChange}
-          validator={this.fieldValidator('Please enter a last name.')}
+          validator={this.lastNameValidator}
         />
 
         <div className="add-player-button-container">
-          <button className={buttonClass} onClick={this.onClickButton}>Add Player</button>
+          <Button text='Add Player' onClick={this.onClickButton} disabled={!this.submitEnabled()} large intent={Intent.SUCCESS} icon='add'/>
         </div>
       </div>
     );
@@ -63,18 +80,6 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
       lastName: value,
       lastNameError: error,
     });
-  }
-
-  private fieldValidator = (emptyMessage: string) => {
-    return (value: string) => {
-      if (value.length < 1) {
-        return emptyMessage;
-      } else if (value.length > 30) {
-        return "Field exceeds character limit.";
-      } else {
-        return undefined;
-      }
-    };
   }
   
   private submitEnabled = () => {

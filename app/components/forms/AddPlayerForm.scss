@@ -1,12 +1,6 @@
 .add-player-form {
-  .pt-label {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
 
-  .pt-add-player-input {
+  .bp3-add-player-input {
     @media (max-width: 700px) {
       width: 90%;
     }

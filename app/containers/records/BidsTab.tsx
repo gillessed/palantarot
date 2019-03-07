@@ -77,7 +77,7 @@ class BidsTabComponent extends React.PureComponent<Props, State> {
         </div>
       );
     } else {
-      return <NonIdealState visual='search' title='Select a player'/>;
+      return <NonIdealState icon='search' title='Select a player'/>;
     }
   }
 

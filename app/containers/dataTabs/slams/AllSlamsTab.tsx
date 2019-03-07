@@ -7,6 +7,7 @@ import { loadContainer } from '../../LoadingContainer';
 import { Game } from '../../../../server/model/Game';
 import { integerComparator } from '../../../../server/utils/index';
 import { GameTable } from '../../../components/gameTable/GameTable';
+import { HTMLTable } from '@blueprintjs/core';
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -37,11 +38,11 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
     const slamRecords = this.countSlams(this.props.records.slamGames);
     return (
       <div className='slam-tab-container tab-container'>
-        <h3> Slam Count </h3>
+        <h3 className='bp3-heading'> Slam Count </h3>
         {this.renderSlamCountTable(slamRecords.slammed)}
-        <h3> Been Slammed Count </h3>
+        <h3 className='bp3-heading'> Been Slammed Count </h3>
         {this.renderSlamCountTable(slamRecords.beenSlammed)}
-        <h3> Slam Games </h3>
+        <h3 className='bp3-heading'> Slam Games </h3>
         <div className='slam-table-container table-container'>
           <GameTable
             players={this.props.players}
@@ -55,7 +56,7 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
   private renderSlamCountTable(slams: SlamRecord[]) {
     return (
       <div className='slam-count-table-container'>
-        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
+        <HTMLTable className='slam-count-table' bordered>
           <thead>
             <tr>
               <th>Player</th>
@@ -65,7 +66,7 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
           <tbody>
             {slams.map((record) => this.renderSlamCountRow(record))}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

@@ -5,6 +5,7 @@ import { PlayerWinPercentagesTableRow } from './PlayerWinPercentagesTableRow';
 import { chop } from '../../../../server/utils/index';
 import { statsLoader } from '../../../services/stats/index';
 import { loadContainer } from '../../LoadingContainer';
+import { HTMLTable } from '@blueprintjs/core';
 
 interface Props {
   playerId: string;
@@ -20,7 +21,7 @@ class PlayerWinPercentagesTabInternal extends React.PureComponent<Props, {}> {
 
     return (
       <div className='table-container'>
-        <table className='player-stats-table pt-html-table pt-html-table-bordered'>
+        <HTMLTable className='player-stats-table' bordered>
           <thead>
             <tr>
               <th>Role</th>
@@ -66,7 +67,7 @@ class PlayerWinPercentagesTabInternal extends React.PureComponent<Props, {}> {
                 key={stat.month.getHumanReadableString()}
               />)}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

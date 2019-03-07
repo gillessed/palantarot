@@ -36,8 +36,8 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
       <div>
         <div className='player-banner'>
           <div className='player-title-container'>
-            <span><h1> {playerName}</h1></span>
-            <h6> Monthly Rank: {rankString}</h6>
+            <span><h1 className='bp3-heading'> {playerName}</h1></span>
+            <h6 className='bp3-heading'> Monthly Rank: {rankString}</h6>
           </div>
           {this.renderScore(score)}
         </div>

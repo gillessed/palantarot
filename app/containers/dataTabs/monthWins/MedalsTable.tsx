@@ -5,6 +5,7 @@ import { integerComparator } from '../../../../server/utils/index';
 import { Link } from 'react-router-dom';
 import { DynamicRoutes } from '../../../routes';
 import { Aggregator, count, Aggregate } from '../../../../server/utils/count';
+import { HTMLTable } from '@blueprintjs/core';
 
 interface MedalEntry {
   id: string;
@@ -34,8 +35,8 @@ export class MedalsTable extends React.PureComponent<Props, {}> {
       );
     return (
       <div className='sub-container'>
-        <h3> Medals </h3>
-        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
+        <h3 className='bp3-heading'> Medals </h3>
+        <HTMLTable className='slam-count-table' bordered>
           <thead>
             <tr>
               <th>Player</th>
@@ -45,7 +46,7 @@ export class MedalsTable extends React.PureComponent<Props, {}> {
           <tbody>
             {medalRecords.map((medalRecord: MedalRecord) => this.renderMedalRecord(medalRecord))}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

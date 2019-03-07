@@ -4,6 +4,7 @@ import { MonthlyScore } from '../../../../server/model/Records';
 import { Link } from 'react-router-dom';
 import { DynamicRoutes } from '../../../routes';
 import { IMonth } from '../../../../server/model/Month';
+import { HTMLTable } from '@blueprintjs/core';
 
 interface MonthWinners {
   month: IMonth;
@@ -25,8 +26,8 @@ export class MonthWinnersTable extends React.PureComponent<Props, {}> {
       .sort(IMonth.comparator((monthWinners: MonthWinners) => monthWinners.month, 'asc'));
     return (
       <div className='sub-container'>
-        <h3> Month Winners </h3>
-        <table className='slam-count-table pt-html-table pt-html-table-bordered'>
+        <h3 className='bp3-heading'> Month Winners </h3>
+        <HTMLTable className='slam-count-table' bordered>
           <thead>
             <tr>
               <th>Month</th>
@@ -38,7 +39,7 @@ export class MonthWinnersTable extends React.PureComponent<Props, {}> {
           <tbody>
             {eachMonthWinners.map((monthWinners: MonthWinners) => this.renderMonthWinners(monthWinners))}
           </tbody>
-        </table>
+        </HTMLTable>
       </div>
     );
   }

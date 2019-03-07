@@ -40,7 +40,7 @@ class Internal extends React.PureComponent<Props, State> {
     return (
       <div className='recent-container page-container pt-ui-text-large'>
         <div className='title'>
-          <h1>Recent Games</h1>
+          <h1 className='bp3-heading'>Recent Games</h1>
         </div>
         {this.renderGames()}
       </div>

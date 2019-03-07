@@ -68,7 +68,7 @@ export class Internal extends React.PureComponent<Props, State> {
           <form className='login-form' onSubmit={this.onLoginClicked}>
             <input
               type='password'
-              className='pt-input'
+              className='bp3-input'
               placeholder='What is the password?'
               value={this.state.secret}
               onChange={this.onSecretChange}
