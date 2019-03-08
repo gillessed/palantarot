@@ -3,7 +3,8 @@ import { Player } from '../../../server/model/Player';
 import { Result } from '../../../server/model/Result';
 import { DynamicRoutes } from '../../routes';
 import history from '../../history';
-import { HTMLTable } from '@blueprintjs/core';
+import { HTMLTable, Icon, IconName } from '@blueprintjs/core';
+import { DeltaIcon } from '../deltaIcon/DeltaIcon';
 
 class Props {
   players: Map<string, Player>;
@@ -54,24 +55,9 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
   }
 
   private renderDelta = (delta?: number) => {
-    if (!this.props.renderDelta || !delta) {
+    if (!this.props.renderDelta || delta === undefined) {
       return '';
     }
-    if (delta < 0) {
-      return (
-        <span className='score-delta' style={{color: 'red'}}>
-          <span className='pt-icon pt-icon-arrow-down'></span>
-          {delta}
-        </span>
-      );
-    } else {
-    if (delta > 0) {
-      return (
-        <span className='score-delta' style={{color: 'green'}}>
-          <span className='pt-icon pt-icon-arrow-up'></span>
-          {delta}
-        </span>
-      );
-    }}
+    return <DeltaIcon delta={delta} />;
   }
 }

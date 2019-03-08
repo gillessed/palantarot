@@ -1,10 +1,3 @@
-// import {
-//   ActionType,
-//   createActionType,
-//   TypedActionCreator,
-//   createActionCreator,
-// } from './typedAction';
-
 import { TypedAction } from 'redoodle';
 
 // Service

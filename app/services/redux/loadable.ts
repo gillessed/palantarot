@@ -4,11 +4,13 @@ export interface Loadable<KEY, VALUE> {
   error?: Error;
   loading: boolean;
   timestamp?: number;
+  cached?: boolean;
 }
 
 export class LoadableCache<KEY, VALUE> {
   private cache: Map<KEY, Loadable<KEY, VALUE>>;
   public loading: boolean;
+  private cacheNext: boolean = false;
 
   private constructor(options?: {cache: Map<KEY, Loadable<KEY, VALUE>>, loading: boolean}) {
     if (options) {
@@ -77,6 +79,7 @@ export class LoadableCache<KEY, VALUE> {
         loading: false,
         value: object,
         lastLoaded: date,
+        cached: this.cacheNext,
       };
       newCache.set(key, entry);
     }
@@ -99,6 +102,18 @@ export class LoadableCache<KEY, VALUE> {
       };
       newCache.set(key, entry);
     });
+    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
+  }
+
+  public cacheValues(on: boolean) {
+    this.cacheNext = on;
+    const newCache = new Map<KEY, Loadable<KEY, VALUE>>();
+    for (const key of newCache.keys()) {
+      newCache.set(key, {
+        ...this.cache.get(key)!,
+        cached: on,
+      });
+    }
     return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
   }
 

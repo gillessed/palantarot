@@ -43,8 +43,6 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    // const baseButtonClass = 'add-player-score-button pt-button pt-large pt-icon-add pt-intent-success';
-    // // const buttonClass = `${baseButtonClass} ${this.submitEnabled() ? '' : 'pt-disabled'}`;
     return (
       <div className="add-player-form">
         <TextInput

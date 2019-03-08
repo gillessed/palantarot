@@ -25,6 +25,7 @@
 @import './components/graphs/ResultsGraph.scss';
 @import './components/forms/Elements.scss';
 @import './components/scoreTable/ScoreTable.scss';
+@import './components/deltaIcon/DeltaIcon.scss';
 
 .title {
   display: flex;
@@ -53,6 +54,10 @@ p, span.text, .bp3-label, td {
 
 span.bold {
   font-family: blenderProBold;
+}
+
+span.underline {
+  text-decoration: underline;
 }
 
 h1, h2, h3, h4, h5 {

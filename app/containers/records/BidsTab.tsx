@@ -8,7 +8,7 @@ import { Player } from '../../../server/model/Player';
 import { connect } from 'react-redux';
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { createSelector } from 'reselect';
-import { MenuItem, Button, Classes, NonIdealState } from '@blueprintjs/core';
+import { MenuItem, Button, Classes, NonIdealState, Spinner } from '@blueprintjs/core';
 import { BidsService } from '../../services/bids/index';
 import { BidStats } from '../../../server/model/Bid';
 import { BidsGraph } from './BidsGraph';
@@ -45,7 +45,7 @@ class BidsTabComponent extends React.PureComponent<Props, State> {
 
   private renderFilterContainer = () => {
     if (this.props.players.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (this.props.players.value) {
       return this.renderFilter(this.props.players.value);
     } else if (this.props.players.error) {
@@ -57,7 +57,7 @@ class BidsTabComponent extends React.PureComponent<Props, State> {
 
   private renderTableContainer() {
     if (this.props.players.loading || this.props.bids.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (this.props.players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
     } else if (this.props.bids.error) {

@@ -10,7 +10,8 @@ import { Deltas, Delta } from '../../../server/model/Delta';
 import { connect } from 'react-redux';
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { createSelector } from 'reselect';
-import { MenuItem, Button, Classes, HTMLTable } from '@blueprintjs/core';
+import { MenuItem, Button, Classes, HTMLTable, Spinner } from '@blueprintjs/core';
+import { DeltaIcon } from '../../components/deltaIcon/DeltaIcon';
 
 const PlayerSelect = Select.ofType<Player | string>();
 
@@ -50,7 +51,7 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
 
   private renderFilterContainer = () => {
     if (this.props.players.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (this.props.players.value) {
       return this.renderFilter(this.props.players.value);
     } else if (this.props.players.error) {
@@ -62,7 +63,7 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
 
   private renderTableContainer() {
     if (this.props.players.loading || this.props.deltas.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (this.props.players.value && this.props.deltas.value) {
       return this.renderTable(this.props.players.value, this.props.deltas.value)
     } else if (this.props.players.error) {
@@ -112,35 +113,11 @@ class DeltasTabComponent extends React.PureComponent<Props, State> {
     return (
       <tr key={index}>
         <td>{playerName}</td>
-        <td>{this.renderDeltaNumber(delta.delta)}</td>
+        <td><DeltaIcon delta={delta.delta} /></td>
         <td>{delta.date}</td>
         <td>{delta.gameCount}</td>
       </tr>
     );
-  }
-
-  private renderDeltaNumber(delta: number) {
-    if (delta < 0) {
-      return (
-        <span className='score-delta' style={{ color: 'red' }}>
-          <span className='pt-icon pt-icon-arrow-down'></span>
-          {delta}
-        </span>
-      );
-    } else if (delta > 0) {
-      return (
-        <span className='score-delta' style={{ color: 'green' }}>
-          <span className='pt-icon pt-icon-arrow-up'></span>
-          {delta}
-        </span>
-      );
-    } else {
-      return (
-        <span className='score-delta'>
-          {delta}
-        </span>
-      );
-    }
   }
 
   private getPlayerList = createSelector(

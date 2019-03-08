@@ -57,12 +57,12 @@ export class MonthWinnersTable extends React.PureComponent<Props, {}> {
 
   private renderScoreCell(monthScore: MonthlyScore) {
     if (monthScore) {
-      const bold = this.props.player ? monthScore.playerId === this.props.player.id : false;
-      const spanStyle = bold ? 'bold' : '';
+      const isSelf = this.props.player ? monthScore.playerId === this.props.player.id : false;
+      const color = isSelf ? '#3DCC91': '#FFFFFF';
       return (
-        <td>
+        <td style={{ backgroundColor: color }}>
           <Link to={DynamicRoutes.player(monthScore.playerId)}>
-            <span className={spanStyle}>{Player.getName(monthScore.playerId, this.props.players.get(monthScore.playerId))}</span>
+            <span>{Player.getName(monthScore.playerId, this.props.players.get(monthScore.playerId))}</span>
           </Link>
           <span> ({monthScore.score})</span>
         </td>

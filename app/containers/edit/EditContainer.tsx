@@ -16,6 +16,7 @@ import { Dispatchers } from '../../services/dispatchers';
 import { GameService } from '../../services/game';
 import { DynamicRoutes } from '../../routes';
 import history from '../../history';
+import { Spinner } from '@blueprintjs/core';
 
 interface OwnProps {
   match: {
@@ -102,7 +103,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     const game = this.props.games.get(this.props.match.params.gameId);
     const saveGame = this.props.saveGame;
     if (players.loading || game.loading || saveGame.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (players.value && game.value) {
       return (
         <GameForm

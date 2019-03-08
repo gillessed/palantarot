@@ -6,6 +6,7 @@ import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from '../..
 import { IMonth } from '../../../../server/model/Month';
 import { chop } from '../../../../server/utils/index';
 import { PlayerWinPercentagesTableRow } from '../winPercentages/PlayerWinPercentagesTableRow';
+import { Spinner } from '@blueprintjs/core';
 
 interface Props {
   player: Player;
@@ -17,7 +18,7 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
   public render() {
     const stats = this.props.stats;
     if (stats.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE}/>;
     } else if (stats.value) {
       return this.renderContainer(stats.value);
     } else if (stats.error) {

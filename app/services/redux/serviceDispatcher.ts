@@ -126,9 +126,14 @@ export namespace CacheFunction {
   export function loading<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
     return (_: ARG, loadable?: Loadable<ARG, RESULT>) => loadable ? loadable.loading : false;
   }
-  /**
-   * Cache all results that are not recent (from this month)
-   */
+
+  export function pageCache<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
+    return (arg: ARG, loadable?: Loadable<ARG, RESULT>) => {
+      console.log('*** ' + arg, loadable);
+      return loadable ? !!(loadable.value && loadable.cached) : false
+    };
+  }
+
   export function notThisMonth<RESULT>(): CacheFunction<Month, RESULT> {
     return (arg: Month, loadable?: Loadable<Month, RESULT>) => {
       if (arg === IMonth.now()) {
@@ -139,5 +144,14 @@ export namespace CacheFunction {
       }
       return false;
     };
+  }
+
+  export function and<ARG, RESULT>(...fs: Array<CacheFunction<ARG, RESULT>>) {
+    return (arg: ARG, loadable?: Loadable<ARG, RESULT>) => {
+      return fs.map((f) => f(arg, loadable)).reduce(
+        (acc, cur) => acc || cur,
+        false,
+      );
+    }
   }
 }

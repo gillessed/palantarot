@@ -6,16 +6,9 @@ import { AllTimeTab } from '../dataTabs/allTime/AllTimeTab';
 import { MonthWinsTab } from '../dataTabs/monthWins/MonthWinsTab';
 import { SlamsTab } from '../dataTabs/slams/SlamsTab';
 import { WinPercentagesTab } from '../dataTabs/winPercentages/WinPercentagesTab';
+import { pageCache } from '../pageCache/PageCache';
 
-export class RecordsContainer extends React.PureComponent<{}, {}> {
-
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      filterRecords: false,
-    };
-  }
-
+export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
   public render() {
     return (
       <div className='records-container page-container'>
@@ -48,3 +41,5 @@ export class RecordsContainer extends React.PureComponent<{}, {}> {
     );
   }
 }
+
+export const RecordsContainer = pageCache(RecordsContainerInternal);

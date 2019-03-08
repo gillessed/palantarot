@@ -10,7 +10,7 @@ import { formatTimestamp } from '../../../server/utils/index';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { Link } from 'react-router-dom';
-import { Dialog, Button, Intent } from '@blueprintjs/core';
+import { Dialog, Button, Intent, Spinner } from '@blueprintjs/core';
 import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
 import { mergeContexts } from '../../app';
 import { SagaListener } from '../../services/sagaListener';
@@ -100,7 +100,7 @@ class Internal extends React.PureComponent<Props, State> {
     const game = this.props.games.get(this.props.match.params.gameId);
     const deleteGame = this.props.deleteGame;
     if (players.loading || game.loading || deleteGame.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (players.value && game.value) {
       return this.renderGame();
     } else if (players.error) {

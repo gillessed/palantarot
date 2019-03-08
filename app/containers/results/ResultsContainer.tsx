@@ -10,7 +10,7 @@ import moment from 'moment';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { MonthGamesService } from '../../services/monthGames/index';
-import { Tabs, Tab, Button } from '@blueprintjs/core';
+import { Tabs, Tab, Button, Spinner } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
 import { Player } from '../../../server/model/Player';
@@ -74,7 +74,7 @@ class Internal extends React.PureComponent<Props, State> {
     const players = this.props.players;
     const results = this.props.results.get(this.state.month);
     if (players.loading || results.loading) {
-      return <SpinnerOverlay size='pt-large' />;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (players.value && results.value) {
       return this.renderTabs(players.value, results.value,);
     } else if (players.error) {

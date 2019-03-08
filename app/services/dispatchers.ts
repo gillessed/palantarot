@@ -13,6 +13,8 @@ import { CacheFunction } from './redux/serviceDispatcher';
 import { StatsDispatcher } from './stats/index';
 import { DeltasDispatcher } from './deltas/index';
 import { BidsDispatcher } from './bids/index';
+import { Store } from 'redux';
+import { PageCacheDispatcher } from './pageCache/actions';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
@@ -22,6 +24,7 @@ export interface Dispatchers {
   deltas: DeltasDispatcher;
   games: GameDispatcher;
   monthGames: MonthGamesDispatcher;
+  pageCache: PageCacheDispatcher;
   players: PlayersDispatcher;
   recentGames: RecentGamesDispatcher;
   records: RecordsDispatcher;
@@ -30,59 +33,72 @@ export interface Dispatchers {
   stats: StatsDispatcher;
 }
 
-export const dispatcherCreators = (dispatch: any): Dispatchers => {
+export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
   return {
-    addPlayer: new AddNewPlayerDispatcher(dispatch),
+    addPlayer: new AddNewPlayerDispatcher(store),
     auth: new AuthDispatcher(
-      dispatch,
+      store,
     ),
     bids: new BidsDispatcher(
-      dispatch,
+      store,
     ),
-    deleteGame: new DeleteGameDispatcher(dispatch),
+    deleteGame: new DeleteGameDispatcher(store),
     games: new GameDispatcher(
-      dispatch,
+      store,
     ),
-    deltas: new DeltasDispatcher(dispatch),
+    deltas: new DeltasDispatcher(store),
     monthGames: new MonthGamesDispatcher(
-      dispatch,
+      store,
       {
         caching: {
           accessor: (state: ReduxState) => state.monthGames,
-          isCached: CacheFunction.notThisMonth(),
+          isCached: CacheFunction.and(CacheFunction.notThisMonth(), CacheFunction.pageCache()),
         },
       },
     ),
+    pageCache: new PageCacheDispatcher(store),
     players: new PlayersDispatcher(
-      dispatch,
+      store,
       {
         caching: {
           accessor: (state: ReduxState) => state.players,
-          isCached: CacheFunction.loading(),
+          isCached: CacheFunction.and(CacheFunction.loading(), CacheFunction.pageCache()),
         },
         debounce: 500,
       },
     ),
     recentGames: new RecentGamesDispatcher(
-      dispatch,
+      store,
     ),
     records: new RecordsDispatcher(
-      dispatch,
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.records,
+          isCached: CacheFunction.pageCache(),
+        },
+      },
     ),
     results: new ResultsDispatcher(
-      dispatch,
+      store,
       {
         caching: {
           accessor: (state: ReduxState) => state.results,
-          isCached: CacheFunction.notThisMonth(),
+          isCached: CacheFunction.and(CacheFunction.notThisMonth(), CacheFunction.pageCache()),
         }
       }
     ),
     saveGame: new SaveGameDispatcher(
-      dispatch,
+      store,
     ),
     stats: new StatsDispatcher(
-      dispatch,
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.stats,
+          isCached: CacheFunction.pageCache(),
+        }
+      }
     ),
   };
 };

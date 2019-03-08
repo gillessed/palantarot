@@ -7,6 +7,7 @@ import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable, BidderWonValidator, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
+import { Spinner } from '@blueprintjs/core';
 
 interface StateProps {
   players: PlayersService;
@@ -49,7 +50,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   private renderGames() {
     if (this.props.players.loading || this.props.recentGames.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE}/>;
     } else if (this.props.players.value && this.props.recentGames.value) {
       const pageState = {
         offset: this.state.page,

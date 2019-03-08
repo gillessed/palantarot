@@ -16,6 +16,7 @@ import { Dispatchers } from '../../services/dispatchers';
 import { StaticRoutes } from '../../routes';
 import { RecentGamesService } from '../../services/recentGames/index';
 import history from '../../history';
+import { Spinner } from '@blueprintjs/core';
 
 interface StateProps {
   players: PlayersService;
@@ -136,7 +137,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     const saveGame = this.props.saveGame;
     const recentGames = this.props.recentGames;
     if (players.loading || saveGame.loading || recentGames.loading) {
-      return <SpinnerOverlay size='pt-large'/>;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (players.value && recentGames.value) {
       return this.renderPage(players.value, recentGames.value);
     } else if (players.error) {

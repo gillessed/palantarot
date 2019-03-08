@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Loadable } from '../services/redux/loadable';
 import { DispatchersContextType, DispatchContext } from '../dispatchProvider';
 import { Dispatchers } from '../services/dispatchers';
+import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
+import { Spinner } from '@blueprintjs/core';
 
 
 interface OtherProps {
@@ -91,15 +93,18 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
         if (errors.length > 0) {
           return <div>{errors}</div>;
         } else if (undefinedKeys.length) {
-          // TODO render overlay spinner without component here
-          return <div></div>;
+          return (
+            <div style={{position: 'relative', minHeight: 200}}>
+              <SpinnerOverlay size={Spinner.SIZE_LARGE} />
+            </div>
+          );
         } else {
           if (hasLoading) {
-            // TODO render overlay spinner on top of component if it is loading
             return (
-              <>
+              <div style={{position: 'relative'}}>
+                <SpinnerOverlay size={Spinner.SIZE_LARGE} />
                 <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading}/>
-              </>
+              </div>
             );
           } else {
             return (

@@ -1,6 +1,7 @@
 import { Loadable, LoadableCache } from './loadable';
 import { TypedReducer } from 'redoodle';
 import { ServiceActions, PropertyActions } from './serviceActions';
+import { pageCacheAction } from '../pageCache/actions';
 
 export function generateServiceReducer<ARG, RESULT>(
   actions: ServiceActions<ARG, RESULT>,
@@ -29,12 +30,16 @@ export function generateServiceReducer<ARG, RESULT>(
   function clearAllReducer(cache: LoadableCache<ARG, RESULT>) {
     return cache.clearAll();
   }
+  function cacheReducer(cache: LoadableCache<ARG, RESULT>, on: boolean) {
+    return cache.cacheValues(on);
+  }
   return reducerBuilder
     .withHandler(actions.success.TYPE, successReducer)
     .withHandler(actions.loading.TYPE, loadingReducer)
     .withHandler(actions.error.TYPE, errorReducer)
     .withHandler(actions.clear.TYPE, clearReducer)
-    .withHandler(actions.clearAll.TYPE, clearAllReducer);
+    .withHandler(actions.clearAll.TYPE, clearAllReducer)
+    .withHandler(pageCacheAction.TYPE, cacheReducer);
 }
 
 export function generatePropertyReducer<RESULT>(
@@ -45,7 +50,7 @@ export function generatePropertyReducer<RESULT>(
     return { ...state, loading: true };
   }
   function successReducer(state: Loadable<void, RESULT>, result: { arg: void, result: RESULT }) {
-    return { key: state.key, loading: false, value: result.result, lastLoaded: new Date() };
+    return { key: state.key, loading: false, value: result.result, lastLoaded: new Date(), cached: state.cached };
   }
   function errorReducer(state: Loadable<void, RESULT>, result: { arg: void, error: Error }) {
     return { ...state, loading: false, error: result.error };
@@ -53,9 +58,13 @@ export function generatePropertyReducer<RESULT>(
   function clearReducer() {
     return { key: undefined, loading: false };
   }
+  function cacheValuesReducer(state: Loadable<void, RESULT>, on: boolean) {
+    return { ...state, cached: on };
+  }
   return reducerBuilder
     .withHandler(actions.success.TYPE, successReducer)
     .withHandler(actions.loading.TYPE, loadingReducer)
     .withHandler(actions.error.TYPE, errorReducer)
-    .withHandler(actions.clear.TYPE, clearReducer);
+    .withHandler(actions.clear.TYPE, clearReducer)
+    .withHandler(pageCacheAction.TYPE, cacheValuesReducer);
 }

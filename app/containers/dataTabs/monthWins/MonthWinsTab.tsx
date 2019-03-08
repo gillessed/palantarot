@@ -32,11 +32,11 @@ class MonthWinsTabInternal extends React.PureComponent<Props, {}> {
           players={this.props.players}
           scores={this.filteredMonthlyScores()}
         />
-        <MonthWinnersTable
+        {groupedMonthlyScores.length > 0 && <MonthWinnersTable
           player={player}
           players={this.props.players}
           groupedMonthlyScores={groupedMonthlyScores}
-        />
+        />}
         {!player && <MedalsTable 
           players={this.props.players}
           groupedMonthlyScores={groupedMonthlyScores}
