@@ -41,6 +41,12 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
     ),
     bids: new BidsDispatcher(
       store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.bids,
+          isCached: CacheFunction.pageCache(),
+        },
+      },
     ),
     deleteGame: new DeleteGameDispatcher(store),
     games: new GameDispatcher(

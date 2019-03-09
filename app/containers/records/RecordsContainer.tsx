@@ -6,7 +6,7 @@ import { SlamsTab } from '../dataTabs/slams/SlamsTab';
 import { WinPercentagesTab } from '../dataTabs/winPercentages/WinPercentagesTab';
 import { pageCache } from '../pageCache/PageCache';
 import { DeltasTab } from '../dataTabs/deltas/DeltasTab';
-import { AllBidsTab } from '../dataTabs/bids/AllBidsTab';
+import { BidsTab } from '../dataTabs/bids/BidsTab';
 
 export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
   public render() {
@@ -26,7 +26,7 @@ export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
     const slamTab = <SlamsTab />;
     const winPercentagesTab = <WinPercentagesTab />;
     const deltasTab = <DeltasTab />;
-    const bidsTab = <AllBidsTab />;
+    const bidsTab = <BidsTab />;
     return (
       <div className='records-tabs-container'>
         <Tabs id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>

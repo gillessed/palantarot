@@ -9,6 +9,7 @@ import { WinPercentagesTab } from '../dataTabs/winPercentages/WinPercentagesTab'
 import { pageCache } from '../pageCache/PageCache';
 import { MonthWinsTab } from '../dataTabs/monthWins/MonthWinsTab';
 import { DeltasTab } from '../dataTabs/deltas/DeltasTab';
+import { BidsTab } from '../dataTabs/bids/BidsTab';
 
 interface Props {
   match: {
@@ -26,6 +27,7 @@ class PlayerContainerInternal extends React.PureComponent<Props, {}> {
     const monthlyTab = <MonthWinsTab playerId={playerId} />;
     const winPercentagesTab = <WinPercentagesTab playerId={playerId} />;
     const deltasTab = <DeltasTab playerId={playerId} />;
+    const bidsTab = <BidsTab playerId={playerId} />;
 
     return (
       <div className='player-view-container page-container'>
@@ -36,6 +38,7 @@ class PlayerContainerInternal extends React.PureComponent<Props, {}> {
           <Tab id='PlayerMonthlyWinsTab' title='Monthly' panel={monthlyTab} />
           <Tab id='PlayerWinPercentagesTab' title='Win Percentages' panel={winPercentagesTab} />
           <Tab id='PlayerDeltasTab' title='Deltas' panel={deltasTab} />
+          <Tab id='PlayerBidsTab' title='Bids' panel={bidsTab} />
         </Tabs>
       </div>
     );
