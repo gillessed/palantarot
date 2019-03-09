@@ -38,7 +38,15 @@ class Internal extends React.PureComponent<Props, {}> {
 
   private renderEnter() {
     if (!this.props.location || this.props.location.pathname !== StaticRoutes.enter()) {
-      return <Button className='hide-on-small' icon='manually-entered-data' minimal onClick={this.onEnterPressed} text='Enter Score'/>;
+      return (
+        <Button
+          icon='manually-entered-data'
+          minimal
+          onClick={this.onEnterPressed}
+        >
+          <span className='hide-on-small'>Enter Score</span>
+        </Button>
+      );
     }
   }
 
@@ -48,7 +56,15 @@ class Internal extends React.PureComponent<Props, {}> {
 
   private renderResults() {
     if (!this.props.location || this.props.location.pathname !== StaticRoutes.results()) {
-      return <Button className='hide-on-small' icon='th' minimal onClick={this.onResultsPressed} text='Results'/>;
+      return (
+        <Button
+          icon='th'
+          minimal
+          onClick={this.onEnterPressed}
+        >
+          <span className='hide-on-small'>Results</span>
+        </Button>
+      );
     }
   }
 
