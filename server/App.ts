@@ -11,8 +11,9 @@ import { GameService } from './api/GameService';
 import { Config } from './config';
 import { AuthService, createRequestValidator } from './api/AuthService';
 import { Request } from 'express';
-import { StaticRoutes, DynamicRoutes } from '../app/routes';
+import { StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable, DynamicRoutes, DynamicRoutesEnumerable } from '../app/routes';
 import { StatsService } from './api/StatsService';
+import { TarothonService } from './api/TarothonService';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon', '/.well-known'];
@@ -109,8 +110,11 @@ export class App {
 
     const authService = new AuthService(this.config);
     this.express.use('/api/v1/login', authService.router);
-  }
 
+    const tarothonService = new TarothonService(this.db);
+    this.express.use('/api/v1/tarothon', tarothonService.router);
+  }
+ 
   private redirectRoute() {
     this.express.use('/', (req, res, next) => {
       if (req.path.startsWith('/.well-known')) {
@@ -126,12 +130,12 @@ export class App {
   }
 
   private isAppRoute(path: string): boolean {
-    const staticRoutes = Object.keys(StaticRoutes).map((route) => StaticRoutes[route]());
+    const staticRoutes = Object.keys(StaticRoutes).map((route) => StaticRoutesEnumerable[route]());
     const staticMatch = staticRoutes.find((route) => path === route);
     if (staticMatch) {
       return true;
     }
-    const dynamicRoutes = Object.keys(DynamicRoutes).map((route) => new RegExp(DynamicRoutes[route]('[^/]+')));
+    const dynamicRoutes = Object.keys(DynamicRoutes).map((route) => new RegExp(DynamicRoutesEnumerable[route]('[^/]+')));
     const dynamicMatch = dynamicRoutes.find((routeRegex) => routeRegex.test(path));
     if (dynamicMatch) {
       return true;

@@ -16,6 +16,10 @@ import { recordsSaga } from './records/index';
 import { statsSaga } from './stats/index';
 import { deltasSaga } from './deltas/index';
 import { bidsSaga } from './bids/index';
+import { tarothonsSaga } from './tarothons/index';
+import { addTarothonSaga } from './addTarothon/index';
+import { deleteTarothonSaga } from './deleteTarothon/index';
+import { tarothonDataSaga } from './tarothonData';
 
 export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
   yield [
@@ -36,5 +40,9 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(statsSaga, api),
     fork(deltasSaga, api),
     fork(bidsSaga, api),
+    fork(tarothonsSaga, api),
+    fork(addTarothonSaga, api),
+    fork(deleteTarothonSaga, api),
+    fork(tarothonDataSaga, api),
   ];
 }

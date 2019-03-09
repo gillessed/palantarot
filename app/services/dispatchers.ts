@@ -15,12 +15,18 @@ import { DeltasDispatcher } from './deltas/index';
 import { BidsDispatcher } from './bids/index';
 import { Store } from 'redux';
 import { PageCacheDispatcher } from './pageCache/actions';
+import { TarothonsDispatcher } from './tarothons/index';
+import { AddTarothonDispatcher } from './addTarothon/index';
+import { DeleteTarothonDispatcher } from './deleteTarothon/index';
+import { TarothonDataDispatcher } from './tarothonData';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
+  addTarothon: AddTarothonDispatcher;
   auth: AuthDispatcher;
   bids: BidsDispatcher;
   deleteGame: DeleteGameDispatcher;
+  deleteTarothon: DeleteTarothonDispatcher;
   deltas: DeltasDispatcher;
   games: GameDispatcher;
   monthGames: MonthGamesDispatcher;
@@ -31,11 +37,14 @@ export interface Dispatchers {
   results: ResultsDispatcher;
   saveGame: SaveGameDispatcher;
   stats: StatsDispatcher;
+  tarothonData: TarothonDataDispatcher;
+  tarothons: TarothonsDispatcher;
 }
 
 export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
   return {
     addPlayer: new AddNewPlayerDispatcher(store),
+    addTarothon: new AddTarothonDispatcher(store),
     auth: new AuthDispatcher(
       store,
     ),
@@ -49,6 +58,7 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
       },
     ),
     deleteGame: new DeleteGameDispatcher(store),
+    deleteTarothon: new DeleteTarothonDispatcher(store),
     games: new GameDispatcher(
       store,
     ),
@@ -110,6 +120,24 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
       {
         caching: {
           accessor: (state: ReduxState) => state.stats,
+          isCached: CacheFunction.pageCache(),
+        }
+      }
+    ),
+    tarothonData: new TarothonDataDispatcher(
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.tarothonData,
+          isCached: CacheFunction.pageCache(),
+        }
+      }
+    ),
+    tarothons: new TarothonsDispatcher(
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.tarothons,
           isCached: CacheFunction.pageCache(),
         }
       }

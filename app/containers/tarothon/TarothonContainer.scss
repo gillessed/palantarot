@@ -1,3 +1,19 @@
 .tarothon-container {
-  
+  .upcoming-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: dinNextBold;
+    font-size: 60px;
+  }
+
+  .tarothon-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .heading-with-actions > * {
+    margin-left: 10;
+  }
 }

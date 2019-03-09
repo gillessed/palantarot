@@ -8,7 +8,6 @@ import { Dispatchers } from '../services/dispatchers';
 import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
 import { Spinner } from '@blueprintjs/core';
 
-
 interface OtherProps {
   dispatchers?: Dispatchers;
   loading?: boolean;
@@ -67,7 +66,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
             refreshArgs.push(key);
           }
         }
-        for(const key of refreshArgs) {
+        for (const key of refreshArgs) {
           loaders[key].load(this.dispatchers, nextArgs[key]);
         }
       }
@@ -94,21 +93,21 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
           return <div>{errors}</div>;
         } else if (undefinedKeys.length) {
           return (
-            <div style={{position: 'relative', minHeight: 200}}>
+            <div style={{ position: 'relative', minHeight: 200 }}>
               <SpinnerOverlay size={Spinner.SIZE_LARGE} />
             </div>
           );
         } else {
           if (hasLoading) {
             return (
-              <div style={{position: 'relative'}}>
+              <div style={{ position: 'relative' }}>
                 <SpinnerOverlay size={Spinner.SIZE_LARGE} />
-                <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading}/>
+                <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading} />
               </div>
             );
           } else {
             return (
-              <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading}/>
+              <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading} />
             );
           }
         }

@@ -13,12 +13,18 @@ import { statsReducer, StatsService } from './stats/index';
 import { DeltasService, deltasReducer } from './deltas/index';
 import { combineReducers } from 'redux';
 import { BidsService, bidsReducer } from './bids/index';
+import { TarothonsService, tarothonsReducer } from './tarothons/index';
+import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
+import { DeleteTarothonService, deleteTarothonReducer } from './deleteTarothon/index';
+import { TarothonDataService, tarothonDataReducer } from './tarothonData';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
+  addTarothon: AddTarothonService;
   auth: AuthService;
   bids: BidsService,
   deleteGame: DeleteGameService;
+  deleteTarothon: DeleteTarothonService;
   deltas: DeltasService;
   games: GameService;
   monthGames: MonthGamesService;
@@ -28,13 +34,17 @@ export interface ReduxState {
   results: ResultsService;
   saveGame: SaveGameService;
   stats: StatsService;
+  tarothonData: TarothonDataService;
+  tarothons: TarothonsService;
 }
 
 export const rootReducer = combineReducers({
   addPlayer: addPlayerReducer,
+  addTarothon: addTarothonReducer,
   auth: authReducer,
   bids: bidsReducer,
   deleteGame: deleteGameReducer,
+  deleteTarothon: deleteTarothonReducer,
   deltas: deltasReducer,
   games: gameReducer,
   monthGames: monthGamesReducer,
@@ -44,4 +54,6 @@ export const rootReducer = combineReducers({
   results: resultsReducer,
   saveGame: saveGameReducer,
   stats: statsReducer,
+  tarothonData: tarothonDataReducer,
+  tarothons: tarothonsReducer,
 });

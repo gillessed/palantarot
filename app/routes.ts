@@ -1,4 +1,4 @@
-export const StaticRoutes: {[key: string]: () => string} = {
+const StaticRoutesInternal = {
   index: () => '/',
   home: () => '/app/home',
   enter: () => '/app/enter',
@@ -7,12 +7,21 @@ export const StaticRoutes: {[key: string]: () => string} = {
   addPlayer: () => '/app/add-player',
   search: () => '/app/search',
   records: () => '/app/records',
-  tarothon: () => '/app/tarothon',
+  tarothons: () => '/app/tarothons',
+  addTarothon: () => '/app/add-tarothon',
   login: () => '/login',
 }
 
-export const DynamicRoutes: {[key: string]: (...args: string[]) => string} = {
+export const StaticRoutes = StaticRoutesInternal; 
+export const StatisRoutesEnumerable: { [key: string]: () => string } = StaticRoutesInternal;
+
+const DynamicRoutesInternal = {
   game: (gameId: string) => `/app/game/${gameId}`,
+  tarothon: (tarothonId: string) => `/app/tarothon/${tarothonId}`,
+  editTarothon: (tarothonId: string) => `/app/edit-tarothon/${tarothonId}`,
   player: (playerId: string) => `/app/player/${playerId}`,
   edit: (gameId: string) => `/app/edit/${gameId}`,
-}
+};
+
+export const DynamicRoutes = DynamicRoutesInternal; 
+export const DynamicRoutesEnumerable: { [key: string]: (...args: string[]) => string } = DynamicRoutesInternal;

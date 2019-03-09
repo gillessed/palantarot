@@ -30,4 +30,11 @@ CREATE TABLE player_hand (
     one_last       BOOLEAN DEFAULT false,
     points_earned  INT NOT NULL,
     PRIMARY KEY (id)
-)
+);
+
+CREATE TABLE tarothon (
+    id             SERIAL,
+    begin_date     TIMESTAMPTZ NOT NULL,
+    end_date       TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (id)
+);

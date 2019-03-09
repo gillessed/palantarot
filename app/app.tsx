@@ -27,7 +27,10 @@ import { EditContainer } from './containers/edit/EditContainer';
 import { LoginContainer } from './containers/login/LoginContainer';
 import { RecordsContainer } from './containers/records/RecordsContainer';
 import { SearchContainer } from './containers/search/SearchContainer';
+import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { TarothonContainer } from './containers/tarothon/TarothonContainer';
+import { TarothonFormContainer } from './containers/tarothon/TarothonFormContainer';
+import { EditTarothonContainer } from './containers/tarothon/EditTarothonContainer';
 
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [
@@ -62,7 +65,10 @@ if (appElement != null) {
       <Route path='/app/edit/:gameId' component={EditContainer} />
       <Route path='/app/records' component={RecordsContainer} />
       <Route path='/app/search' component={SearchContainer} />
-      <Route path='/app/tarothon' component={TarothonContainer} />
+      <Route path='/app/tarothons' component={TarothonsContainer} />
+      <Route path='/app/add-tarothon' component={TarothonFormContainer} />
+      <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
+      <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
       <Route path='/login' component={LoginContainer} />
     </div>
   );

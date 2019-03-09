@@ -8,14 +8,14 @@
   "scripts": {
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
     "watch:migration": "webpack -w --config webpack-migration.config.js --mode development",
-    "start:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
-    "start:server": "node build/server.js",
+    "watch:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
     "dist:app": "webpack --config webpack-app.config.js --mode production",
     "dist:server": "webpack --config webpack-server.config.js --mode production",
     "dist:migration": "webpack --config webpack-migration.config.js --mode production"
   },
   "dependencies": {
     "@blueprintjs/core": "3.14.1",
+    "@blueprintjs/datetime": "^3.7.2",
     "@blueprintjs/select": "^3.7.0",
     "@types/body-parser": "^1.16.0",
     "@types/classnames": "^2.2.3",

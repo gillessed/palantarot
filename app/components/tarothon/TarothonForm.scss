@@ -1,0 +1,18 @@
+.date-pickers-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  & > * {
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+  }
+
+  .date-picker-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}

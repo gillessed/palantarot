@@ -1,0 +1,22 @@
+.tarothons-container {
+  .ongoing-tarothon-container {
+    margin-bottom: 20px;
+    .bp3-card {
+      background-color: #FFC940;
+    }
+  }
+  .tarothons-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    & > * {
+      margin-bottom: 20px;
+      margin-right: 20px;
+    }
+  }
+  .grey-text {
+    color: #5C7080;
+    margin-left: 20px;
+  }
+}

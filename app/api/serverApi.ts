@@ -14,6 +14,7 @@ import { DeltasRequest } from '../../server/api/StatsService';
 import { Deltas } from '../../server/model/Delta';
 import history from '../history';
 import { BidRequest, BidStats } from '../../server/model/Bid';
+import { Tarothon, NewTarothon, TarothonData } from '../../server/model/Tarothon';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -83,6 +84,22 @@ export class ServerApi {
 
   public getBids = (request: BidRequest) => {
     return this.wrapPost<BidStats>('/stats/bids', request);
+  }
+
+  public getTarothon = (id: string): Promise<TarothonData> => {
+    return this.wrapGet(`/tarothon/data/${id}`);
+  }
+
+  public getTarothons = (): Promise<Tarothon[]> => {
+    return this.wrapGet('/tarothon/get');
+  }
+
+  public addTarothon = (request: NewTarothon): Promise<{ id: string }> => {
+    return this.wrapPost('/tarothon/add', request);
+  }
+
+  public deleteTarothon = (request: string): Promise<void> => {
+    return this.wrapPost('/tarothon/delete', { id: request });
   }
 
   // Helpers

@@ -12,7 +12,7 @@ const deleteGameOperation = (api: ServerApi) => {
   }
 };
 
-const deleteGameService = generatePropertyService<string, void>('DELETE_GAME', deleteGameOperation);
+const deleteGameService = generatePropertyService<string, void>('DELETE GAME', deleteGameOperation);
 
 export const deleteGameActions = deleteGameService.actions;
 export const DeleteGameDispatcher = deleteGameService.dispatcher;

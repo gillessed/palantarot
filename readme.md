@@ -23,9 +23,9 @@ You will need to seed the database with the schema file `palantar_tarot.sql`.
 Once your database is up and running, run the following commands:
 
 ```
-yarn run start:app
+yarn run watch:app
 yarn run watch:server
-yarn run start:server
+cd build && node server.js
 ```
 
 After that, you should have a server running on your machine. The frontend will update automatically, but any changes to the server will require a restart.
