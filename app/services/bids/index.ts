@@ -3,6 +3,9 @@ import { ServerApi } from './../../api/serverApi';
 import { generatePropertyService } from '../redux/serviceGenerator';
 import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { BidRequest, BidStats } from '../../../server/model/Bid';
+import { ReduxState } from '../rootReducer';
+import { Loader } from '../loader';
+import { Dispatchers } from '../dispatchers';
 
 export type BidsService = Loadable<BidRequest, BidStats>;
 
@@ -19,3 +22,7 @@ export const BidsDispatcher = bidsService.dispatcher;
 export type BidsDispatcher = PropertyDispatcher<BidRequest>;
 export const bidsReducer = bidsService.reducer.build();
 export const bidsSaga = bidsService.saga;
+export const bidsLoader: Loader<ReduxState, BidRequest, BidStats> = {
+  get: (state: ReduxState, _: BidRequest) => state.bids,
+  load: (dispatchers: Dispatchers, request: BidRequest) => dispatchers.bids.request(request),
+};

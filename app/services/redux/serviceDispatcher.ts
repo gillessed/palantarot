@@ -129,8 +129,10 @@ export namespace CacheFunction {
 
   export function pageCache<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
     return (arg: ARG, loadable?: Loadable<ARG, RESULT>) => {
-      console.log('*** ' + arg, loadable);
-      return loadable ? !!(loadable.value && loadable.cached) : false
+      if (!loadable || !loadable.cached) {
+        return false;
+      }
+      return _.isEqual(arg, loadable.key) && loadable.value !== undefined;
     };
   }
 

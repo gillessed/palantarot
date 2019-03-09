@@ -2,7 +2,7 @@ import React from 'react';
 import { Game, PlayerHand } from '../../../server/model/Game';
 import { Player } from '../../../server/model/Player';
 import { SelectInput, PointsInput } from './Elements';
-import { PlayerSelector, PlayerState } from '../../containers/playerSelector/PlayerSelector';
+import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
 import { ButtonGroup, Button, Checkbox, Alignment, Intent } from '@blueprintjs/core';
 import classNames from 'classnames';
 
@@ -186,7 +186,7 @@ export class GameForm extends React.PureComponent<Props, State> {
 
   private renderPlayerSelector(playerRole: string) {
     return (
-      <PlayerSelector
+      <GamePlayerInput
         key={playerRole}
         role={playerRole}
         recentPlayers={this.props.recentPlayers}

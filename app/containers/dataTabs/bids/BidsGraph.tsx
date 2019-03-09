@@ -1,13 +1,15 @@
 import * as React from 'react';
 
-import { BidStats } from '../../../server/model/Bid';
 import Plottable from 'plottable';
+import { BidStats } from '../../../../server/model/Bid';
+import { loadContainer } from '../../LoadingContainer';
+import { bidsLoader } from '../../../services/bids/index';
 
 interface Props {
     bids: BidStats;
 }
 
-export class BidsGraph extends React.PureComponent<Props, {}> {
+class BidsGraphInternal extends React.PureComponent<Props, {}> {
     private divRef: any;
 
     public componentWillReceiveProps(nextProps: Props) {
@@ -66,3 +68,7 @@ export class BidsGraph extends React.PureComponent<Props, {}> {
         );
     }
 }
+
+export const BidsGraph = loadContainer({
+    bids: bidsLoader,
+})(BidsGraphInternal);

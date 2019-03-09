@@ -37,7 +37,7 @@ interface State {
   openDialog: boolean;
 }
 
-export class Internal extends React.PureComponent<Props, State> {
+class GamePlayerInputInternal extends React.PureComponent<Props, State> {
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
 
@@ -240,4 +240,4 @@ const mapStateToProps = (state: ReduxState, ownProps: OwnProps) => {
   } as OwnProps & StateProps;
 }
 
-export const PlayerSelector = connect(mapStateToProps)(Internal);
+export const GamePlayerInput = connect(mapStateToProps)(GamePlayerInputInternal);

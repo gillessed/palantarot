@@ -1,93 +1,85 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
-import { PlayersService } from '../../services/players';
-import { RecentGamesService } from '../../services/recentGames';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { GameTable, BidderWonValidator, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { Spinner } from '@blueprintjs/core';
+import { Player } from '../../../server/model/Player';
+import { Game } from '../../../server/model/Game';
+import { loadContainer } from '../LoadingContainer';
+import { playersLoader } from '../../services/players/index';
+import { recentGamesLoader } from '../../services/recentGames/index';
+import { RecentGameQuery } from '../../../server/db/GameQuerier';
 
-interface StateProps {
-  players: PlayersService;
-  recentGames: RecentGamesService;
+interface Props {
+  players: Map<string, Player>;
+  recentGames: Game[];
+  offset: number;
+  onOffsetChange: (offset: number) => void;
 }
 
-type Props = StateProps;
-
-interface State {
-  page: number,
-}
-
-class Internal extends React.PureComponent<Props, State> {
-  public static contextTypes = DispatchersContextType;
-  private dispatchers: Dispatchers;
-  
-  constructor(props: Props, context: DispatchContext) {
-    super(props, context);
-    this.dispatchers = context.dispatchers;
-    this.state = {
-      page: 0,
-    };
-  }
-
-  public componentWillMount() {
-    this.dispatchers.players.request(undefined);
-    this.dispatchers.recentGames.request({ count: DEFAULT_COUNT });
-  }
-
+class RecentContainerInternal extends React.PureComponent<Props, {}> {
   public render() {
+    const pageState = {
+      offset: this.props.offset,
+      onOffsetChange: this.props.onOffsetChange,
+    }; 
     return (
       <div className='recent-container page-container pt-ui-text-large'>
         <div className='title'>
           <h1 className='bp3-heading'>Recent Games</h1>
         </div>
-        {this.renderGames()}
-      </div>
-    );
-  }
-
-  private renderGames() {
-    if (this.props.players.loading || this.props.recentGames.loading) {
-      return <SpinnerOverlay size={Spinner.SIZE_LARGE}/>;
-    } else if (this.props.players.value && this.props.recentGames.value) {
-      const pageState = {
-        offset: this.state.page,
-        onOffsetChange: (offset: number) => {
-          this.setState({ page: offset }, () => {
-            this.dispatchers.recentGames.request({
-              count: DEFAULT_COUNT,
-              offset: this.state.page * DEFAULT_COUNT,
-            });
-          });
-        },
-      };
-      return (
         <div className='recent-table-container table-container'>
           <GameTable
-            games={this.props.recentGames.value}
-            players={this.props.players.value}
+            games={this.props.recentGames}
+            players={this.props.players}
             winLossValidator={BidderWonValidator}
             pageState={pageState}
           />
         </div>
-      );
-    } else if (this.props.players.error) {
-      return <p>Error loading players: {this.props.players.error}</p>;
-    } else if (this.props.recentGames.error) {
-      return <p>Error loading recent games: {this.props.recentGames.error}</p>;
+      </div>
+    );
+  }
+}
+
+const RecentContainerLoader = loadContainer({
+  players: playersLoader,
+  recentGames: recentGamesLoader,
+})(RecentContainerInternal);
+
+interface State {
+  offset: number;
+  query: RecentGameQuery;
+}
+
+export class RecentContainer extends React.PureComponent<{}, State> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      offset: 0,
+      query: { count: DEFAULT_COUNT },
+    };
+  }
+
+  public render() {
+    return (
+      <RecentContainerLoader
+        recentGames={this.state.query}
+        onOffsetChange={this.onOffsetChange}
+        offset={this.state.offset}
+      />
+    )
+  }
+
+  private onOffsetChange = (offset: number) => {
+    let query: RecentGameQuery;
+    if (offset === 0) {
+      query = { count: DEFAULT_COUNT };
     } else {
-      return <p>Something went wrong...</p>;
+      query = { count: DEFAULT_COUNT, offset: DEFAULT_COUNT * offset };
     }
+    this.setState({ query, offset });
   }
 }
-
-const mapStateToProps = (state: ReduxState): StateProps => {
-  return {
-    players: state.players,
-    recentGames: state.recentGames,
-  }
-}
-
-export const RecentContainer = connect(mapStateToProps)(Internal);

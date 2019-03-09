@@ -1,5 +1,5 @@
 export interface BidRequest {
-    playerId: string;
+    playerId?: string;
 }
 
 export interface BidStat {
@@ -8,7 +8,7 @@ export interface BidStat {
 }
 
 export interface BidStats {
-    playerId: string;
+    playerId?: string;
     ten: BidStat;
     twenty: BidStat;
     fourty: BidStat;

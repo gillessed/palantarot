@@ -27,7 +27,7 @@ export function generateServiceActions<REQUEST, RESULT>(prefix: string): Service
 export interface PropertyActions<REQUEST, RESULT> {
   request: TypedAction.Definition<string, REQUEST>;
   loading: TypedAction.Definition<string, void>;
-  success: TypedAction.Definition<string, { result: RESULT }>;
+  success: TypedAction.Definition<string, { arg: REQUEST, result: RESULT }>;
   error: TypedAction.Definition<string, { error: Error }>;
   clear: TypedAction.Definition<string, void>;
 }
@@ -36,7 +36,7 @@ export function generatePropertyActions<REQUEST, RESULT>(prefix: string): Proper
   return {
     request: TypedAction.define(prefix + ' // REQUEST')<REQUEST>(),
     loading: TypedAction.define(prefix + ' // LOADING')<void>(),
-    success: TypedAction.define(prefix + ' // SUCCESS')<{ result: RESULT }>(),
+    success: TypedAction.define(prefix + ' // SUCCESS')<{ arg: REQUEST, result: RESULT }>(),
     error: TypedAction.define(prefix + ' // ERROR')<{ error: Error }>(),
     clear: TypedAction.define(prefix + ' // CLEAR')<void>(),
   };

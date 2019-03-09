@@ -43,7 +43,7 @@ export function createSagaPropertyOperation<ARG, RESULT>(
     try {
       yield put(actions.loading(undefined));
       const result = yield call(operation, arg);
-      yield put(actions.success({ result }));
+      yield put(actions.success({ arg, result }));
     } catch (error) {
       yield put(actions.error({ error }));
     }

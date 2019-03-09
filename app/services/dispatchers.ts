@@ -46,7 +46,15 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
     games: new GameDispatcher(
       store,
     ),
-    deltas: new DeltasDispatcher(store),
+    deltas: new DeltasDispatcher(
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.deltas,
+          isCached: CacheFunction.pageCache(),
+        },
+      },
+    ),
     monthGames: new MonthGamesDispatcher(
       store,
       {

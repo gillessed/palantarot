@@ -23,7 +23,7 @@ export class MonthWinnersTable extends React.PureComponent<Props, {}> {
   public render() {
     const eachMonthWinners = this
       .countMonthWinners()
-      .sort(IMonth.comparator((monthWinners: MonthWinners) => monthWinners.month, 'asc'));
+      .sort(IMonth.comparator((monthWinners: MonthWinners) => monthWinners.month, 'desc'));
     return (
       <div className='sub-container'>
         <h3 className='bp3-heading'> Month Winners </h3>

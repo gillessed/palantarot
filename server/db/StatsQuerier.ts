@@ -117,18 +117,18 @@ export class StatsQuerier {
     });
   }
 
-  public getPlayerBids = (playerId: string): Promise<BidStats> => {
+  public getPlayerBids = (playerId?: string): Promise<BidStats> => {
     return Promise.all([
-      this.bidQuery(playerId, 10, true),
-      this.bidQuery(playerId, 10, false),
-      this.bidQuery(playerId, 20, true),
-      this.bidQuery(playerId, 20, false),
-      this.bidQuery(playerId, 40, true),
-      this.bidQuery(playerId, 40, false),
-      this.bidQuery(playerId, 80, true),
-      this.bidQuery(playerId, 80, false),
-      this.bidQuery(playerId, 160, true),
-      this.bidQuery(playerId, 160, false),
+      this.bidQuery(10, true, playerId),
+      this.bidQuery(10, false, playerId),
+      this.bidQuery(20, true, playerId),
+      this.bidQuery(20, false, playerId),
+      this.bidQuery(40, true, playerId),
+      this.bidQuery(40, false, playerId),
+      this.bidQuery(80, true, playerId),
+      this.bidQuery(80, false, playerId),
+      this.bidQuery(160, true, playerId),
+      this.bidQuery(160, false, playerId),
     ]).then((agg) => {
       return {
         playerId,
@@ -158,17 +158,18 @@ export class StatsQuerier {
 
   // Helpers
 
-  private bidQuery = (playerId: string, bidAmount: number, won: boolean): Promise<number> => {
+  private bidQuery = (bidAmount: number, won: boolean, playerId?: string): Promise<number> => {
+    const comparison = QueryBuilder.compare()
+      .compare('points_earned', won ? '>=' : '<', 0)
+      .compare('was_bidder', '=', true)
+      .compare('bid_amt', '=', bidAmount);
+    if (playerId) {
+      comparison.compare('player_fk_id', '=', playerId);
+    }
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('COUNT(*) as count')
       .join('hand', 'INNER', QueryBuilder.compare().compareColumn('player_hand.hand_fk_id', '=', 'hand.id'))
-      .where(
-        QueryBuilder.compare()
-        .compare('player_fk_id', '=', playerId)
-        .compare('was_bidder', '=', true)
-        .compare('bid_amt', '=', bidAmount)
-        .compare('points_earned', won ? '>=' : '<', 0)
-      );
+      .where(comparison);
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result) => {
       return +result.rows[0]['count'];
     });

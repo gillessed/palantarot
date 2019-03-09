@@ -42,23 +42,23 @@ export function generateServiceReducer<ARG, RESULT>(
     .withHandler(pageCacheAction.TYPE, cacheReducer);
 }
 
-export function generatePropertyReducer<RESULT>(
-  actions: PropertyActions<any, RESULT>,
-  reducerBuilder = TypedReducer.builder<Loadable<void, RESULT>>()
+export function generatePropertyReducer<ARG, RESULT>(
+  actions: PropertyActions<ARG, RESULT>,
+  reducerBuilder = TypedReducer.builder<Loadable<ARG, RESULT>>()
     .withDefaultHandler((state = { key: undefined, loading: false }) => state)) {
-  function loadingReducer(state: Loadable<void, RESULT>, _: void) {
+  function loadingReducer(state: Loadable<ARG, RESULT>) {
     return { ...state, loading: true };
   }
-  function successReducer(state: Loadable<void, RESULT>, result: { arg: void, result: RESULT }) {
-    return { key: state.key, loading: false, value: result.result, lastLoaded: new Date(), cached: state.cached };
+  function successReducer(state: Loadable<ARG, RESULT>, result: { arg: ARG, result: RESULT }) {
+    return { key: result.arg, loading: false, value: result.result, lastLoaded: new Date(), cached: state.cached };
   }
-  function errorReducer(state: Loadable<void, RESULT>, result: { arg: void, error: Error }) {
+  function errorReducer(state: Loadable<ARG, RESULT>, result: { arg: ARG, error: Error }) {
     return { ...state, loading: false, error: result.error };
   }
   function clearReducer() {
     return { key: undefined, loading: false };
   }
-  function cacheValuesReducer(state: Loadable<void, RESULT>, on: boolean) {
+  function cacheValuesReducer(state: Loadable<ARG, RESULT>, on: boolean) {
     return { ...state, cached: on };
   }
   return reducerBuilder

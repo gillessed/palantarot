@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Tabs, Tab } from '@blueprintjs/core';
-import { DeltasTab } from './DeltasTab';
-import { BidsTab } from './BidsTab';
 import { AllTimeTab } from '../dataTabs/allTime/AllTimeTab';
 import { MonthWinsTab } from '../dataTabs/monthWins/MonthWinsTab';
 import { SlamsTab } from '../dataTabs/slams/SlamsTab';
 import { WinPercentagesTab } from '../dataTabs/winPercentages/WinPercentagesTab';
 import { pageCache } from '../pageCache/PageCache';
+import { DeltasTab } from '../dataTabs/deltas/DeltasTab';
+import { AllBidsTab } from '../dataTabs/bids/AllBidsTab';
 
 export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
   public render() {
@@ -26,7 +26,7 @@ export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
     const slamTab = <SlamsTab />;
     const winPercentagesTab = <WinPercentagesTab />;
     const deltasTab = <DeltasTab />;
-    const bidsTab = <BidsTab />;
+    const bidsTab = <AllBidsTab />;
     return (
       <div className='records-tabs-container'>
         <Tabs id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
