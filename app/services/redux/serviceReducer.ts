@@ -30,8 +30,8 @@ export function generateServiceReducer<ARG, RESULT>(
   function clearAllReducer(cache: LoadableCache<ARG, RESULT>) {
     return cache.clearAll();
   }
-  function cacheReducer(cache: LoadableCache<ARG, RESULT>, on: boolean) {
-    return cache.cacheValues(on);
+  function refreshCacheReducer(cache: LoadableCache<ARG, RESULT>) {
+    return cache.refreshCache();
   }
   return reducerBuilder
     .withHandler(actions.success.TYPE, successReducer)
@@ -39,7 +39,7 @@ export function generateServiceReducer<ARG, RESULT>(
     .withHandler(actions.error.TYPE, errorReducer)
     .withHandler(actions.clear.TYPE, clearReducer)
     .withHandler(actions.clearAll.TYPE, clearAllReducer)
-    .withHandler(pageCacheAction.TYPE, cacheReducer);
+    .withHandler(pageCacheAction.TYPE, refreshCacheReducer);
 }
 
 export function generatePropertyReducer<ARG, RESULT>(
@@ -50,7 +50,7 @@ export function generatePropertyReducer<ARG, RESULT>(
     return { ...state, loading: true };
   }
   function successReducer(state: Loadable<ARG, RESULT>, result: { arg: ARG, result: RESULT }) {
-    return { key: result.arg, loading: false, value: result.result, lastLoaded: new Date(), cached: state.cached };
+    return { key: result.arg, loading: false, value: result.result, lastLoaded: new Date(), cached: true };
   }
   function errorReducer(state: Loadable<ARG, RESULT>, result: { arg: ARG, error: Error }) {
     return { ...state, loading: false, error: result.error };
@@ -58,13 +58,13 @@ export function generatePropertyReducer<ARG, RESULT>(
   function clearReducer() {
     return { key: undefined, loading: false };
   }
-  function cacheValuesReducer(state: Loadable<ARG, RESULT>, on: boolean) {
-    return { ...state, cached: on };
+  function refreshCacheReducer(state: Loadable<ARG, RESULT>) {
+    return { ...state, cached: false };
   }
   return reducerBuilder
     .withHandler(actions.success.TYPE, successReducer)
     .withHandler(actions.loading.TYPE, loadingReducer)
     .withHandler(actions.error.TYPE, errorReducer)
     .withHandler(actions.clear.TYPE, clearReducer)
-    .withHandler(pageCacheAction.TYPE, cacheValuesReducer);
+    .withHandler(pageCacheAction.TYPE, refreshCacheReducer);
 }

@@ -15,11 +15,7 @@ export function pageCache<PROPS>(
     }
 
     public componentWillMount() {
-      this.dispatchers.pageCache.on();
-    }
-
-    public componentWillUnmount() {
-      this.dispatchers.pageCache.invalidate();
+      this.dispatchers.pageCache.refresh();
     }
 
     public render() {
