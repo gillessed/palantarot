@@ -60,7 +60,7 @@ class Internal extends React.PureComponent<Props, {}> {
         <Button
           icon='th'
           minimal
-          onClick={this.onEnterPressed}
+          onClick={this.onResultsPressed}
         >
           <span className='hide-on-small'>Results</span>
         </Button>
