@@ -45,7 +45,7 @@ export class GameQuerier {
     switch (role) {
       case Role.BIDDER: comparison.compare('was_bidder', '=', 'true'); break;
       case Role.PARTNER: comparison.compare('was_partner', '=', 'true'); break;
-      case Role.BIDDER: comparison.compare('was_bidder', '=', 'false').compare('was_partner', '=', 'false'); break;
+      case Role.OPPOSITION: comparison.compare('was_bidder', '=', 'false').compare('was_partner', '=', 'false'); break;
     }
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
