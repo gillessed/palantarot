@@ -1,10 +1,10 @@
 import { Aggregator, count } from '../../../server/utils/count';
 import { MonthlyScore } from '../../../server/model/Records';
-import { Result } from '../../../server/model/Result';
+import { RoleResult } from '../../../server/model/Result';
 import { integerComparator } from '../../../server/utils/index';
 
 export const RecordsSelectors = {
-  getTotalScoresFromMonthlyScore: (monthlyScores: MonthlyScore[]): Result[] => {
+  getTotalScoresFromMonthlyScore: (monthlyScores: MonthlyScore[]): RoleResult[] => {
     const pointsAggregator: Aggregator<MonthlyScore, number, number> = {
       name: 'points',
       initialValue: 0,
@@ -28,6 +28,6 @@ export const RecordsSelectors = {
         points: aggregate.values[pointsAggregator.name],
         gamesPlayed: aggregate.values[gamesPlayedAggregator.name],
       }
-    }).sort(integerComparator((r: Result) => r.points, 'desc'));
+    }).sort(integerComparator((r: RoleResult) => r.points, 'desc'));
   }
 }

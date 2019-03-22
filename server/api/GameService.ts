@@ -1,4 +1,4 @@
-import { Result } from './../model/Result';
+import { Result, RoleResult, Role } from './../model/Result';
 import { Game } from './../model/Game';
 import { GameQuerier } from './../db/GameQuerier';
 import { Database } from './../db/dbConnector';
@@ -29,7 +29,7 @@ export class GameService {
 
   // API
 
-  public getMonthResults = (req: Request, res: Response) => {
+  public getMonthResults = async (req: Request, res: Response) => {
     const body = req.body as Month;
     const month = IMonth.m(body);
 
@@ -42,30 +42,65 @@ export class GameService {
     const endDate = this.convertToSql(month.next());
     const deltaCutoff = moment.tz(westernTimezone).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
 
-    this.gameDb.queryResultsBetweenDates(startDate, endDate).then((results: Result[]) => {
-      return this.gameDb.queryResultsBetweenDates(deltaCutoff, endDate).then((deltaResults: Result[]) => {
-        const fullResults: Map<string, Result> = new Map();
-        results.forEach((result) => {
-          fullResults.set(result.id, result);
-        });
-        deltaResults.forEach((result) => {
-          if (fullResults.has(result.id)) {
-            fullResults.set(
-              result.id,
-              {
-                ...fullResults.get(result.id)!,
-                delta: result.points,
-              }
-            );
-          }
-        });
-        return Array.from(fullResults.values());
-      });
-    }).then((results: Result[]) => {
+    try {
+      const allResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff);
+      const bidderResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.BIDDER);
+      const partnerResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.PARTNER);
+      const oppositionResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.OPPOSITION);
+      const resultMap: Map<string, Partial<Result>> = new Map();
+      for (const result of allResults) {
+        resultMap.set(result.id, { id: result.id, all: result });
+      }
+      bidderResults.forEach(this.mapRoleResult(resultMap, Role.BIDDER));
+      partnerResults.forEach(this.mapRoleResult(resultMap, Role.PARTNER));
+      oppositionResults.forEach(this.mapRoleResult(resultMap, Role.OPPOSITION));
+      const results = Array.from(resultMap.values());
       res.send(results);
-    }).catch((error: any) => {
+    } catch (error) {
       res.send({ error: `Error getting results for month: ${error}` });
+    }
+  }
+
+  private getMonthResultsForRole = async (startDate: string, endDate: string, deltaCutoff: string, role?: Role) => {
+    const allResults = await this.gameDb.queryResultsBetweenDates(startDate, endDate, role);
+    const deltaResults = await this.gameDb.queryResultsBetweenDates(deltaCutoff, endDate, role);
+    const fullResults: Map<string, RoleResult> = new Map();
+    allResults.forEach((result) => {
+      fullResults.set(result.id, result);
     });
+    deltaResults.forEach((result) => {
+      if (fullResults.has(result.id)) {
+        fullResults.set(
+          result.id,
+          {
+            ...fullResults.get(result.id)!,
+            delta: result.points,
+          }
+        );
+      }
+    });
+    return Array.from(fullResults.values());
+  }
+
+  private getRoleResultSetter = (role: Role) => {
+    return (partial: Partial<Result>, roleResult: RoleResult) => {
+      switch(role) {
+        case Role.BIDDER: return { ...partial, bidder: roleResult };
+        case Role.PARTNER: return { ...partial, partner: roleResult };
+        case Role.OPPOSITION: return { ...partial, opposition: roleResult };
+      }
+    }
+  }
+
+  private mapRoleResult = (resultMap: Map<string, Partial<Result>>, role: Role) => {
+    const setter = this.getRoleResultSetter(role);
+    return (result: RoleResult) => {
+      const partial = resultMap.get(result.id);
+      if (partial) {
+        const newPartial = setter(partial, result);
+        resultMap.set(result.id, newPartial);
+      }
+    };
   }
 
   public getGamesInRange = (req: Request, res: Response) => {

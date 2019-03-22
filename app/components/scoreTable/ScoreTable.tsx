@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
-import { Result } from '../../../server/model/Result';
+import { Result, RoleResult } from '../../../server/model/Result';
 import { DynamicRoutes } from '../../routes';
 import history from '../../history';
-import { HTMLTable, Icon, IconName } from '@blueprintjs/core';
+import { HTMLTable } from '@blueprintjs/core';
 import { DeltaIcon } from '../deltaIcon/DeltaIcon';
 
 class Props {
   players: Map<string, Player>;
-  results: Result[];
+  results: RoleResult[];
   renderDelta?: boolean;
 }
 
@@ -35,7 +35,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
     );
   }
 
-  private renderResultRow = (result: Result, index: number) => {
+  private renderResultRow = (result: RoleResult, index: number) => {
     const player = this.props.players.get(result.id);
     const playerName = Player.getName(result.id, player);
     const onRowClick = () => {

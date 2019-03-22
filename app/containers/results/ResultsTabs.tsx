@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IMonth } from '../../../server/model/Month';
-import { Result } from '../../../server/model/Result';
+import { Result, RoleResult } from '../../../server/model/Result';
 import { Tabs, Tab } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
@@ -15,10 +15,13 @@ interface Props {
   results: Result[];
   month: IMonth;
 }
-class ResultsTabsInternal extends React.PureComponent<Props, {}> {
+class ResultsTabsInternal extends React.PureComponent<Props> {
   public render() {
     if (this.props.results.length) {
-      const tableTab = this.renderResultsTable();
+      const tableTab = this.renderResultsTable((result) => result.all);
+      const bidderTableTab = this.renderResultsTable((result) => result.bidder);
+      const partnerTableTab = this.renderResultsTable((result) => result.partner);
+      const oppositionTableTab = this.renderResultsTable((result) => result.opposition);
       const graphTab = (
         <ResultsGraphContainer
           monthGames={this.props.month}
@@ -30,6 +33,9 @@ class ResultsTabsInternal extends React.PureComponent<Props, {}> {
         <div className='results-tabs-container'>
           <Tabs id='ResultsTabs' className='player-tabs' renderActiveTabPanelOnly={true}>
             <Tab id='ResultsTableTab' title='Score Chart' panel={tableTab} />
+            <Tab id='BidderResultsTableTab' title='Best Bidder' panel={bidderTableTab} />
+            <Tab id='PartnerResultsTableTab' title='Best Partner' panel={partnerTableTab} />
+            <Tab id='OppositionResultsTableTab' title='Best Opponent' panel={oppositionTableTab} />
             <Tab id='ResultsGraphTab' title='Graph' panel={graphTab} />
           </Tabs>
         </div>
@@ -43,12 +49,15 @@ class ResultsTabsInternal extends React.PureComponent<Props, {}> {
     }
   }
 
-  private renderResultsTable () {
-    const results = Array.from(this.props.results).sort(integerComparator((r: Result) => r.points, 'desc'));
+  private renderResultsTable (accessor: (result: Result) => RoleResult | undefined) {
+    const allRoleResults = this.props.results
+      .map(accessor)
+      .filter((result) => result)
+      .sort(integerComparator((r: RoleResult) => r.points, 'desc')) as RoleResult[];
     return (
       <div className='results-table-container table-container'>
         <ScoreTable
-          results={results}
+          results={allRoleResults}
           players={this.props.players}
           renderDelta={true}
         />

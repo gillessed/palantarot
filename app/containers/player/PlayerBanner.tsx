@@ -16,10 +16,11 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
   public render() {
     const player = this.props.players.get(this.props.playerId)!;
     const playerName = `${player.firstName} ${player.lastName}`;
-    const sortedResults = [...this.props.results].sort((r1: Result, r2: Result) => {
-      if (r1.points > r2.points) {
+    const sortedResults = this.props.results
+      .sort((r1: Result, r2: Result) => {
+      if (r1.all.points > r2.all.points) {
         return -1;
-      } else if (r1.points < r2.points) {
+      } else if (r1.all.points < r2.all.points) {
         return 1;
       } else {
         return 0;
@@ -30,7 +31,7 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
     const rank = rankIndex >= 0 ? rankIndex + 1 : undefined;
     const playerCount = playerOrder.length;
     const playerResult = sortedResults.find((result) => result.id === player.id);
-    const score = playerResult ? playerResult.points : undefined;
+    const score = playerResult ? playerResult.all.points : undefined;
     const rankString = rank ? `${rank} / ${playerCount}` : 'N/A';
     return (
       <div>

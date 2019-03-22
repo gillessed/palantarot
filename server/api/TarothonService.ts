@@ -4,7 +4,7 @@ import { TarothonQuerier } from '../db/TarothonQuerier';
 import { Tarothon, NewTarothon, TarothonData } from '../model/Tarothon';
 import * as _ from 'lodash';
 import { GameQuerier } from '../db/GameQuerier';
-import { Result } from '../model/Result';
+import { Result, RoleResult } from '../model/Result';
 
 export class TarothonService {
   public router: Router;
@@ -24,7 +24,7 @@ export class TarothonService {
   public getTarothonData = (req: Request, res: Response) => {
     const id = req.params['id'];
     this.tarothonDb.getTarothon(id).then((tarothon: Tarothon) => {
-      return this.gameDb.queryResultsBetweenDates(tarothon.begin, tarothon.end).then((results: Result[]) => {
+      return this.gameDb.queryResultsBetweenDates(tarothon.begin, tarothon.end).then((results: RoleResult[]) => {
         const data: TarothonData = {
           properties: tarothon,
           results,

@@ -5,7 +5,7 @@ import { pageCache } from '../pageCache/PageCache';
 import { tarothonDataLoader } from '../../services/tarothonData';
 import { convertToMomenthon, getDateStrings, Momenthon } from '../../services/tarothonData/transform';
 import { integerComparator } from '../../../server/utils';
-import { Result } from '../../../server/model/Result';
+import { Result, RoleResult } from '../../../server/model/Result';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
 import { Player } from '../../../server/model/Player';
 import { playersLoader } from '../../services/players';
@@ -112,7 +112,9 @@ class TarothonContainerInternal extends React.PureComponent<PropsInternal, State
 
   private renderResults = () => {
     if (this.props.tarothonData.results.length) {
-      const results = Array.from(this.props.tarothonData.results).sort(integerComparator((r: Result) => r.points, 'desc'));
+      const results = 
+        Array.from(this.props.tarothonData.results)
+        .sort(integerComparator((r: RoleResult) => r.points, 'desc'));
       return (
         <div className='results-table-container table-container'>
           <ScoreTable

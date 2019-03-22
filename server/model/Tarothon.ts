@@ -1,4 +1,4 @@
-import { Result } from "./Result";
+import { RoleResult } from "./Result";
 
 export interface NewTarothon {
   begin: string;
@@ -11,5 +11,5 @@ export interface Tarothon extends NewTarothon {
 
 export interface TarothonData {
   properties: Tarothon;
-  results: Result[];
+  results: RoleResult[];
 }

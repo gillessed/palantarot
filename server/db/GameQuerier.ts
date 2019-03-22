@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { QueryBuilder, UpsertBuilder, Queries } from './queryBuilder/QueryBuilder';
 import { GamePartial } from '../model/Game';
 import { MonthlyScore } from '../model/Records';
-import { Result } from '../model/Result';
+import { Result, Role, RoleResult } from '../model/Result';
 import { QueryResult } from 'pg';
 
 export interface RecentGameQuery {
@@ -38,16 +38,20 @@ export class GameQuerier {
     });
   }
 
-  public queryResultsBetweenDates = (startDate: string, endDate: string): Promise<Result[]> => {
+  public queryResultsBetweenDates = (startDate: string, endDate: string, role?: Role): Promise<RoleResult[]> => {
+    const comparison = QueryBuilder.compare()
+      .compare('timestamp', '>=', startDate)
+      .compare('timestamp', '<', endDate);
+    switch (role) {
+      case Role.BIDDER: comparison.compare('was_bidder', '=', 'true'); break;
+      case Role.PARTNER: comparison.compare('was_partner', '=', 'true'); break;
+      case Role.BIDDER: comparison.compare('was_bidder', '=', 'false').compare('was_partner', '=', 'false'); break;
+    }
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
       .c("COUNT(*) as count")
       .c('SUM(points_earned) as sum')
-      .where(
-        QueryBuilder.compare()
-          .compare('timestamp', '>=', startDate)
-          .compare('timestamp', '<', endDate)
-      )
+      .where(comparison)
       .groupBy('player_fk_id');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {

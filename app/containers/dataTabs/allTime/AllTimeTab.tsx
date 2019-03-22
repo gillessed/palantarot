@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { Records } from '../../../../server/model/Records';
-import { Result } from '../../../../server/model/Result';
+import { RoleResult } from '../../../../server/model/Result';
 import { Checkbox } from '@blueprintjs/core';
 import { ScoreTable } from '../../../components/scoreTable/ScoreTable';
 import { RecordsSelectors } from '../../../services/records/selectors';
@@ -31,7 +31,7 @@ class AllTimeTabInternal extends React.PureComponent<Props, State> {
   public render() {
     let results = RecordsSelectors.getTotalScoresFromMonthlyScore(this.props.records.scores);
     if (this.state.filterRecords) {
-      results = results.filter((result: Result) => {
+      results = results.filter((result: RoleResult) => {
         return result.gamesPlayed >= 100;
       });
     }
