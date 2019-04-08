@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IMonth } from '../../../server/model/Month';
-import { Result, RoleResult } from '../../../server/model/Result';
+import { Result, RoleResult, RoleResultRankChange } from '../../../server/model/Result';
 import { Tabs, Tab } from '@blueprintjs/core';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
@@ -42,27 +42,47 @@ class ResultsTabsInternal extends React.PureComponent<Props> {
       );
     } else {
       return (
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 200}}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 200 }}>
           <h4 className='bp3-heading'> No results for this month!</h4>
         </div>
       );
     }
   }
 
-  private renderResultsTable (accessor: (result: Result) => RoleResult | undefined) {
-    const allRoleResults = this.props.results
+  private renderResultsTable(accessor: (result: Result) => RoleResult | undefined) {
+    const roleResults = this.props.results
       .map(accessor)
       .filter((result) => result)
       .sort(integerComparator((r: RoleResult) => r.points, 'desc')) as RoleResult[];
+    const withRankChanges = this.computeRankChanges(roleResults);
     return (
       <div className='results-table-container table-container'>
         <ScoreTable
-          results={allRoleResults}
+          results={withRankChanges}
           players={this.props.players}
-          renderDelta={true}
+          renderDelta
+          renderRankDelta
         />
       </div>
     );
+  }
+
+  private computeRankChanges(results: RoleResult[]): RoleResultRankChange[] {
+    const previousRanks = results
+      .map((result) => ({
+        ...result,
+        points: result.points - (result.delta || 0),
+      }))
+      .sort(integerComparator((r: RoleResult) => r.points, 'desc'));
+    const withRankChanges = results.map((result, index) => {
+      const oldIndex = previousRanks.findIndex((oldResult) => oldResult.id === result.id);
+      if (oldIndex === -1) {
+        return { ...result, rankDelta: 0 };
+      } else {
+        return { ...result, rankDelta: oldIndex - index };
+      }
+    });
+    return withRankChanges;
   }
 }
 

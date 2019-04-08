@@ -11,6 +11,10 @@ export interface RoleResult {
   delta?: number;
 }
 
+export interface RoleResultRankChange extends RoleResult {
+  rankDelta?: number;
+}
+
 export interface Result {
   id: string;
   all: RoleResult;

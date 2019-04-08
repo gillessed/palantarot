@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
-import { Result, RoleResult } from '../../../server/model/Result';
+import { RoleResultRankChange } from '../../../server/model/Result';
 import { DynamicRoutes } from '../../routes';
 import history from '../../history';
 import { HTMLTable } from '@blueprintjs/core';
@@ -8,8 +8,9 @@ import { DeltaIcon } from '../deltaIcon/DeltaIcon';
 
 class Props {
   players: Map<string, Player>;
-  results: RoleResult[];
+  results: RoleResultRankChange[];
   renderDelta?: boolean;
+  renderRankDelta?: boolean;
 }
 
 export class ScoreTable extends React.PureComponent<Props, {}> {
@@ -35,7 +36,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
     );
   }
 
-  private renderResultRow = (result: RoleResult, index: number) => {
+  private renderResultRow = (result: RoleResultRankChange, index: number) => {
     const player = this.props.players.get(result.id);
     const playerName = Player.getName(result.id, player);
     const onRowClick = () => {
@@ -45,7 +46,7 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
     }
     return (
       <tr key={result.id} onClick={onRowClick}>
-        <td className='rank-row'>{index + 1}</td>
+        <td className='rank-row'>{index + 1} {this.renderRankDelta(result.rankDelta)}</td>
         <td>{playerName}</td>
         <td>{result.points} {this.renderDelta(result.delta)}</td>
         <td>{result.gamesPlayed}</td>
@@ -54,10 +55,17 @@ export class ScoreTable extends React.PureComponent<Props, {}> {
     );
   }
 
+  private renderRankDelta(delta?: number) {
+    if (!this.props.renderRankDelta || delta === undefined) {
+      return '';
+    }
+    return <DeltaIcon delta={delta} />;
+  }
+
   private renderDelta = (delta?: number) => {
     if (!this.props.renderDelta || delta === undefined) {
       return '';
     }
-    return <DeltaIcon delta={delta} />;
+    return <DeltaIcon delta={delta} renderZero />;
   }
 }
