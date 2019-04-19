@@ -7,6 +7,7 @@ import { WinPercentagesTab } from '../dataTabs/winPercentages/WinPercentagesTab'
 import { pageCache } from '../pageCache/PageCache';
 import { DeltasTab } from '../dataTabs/deltas/DeltasTab';
 import { BidsTab } from '../dataTabs/bids/BidsTab';
+import { StreaksTab } from '../dataTabs/streaks/StreaksTab';
 
 export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
   public render() {
@@ -27,6 +28,7 @@ export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
     const winPercentagesTab = <WinPercentagesTab />;
     const deltasTab = <DeltasTab />;
     const bidsTab = <BidsTab />;
+    const streaksTab = <StreaksTab />;
     return (
       <div className='records-tabs-container'>
         <Tabs id='ResultsTabs' className='records-tabs' renderActiveTabPanelOnly={true}>
@@ -36,6 +38,7 @@ export class RecordsContainerInternal extends React.PureComponent<{}, {}> {
           <Tab id='RecordsWinPercentagesTab' title='Win Percentages' panel={winPercentagesTab} />
           <Tab id='DeltasTab' title='Deltas' panel={deltasTab} />
           <Tab id='BidsTab' title='Bids' panel={bidsTab} />
+          <Tab id='StreaksTab' title='Streaks' panel={streaksTab} />
         </Tabs>
       </div>
     );

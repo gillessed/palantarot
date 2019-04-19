@@ -15,6 +15,7 @@ import { Deltas } from '../../server/model/Delta';
 import history from '../history';
 import { BidRequest, BidStats } from '../../server/model/Bid';
 import { Tarothon, NewTarothon, TarothonData } from '../../server/model/Tarothon';
+import { Streak } from '../../server/model/Streak';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -100,6 +101,10 @@ export class ServerApi {
 
   public deleteTarothon = (request: string): Promise<void> => {
     return this.wrapPost('/tarothon/delete', { id: request });
+  }
+
+  public getStreaks = (): Promise<Streak[]> => {
+    return this.wrapGet('/stats/streaks');
   }
 
   // Helpers

@@ -4,6 +4,7 @@ import { Stat, Stats } from '../model/Stats';
 import { Delta, Deltas } from '../model/Delta';
 import { BidStats } from '../model/Bid';
 import { QueryResult } from 'pg';
+import { Streak } from '../model/Streak';
 
 export class StatsQuerier {
   private db: Database;
@@ -152,6 +153,19 @@ export class StatsQuerier {
           won: agg[8],
           lost: agg[9],
         },
+      };
+    });
+  }
+
+  public getStreak = (playerId: string, win: boolean): Promise<Streak> => {
+    return this.db.query('SELECT getStreak($1, $2)', [playerId, win]).then((result: QueryResult) => {
+      const raw = result.rows[0]['getstreak'].replace('(', '').replace(')', '');
+      const [lastGameId, gameCount] = raw.split(',');
+      return {
+        playerId,
+        gameCount: +gameCount,
+        lastGameId,
+        win,
       };
     });
   }

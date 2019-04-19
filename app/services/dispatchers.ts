@@ -19,6 +19,7 @@ import { TarothonsDispatcher } from './tarothons/index';
 import { AddTarothonDispatcher } from './addTarothon/index';
 import { DeleteTarothonDispatcher } from './deleteTarothon/index';
 import { TarothonDataDispatcher } from './tarothonData';
+import { StreaksDispatcher } from './streaks/index';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
@@ -37,6 +38,7 @@ export interface Dispatchers {
   results: ResultsDispatcher;
   saveGame: SaveGameDispatcher;
   stats: StatsDispatcher;
+  streaks: StreaksDispatcher;
   tarothonData: TarothonDataDispatcher;
   tarothons: TarothonsDispatcher;
 }
@@ -120,6 +122,15 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
       {
         caching: {
           accessor: (state: ReduxState) => state.stats,
+          isCached: CacheFunction.pageCache(),
+        }
+      }
+    ),
+    streaks: new StreaksDispatcher(
+      store,
+      {
+        caching: {
+          accessor: (state: ReduxState) => state.streaks,
           isCached: CacheFunction.pageCache(),
         }
       }

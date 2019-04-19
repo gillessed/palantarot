@@ -1,0 +1,10 @@
+.all-streaks-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  & > * {
+    flex: 1;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}

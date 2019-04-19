@@ -4,17 +4,23 @@ import { StatsQuerier } from '../db/StatsQuerier';
 import { Stats } from '../model/Stats';
 import { Deltas } from '../model/Delta';
 import { BidRequest, BidStats } from '../model/Bid';
+import { PlayerQuerier } from '../db/PlayerQuerier';
+import { Streak } from '../model/Streak';
+import { Player } from '../model/Player';
 
 export class StatsService {
   public router: Router;
   private statsDb: StatsQuerier;
+  private playerDb: PlayerQuerier;
 
   constructor(db: Database) {
     this.router = Router();
     this.statsDb = new StatsQuerier(db);
+    this.playerDb = new PlayerQuerier(db);
     this.router.get('/', this.getStats);
     this.router.post('/deltas', this.getDeltas);
     this.router.post('/bids', this.getBids);
+    this.router.get('/streaks', this.getStreaks);
   }
 
   // API
@@ -47,6 +53,21 @@ export class StatsService {
       res.send(bids);
     }).catch((error: any) => {
       res.send({ error: `Error getting bid stats: ${error}` });
+    });
+  }
+
+  public getStreaks = (_: Request, res: Response) => {
+    this.playerDb.queryAllPlayers().then((players: Player[]) => {
+      const promises: Promise<Streak>[] = [];
+      for (const player of players) {
+        promises.push(this.statsDb.getStreak(player.id, true));
+        promises.push(this.statsDb.getStreak(player.id, false));
+      }
+      return Promise.all(promises);
+    }).then((streaks: Streak[]) => {
+      res.send(streaks);
+    }).catch((error: any) => {
+      res.send({ error: `Error getting streaks: ${error}` });
     });
   }
 }

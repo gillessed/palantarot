@@ -20,6 +20,7 @@ import { tarothonsSaga } from './tarothons/index';
 import { addTarothonSaga } from './addTarothon/index';
 import { deleteTarothonSaga } from './deleteTarothon/index';
 import { tarothonDataSaga } from './tarothonData';
+import { streaksSaga } from './streaks/index';
 
 export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
   yield [
@@ -44,5 +45,6 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(addTarothonSaga, api),
     fork(deleteTarothonSaga, api),
     fork(tarothonDataSaga, api),
+    fork(streaksSaga, api),
   ];
 }

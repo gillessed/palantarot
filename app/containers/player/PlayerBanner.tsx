@@ -18,14 +18,14 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
     const playerName = `${player.firstName} ${player.lastName}`;
     const sortedResults = this.props.results
       .sort((r1: Result, r2: Result) => {
-      if (r1.all.points > r2.all.points) {
-        return -1;
-      } else if (r1.all.points < r2.all.points) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+        if (r1.all.points > r2.all.points) {
+          return -1;
+        } else if (r1.all.points < r2.all.points) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
     const playerOrder = sortedResults.map((result) => result.id);
     const rankIndex = playerOrder.indexOf(player.id);
     const rank = rankIndex >= 0 ? rankIndex + 1 : undefined;
@@ -37,8 +37,8 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
       <div>
         <div className='player-banner'>
           <div className='player-title-container'>
-            <span><h1 className='bp3-heading'> {playerName}</h1></span>
-            <h6 className='bp3-heading'> Monthly Rank: {rankString}</h6>
+            <span><h1 className='bp3-heading'> {playerName} </h1></span>
+            <h6 className='bp3-heading'> Monthly Rank: {rankString} </h6>
           </div>
           {this.renderScore(score)}
         </div>

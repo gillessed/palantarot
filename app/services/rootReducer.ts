@@ -17,6 +17,7 @@ import { TarothonsService, tarothonsReducer } from './tarothons/index';
 import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
 import { DeleteTarothonService, deleteTarothonReducer } from './deleteTarothon/index';
 import { TarothonDataService, tarothonDataReducer } from './tarothonData';
+import { StreaksService, streaksReducer } from './streaks/index';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -34,6 +35,7 @@ export interface ReduxState {
   results: ResultsService;
   saveGame: SaveGameService;
   stats: StatsService;
+  streaks: StreaksService;
   tarothonData: TarothonDataService;
   tarothons: TarothonsService;
 }
@@ -54,6 +56,7 @@ export const rootReducer = combineReducers({
   results: resultsReducer,
   saveGame: saveGameReducer,
   stats: statsReducer,
+  streaks: streaksReducer,
   tarothonData: tarothonDataReducer,
   tarothons: tarothonsReducer,
 });

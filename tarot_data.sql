@@ -38,3 +38,33 @@ CREATE TABLE tarothon (
     end_date       TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TYPE tuple2 AS (maxCount int, lastId int);
+
+CREATE OR REPLACE FUNCTION getStreak(playerId numeric, win boolean)
+RETURNS tuple2 AS $streak$
+DECLARE
+	gameId integer;
+	counter integer;
+	maxCount integer;
+	maxId integer;
+	r record;
+BEGIN
+	counter := 0;
+	maxCount := 0;
+   	FOR r IN
+		SELECT id, (CASE WHEN SIGN(LAG(points_earned) over ()) IS DISTINCT FROM SIGN(points_earned) OR (points_earned > 0 AND win) OR (points_earned < 0 AND NOT win) THEN FALSE ELSE TRUE END) AS streak FROM player_hand WHERE player_fk_id=playerId
+	LOOP
+	   	IF r.streak THEN
+	   		counter := counter + 1;
+			IF counter > maxCount THEN
+				maxCount := counter;
+				maxId := r.id;
+			END IF;
+		ELSE
+			counter := 0;
+	   	END IF;
+	END LOOP;
+	RETURN (maxId, maxCount);
+END;
+$streak$ LANGUAGE plpgsql;
