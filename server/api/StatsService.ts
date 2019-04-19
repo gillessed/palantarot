@@ -57,11 +57,11 @@ export class StatsService {
   }
 
   public getStreaks = (_: Request, res: Response) => {
-    this.playerDb.queryAllPlayers().then((players: Player[]) => {
+    this.playerDb.getPlayerWithNGames(100).then((playerIds: string[]) => {
       const promises: Promise<Streak>[] = [];
-      for (const player of players) {
-        promises.push(this.statsDb.getStreak(player.id, true));
-        promises.push(this.statsDb.getStreak(player.id, false));
+      for (const id of playerIds) {
+        promises.push(this.statsDb.getStreak(id, true));
+        promises.push(this.statsDb.getStreak(id, false));
       }
       return Promise.all(promises);
     }).then((streaks: Streak[]) => {

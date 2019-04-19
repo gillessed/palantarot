@@ -14,9 +14,7 @@ export class PlayerQuerier {
   // Queries
 
   public queryAllPlayers = (): Promise<Player[]> => {
-    
     const query = QueryBuilder.select('players').star();
-
     return this.db.query(query.getQueryString()).then((result: QueryResult) => {
       return result.rows.map((player: any) => {
         return {
@@ -25,6 +23,23 @@ export class PlayerQuerier {
           lastName: player['last_name'],
         } as Player;
       });
+    });
+  }
+
+  public getPlayerWithNGames = (n: number): Promise<string[]> => {
+    const query = QueryBuilder
+      .select('player_hand')
+      .c('player_fk_id')
+      .c('count(*) as n_games')
+      .groupBy('player_fk_id');
+    return this.db.query(query.getQueryString()).then((result: QueryResult) => {
+      return result.rows.map((player: any) => {
+        if (player['n_games'] > n) {
+          return `${player['player_fk_id']}`;
+        } else {
+          return undefined;
+        }
+      }).filter((id) => id !== undefined) as string[];
     });
   }
 
