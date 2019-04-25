@@ -19,12 +19,14 @@
 @import './containers/gamePlayerInput/GamePlayerInput.scss';
 @import './containers/dataTabs/deltas/DeltaTable.scss';
 @import './containers/dataTabs/streaks/AllStreaksTab.scss';
+@import './containers/dataTabs/bids/BidsTab.scss';
 @import './containers/tarothon/TarothonsContainer.scss';
 @import './containers/tarothon/TarothonContainer.scss';
 @import './components/spinnerOverlay/SpinnerOverlay.scss';
 @import './components/gameTable/GameTable.scss';
 @import './components/forms/GameForm.scss';
 @import './components/forms/AddPlayerForm.scss';
+@import './components/forms/PlayerSelect.scss';
 @import './components/toaster/Toaster.scss';
 @import './components/results/ResultsGraphContainer.scss';
 @import './components/graphs/ResultsGraph.scss';

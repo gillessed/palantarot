@@ -1,24 +1,28 @@
-.bp3-link.add-player-link {
-  margin-left: 10;
-  font-size: 12;
-}
+.player-input-container {
+  .bp3-link.add-player-link {
+    margin-left: 10;
+    font-size: 12;
+  }
 
-.tarot-player-selector-select {
-  width: 100%;
-  select {
+  .player-select-container {
     width: 100%;
+    button, .bp3-popover-wrapper, .bp3-popover-target, .bp3-popover-target > div {
+      width: 100%;
+    }
   }
-}
 
-.player-selector-check-label {
-  font-size: 14;
-}
-
-.player-selector-checkbox-row {
-  display: flex;
-  flex-direction: row;
-  margin-top: 10px;
-  .bp3-checkbox {
-    margin-right: 30px;
+  .player-selector-check-label {
+    font-size: 14;
   }
+
+  .player-selector-checkbox-row {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    .bp3-checkbox {
+      margin-right: 30px;
+    }
+  }
+
+  margin-bottom: 20px;
 }

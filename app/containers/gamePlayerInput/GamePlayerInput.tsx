@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { ReduxState } from '../../services/rootReducer';
 import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
 import { Dispatchers } from '../../services/dispatchers';
+import { PlayerSelectContainer } from '../../components/forms/PlayerSelect';
 
 export interface PlayerState {
   role: string;
@@ -23,6 +24,7 @@ interface OwnProps {
   player: PlayerState;
   label: string;
   recentPlayers?: Player[];
+  selectedPlayers?: Player[];
   players: Player[];
   onChange: (player: PlayerState) => void;
 }
@@ -98,18 +100,18 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
       </p>
     );
     return (
-      <>
+      <div className='player-input-container'>
         <FormGroup
           label={label}
           labelFor='player-selector-element'
           helperText={this.props.player.error}
           intent={this.props.player.error ? Intent.DANGER : Intent.NONE}
         >
-          <div className='bp3-select tarot-player-selector-select'>
-            <select value={this.props.player.player ? this.props.player.player.id : ''} onChange={this.onChange}>
-              {this.renderOptions()}
-            </select>
-          </div>
+          <PlayerSelectContainer
+            recentPlayers={this.props.recentPlayers}
+            onPlayerSelected={this.onSelectPlayer}
+            selectedPlayers={this.props.selectedPlayers}
+          />
         </FormGroup>
         <div className='player-selector-checkbox-row'>
           <Checkbox
@@ -128,36 +130,8 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
           </Checkbox>
         </div>
         {this.renderDialog()}
-      </>
+      </div>
     );
-  }
-
-  private renderOptions(): JSX.Element[] {
-    const elements: JSX.Element[] = [];
-    elements.push(<option key='empty' value=''></option>);
-    if (this.props.recentPlayers) {
-      const recentPlayersGroup = (
-        <optgroup key='opt1' label='Recent Players'>
-          {this.props.recentPlayers.map(this.renderPlayerOption)}
-        </optgroup>
-      );
-      elements.push(recentPlayersGroup);
-      const otherPlayersGroup = (
-        <optgroup key='opt2' label='Others'>
-          {this.props.players.map(this.renderPlayerOption)}
-        </optgroup>
-      );
-      elements.push(otherPlayersGroup);
-    } else {
-      elements.push(...this.props.players.map(this.renderPlayerOption));
-    }
-    return elements;
-  }
-
-  private renderErrorText() {
-    if (this.props.player.error) {
-      return <div className='bp3-form-helper-text'>{this.props.player.error}</div>;
-    }
   }
 
   private renderDialog() {
@@ -200,18 +174,7 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
     });
   }
 
-  private renderPlayerOption(player: Player): JSX.Element {
-    return <option key={player.id} value={player.id}>{player.firstName} {player.lastName}</option>;
-  }
-
-  private onChange = (e: { target: { value: string } }) => {
-    const allPlayers = [...this.props.players];
-    if (this.props.recentPlayers) {
-      allPlayers.push(...this.props.recentPlayers);
-    }
-    const player = allPlayers.find((player: Player) => {
-      return player.id === e.target.value;
-    });
+  private onSelectPlayer = (player: Player | undefined) => {
     this.props.onChange({
       ...this.props.player,
       player,

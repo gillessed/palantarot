@@ -5,6 +5,7 @@ import { SelectInput, PointsInput } from './Elements';
 import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
 import { ButtonGroup, Button, Checkbox, Alignment, Intent } from '@blueprintjs/core';
 import classNames from 'classnames';
+import { createSelector } from 'reselect';
 
 interface Props {
   recentPlayers?: Player[];
@@ -50,6 +51,20 @@ export class GameForm extends React.PureComponent<Props, State> {
       this.state = this.getEmptyState();
     }
   }
+
+  private getSelectedPlayers = createSelector(
+    (state: State) => state.players,
+    (players: {[key: string]: PlayerState }) => {
+      const selectedPlayers: Player[] = [];
+      for (const playerKey of Object.keys(players)) {
+        const state = players[playerKey];
+        if (state && state.player) {
+          selectedPlayers.push(state.player);
+        }
+      }
+      return selectedPlayers;
+    }
+  )
 
   private getStateFromGame(game: Game): State {
     const numberOfPlayers: number = game.numberOfPlayers;
@@ -185,6 +200,7 @@ export class GameForm extends React.PureComponent<Props, State> {
   }
 
   private renderPlayerSelector(playerRole: string) {
+    const selectedPlayers = this.getSelectedPlayers(this.state);
     return (
       <GamePlayerInput
         key={playerRole}
@@ -192,6 +208,7 @@ export class GameForm extends React.PureComponent<Props, State> {
         recentPlayers={this.props.recentPlayers}
         players={this.props.players}
         player={this.state.players[playerRole]}
+        selectedPlayers={selectedPlayers}
         label={`${playerRole}:`}
         onChange={(player: PlayerState) => {
           const newPlayers ={...this.state.players};

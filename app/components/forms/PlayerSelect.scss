@@ -1,0 +1,19 @@
+.player-select-item.selected {
+  background-color: #FFEAD5;
+
+  &:hover {
+    background-color: #FFE3C7;
+  }
+}
+
+.player-select-item.recent {
+  background-color: #CAF1E1;
+
+  &:hover {
+    background-color: #B8ECD7;
+  }
+}
+
+.player-select-item > div {
+  margin-right: 40px;
+}
