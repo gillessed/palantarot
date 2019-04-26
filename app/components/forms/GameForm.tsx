@@ -518,6 +518,6 @@ export class GameForm extends React.PureComponent<Props, State> {
       this.state.points,
       ...this.getActivePlayers().map((name) => this.state.players[name].player),
     ];
-    return values.reduce((previous, current) => current ? previous : previous + 1, 0);
+    return values.reduce((previous, current) => (current !== undefined) ? previous : previous + 1, 0);
   }
 }
