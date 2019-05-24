@@ -111,6 +111,7 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
             recentPlayers={this.props.recentPlayers}
             onPlayerSelected={this.onSelectPlayer}
             selectedPlayers={this.props.selectedPlayers}
+            selectedPlayer={this.props.player.player}
           />
         </FormGroup>
         <div className='player-selector-checkbox-row'>

@@ -15,6 +15,7 @@ interface Props {
   selectedPlayers?: Player[];
   unselectedLabel?: string;
   onPlayerSelected: (player?: Player) => void;
+  selectedPlayer?: Player;
 }
 
 interface State {
@@ -39,7 +40,7 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      selectedPlayer: null,
+      selectedPlayer: this.props.selectedPlayer || null,
     };
     this.unselectedItem = {
       text: this.props.unselectedLabel || '',
