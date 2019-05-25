@@ -6,7 +6,9 @@ import { Deltas } from '../model/Delta';
 import { BidRequest, BidStats } from '../model/Bid';
 import { PlayerQuerier } from '../db/PlayerQuerier';
 import { Streak } from '../model/Streak';
-import { Player } from '../model/Player';
+import { GameQuerier } from '../db/GameQuerier';
+import { PointFlowRequest, PointDelta, getPointDeltas, PointFlow } from '../model/PointFlow';
+import { IMonth } from '../model/Month';
 
 export class StatsService {
   public router: Router;

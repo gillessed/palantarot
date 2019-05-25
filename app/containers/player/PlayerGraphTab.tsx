@@ -10,6 +10,7 @@ import { playersLoader } from '../../services/players';
 import { monthGamesLoader } from '../../services/monthGames/index';
 import { Dispatchers } from '../../services/dispatchers';
 import { Button } from '@blueprintjs/core';
+import { MonthPicker } from '../../components/monthPicker/MonthPicker';
 
 interface InternalProps {
   playerId: string;
@@ -23,12 +24,12 @@ class PlayerGraphTabInternal extends PureComponent<InternalProps, {}> {
   public render() {
     return (
       <>
-          {this.props.monthGames.length >= 1 && this.renderChart()}
-          {this.props.monthGames.length === 0 && this.renderEmpty()}
+        {this.props.monthGames.length >= 1 && this.renderChart()}
+        {this.props.monthGames.length === 0 && this.renderEmpty()}
       </>
     );
   }
-  
+
   private renderChart() {
     const games = this.props.monthGames;
     const player = this.props.players.get(this.props.playerId);
@@ -85,8 +86,11 @@ export class PlayerGraphTab extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div style={{display: 'flex', flexDirection: 'column'}}>
-        {this.renderHeader()}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <MonthPicker
+          month={this.state.month}
+          onMonthUpdated={this.onMonthUpdated}
+        />
         <div className='player-graph-container'>
           <PlayerGraphTabLoader
             playerId={this.props.playerId}
@@ -98,48 +102,7 @@ export class PlayerGraphTab extends React.PureComponent<Props, State> {
     );
   }
 
-  private renderHeader() {
-    const zeroPadMonth = `00${this.state.month.month + 1}`.slice(-2);
-    return (
-        <div className='player-graph-header'>
-          <Button
-            icon='chevron-left'
-            large
-            onClick={this.previousMonth}
-          />
-          <div className='title'>
-            <h1 className='bp3-heading' style={{textAlign: 'center'}}>
-              Results for {this.state.month.year}/{zeroPadMonth}
-            </h1>
-          </div>
-          <Button
-            icon='chevron-left'
-            large
-            onClick={this.nextMonth}
-            disabled={this.isCurrentMonth()}
-          />
-        </div>
-    );
-  }
-
-  private isCurrentMonth() {
-    return moment().year() === this.state.month.year && moment().month() === this.state.month.month;
-  }
-
-  private previousMonth = () => {
-    const previousMonth = this.state.month.previous();
-    this.setState({
-      month: previousMonth,
-    });
-  }
-
-  private nextMonth = () => {
-    if (this.isCurrentMonth()) {
-      return;
-    }
-    const nextMonth = this.state.month.next();
-    this.setState({
-      month: nextMonth,
-    });
+  private onMonthUpdated = (month: IMonth) => {
+    this.setState({ month });
   }
 }

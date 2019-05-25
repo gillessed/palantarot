@@ -53,6 +53,10 @@ export class IMonth implements Month {
     return IMonth.get({ month: nextMonth, year: nextMonth == 0 ? this.year + 1 : this.year });
   }
 
+  public simpleObject(): Month {
+    return { month: this.month, year: this.year };
+  }
+
   public static n(m: number, y: number) {
     return IMonth.get(new IMonth({ month: m, year: y }));
   }
@@ -88,4 +92,13 @@ export class IMonth implements Month {
       )(map(t1), map(t2));
     };
   }
+
+  public static convertToSql(date: Month): string {
+    const month = `00${date.month + 1}`.slice(-2);
+    const dateString = `${date.year}-${month}-01`;
+    // Lock months to Western time.
+    return moment.tz(dateString, IMonth.westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+  }
+
+  public static westernTimezone = 'America/Los_Angeles';
 }

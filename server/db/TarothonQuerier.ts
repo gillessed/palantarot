@@ -16,7 +16,7 @@ export class TarothonQuerier {
   public getTarothon = (id: string): Promise<Tarothon> => {
     const sqlQuery = QueryBuilder.select('tarothon')
       .star()
-      .where(QueryBuilder.compare().compare('id', '=', id));
+      .where(QueryBuilder.compare().compareValue('id', '=', id));
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.toTarothon(result.rows[0]);
@@ -45,13 +45,13 @@ export class TarothonQuerier {
     const sqlQuery = QueryBuilder.update('tarothon')
       .v('begin_date', data.begin)
       .v('end_date', data.end)
-      .where(QueryBuilder.compare().compare('id', '=', data.id));
+      .where(QueryBuilder.compare().compareValue('id', '=', data.id));
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues());
   }
 
   public deleteTarothon = (id: string): Promise<any> => {
     const sqlQuery = QueryBuilder.delete('tarothon')
-      .where(QueryBuilder.compare().compare('id', '=', id));
+      .where(QueryBuilder.compare().compareValue('id', '=', id));
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues());
   }
 

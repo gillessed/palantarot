@@ -30,7 +30,7 @@ export class GameQuerier {
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id'),
       )
       .where(
-        QueryBuilder.compare().compare('hand.id', '=', gameId),
+        QueryBuilder.compare().compareValue('hand.id', '=', gameId),
       );
     
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
@@ -40,12 +40,12 @@ export class GameQuerier {
 
   public queryResultsBetweenDates = (startDate: string, endDate: string, role?: Role): Promise<RoleResult[]> => {
     const comparison = QueryBuilder.compare()
-      .compare('timestamp', '>=', startDate)
-      .compare('timestamp', '<', endDate);
+      .compareValue('timestamp', '>=', startDate)
+      .compareValue('timestamp', '<', endDate);
     switch (role) {
-      case Role.BIDDER: comparison.compare('was_bidder', '=', 'true'); break;
-      case Role.PARTNER: comparison.compare('was_partner', '=', 'true'); break;
-      case Role.OPPOSITION: comparison.compare('was_bidder', '=', 'false').compare('was_partner', '=', 'false'); break;
+      case Role.BIDDER: comparison.compareValue('was_bidder', '=', 'true'); break;
+      case Role.PARTNER: comparison.compareValue('was_partner', '=', 'true'); break;
+      case Role.OPPOSITION: comparison.compareValue('was_bidder', '=', 'false').compareValue('was_partner', '=', 'false'); break;
     }
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('player_fk_id')
@@ -77,7 +77,7 @@ export class GameQuerier {
           .subselect('player_hand', 'p')
           .star()
           .where(
-            QueryBuilder.compare().compare('player_fk_id', '=', query.player)
+            QueryBuilder.compare().compareValue('player_fk_id', '=', query.player)
           )
           .orderBy('timestamp', 'desc')
           .limit(query.count, query.offset),
@@ -111,17 +111,19 @@ export class GameQuerier {
   /**
    * This is an expensive function... call at your own peril
    */
-  public queryGamesBetweenDates = (startDate: string, endDate: string): Promise<Game[]> => {
+  public queryGamesBetweenDates = (startDate: string, endDate: string, playerId?: string): Promise<Game[]> => {
+    const comparison = QueryBuilder.compare()
+      .compareValue('hand.timestamp', '>=', startDate)
+      .compareValue('hand.timestamp', '<', endDate);
+    if (playerId) {
+      comparison.columnIn('hand.id', QueryBuilder.select('player_hand').c('hand_fk_id'));
+    }
     const sqlQuery = QueryBuilder.select('hand')
       .star()
       .join('player_hand', 'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
-      .where(
-        QueryBuilder.compare()
-          .compare('hand.timestamp', '>=', startDate)
-          .compare('hand.timestamp', '<', endDate)
-      )
+      .where(comparison)
       .orderBy('hand.timestamp');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
@@ -139,7 +141,7 @@ export class GameQuerier {
     if (game.id) {
       timestamp = moment(game.timestamp).utc().format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.update('hand')
-        .where(QueryBuilder.compare().compare('id', '=', game.id));
+        .where(QueryBuilder.compare().compareValue('id', '=', game.id));
     } else {
       timestamp = moment().utc().format('YYYY-MM-DD HH:mm:ss');
       upsertHandSqlQuery = QueryBuilder.insert('hand')
@@ -160,7 +162,7 @@ export class GameQuerier {
         // If the game has an id, we are updating, so delete the old hands so we can add the new ones.
         const deleteOldHandsSqlQuery = QueryBuilder.delete('player_hand')
           .where(
-            QueryBuilder.compare().compare('hand_fk_id', '=', game.id),
+            QueryBuilder.compare().compareValue('hand_fk_id', '=', game.id),
           );
         maybeDelete = transaction.query(deleteOldHandsSqlQuery.getQueryString(), deleteOldHandsSqlQuery.getValues());
       } else {
@@ -197,11 +199,11 @@ export class GameQuerier {
   public deleteGame = (gameId: string): Promise<any> => {
     const deleteHandSqlQuery = QueryBuilder.delete('hand')
       .where(
-        QueryBuilder.compare().compare('id', '=', gameId),
+        QueryBuilder.compare().compareValue('id', '=', gameId),
       );
     const deletePlayerHandsSqlQuery = QueryBuilder.delete('player_hand')
       .where(
-        QueryBuilder.compare().compare('hand_fk_id', '=', gameId),
+        QueryBuilder.compare().compareValue('hand_fk_id', '=', gameId),
       );
 
     return this.db.beginTransaction().then((transaction) => {
@@ -220,7 +222,7 @@ export class GameQuerier {
         QueryBuilder.compare().compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
       )
       .where(
-        QueryBuilder.compare().compare('hand.points', '>=', 260)
+        QueryBuilder.compare().compareValue('hand.points', '>=', 260)
       )
       .orderBy('hand.timestamp', 'desc');
 

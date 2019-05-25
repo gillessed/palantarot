@@ -11,6 +11,8 @@ import { MonthWinsTab } from '../dataTabs/monthWins/MonthWinsTab';
 import { DeltasTab } from '../dataTabs/deltas/DeltasTab';
 import { BidsTab } from '../dataTabs/bids/BidsTab';
 import { StreaksTab } from '../dataTabs/streaks/StreaksTab';
+import { PointFlow } from '../../../server/model/PointFlow';
+import { PointFlowTab } from '../pointFlow/PointFlowTab';
 
 interface Props {
   match: {
@@ -30,6 +32,7 @@ class PlayerContainerInternal extends React.PureComponent<Props, {}> {
     const deltasTab = <DeltasTab playerId={playerId} />;
     const bidsTab = <BidsTab playerId={playerId} />;
     const streaksTab = <StreaksTab playerId={playerId} />;
+    const pointFlowTab = <PointFlowTab playerId={playerId} />;
 
     return (
       <div className='player-view-container page-container'>
@@ -42,6 +45,7 @@ class PlayerContainerInternal extends React.PureComponent<Props, {}> {
           <Tab id='PlayerDeltasTab' title='Deltas' panel={deltasTab} />
           <Tab id='PlayerBidsTab' title='Bids' panel={bidsTab} />
           <Tab id='PlayerStreaksTab' title='Streaks' panel={streaksTab} />
+          <Tab id='PointFlowTab' title='Point Flow' panel={pointFlowTab} />
         </Tabs>
       </div>
     );

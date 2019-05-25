@@ -22,6 +22,7 @@
 @import './containers/dataTabs/bids/BidsTab.scss';
 @import './containers/tarothon/TarothonsContainer.scss';
 @import './containers/tarothon/TarothonContainer.scss';
+@import './containers/pointFlow/PointFlow.scss';
 @import './components/spinnerOverlay/SpinnerOverlay.scss';
 @import './components/gameTable/GameTable.scss';
 @import './components/forms/GameForm.scss';
@@ -34,6 +35,7 @@
 @import './components/scoreTable/ScoreTable.scss';
 @import './components/deltaIcon/DeltaIcon.scss';
 @import './components/tarothon/TarothonForm.scss';
+@import './components/monthPicker/MonthPicker.scss';
 
 .title {
   display: flex;

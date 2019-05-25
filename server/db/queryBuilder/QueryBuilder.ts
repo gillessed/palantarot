@@ -319,7 +319,7 @@ class ComparisonBuilder implements ConditionBuilder {
   private clauses: string[] = [];
   private values: any[] = [];
 
-  public compare(column: string, comparator: Comparator, value: any): ComparisonBuilder {
+  public compareValue(column: string, comparator: Comparator, value: any): ComparisonBuilder {
     let clause = column;
     clause += ' '
     clause += comparator;
@@ -336,6 +336,19 @@ class ComparisonBuilder implements ConditionBuilder {
     clause += ' ';
     clause += column2;
     this.clauses.push(clause);
+    return this;
+  }
+
+  public columnIn(column: string, subselect: SelectBuilder): ComparisonBuilder {
+    this.clauses.push(`${column} IN (${subselect.getQueryString()})`)
+    this.values.push(...subselect.getValues());
+    return this;
+  }
+
+  public valueIn(value: any, subselect: SelectBuilder): ComparisonBuilder {
+    this.clauses.push(`? IN (${subselect.getQueryString()})`)
+    this.values.push(value);
+    this.values.push(...subselect.getValues());
     return this;
   }
 

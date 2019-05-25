@@ -5,6 +5,7 @@ import { Delta, Deltas } from '../model/Delta';
 import { BidStats } from '../model/Bid';
 import { QueryResult } from 'pg';
 import { Streak } from '../model/Streak';
+import { GameQuerier } from './GameQuerier';
 
 export class StatsQuerier {
   private db: Database;
@@ -43,7 +44,7 @@ export class StatsQuerier {
       .c('COUNT(*) as wc')
       .c('SUM(points_earned) as ws')
       .where(
-        QueryBuilder.compare().compare('points_earned', '>=', '0')
+        QueryBuilder.compare().compareValue('points_earned', '>=', '0')
       )
       .groupBy('player_fk_id', 'h_year', 'h_month', 'was_bidder', 'was_partner');
       
@@ -98,7 +99,7 @@ export class StatsQuerier {
       .c(Queries.selectMonth())
       .c(Queries.selectDay())
       .c('SUM(points_earned) AS delta')
-      .where(QueryBuilder.compare().compare('player_fk_id', '=', playerId))
+      .where(QueryBuilder.compare().compareValue('player_fk_id', '=', playerId))
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
     return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
@@ -174,11 +175,11 @@ export class StatsQuerier {
 
   private bidQuery = (bidAmount: number, won: boolean, playerId?: string): Promise<number> => {
     const comparison = QueryBuilder.compare()
-      .compare('points_earned', won ? '>=' : '<', 0)
-      .compare('was_bidder', '=', true)
-      .compare('bid_amt', '=', bidAmount);
+      .compareValue('points_earned', won ? '>=' : '<', 0)
+      .compareValue('was_bidder', '=', true)
+      .compareValue('bid_amt', '=', bidAmount);
     if (playerId) {
-      comparison.compare('player_fk_id', '=', playerId);
+      comparison.compareValue('player_fk_id', '=', playerId);
     }
     const sqlQuery = QueryBuilder.select('player_hand')
       .c('COUNT(*) as count')

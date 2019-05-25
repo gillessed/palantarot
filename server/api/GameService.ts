@@ -8,8 +8,6 @@ import moment from 'moment-timezone';
 import { RecentGameQuery } from '../db/GameQuerier';
 import { Records } from '../model/Records';
 
-const westernTimezone = 'America/Los_Angeles';
-
 export class GameService {
   public router: Router;
   private gameDb: GameQuerier;
@@ -38,9 +36,9 @@ export class GameService {
       res.send({ error });
     }
 
-    const startDate = this.convertToSql(month);
-    const endDate = this.convertToSql(month.next());
-    const deltaCutoff = moment.tz(westernTimezone).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
+    const startDate = IMonth.convertToSql(month);
+    const endDate = IMonth.convertToSql(month.next());
+    const deltaCutoff = moment.tz(IMonth.westernTimezone).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
 
     try {
       const allResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff);
@@ -109,8 +107,8 @@ export class GameService {
       endDateString: string,
     };
 
-    const startDate = moment.tz(body.startDateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
-    const endDate = moment.tz(body.endDateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+    const startDate = moment.tz(body.startDateString, IMonth.westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+    const endDate = moment.tz(body.endDateString, IMonth.westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
 
     this.gameDb.queryGamesBetweenDates(startDate, endDate).then((results: Game[]) => {
       res.send(results);
@@ -128,8 +126,8 @@ export class GameService {
       res.send({ error });
     }
 
-    const startDate = this.convertToSql(month);
-    const endDate = this.convertToSql(month.next());
+    const startDate = IMonth.convertToSql(month);
+    const endDate = IMonth.convertToSql(month.next());
 
     this.gameDb.queryGamesBetweenDates(startDate, endDate).then((results: Game[]) => {
       res.send(results);
@@ -188,11 +186,4 @@ export class GameService {
   }
 
   // Helpers
-
-  private convertToSql(date: Month): string {
-    const month = `00${date.month + 1}`.slice(-2);
-    const dateString = `${date.year}-${month}-01`;
-    // Lock months to Western time.
-    return moment.tz(dateString, westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
-  }
 }``

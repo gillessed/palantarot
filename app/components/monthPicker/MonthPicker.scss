@@ -1,0 +1,10 @@
+.month-picker {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  > .title > h1 {
+    text-align: center;
+  }
+}

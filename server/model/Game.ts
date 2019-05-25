@@ -26,3 +26,9 @@ export interface PlayerHand {
   showedTrump: boolean;
   oneLast: boolean;
 }
+
+export function playerInGame(playerId: string, game: Game): boolean {
+  return game.handData.bidder.id === playerId ||
+    (game.handData.partner && game.handData.partner.id === playerId) ||
+    !!game.handData.opposition.find((handData) => handData.id === playerId);
+}
