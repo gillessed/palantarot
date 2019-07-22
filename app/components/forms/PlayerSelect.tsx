@@ -1,43 +1,47 @@
+import { Button, MenuItem } from '@blueprintjs/core';
+import { ItemRenderer, Select } from '@blueprintjs/select';
+import classNames from 'classnames';
 import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { Select, ItemRenderer } from '@blueprintjs/select';
 import { createSelector } from 'reselect';
-import { MenuItem, Button, Classes, HTMLTable, Spinner } from '@blueprintjs/core';
+import { Player } from '../../../server/model/Player';
 import { loadContainer } from '../../containers/LoadingContainer';
 import { playersLoader } from '../../services/players/index';
-import classNames from 'classnames';
+import { findMatches } from '../../utils/stringMatch';
 
-const PlayerSelectInput = Select.ofType<Item>();
+const PlayerSelectInput = Select.ofType<PlayerSelect.Item>();
 
-interface Props {
-  players: Map<string, Player>;
-  recentPlayers?: Player[];
-  selectedPlayers?: Player[];
-  unselectedLabel?: string;
-  onPlayerSelected: (player?: Player) => void;
-  selectedPlayer?: Player;
+export namespace PlayerSelect {
+  export interface Props {
+    players: Map<string, Player>;
+    recentPlayers?: Player[];
+    selectedPlayers?: Player[];
+    unselectedLabel?: string;
+    onPlayerSelected: (player?: Player) => void;
+    selectedPlayer?: Player;
+  }
+
+  export interface State {
+    selectedPlayer: Player | null;
+  }
+
+  export interface Item {
+    text: string;
+    activatible?: boolean;
+    selects?: Player | null;
+    recent?: boolean;
+    queryText: string;
+    hightlights?: [number, number][];
+  }
 }
 
-interface State {
-  selectedPlayer: Player | null;
-}
-
-interface Item {
-  text: string;
-  activatible?: boolean;
-  selects?: Player | null;
-  recent?: boolean;
-  queryText: string;
-}
-
-const NO_FILTER_ITEM: Item = {
+const NO_FILTER_ITEM: PlayerSelect.Item = {
   text: 'Search for a player...',
   queryText: '',
 };
 
-export class PlayerSelect extends React.PureComponent<Props, State> {
-  private unselectedItem: Item;
-  constructor(props: Props) {
+export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, PlayerSelect.State> {
+  private unselectedItem: PlayerSelect.Item;
+  constructor(props: PlayerSelect.Props) {
     super(props);
     this.state = {
       selectedPlayer: this.props.selectedPlayer || null,
@@ -54,7 +58,7 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
     (playerMap: Map<string, Player>) => playerMap,
     (playerMap: Map<string, Player>) => {
       const players: Array<Player> = Array.from(playerMap.values());
-      const items: Item[] = players.map((p) => {
+      const items: PlayerSelect.Item[] = players.map((p) => {
         const text = `${p.firstName} ${p.lastName}`;
         return {
           text,
@@ -101,8 +105,7 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
     );
   }
 
-  private queryPlayers = (query: string, items: Item[]): Item[] => {
-    const lowerCaseQuery = query.toLowerCase();
+  private queryPlayers = (query: string, items: PlayerSelect.Item[]): PlayerSelect.Item[] => {
     if (query === '') {
       const start = this.props.unselectedLabel ? [
         this.unselectedItem,
@@ -111,22 +114,7 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
       start.push(...items.filter((item) => item.recent));
       return start;
     }
-    const startsWith: Item[] = [];
-    const substring: Item[] = [];
-    items.map((item: Item) => {
-      if (item.queryText === 'alex baker' && lowerCaseQuery === 'alex b') {
-        console.log('match?: ', item.queryText.startsWith(lowerCaseQuery));
-      }
-      if (item.queryText.startsWith(lowerCaseQuery)) {
-        startsWith.push(item);
-      } else if (item.queryText.indexOf(lowerCaseQuery) >= 0) {
-        substring.push(item);
-      }
-    });
-    const filtered = [
-      ...startsWith,
-      ...substring,
-    ];
+    const filtered = findMatches(query, items);
     if (this.props.unselectedLabel) {
       filtered.unshift(this.unselectedItem);
     }
@@ -144,7 +132,7 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderItem: ItemRenderer<Item> = (item, { handleClick, modifiers }) => {
+  private renderItem: ItemRenderer<PlayerSelect.Item> = (item, { handleClick, modifiers }) => {
     const recent = !!item.recent;
     const selectedPlayers = this.props.selectedPlayers;
     const selects = item.selects;
@@ -155,19 +143,45 @@ export class PlayerSelect extends React.PureComponent<Props, State> {
     });
     const label = selected ? 'Selected' :
       recent ? 'Recent' : undefined;
+    const text = item.hightlights ? this.renderHightlights(item.text, item.hightlights) : item.text;
     return (
       <MenuItem
         className={classes}
         disabled={item.selects === undefined}
         key={item.text}
-        text={item.text}
+        text={text}
         label={label}
         onClick={handleClick}
       />
     );
   }
 
-  private onPlayerSelected = (item: Item) => {
+  private renderHightlights = (text: string, highlights: [number, number][]) => {
+    console.log(highlights);
+    const nodes: JSX.Element[] = [];
+    let startText = highlights[0][0] > 0 ? text.substring(0, highlights[0][0]) : undefined;
+    if (startText !== undefined) {
+      nodes.push(<span key='start'>{startText}</span>);
+    }
+    for (let hightlightIndex = 0; hightlightIndex < highlights.length; hightlightIndex++) {
+      const highlighted = text.substring(highlights[hightlightIndex][0], highlights[hightlightIndex][1] + 1);
+      nodes.push(<span className='highlighted' key={`h-${hightlightIndex}`}>{highlighted}</span>);
+      if (hightlightIndex < highlights.length - 1) {
+      const unhighlighted = text.substring(highlights[hightlightIndex][1] + 1, highlights[hightlightIndex + 1][0]);
+      nodes.push(<span key={`u-${hightlightIndex}`}>{unhighlighted}</span>);
+      } else if (highlights[hightlightIndex][1] < text.length) {
+        const unhighlighted = text.substring(highlights[hightlightIndex][1] + 1, text.length);
+        nodes.push(<span key={`u-${hightlightIndex}`}>{unhighlighted}</span>);
+      }
+    }
+    return (
+      <span className='hightlighted-match'>
+        {nodes}
+      </span>
+    );
+  }
+
+  private onPlayerSelected = (item: PlayerSelect.Item) => {
     if (item.selects !== undefined) {
       this.setState({
         selectedPlayer: item.selects,

@@ -1,9 +1,10 @@
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
+import { all } from 'redux-saga/effects';
 import { Game } from '../../../server/model/Game';
-import { takeEveryTyped, createSagaPropertyOperation } from '../redux/serviceSaga';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { Loadable } from '../redux/loadable';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { createSagaPropertyOperation, takeEveryTyped } from '../redux/serviceSaga';
+import { ServerApi } from './../../api/serverApi';
 
 export type SaveGameService = Loadable<Game, void>;
 
@@ -21,10 +22,10 @@ export type SaveGameDispatcher = PropertyDispatcher<Game>;
 export const saveGameReducer = saveGameService.reducer.build();
 
 export const saveGameSaga = function* (api: ServerApi) {
-  yield [
+  yield all([
     takeEveryTyped(
       saveGameActions.request,
       createSagaPropertyOperation(saveGameOperation(api), saveGameActions),
     )
-  ];
+  ]);
 }
