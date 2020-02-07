@@ -5,32 +5,38 @@ import { Loadable, LoadableCache } from './loadable';
 import { Month, IMonth } from '../../../server/model/Month';
 import * as _ from 'lodash';
 import { debounce } from 'plottable/build/src/utils/windowUtils';
+import { DefaultArgToKey } from '../loader';
 
-export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceActions<ARG, RESULT>) {
+export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
     private debounce: number;
-    private caching?: ServiceCachingState<ARG, RESULT>;
+    private caching?: ServiceCachingState<KEY, RESULT>;
+    private argToKey: (arg: ARG) => KEY;
     constructor(
       private readonly store: Store<ReduxState>,
       options?: {
-        caching?: ServiceCachingState<ARG, RESULT>,
+        caching?: ServiceCachingState<KEY, RESULT>,
         debounce?: number,
+        argToKey?: (arg: ARG) => KEY,
       }
     ) {
       this.debounce = 0;
       if (options) {
         this.debounce = options.debounce || 0;
         this.caching = options.caching;
+        this.argToKey = options.argToKey ?? DefaultArgToKey;
       }
     }
 
     public request(args: ARG[], force?: boolean) {
+      console.log('***** request',args);
       let uncachedArgs = Array.from(args);
       if (this.caching) {
         const { isCached } = this.caching;
         const state = this.caching.accessor(this.store.getState());
         uncachedArgs = uncachedArgs.filter((arg: ARG) => {
-          return !isCached(arg, state.get(arg)) || force;
+          const key = this.argToKey(arg);
+          return !isCached(key, state.get(key)) || force;
         });
       }
       if (uncachedArgs.length >= 1) {
@@ -110,35 +116,35 @@ export interface PropertyDispatcher<ARG> {
     clear(): void;
 }
 
-export type CacheFunction<ARG, RESULT> = (arg: ARG, loadable?: Loadable<ARG, RESULT>) => boolean;
+export type CacheFunction<KEY, RESULT> = (arg: KEY, loadable?: Loadable<KEY, RESULT>) => boolean;
 
-export interface ServiceCachingState<ARG, RESULT> {
-  accessor: (state: ReduxState) => LoadableCache<ARG, RESULT>,
-  isCached: CacheFunction<ARG, RESULT>,
+export interface ServiceCachingState<KEY, RESULT> {
+  accessor: (state: ReduxState) => LoadableCache<KEY, RESULT>,
+  isCached: CacheFunction<KEY, RESULT>,
 }
 
-export interface PropertyCachingState<ARG, RESULT> {
-  accessor: (state: ReduxState) => Loadable<ARG, RESULT>,
-  isCached: CacheFunction<ARG, RESULT>,
+export interface PropertyCachingState<KEY, RESULT> {
+  accessor: (state: ReduxState) => Loadable<KEY, RESULT>,
+  isCached: CacheFunction<KEY, RESULT>,
 }
 
 export namespace CacheFunction {
-  export function loading<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
-    return (_: ARG, loadable?: Loadable<ARG, RESULT>) => loadable ? loadable.loading : false;
+  export function loading<KEY, RESULT>(): CacheFunction<KEY, RESULT> {
+    return (_: KEY, loadable?: Loadable<KEY, RESULT>) => loadable ? loadable.loading : false;
   }
 
-  export function pageCache<ARG, RESULT>(): CacheFunction<ARG, RESULT> {
-    return (arg: ARG, loadable?: Loadable<ARG, RESULT>) => {
+  export function pageCache<KEY, RESULT>(): CacheFunction<KEY, RESULT> {
+    return (key: KEY, loadable?: Loadable<KEY, RESULT>) => {
       if (!loadable || !loadable.cached) {
         return false;
       }
-      return _.isEqual(arg, loadable.key) && loadable.value !== undefined;
+      return _.isEqual(key, loadable.key) && loadable.value !== undefined;
     };
   }
 
   export function notThisMonth<RESULT>(): CacheFunction<Month, RESULT> {
-    return (arg: Month, loadable?: Loadable<Month, RESULT>) => {
-      if (arg === IMonth.now()) {
+    return (key: Month, loadable?: Loadable<Month, RESULT>) => {
+      if (key === IMonth.now()) {
         return false;
       }
       if (loadable && loadable.value) {
@@ -148,8 +154,8 @@ export namespace CacheFunction {
     };
   }
 
-  export function and<ARG, RESULT>(...fs: Array<CacheFunction<ARG, RESULT>>) {
-    return (arg: ARG, loadable?: Loadable<ARG, RESULT>) => {
+  export function and<KEY, RESULT>(...fs: Array<CacheFunction<KEY, RESULT>>) {
+    return (arg: KEY, loadable?: Loadable<KEY, RESULT>) => {
       return fs.map((f) => f(arg, loadable)).reduce(
         (acc, cur) => acc || cur,
         false,

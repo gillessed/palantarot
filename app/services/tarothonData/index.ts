@@ -1,6 +1,6 @@
 import { LoadableCache } from './../redux/loadable';
 import { ServerApi } from './../../api/serverApi';
-import { generateService } from '../redux/serviceGenerator';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
 import { ServiceDispatcher } from '../redux/serviceDispatcher';
 import { ReduxState } from '../rootReducer';
 import { Loader } from '../loader';
@@ -17,7 +17,8 @@ const tarothonDataService = generateService<string, TarothonData>('TAROTHON DATA
         return api.getTarothon(tarothonId);
       })(tarothonIds);
     }
-  }
+  },
+  identityMapper,
 );
 
 export const tarothonDataActions = tarothonDataService.actions;

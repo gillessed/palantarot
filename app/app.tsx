@@ -31,6 +31,7 @@ import { dispatcherCreators } from './services/dispatchers';
 import { ReduxState, rootReducer } from './services/rootReducer';
 import { rootSaga } from './services/rootSaga';
 import { SagaListener } from './services/sagaListener';
+import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -66,6 +67,7 @@ async function init() {
         <Route path='/app/edit/:gameId' component={EditContainer} />
         <Route path='/app/records' component={RecordsContainer} />
         <Route path='/app/search' component={SearchContainer} />
+        <Route path='/app/search-results' component={SearchResultsContainer} />
         <Route path='/app/tarothons' component={TarothonsContainer} />
         <Route path='/app/add-tarothon' component={TarothonFormContainer} />
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />

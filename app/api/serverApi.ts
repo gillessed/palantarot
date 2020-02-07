@@ -16,6 +16,7 @@ import history from '../history';
 import { BidRequest, BidStats } from '../../server/model/Bid';
 import { Tarothon, NewTarothon, TarothonData } from '../../server/model/Tarothon';
 import { Streak } from '../../server/model/Streak';
+import { SearchQuery } from '../../server/model/Search';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -107,6 +108,10 @@ export class ServerApi {
     return this.wrapGet('/stats/streaks');
   }
 
+  public search = (searchQuery: SearchQuery): Promise<Game[]> => {
+    return this.wrapPost('/search', searchQuery);
+  }
+
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
@@ -120,7 +125,7 @@ export class ServerApi {
         }
       } else if (response.status === 403) {
         history.push(StaticRoutes.login());
-        throw new Error('Unauthaurized');
+        throw new Error('Unauthorized');
       } else {
         throw new Error(response.problem);
       }
@@ -138,7 +143,7 @@ export class ServerApi {
         }
       } else if (response.status === 403) {
         history.push(StaticRoutes.login());
-        throw new Error('Unauthaurized');
+        throw new Error('Unauthorized');
       } else {
         throw new Error(response.problem);
       }

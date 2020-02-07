@@ -1,6 +1,6 @@
 import { ServerApi } from './../../api/serverApi';
 import { Game } from './../../../server/model/Game';
-import { generateService } from '../redux/serviceGenerator';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
 import { Month } from '../../../server/model/Month';
 import { LoadableCache } from '../redux/loadable';
 import { ServiceDispatcher } from '../redux/serviceDispatcher';
@@ -20,7 +20,8 @@ const monthGamesService = generateService<Month, Game[]>('MONTH_GAMES',
         });
       })(months);
     }
-  }
+  },
+  identityMapper,
 );
 
 export const monthGamesActions = monthGamesService.actions;

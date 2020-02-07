@@ -13,6 +13,7 @@ import { TarothonService } from './api/TarothonService';
 import { Config } from './config';
 import { Database } from './db/dbConnector';
 import { WebsocketManager } from './websocket/WebsocketManager';
+import { SearchService } from './api/SearchService';
 
 
 const oneDayMs = 1000 * 60 * 60 * 24;
@@ -114,6 +115,9 @@ export class App {
 
     const tarothonService = new TarothonService(this.db);
     this.express.use('/api/v1/tarothon', tarothonService.router);
+
+    const searchService = new SearchService(this.db);
+    this.express.use('/api/v1/search', searchService.router);
   }
  
   private redirectRoute() {

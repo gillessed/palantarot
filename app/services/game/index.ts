@@ -1,7 +1,7 @@
 import { Game } from './../../../server/model/Game';
 import { LoadableCache } from './../redux/loadable';
 import { ServerApi } from './../../api/serverApi';
-import { generateService } from '../redux/serviceGenerator';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
 import { ServiceDispatcher } from '../redux/serviceDispatcher';
 import { wrapAsBatchCall } from '../redux/utils';
 
@@ -14,7 +14,8 @@ const gameService = generateService<string, Game>('GAMES',
         return api.loadGame(gameId);
       })(gameIds);
     }
-  }
+  },
+  identityMapper,
 );
 
 export const gameActions = gameService.actions;

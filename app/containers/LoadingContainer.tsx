@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Loaders, Loader } from '../services/loader';
+import { Loaders, Loader, DefaultArgToKey } from '../services/loader';
 import { ReduxState } from '../services/rootReducer';
 import { connect } from 'react-redux';
 import { Loadable } from '../services/redux/loadable';
@@ -86,21 +86,23 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
         let errors: any[] = [];
         let hasLoading = false;
         let undefinedKeys: string[] = [];
-        for (const key in loaders) {
-          delete ownProps[key];
-          if (!this.props[key] || this.props[key].value === undefined) {
-            undefinedKeys.push(key);
-          } else if (this.props[key].error) {
-            errors.push(this.props[key].error);
+        for (const loaderId in loaders) {
+          delete ownProps[loaderId];
+          if (this.props[loaderId].error) {
+            errors.push(this.props[loaderId].error);
+          } else if (!this.props[loaderId] || this.props[loaderId].value === undefined) {
+            undefinedKeys.push(loaderId);
           } else {
-            ownProps[key] = this.props[key].value;
-            if (this.props[key].loading) {
+            ownProps[loaderId] = this.props[loaderId].value;
+            if (this.props[loaderId].loading) {
               hasLoading = true;
             }
           }
         }
         if (errors.length > 0) {
-          return <div>{errors}</div>;
+          return errors.map((error, index) => {
+            return (<p key={index}>{error.message}</p>);
+          });
         } else if (undefinedKeys.length) {
           return (
             <div style={{ position: 'relative', minHeight: 200 }}>
@@ -126,9 +128,12 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
     const mapStateToProps = (state: ReduxState, ownProps: OWN_PROPS & ARGS) => {
       const mappedState: any = {};
       const args: any = {};
-      for (const key in loaders) {
-        mappedState[key] = loaders[key].get(state, ownProps[key]);
-        args[key] = ownProps[key];
+      for (const loaderId in loaders) {
+        const argToKey = loaders[loaderId].argToKey ?? DefaultArgToKey;
+        const arg = ownProps[loaderId];
+        const key = argToKey(arg);
+        mappedState[loaderId] = loaders[loaderId].get(state, key);
+        args[loaderId] = arg;
       }
       mappedState.args = args;
       mappedState.refreshCounter = refreshSelector(state);

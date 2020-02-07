@@ -6,6 +6,7 @@ import { GamePartial } from '../model/Game';
 import { MonthlyScore } from '../model/Records';
 import { Result, Role, RoleResult } from '../model/Result';
 import { QueryResult } from 'pg';
+import { SearchQuery, PlayerPredicate } from '../model/Search';
 
 export interface RecentGameQuery {
   count: number;
@@ -32,8 +33,8 @@ export class GameQuerier {
       .where(
         QueryBuilder.compare().compareValue('hand.id', '=', gameId),
       );
-    
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.getGameFromResults(result.rows);
     });
   }
@@ -54,7 +55,7 @@ export class GameQuerier {
       .where(comparison)
       .groupBy('player_fk_id');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return result.rows.map((row) => {
         const foo = {
           id: `${row['player_fk_id']}`,
@@ -81,7 +82,7 @@ export class GameQuerier {
           )
           .orderBy('timestamp', 'desc')
           .limit(query.count, query.offset),
-          'INNER',
+        'INNER',
         QueryBuilder.contains('hand.id', 'p.hand_fk_id')
       );
     } else {
@@ -91,7 +92,7 @@ export class GameQuerier {
           .star()
           .orderBy('timestamp', 'desc')
           .limit(query.count, query.offset),
-          'INNER',
+        'INNER',
         QueryBuilder.compare().compareColumn('hand.id', '=', 'p.id')
       );
     }
@@ -103,13 +104,14 @@ export class GameQuerier {
 
     sqlQuery.orderBy('hand.timestamp', 'desc');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.getGamesFromResults(result.rows).slice(0, query.count);
     });
   }
 
   /**
-   * This is an expensive function... call at your own peril
+   * Find any games between two given dates.
+   * This can be an expensive function... call at your own peril
    */
   public queryGamesBetweenDates = (startDate: string, endDate: string, playerId?: string): Promise<Game[]> => {
     const comparison = QueryBuilder.compare()
@@ -126,11 +128,84 @@ export class GameQuerier {
       .where(comparison)
       .orderBy('hand.timestamp');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.getGamesFromResults(result.rows);
     });
   }
 
+  /**
+   * Search for any games that match the search query.
+   */
+  public search = async (searchQuery: SearchQuery): Promise<Game[]> => {
+    if (searchQuery.playerQueries.length < 1 
+      && searchQuery.scoreQueries.length < 1
+      && searchQuery.bidQuery.length < 1) {
+      return [];
+    }
+    const sqlQuery = QueryBuilder.select('hand').star();
+    for (const playerQuery of searchQuery.playerQueries) {
+      const tableId = 'p_' + playerQuery.player;
+      const toJoin = QueryBuilder
+        .subselect('player_hand', tableId)
+        .star()
+        .orderBy('timestamp', 'desc');
+      switch (playerQuery.predicate) {
+        case PlayerPredicate.inGame:
+          toJoin.where(
+            QueryBuilder.compare().compareValue('player_fk_id', '=', playerQuery.player)
+          );
+          break;
+        case PlayerPredicate.bidder:
+          toJoin.where(
+            QueryBuilder.compare().compareValue('player_fk_id', '=', playerQuery.player).compareValue('was_bidder', '=', true)
+          );
+          break;
+        case PlayerPredicate.partner:
+          toJoin.where(
+            QueryBuilder.compare().compareValue('player_fk_id', '=', playerQuery.player).compareValue('was_partner', '=', true)
+          );
+          break;
+        case PlayerPredicate.opponent:
+          toJoin.where(
+            QueryBuilder.compare().compareValue('player_fk_id', '=', playerQuery.player).compareValue('was_bidder', '=', false).compareValue('was_partner', '=', false)
+          );
+          break;
+      }
+      sqlQuery.join(
+        toJoin,
+        'INNER',
+        QueryBuilder.contains('hand.id', tableId + '.hand_fk_id')
+      );
+    }
+
+    if (searchQuery.scoreQueries.length > 0) {
+      const scoreCondition = QueryBuilder.compare();
+      for (const scoreQuery of searchQuery.scoreQueries) {
+        scoreCondition.compareValue('points', scoreQuery.operator, scoreQuery.value);
+      }
+      sqlQuery.where(scoreCondition);
+    }
+
+    if (searchQuery.bidQuery.length > 0) {
+      const bidCondition = QueryBuilder.compare('OR');
+      for (const bidValue of searchQuery.bidQuery) {
+        bidCondition.compareValue('bid_amt', '=', bidValue);
+      }
+      sqlQuery.where(bidCondition);
+    }
+
+    sqlQuery.join('player_hand', 'INNER',
+      QueryBuilder.compare()
+        .compareColumn('hand.id', '=', 'player_hand.hand_fk_id')
+    );
+
+    const result: QueryResult = await this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
+    return this.getGamesFromResults(result.rows);
+  }
+
+  /**
+   * Save a new game or save changes to an existing game.
+   */
   public saveGame = (game: Game): Promise<any> => {
     if (!game.handData) {
       throw new Error('Cannot create a new game without hand data.');
@@ -164,12 +239,12 @@ export class GameQuerier {
           .where(
             QueryBuilder.compare().compareValue('hand_fk_id', '=', game.id),
           );
-        maybeDelete = transaction.query(deleteOldHandsSqlQuery.getQueryString(), deleteOldHandsSqlQuery.getValues());
+        maybeDelete = transaction.query(deleteOldHandsSqlQuery.getIndexedQueryString(), deleteOldHandsSqlQuery.getValues());
       } else {
         maybeDelete = Promise.resolve();
       }
       return maybeDelete.then((): Promise<QueryResult> => {
-        return transaction.query(upsertHandSqlQuery.getQueryString(), upsertHandSqlQuery.getValues());
+        return transaction.query(upsertHandSqlQuery.getIndexedQueryString(), upsertHandSqlQuery.getValues());
       }).then((result: QueryResult) => {
         let gameId: string;
         if (game.id) {
@@ -188,7 +263,7 @@ export class GameQuerier {
           insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(hand, gameId, timestamp, false, false));
         });
         return Promise.all(insertPlayerHandsSqlQueries.map((sqlQuery): Promise<any> => {
-          return transaction.query(sqlQuery.getQueryString(), sqlQuery.getValues());
+          return transaction.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
         }));
       }).then((): Promise<any> => {
         return transaction.commit();
@@ -207,11 +282,11 @@ export class GameQuerier {
       );
 
     return this.db.beginTransaction().then((transaction) => {
-      return transaction.query(deleteHandSqlQuery.getQueryString(), deleteHandSqlQuery.getValues()).then(() => {
-          return transaction.query(deletePlayerHandsSqlQuery.getQueryString(), deletePlayerHandsSqlQuery.getValues());
-        }).then(() => {
-          return transaction.commit();
-        });
+      return transaction.query(deleteHandSqlQuery.getIndexedQueryString(), deleteHandSqlQuery.getValues()).then(() => {
+        return transaction.query(deletePlayerHandsSqlQuery.getIndexedQueryString(), deletePlayerHandsSqlQuery.getValues());
+      }).then(() => {
+        return transaction.commit();
+      });
     });
   }
 
@@ -226,7 +301,7 @@ export class GameQuerier {
       )
       .orderBy('hand.timestamp', 'desc');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.getGamesFromResults(result.rows);
     });
   }
@@ -240,8 +315,8 @@ export class GameQuerier {
       .c('SUM(points_earned) as sum')
       .groupBy('player_fk_id', 'h_year', 'h_month');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
-      return result.rows.map((result: {[key: string]: any}): MonthlyScore => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+      return result.rows.map((result: { [key: string]: any }): MonthlyScore => {
         return {
           playerId: `${result['player_fk_id']}`,
           month: +result['h_month'] - 1,
@@ -256,30 +331,30 @@ export class GameQuerier {
   // Helpers
 
   private getGamesFromResults(handEntries: any[]): Game[] {
-      const gameHands = new Map<string, any[]>();
-      handEntries.forEach((hand: any) => {
-        const gameId = hand['hand_fk_id'];
-        if (!gameHands.has(gameId)) {
-          gameHands.set(gameId, []);
-        }
-        const currentGameHands: any[] = gameHands.get(gameId)!;
-        currentGameHands.push(hand);
-        gameHands.set(gameId, currentGameHands);
-      });
-      // last game might be incomplete
-      if (handEntries.length > 0) {
-        const lastHand = handEntries[handEntries.length - 1];
-        const expectedNumPlayers = lastHand['players'] as number;
-        const actualNumPlayers = gameHands.get(lastHand['hand_fk_id'])!.length;
-        if (actualNumPlayers !== expectedNumPlayers) {
-          gameHands.delete(lastHand['hand_fk_id']);
-        }
+    const gameHands = new Map<string, any[]>();
+    handEntries.forEach((hand: any) => {
+      const gameId = hand['hand_fk_id'];
+      if (!gameHands.has(gameId)) {
+        gameHands.set(gameId, []);
       }
-      const games: Game[] = [];
-      gameHands.forEach((currentPlayerHands: any[]) => {
-        games.push(this.getGameFromResults(currentPlayerHands));
-      });
-      return games;
+      const currentGameHands: any[] = gameHands.get(gameId)!;
+      currentGameHands.push(hand);
+      gameHands.set(gameId, currentGameHands);
+    });
+    // last game might be incomplete
+    if (handEntries.length > 0) {
+      const lastHand = handEntries[handEntries.length - 1];
+      const expectedNumPlayers = lastHand['players'] as number;
+      const actualNumPlayers = gameHands.get(lastHand['hand_fk_id'])!.length;
+      if (actualNumPlayers !== expectedNumPlayers) {
+        gameHands.delete(lastHand['hand_fk_id']);
+      }
+    }
+    const games: Game[] = [];
+    gameHands.forEach((currentPlayerHands: any[]) => {
+      games.push(this.getGameFromResults(currentPlayerHands));
+    });
+    return games;
   }
 
   private getGameFromResults(playerHands: any[]): Game {
@@ -305,7 +380,7 @@ export class GameQuerier {
       numberOfPlayers: hand['players'],
       bidAmount: hand['bid_amt'],
       points: hand['points'],
-      slam:  (+hand['points'] >= 270),
+      slam: (+hand['points'] >= 270),
     };
     return game;
   }

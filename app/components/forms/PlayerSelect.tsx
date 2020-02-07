@@ -157,7 +157,6 @@ export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, Player
   }
 
   private renderHightlights = (text: string, highlights: [number, number][]) => {
-    console.log(highlights);
     const nodes: JSX.Element[] = [];
     let startText = highlights[0][0] > 0 ? text.substring(0, highlights[0][0]) : undefined;
     if (startText !== undefined) {

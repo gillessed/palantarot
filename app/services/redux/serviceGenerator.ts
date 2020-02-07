@@ -32,13 +32,14 @@ export function generatePropertyService<ARG, RESULT>(
   };
 }
 
-export function generateService<ARG, RESULT>(
+export function generateService<ARG, RESULT, KEY = ARG>(
   prefix: string,
   operation: (api: ServerApi) => (arg: ARG[]) => Promise<Map<ARG, RESULT>> | Map<ARG, RESULT>,
+  argMapper: (arg: ARG) => KEY,
 ) {
   const actions = generateServiceActions<ARG, RESULT>(prefix);
-  const dispatcher = generateServiceDispatcher(actions);
-  const reducer = generateServiceReducer(actions);
+  const dispatcher = generateServiceDispatcher<ARG, RESULT, KEY>(actions);
+  const reducer = generateServiceReducer(actions, argMapper);
   const saga = function* (api: ServerApi) {
     yield takeEveryTyped(
       actions.request,
@@ -51,4 +52,8 @@ export function generateService<ARG, RESULT>(
     reducer,
     saga,
   };
+}
+
+export function identityMapper<T>(arg: T): T {
+  return arg;
 }

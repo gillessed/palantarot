@@ -12,12 +12,13 @@ export const QueryBuilder = {
   subselect: (table: string, name: string) => new SelectBuilder(table, name),
   join: (table: string, type: JoinType, condition: ComparisonBuilder) => new JoinBuilder(table, type, condition),
   where: (condition: ComparisonBuilder) => new WhereBuilder(condition),
-  compare: () => new ComparisonBuilder(),
+  compare: (conjunction?: 'AND' | 'OR') => new ComparisonBuilder(conjunction),
   contains: (column: string, value: string) => new ContainsBuilder(column, value),
 }
 
 export interface QueryBuilder {
   getQueryString: () => string;
+  getIndexedQueryString: () => string;
   getValues: () => any[];
 }
 
@@ -64,7 +65,11 @@ class InsertBuilder implements UpsertBuilder {
       queryString += ' RETURNING ';
       queryString += this.returning;
     }
-    return indexFlags(queryString);
+    return queryString;
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {
@@ -97,9 +102,13 @@ class UpdateBuilder implements UpsertBuilder {
     queryString += this._columns.map((column) => column + '=?').join(', ')
     if (this._where) {
       queryString += ' ';
-      queryString += this._where.getQueryString();
+      queryString += this._where.getIndexedQueryString();
     }
-    return indexFlags(queryString);
+    return queryString;
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {
@@ -127,9 +136,13 @@ class DeleteBuilder implements QueryBuilder {
     queryString += this._table;
     if (this._where) {
       queryString += ' ';
-      queryString += this._where.getQueryString();
+      queryString += this._where.getIndexedQueryString();
     }
-    return indexFlags(queryString);
+    return queryString;
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {
@@ -248,7 +261,11 @@ class SelectBuilder implements QueryBuilder {
         queryString += this._offset;
       }
     }
-    return indexFlags(queryString);
+    return queryString;
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {
@@ -287,6 +304,10 @@ class JoinBuilder implements QueryBuilder {
     return queryString;
   }
 
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
+  }
+
   public getValues(): any[] {
     let values: any[] = [];
     if (this._table instanceof SelectBuilder) {
@@ -306,6 +327,10 @@ class WhereBuilder implements QueryBuilder {
     return queryString;
   }
 
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
+  }
+
   public getValues(): any[] {
     return this.conditionBuilder.getValues();
   }
@@ -313,11 +338,16 @@ class WhereBuilder implements QueryBuilder {
 
 interface ConditionBuilder extends QueryBuilder {}
 
-export type Comparator = '=' | '>' | '<' | '>=' | '<=';
+export type Comparator = '=' | '>' | '<' | '>=' | '<=' | '!=' | '<>';
 
 class ComparisonBuilder implements ConditionBuilder {
   private clauses: string[] = [];
   private values: any[] = [];
+  private conjunction: string;
+
+  constructor(conjunction?: 'AND' | 'OR') {
+    this.conjunction = conjunction ?? 'AND';
+  }
 
   public compareValue(column: string, comparator: Comparator, value: any): ComparisonBuilder {
     let clause = column;
@@ -340,20 +370,24 @@ class ComparisonBuilder implements ConditionBuilder {
   }
 
   public columnIn(column: string, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`${column} IN (${subselect.getQueryString()})`)
+    this.clauses.push(`${column} IN (${subselect.getIndexedQueryString()})`)
     this.values.push(...subselect.getValues());
     return this;
   }
 
   public valueIn(value: any, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`? IN (${subselect.getQueryString()})`)
+    this.clauses.push(`? IN (${subselect.getIndexedQueryString()})`)
     this.values.push(value);
     this.values.push(...subselect.getValues());
     return this;
   }
 
   public getQueryString(): string {
-    return this.clauses.join(' AND ');
+    return this.clauses.join(` ${this.conjunction} `);
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {
@@ -373,6 +407,10 @@ class ContainsBuilder implements ConditionBuilder {
     query += this.values;
     query += ') ';
     return query;
+  }
+
+  public getIndexedQueryString(): string {
+    return indexFlags(this.getQueryString());
   }
 
   public getValues(): any[] {

@@ -13,6 +13,7 @@
 @import './containers/records/RecordsContainer.scss';
 @import './containers/results/ResultsContainer.scss';
 @import './containers/search/SearchContainer.scss';
+@import './containers/search/SearchResultsContainer.scss';
 @import './containers/player/PlayerContainer.scss';
 @import './containers/player/PlayerGraphTab.scss';
 @import './containers/player/PlayerBanner.scss';
@@ -36,6 +37,7 @@
 @import './components/deltaIcon/DeltaIcon.scss';
 @import './components/tarothon/TarothonForm.scss';
 @import './components/monthPicker/MonthPicker.scss';
+@import './components/search/SearchForm.scss';
 
 .title {
   display: flex;

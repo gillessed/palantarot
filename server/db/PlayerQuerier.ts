@@ -15,7 +15,7 @@ export class PlayerQuerier {
 
   public queryAllPlayers = (): Promise<Player[]> => {
     const query = QueryBuilder.select('players').star();
-    return this.db.query(query.getQueryString()).then((result: QueryResult) => {
+    return this.db.query(query.getIndexedQueryString()).then((result: QueryResult) => {
       return result.rows.map((player: any) => {
         return {
           id: player['id'] + '',
@@ -32,7 +32,7 @@ export class PlayerQuerier {
       .c('player_fk_id')
       .c('count(*) as n_games')
       .groupBy('player_fk_id');
-    return this.db.query(query.getQueryString()).then((result: QueryResult) => {
+    return this.db.query(query.getIndexedQueryString()).then((result: QueryResult) => {
       return result.rows.map((player: any) => {
         if (player['n_games'] > n) {
           return `${player['player_fk_id']}`;
@@ -53,7 +53,7 @@ export class PlayerQuerier {
       .v('last_name', player.lastName)
       .return('id');
       
-    return this.db.query(query.getQueryString(), query.getValues()).then((result: QueryResult) => {
+    return this.db.query(query.getIndexedQueryString(), query.getValues()).then((result: QueryResult) => {
       const id = result.rows[0].id;
       return { ...player, id };
     });

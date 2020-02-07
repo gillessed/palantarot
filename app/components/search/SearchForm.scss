@@ -1,0 +1,42 @@
+.search-form {
+  h2 {
+    display: inline-block;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .player-query-component, .score-query-component {
+    margin-bottom: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .details {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      & > * {
+        margin-right: 10px;
+      }
+
+      .score-value-input, .score-value-input > input {
+        height: 100%;
+      }
+    }
+  }
+
+  .bid-query-container {
+    span.bp3-popover-target {
+      width: 300px;
+    }
+  }
+
+  .button-row {
+    margin-top: 20px;
+  }
+}

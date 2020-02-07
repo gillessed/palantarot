@@ -6,6 +6,7 @@ const StaticRoutesInternal = {
   results: () => '/app/results',
   addPlayer: () => '/app/add-player',
   search: () => '/app/search',
+  searchResults: () => '/app/search-results',
   records: () => '/app/records',
   tarothons: () => '/app/tarothons',
   addTarothon: () => '/app/add-tarothon',

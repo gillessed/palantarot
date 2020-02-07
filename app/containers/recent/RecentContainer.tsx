@@ -1,17 +1,11 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { ReduxState } from '../../services/rootReducer';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { GameTable, BidderWonValidator, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
-import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
-import { Dispatchers } from '../../services/dispatchers';
-import { Spinner } from '@blueprintjs/core';
-import { Player } from '../../../server/model/Player';
+import { RecentGameQuery } from '../../../server/db/GameQuerier';
 import { Game } from '../../../server/model/Game';
-import { loadContainer } from '../LoadingContainer';
+import { Player } from '../../../server/model/Player';
+import { BidderWonValidator, DEFAULT_COUNT, GameTable } from '../../components/gameTable/GameTable';
 import { playersLoader } from '../../services/players/index';
 import { recentGamesLoader } from '../../services/recentGames/index';
-import { RecentGameQuery } from '../../../server/db/GameQuerier';
+import { loadContainer } from '../LoadingContainer';
 
 interface Props {
   players: Map<string, Player>;

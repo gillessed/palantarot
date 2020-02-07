@@ -19,6 +19,7 @@ import { TarothonDataService, tarothonDataReducer } from './tarothonData';
 import { StreaksService, streaksReducer } from './streaks/index';
 import { RefreshState } from './refresh/RefreshTypes';
 import { refreshReducer } from './refresh/RefreshReducer';
+import { SearchService, searchReducer } from './search/index';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -36,6 +37,7 @@ export interface ReduxState {
   refresh: RefreshState;
   results: ResultsService;
   saveGame: SaveGameService;
+  search: SearchService;
   stats: StatsService;
   streaks: StreaksService;
   tarothonData: TarothonDataService;
@@ -58,6 +60,7 @@ export const rootReducer = combineReducers({
   refresh: refreshReducer,
   results: resultsReducer,
   saveGame: saveGameReducer,
+  search: searchReducer,
   stats: statsReducer,
   streaks: streaksReducer,
   tarothonData: tarothonDataReducer,

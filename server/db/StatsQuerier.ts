@@ -59,7 +59,7 @@ export class StatsQuerier {
         .compareColumn('allGames.was_partner', '=', 'win.was_partner')
     );
 
-    return this.db.query(allPlayers.getQueryString(), allPlayers.getValues()).then((result: QueryResult): Stats => {
+    return this.db.query(allPlayers.getIndexedQueryString(), allPlayers.getValues()).then((result: QueryResult): Stats => {
       return result.rows.map(this.toStat);
     });
   }
@@ -74,7 +74,7 @@ export class StatsQuerier {
       .c('SUM(points_earned) AS delta')
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       const allDeltas = result.rows.map(this.toDelta);
       allDeltas.sort(this.deltaComparator);
       if (allDeltas.length <= length) {
@@ -102,7 +102,7 @@ export class StatsQuerier {
       .where(QueryBuilder.compare().compareValue('player_fk_id', '=', playerId))
       .groupBy('player_fk_id', 'h_year', 'h_month', 'h_day');
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       const allDeltas = result.rows.map(this.toDelta);
       allDeltas.sort(this.deltaComparator);
       if (allDeltas.length <= length) {
@@ -185,7 +185,7 @@ export class StatsQuerier {
       .c('COUNT(*) as count')
       .join('hand', 'INNER', QueryBuilder.compare().compareColumn('player_hand.hand_fk_id', '=', 'hand.id'))
       .where(comparison);
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result) => {
       return +result.rows[0]['count'];
     });
   }

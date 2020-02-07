@@ -18,7 +18,7 @@ export class TarothonQuerier {
       .star()
       .where(QueryBuilder.compare().compareValue('id', '=', id));
 
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return this.toTarothon(result.rows[0]);
     });
   }
@@ -26,7 +26,7 @@ export class TarothonQuerier {
   public getTarothons = (): Promise<Tarothon[]> => {
     const sqlQuery = QueryBuilder.select('tarothon').star();
 
-    return this.db.query(sqlQuery.getQueryString()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString()).then((result: QueryResult) => {
       return result.rows.map(this.toTarothon);
     });
   }
@@ -36,7 +36,7 @@ export class TarothonQuerier {
       .v('begin_date', data.begin)
       .v('end_date', data.end)
       .return('id');
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
       return result.rows[0].id.toString();
     });
   }
@@ -46,13 +46,13 @@ export class TarothonQuerier {
       .v('begin_date', data.begin)
       .v('end_date', data.end)
       .where(QueryBuilder.compare().compareValue('id', '=', data.id));
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues());
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
   }
 
   public deleteTarothon = (id: string): Promise<any> => {
     const sqlQuery = QueryBuilder.delete('tarothon')
       .where(QueryBuilder.compare().compareValue('id', '=', id));
-    return this.db.query(sqlQuery.getQueryString(), sqlQuery.getValues());
+    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
   }
 
   // Helpers
