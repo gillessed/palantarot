@@ -24,5 +24,5 @@ export const bidsReducer = bidsService.reducer.build();
 export const bidsSaga = bidsService.saga;
 export const bidsLoader: Loader<ReduxState, BidRequest, BidStats> = {
   get: (state: ReduxState, _: BidRequest) => state.bids,
-  load: (dispatchers: Dispatchers, request: BidRequest) => dispatchers.bids.request(request),
+  load: (dispatchers: Dispatchers, request: BidRequest, force?: boolean) => dispatchers.bids.request(request, force),
 };

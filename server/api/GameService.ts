@@ -7,12 +7,13 @@ import { Month, IMonth } from '../model/Month';
 import moment from 'moment-timezone';
 import { RecentGameQuery } from '../db/GameQuerier';
 import { Records } from '../model/Records';
+import { WebsocketManager } from '../websocket/WebsocketManager';
 
 export class GameService {
   public router: Router;
   private gameDb: GameQuerier;
 
-  constructor(db: Database) {
+  constructor(db: Database, private websocketManager: WebsocketManager) {
     this.router = Router();
     this.gameDb = new GameQuerier(db);
     this.router.get('/records', this.getRecords);
@@ -158,6 +159,7 @@ export class GameService {
     const newGame = req.body as Game;
     this.gameDb.saveGame(newGame).then(() => {
       res.sendStatus(200);
+      this.websocketManager.sendNewDataMessage();
     }).catch((e) => {
       res.send({ error: 'Could not save game: ' + e});
     });
@@ -167,6 +169,7 @@ export class GameService {
     const { gameId } = req.body;
     this.gameDb.deleteGame(gameId).then(() => {
       res.sendStatus(200);
+      this.websocketManager.sendNewDataMessage();
     }).catch((e) => {
       res.send({ error: 'Could not delete game: ' + e});
     });

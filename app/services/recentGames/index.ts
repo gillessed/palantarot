@@ -25,5 +25,5 @@ export const recentGamesReducer = recentGamesService.reducer.build();
 export const recentGamesSaga = recentGamesService.saga;
 export const recentGamesLoader: Loader<ReduxState, RecentGameQuery, Game[]> = {
   get: (state: ReduxState, _: RecentGameQuery) => state.recentGames,
-  load: (dispatchers: Dispatchers, query: RecentGameQuery) => dispatchers.recentGames.request(query),
+  load: (dispatchers: Dispatchers, query: RecentGameQuery, force?: boolean) => dispatchers.recentGames.request(query, force),
 };

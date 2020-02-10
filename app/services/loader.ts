@@ -7,5 +7,5 @@ export interface Loaders<STATE> {
 
 export interface Loader<STATE, ARG, RESULT> {
   get: (state: STATE, arg: ARG) => Loadable<ARG, RESULT>;
-  load: (dispatchers: Dispatchers, arg: ARG | ARG[]) => void;
+  load: (dispatchers: Dispatchers, arg: ARG | ARG[], force?: boolean) => void;
 }

@@ -24,13 +24,13 @@ export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceAc
       }
     }
 
-    public request(args: ARG[]) {
+    public request(args: ARG[], force?: boolean) {
       let uncachedArgs = Array.from(args);
       if (this.caching) {
         const { isCached } = this.caching;
         const state = this.caching.accessor(this.store.getState());
         uncachedArgs = uncachedArgs.filter((arg: ARG) => {
-          return !isCached(arg, state.get(arg));
+          return !isCached(arg, state.get(arg)) || force;
         });
       }
       if (uncachedArgs.length >= 1) {
@@ -44,8 +44,8 @@ export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceAc
       this.store.dispatch(actionCreators.request(arg));
     }
 
-    public requestSingle(arg: ARG) {
-      this.request([arg]);
+    public requestSingle(arg: ARG, force?: boolean) {
+      this.request([arg], force);
     }
 
     public clear(args: ARG[]) {
@@ -60,7 +60,7 @@ export function generateServiceDispatcher<ARG, RESULT>(actionCreators: ServiceAc
 
 export interface ServiceDispatcher<ARG> {
     request(args: ARG[]): void;
-    requestSingle(arg: ARG): void;
+    requestSingle(arg: ARG, force?: boolean): void;
     clear(args: ARG[]): void;
     clearAll(): void;
 }
@@ -83,10 +83,10 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
       }
     }
 
-    public request(arg: ARG) {
+    public request(arg: ARG, force?: boolean) {
       if (this.caching) {
         const state = this.caching.accessor(this.store.getState());
-        if (this.caching.isCached(arg, state)) {
+        if (this.caching.isCached(arg, state) && !force) {
           return;
         }
       }
@@ -106,7 +106,7 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
 }
 
 export interface PropertyDispatcher<ARG> {
-    request(args: ARG): void;
+    request(args: ARG, force?: boolean): void;
     clear(): void;
 }
 

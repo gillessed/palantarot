@@ -27,5 +27,5 @@ export const tarothonDataReducer = tarothonDataService.reducer.build();
 export const tarothonDataSaga = tarothonDataService.saga;
 export const tarothonDataLoader: Loader<ReduxState, string, TarothonData> = {
   get: (state: ReduxState, arg: string) => state.tarothonData.get(arg),
-  load: (dispatchers: Dispatchers, arg: string) => dispatchers.tarothonData.requestSingle(arg),
+  load: (dispatchers: Dispatchers, arg: string, force?: boolean) => dispatchers.tarothonData.requestSingle(arg, force),
 };

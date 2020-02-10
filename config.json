@@ -6,6 +6,7 @@
     "httpRedirectPort": 4566
   },
   "port": 4567,
+  "wsPort": 4566,
   "auth": {
     "cookieDurationDays": 30,
     "cookieName": "palantarot-session",

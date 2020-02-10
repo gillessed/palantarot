@@ -7,6 +7,7 @@ import { DispatchersContextType, DispatchContext } from '../dispatchProvider';
 import { Dispatchers } from '../services/dispatchers';
 import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
 import { Spinner } from '@blueprintjs/core';
+import { refreshSelector } from '../services/refresh/RefreshTypes';
 
 interface OtherProps {
   dispatchers?: Dispatchers;
@@ -41,7 +42,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
     Component: React.ComponentClass<COMPONENT_PROPS>,
   ) {
     type OWN_PROPS = Omit<COMPONENT_PROPS, keyof RESULTS>;
-    type INNER_PROPS = OWN_PROPS & LOADABLES & PROP_HOLDER;
+    type INNER_PROPS = OWN_PROPS & LOADABLES & PROP_HOLDER & { refreshCounter: number };
 
     const raw = class extends React.PureComponent<INNER_PROPS, {}> {
       public static contextTypes = DispatchersContextType;
@@ -68,6 +69,15 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
         }
         for (const key of refreshArgs) {
           loaders[key].load(this.dispatchers, nextArgs[key]);
+        }
+        if (nextProps.refreshCounter !== this.props.refreshCounter) {
+          setTimeout(() => this.reloadAll(), 0);
+        }
+      }
+
+      public reloadAll = () => {
+        for (const key of Object.keys(this.props.args)) {
+          loaders[key].load(this.dispatchers, this.props.args[key], true);
         }
       }
 
@@ -121,6 +131,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
         args[key] = ownProps[key];
       }
       mappedState.args = args;
+      mappedState.refreshCounter = refreshSelector(state);
       return mappedState;
     }
     return connect<LOADABLES & PROP_HOLDER, {}, PROPS & OWN_PROPS>(mapStateToProps)(raw);

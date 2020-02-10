@@ -1,15 +1,18 @@
 import https, { ServerOptions } from 'https';
 import http from 'http';
 import fs from 'fs';
+import WebSocket from 'ws';
 import { App } from './App';
 import { connect, Database } from './db/dbConnector';
 import { readConfig } from './config';
+import { WebsocketManager } from './websocket/WebsocketManager';
 
 const config = readConfig();
 
 connect(config.database, (db: Database) => {
+  const websocketManager = new WebsocketManager();
   const port = config.port;
-  const app = new App(config, db);
+  const app = new App(config, db, websocketManager);
   app.express.set('port', port);
   if (config.https.enabled) {
     const redirect = http.createServer((req, res) => {
@@ -32,11 +35,13 @@ connect(config.database, (db: Database) => {
       };
     }
     const server = https.createServer(httpsOptions, app.express);
+    websocketManager.start(server);
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListen);
   } else {
     const server = http.createServer(app.express);
+    websocketManager.start(server);
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListen);

@@ -25,5 +25,5 @@ export const deltasReducer = deltasService.reducer.build();
 export const deltasSaga = deltasService.saga;
 export const deltasLoader: Loader<ReduxState, DeltasRequest, Deltas> = {
   get: (state: ReduxState, _: DeltasRequest) => state.deltas,
-  load: (dispatchers: Dispatchers, request: DeltasRequest) => dispatchers.deltas.request(request),
+  load: (dispatchers: Dispatchers, request: DeltasRequest, force?: boolean) => dispatchers.deltas.request(request, force),
 };

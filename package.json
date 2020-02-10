@@ -8,8 +8,8 @@
   "scripts": {
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
     "watch:migration": "webpack -w --config webpack-migration.config.js --mode development",
-    "watch:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
-    "dist:app": "webpack --config webpack-app.config.js --mode production",
+    "watch:app": "NODE_OPTIONS=--max-old-space-size=4096 webpack-dev-server -w --config webpack-app.config.js --mode development",
+    "dist:app": "NODE_OPTIONS=--max-old-space-size=4096 webpack --config webpack-app.config.js --mode production",
     "dist:server": "webpack --config webpack-server.config.js --mode production",
     "dist:migration": "webpack --config webpack-migration.config.js --mode production"
   },
@@ -38,7 +38,8 @@
     "@types/redux-logger": "^3.0.5",
     "@types/reselect": "^2.2.0",
     "@types/vinyl": "^2.0.2",
-    "apisauce": "^0.11.0",
+    "@types/ws": "^7.2.1",
+    "apisauce": "^1.1.1",
     "babel-core": "^6.24.0",
     "babel-polyfill": "^6.23.0",
     "babel-register": "^6.24.0",
@@ -59,7 +60,7 @@
     "moment-timezone": "^0.5.11",
     "morgan": "^1.8.1",
     "mysql": "^2.13.0",
-    "node-sass": "^4.5.0",
+    "node-sass": "^4.13.1",
     "normalize.css": "^5.0.0",
     "pg": "^7.8.0",
     "plottable": "^3.3.1",
@@ -75,10 +76,11 @@
     "redux-logger": "^3.0.6",
     "redux-saga": "^0.16.0",
     "reselect": "^3.0.1",
-    "sass-loader": "^6.0.3",
+    "sass-loader": "^8.0.2",
     "style-loader": "^0.14.1",
-    "typescript": "^3.2.4",
-    "webpack": "^4.29.0"
+    "typescript": "3.7.2",
+    "webpack": "^4.29.0",
+    "ws": "^7.2.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.0",

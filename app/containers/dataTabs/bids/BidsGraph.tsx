@@ -50,8 +50,8 @@ class BidsGraphInternal extends React.PureComponent<Props, {}> {
         const plot = new Plottable.Plots.StackedBar()
             .addDataset(new Plottable.Dataset(lostGames).metadata(5))
             .addDataset(new Plottable.Dataset(wonGames).metadata(3))
-            .x((d) => d.x, xScale)
-            .y((d) => d.y, yScale)
+            .x((d: any) => d.x, xScale)
+            .y((d: any) => d.y, yScale)
             .attr('fill', (_d, _i, dataset) => dataset.metadata(), colorScale);
 
         const chart = new Plottable.Components.Table([

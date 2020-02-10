@@ -27,5 +27,5 @@ export const resultsReducer = resultsService.reducer.build();
 export const resultsSaga = resultsService.saga;
 export const resultsLoader: Loader<ReduxState, Month, Result[]> = {
   get: (state: ReduxState, arg: Month) => state.results.get(arg),
-  load: (dispatchers: Dispatchers, arg: Month) => dispatchers.results.requestSingle(arg),
+  load: (dispatchers: Dispatchers, arg: Month, force?: boolean) => dispatchers.results.requestSingle(arg, force),
 }

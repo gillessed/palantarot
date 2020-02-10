@@ -110,7 +110,7 @@ export class ServerApi {
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
-    return this.api.get<RESP | { error: string }>(url).then((response): RESP => {
+    return this.api.get<RESP | { error: string }>(url).then((response: any): RESP => {
       if (response.ok) {
         const data = response.data! as any;
         if (data.error) {
@@ -128,7 +128,7 @@ export class ServerApi {
   }
 
   public wrapPost = <RESP>(url: string, body: any) => {
-    return this.api.post<RESP | { error: string }>(url, body).then((response): RESP => {
+    return this.api.post<RESP | { error: string }>(url, body).then((response: any): RESP => {
       if (response.ok) {
         const data = response.data! as any;
         if (data.error) {

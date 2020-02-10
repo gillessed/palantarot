@@ -9,7 +9,7 @@ interface PlayerProp {
 
 export function createDataTabPlayerArg<T>(
     AllComponent: React.ComponentClass<T>,
-    PlayerComponent: React.ComponentClass<PlayerProp & T>,
+    PlayerComponent: React.ComponentClass<T>,
 ) {
     return (props: PlayerProp & T) => {
         if (props.playerId) {

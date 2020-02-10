@@ -30,6 +30,6 @@ export const monthGamesReducer = monthGamesService.reducer.build();
 export const monthGamesSaga = monthGamesService.saga;
 export const monthGamesLoader: Loader<ReduxState, Month, Game[]> = {
   get: (state: ReduxState, month: Month) => state.monthGames.get(month),
-  load: (dispatchers: Dispatchers, month: Month) => dispatchers.monthGames.requestSingle(month),
+  load: (dispatchers: Dispatchers, month: Month, force?: boolean) => dispatchers.monthGames.requestSingle(month, force),
 };
 

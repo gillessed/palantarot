@@ -33,6 +33,10 @@ module.exports = {
     proxy: {
       '/api': 'http://localhost:4567',
       '/static': 'http://localhost:4567',
+      '/ws': {
+        target: 'ws://localhost:4567',
+        ws: true,
+      },
     },
     publicPath: '/',
     historyApiFallback: true,

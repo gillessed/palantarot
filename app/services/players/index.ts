@@ -34,5 +34,5 @@ export const playersReducer = playersService.reducer
 export const playersSaga = playersService.saga;
 export const playersLoader: Loader<ReduxState, void, Map<string, Player>> = {
   get: (state: ReduxState, _: undefined) => state.players,
-  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.players.request(undefined),
+  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) => dispatchers.players.request(undefined, force),
 };

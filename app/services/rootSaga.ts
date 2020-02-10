@@ -12,6 +12,7 @@ import { monthGamesSaga } from './monthGames/index';
 import { playersSaga } from './players';
 import { recentGamesSaga } from './recentGames';
 import { recordsSaga } from './records/index';
+import { refreshSaga } from './refresh/RefreshSaga';
 import { resultsSaga } from './results/index';
 import { listenerLoop, SagaListener } from './sagaListener';
 import { saveGameSaga } from './saveGame/index';
@@ -26,6 +27,9 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
   yield all([
     // Saga Listeners
     fork(listenerLoop, listeners),
+
+    // Refresh Listeners
+    fork(refreshSaga),
 
     // Services
     fork(addNewPlayerSaga, api),

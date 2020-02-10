@@ -1,4 +1,3 @@
-import { ReduxState } from './rootReducer';
 import { playersReducer, PlayersService } from './players';
 import { recentGamesReducer, RecentGamesService } from './recentGames';
 import { gameReducer, GameService } from './game';
@@ -18,6 +17,8 @@ import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
 import { DeleteTarothonService, deleteTarothonReducer } from './deleteTarothon/index';
 import { TarothonDataService, tarothonDataReducer } from './tarothonData';
 import { StreaksService, streaksReducer } from './streaks/index';
+import { RefreshState } from './refresh/RefreshTypes';
+import { refreshReducer } from './refresh/RefreshReducer';
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -32,6 +33,7 @@ export interface ReduxState {
   players: PlayersService;
   recentGames: RecentGamesService;
   records: RecordsService;
+  refresh: RefreshState;
   results: ResultsService;
   saveGame: SaveGameService;
   stats: StatsService;
@@ -53,6 +55,7 @@ export const rootReducer = combineReducers({
   players: playersReducer,
   recentGames: recentGamesReducer,
   records: recordsReducer,
+  refresh: refreshReducer,
   results: resultsReducer,
   saveGame: saveGameReducer,
   stats: statsReducer,

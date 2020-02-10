@@ -32,7 +32,7 @@ export const statsReducer = statsService.reducer.build();
 export const statsSaga = statsService.saga;
 export const statsLoader: Loader<ReduxState, void, AggregatedStats> = {
   get: (state: ReduxState, _: undefined) => state.stats,
-  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.stats.request(undefined),
+  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) => dispatchers.stats.request(undefined, force),
 };
 
 const aggregateStats = (stats: Stats): AggregatedStats => {

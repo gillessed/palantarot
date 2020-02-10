@@ -24,5 +24,5 @@ export const recordsReducer = recordsService.reducer.build();
 export const recordsSaga = recordsService.saga;
 export const recordsLoader: Loader<ReduxState, void, Records> = {
   get: (state: ReduxState, _: void) => state.records,
-  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.records.request(undefined),
+  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) => dispatchers.records.request(undefined, force),
 };

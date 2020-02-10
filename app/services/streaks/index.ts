@@ -24,5 +24,5 @@ export const streaksReducer = streaksService.reducer.build();
 export const streaksSaga = streaksService.saga;
 export const streaksLoader: Loader<ReduxState, void, Streak[]> = {
   get: (state: ReduxState) => state.streaks,
-  load: (dispatchers: Dispatchers) => dispatchers.streaks.request(),
+  load: (dispatchers: Dispatchers, _args: void, force?: boolean) => dispatchers.streaks.request(undefined, force),
 }

@@ -1,19 +1,19 @@
-import { Database } from './db/dbConnector';
-import path from 'path';
-import express from 'express';
-import cors from 'cors';
-import logger from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-
-import { PlayerService } from './api/PlayerService';
-import { GameService } from './api/GameService';
-import { Config } from './config';
+import cors from 'cors';
+import express, { Request } from 'express';
+import logger from 'morgan';
+import path from 'path';
+import { DynamicRoutes, DynamicRoutesEnumerable, StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable } from '../app/routes';
 import { AuthService, createRequestValidator } from './api/AuthService';
-import { Request } from 'express';
-import { StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable, DynamicRoutes, DynamicRoutesEnumerable } from '../app/routes';
+import { GameService } from './api/GameService';
+import { PlayerService } from './api/PlayerService';
 import { StatsService } from './api/StatsService';
 import { TarothonService } from './api/TarothonService';
+import { Config } from './config';
+import { Database } from './db/dbConnector';
+import { WebsocketManager } from './websocket/WebsocketManager';
+
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon', '/.well-known'];
@@ -25,6 +25,7 @@ export class App {
   constructor(
     private readonly config: Config,
     private readonly db: Database,
+    private readonly websocketManager: WebsocketManager,
   ) {
     this.requestValidator = createRequestValidator(config);
     this.express = express();
@@ -102,7 +103,7 @@ export class App {
     const playerService = new PlayerService(this.db);
     this.express.use('/api/v1/players', playerService.router);
 
-    const gameService = new GameService(this.db);
+    const gameService = new GameService(this.db, this.websocketManager);
     this.express.use('/api/v1/game', gameService.router);
     
     const statsService = new StatsService(this.db);

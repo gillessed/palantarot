@@ -25,5 +25,5 @@ export const tarothonsReducer = tarothonsService.reducer.build();
 export const tarothonsSaga = tarothonsService.saga;
 export const tarothonsLoader: Loader<ReduxState, void, Tarothon[]> = {
   get: (state: ReduxState, _: undefined) => state.tarothons,
-  load: (dispatchers: Dispatchers, _: undefined) => dispatchers.tarothons.request(undefined),
+  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) => dispatchers.tarothons.request(undefined, force),
 };
