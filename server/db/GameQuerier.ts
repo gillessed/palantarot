@@ -67,7 +67,7 @@ export class GameQuerier {
     });
   }
 
-  public queryRecentGames = (query: RecentGameQuery): Promise<GamePartial[] | Game[]> => {
+  public queryRecentGames = async (query: RecentGameQuery): Promise<GamePartial[] | Game[]> => {
     if (query.player && query.full) {
       throw Error('Cannot set both player and game queries.');
     }
@@ -104,9 +104,15 @@ export class GameQuerier {
 
     sqlQuery.orderBy('hand.timestamp', 'desc');
 
-    return this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues()).then((result: QueryResult) => {
-      return this.getGamesFromResults(result.rows).slice(0, query.count);
-    });
+    console.log('\n');
+    console.log(sqlQuery.getIndexedQueryString());
+    console.log('\n');
+    console.log(sqlQuery.getValues());
+    console.log('\n');
+
+    const result = await this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
+    const games = this.getGamesFromResults(result.rows).slice(0, query.count);
+    return games;
   }
 
   /**
@@ -206,7 +212,7 @@ export class GameQuerier {
   /**
    * Save a new game or save changes to an existing game.
    */
-  public saveGame = (game: Game): Promise<any> => {
+  public saveGame = async (game: Game): Promise<any> => {
     if (!game.handData) {
       throw new Error('Cannot create a new game without hand data.');
     }
@@ -231,44 +237,36 @@ export class GameQuerier {
       .v('bid_amt', game.bidAmount)
       .v('points', game.points);
 
-    return this.db.beginTransaction().then((transaction): Promise<any> => {
-      let maybeDelete: Promise<any>;
-      if (game.id) {
-        // If the game has an id, we are updating, so delete the old hands so we can add the new ones.
-        const deleteOldHandsSqlQuery = QueryBuilder.delete('player_hand')
-          .where(
-            QueryBuilder.compare().compareValue('hand_fk_id', '=', game.id),
-          );
-        maybeDelete = transaction.query(deleteOldHandsSqlQuery.getIndexedQueryString(), deleteOldHandsSqlQuery.getValues());
-      } else {
-        maybeDelete = Promise.resolve();
-      }
-      return maybeDelete.then((): Promise<QueryResult> => {
-        return transaction.query(upsertHandSqlQuery.getIndexedQueryString(), upsertHandSqlQuery.getValues());
-      }).then((result: QueryResult) => {
-        let gameId: string;
-        if (game.id) {
-          gameId = game.id;
-        } else if (result.rowCount > 0) {
-          gameId = result.rows[0].id.toString()
-        } else {
-          throw Error('Error: could not determine game id to insert game.');
-        }
-        const insertPlayerHandsSqlQueries: QueryBuilder[] = [];
-        insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.bidder, gameId, timestamp, true, false));
-        if (game.partnerId) {
-          insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.partner!, gameId, timestamp, false, true));
-        }
-        handData.opposition.forEach((hand) => {
-          insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(hand, gameId, timestamp, false, false));
-        });
-        return Promise.all(insertPlayerHandsSqlQueries.map((sqlQuery): Promise<any> => {
-          return transaction.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
-        }));
-      }).then((): Promise<any> => {
-        return transaction.commit();
-      });
+    const transaction = await this.db.beginTransaction();
+    if (game.id) {
+      // If the game has an id, we are updating, so delete the old hands so we can add the new ones.
+      const deleteOldHandsSqlQuery = QueryBuilder.delete('player_hand')
+        .where(
+          QueryBuilder.compare().compareValue('hand_fk_id', '=', game.id),
+        );
+      await transaction.query(deleteOldHandsSqlQuery.getIndexedQueryString(), deleteOldHandsSqlQuery.getValues());
+    }
+    const result = await transaction.query(upsertHandSqlQuery.getIndexedQueryString(), upsertHandSqlQuery.getValues());
+    let gameId: string;
+    if (game.id) {
+      gameId = game.id;
+    } else if (result.rowCount > 0) {
+      gameId = result.rows[0].id.toString()
+    } else {
+      throw Error('Error: could not determine game id to insert game.');
+    }
+    const insertPlayerHandsSqlQueries: QueryBuilder[] = [];
+    insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.bidder, gameId, timestamp, true, false));
+    if (game.partnerId) {
+      insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(handData.partner!, gameId, timestamp, false, true));
+    }
+    handData.opposition.forEach((hand) => {
+      insertPlayerHandsSqlQueries.push(this.createInsertHandQuery(hand, gameId, timestamp, false, false));
     });
+    await Promise.all(insertPlayerHandsSqlQueries.map((sqlQuery): Promise<any> => {
+      return transaction.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
+    }));
+    return transaction.commit();
   }
 
   public deleteGame = (gameId: string): Promise<any> => {

@@ -102,7 +102,7 @@ class UpdateBuilder implements UpsertBuilder {
     queryString += this._columns.map((column) => column + '=?').join(', ')
     if (this._where) {
       queryString += ' ';
-      queryString += this._where.getIndexedQueryString();
+      queryString += this._where.getQueryString();
     }
     return queryString;
   }
