@@ -6,6 +6,7 @@ import { emptyPlayerQuery, emptySearchQuery, PlayerQuery, SearchQuery, emptyScor
 import { PlayerQueryComponent } from './PlayerQueryComponent';
 import { ScoreQueryComponent } from './ScoreQueryComponent';
 import { BidQueryComponent } from './BidQueryComponent';
+import { PlayerCountQueryComponent } from './PlayerCountQueryComponent';
 
 export namespace SearchForm {
   export interface Props {
@@ -48,7 +49,12 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         <div className='section-header'>
           <h2> Number of Players </h2>
         </div>
-        <span>Not ready yet...</span>
+        <div className='bid-query-container'>
+          <PlayerCountQueryComponent
+            numberOfPlayers={this.state.query.numberOfPlayers}
+            onChange={this.handlePlayerCountQueryChanged}
+          />
+        </div>
         <div className='section-header'>
           <h2> Date Range </h2>
         </div>
@@ -160,6 +166,15 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
       query: {
         ...this.state.query,
         bidQuery,
+      },
+    });
+  }
+
+  public handlePlayerCountQueryChanged = (numberOfPlayers: number[]) => {
+    this.setState({
+      query: {
+        ...this.state.query,
+        numberOfPlayers,
       },
     });
   }

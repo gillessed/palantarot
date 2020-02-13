@@ -145,7 +145,8 @@ export class GameQuerier {
   public search = async (searchQuery: SearchQuery): Promise<Game[]> => {
     if (searchQuery.playerQueries.length < 1 
       && searchQuery.scoreQueries.length < 1
-      && searchQuery.bidQuery.length < 1) {
+      && searchQuery.bidQuery.length < 1
+      && searchQuery.numberOfPlayers.length < 1) {
       return [];
     }
     const sqlQuery = QueryBuilder.select('hand').star();
@@ -198,6 +199,14 @@ export class GameQuerier {
         bidCondition.compareValue('bid_amt', '=', bidValue);
       }
       sqlQuery.where(bidCondition);
+    }
+
+    if (searchQuery.numberOfPlayers.length > 0) {
+      const playerCountCondition = QueryBuilder.compare('OR');
+      for (const playerNumber of searchQuery.numberOfPlayers) {
+        playerCountCondition.compareValue('players', '=', playerNumber);
+      }
+      sqlQuery.where(playerCountCondition);
     }
 
     sqlQuery.join('player_hand', 'INNER',
