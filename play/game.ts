@@ -1,185 +1,13 @@
-/* CARDS */
-
-enum RegSuits {
-    Spade = 'S',
-    Heart = 'H',
-    Diamond = 'D',
-    Club = 'C',
-}
-type TrumpSuit = 'T'
-const TrumpSuit : TrumpSuit = 'T';
-
-type Suit = RegSuits.Spade | RegSuits.Heart | RegSuits.Club | RegSuits.Diamond | TrumpSuit
-
-enum RegValues {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-    _8 = 8,
-    _9 = 9,
-    _10 = 10,
-    V = 'V',
-    C = 'C',
-    D = 'D',
-    R = 'R',
-}
-
-enum TrumpValues {
-    Joker = 'Joker',
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-    _8 = 8,
-    _9 = 9,
-    _10 = 10,
-    _11 = 11,
-    _12 = 12,
-    _13 = 13,
-    _14 = 14,
-    _15 = 15,
-    _16 = 16,
-    _17 = 17,
-    _18 = 18,
-    _19 = 19,
-    _20 = 20,
-    _21 = 21,
-}
-
-type Bout = TrumpValues._1 | TrumpValues._21 | TrumpValues.Joker
-
-interface BaseCard {
-    readonly suit: Suit
-    readonly value: RegValues | TrumpValues
-}
-
-interface RegCard extends BaseCard {
-    readonly suit: RegSuits
-    readonly value: RegValues
-}
-
-interface TrumpCard extends BaseCard {
-    readonly suit: TrumpSuit
-    readonly value: TrumpValues
-}
-
-type Card = RegCard | TrumpCard
-
-function createAllCards() {
-    let cards = []
-    for (let suit in RegSuits) {
-        for (let value in RegValues) {
-            cards.push({ suit, value })
-        }
-    }
-    for (let value in TrumpValues) {
-        cards.push({ suit: TrumpSuit, value})
-    }
-}
-
-/* STRUCTS */
-
-enum BidValues {
-    TEN = 10,
-    TWENTY = 20,
-    FORTY = 40,
-    EIGHTY = 80,
-    ONESIXTY = 160,
-}
-
-enum Calls {
-    RUSSIAN = "russian",
-    DECLARED_SLAM = "declared_slam",
-    SHOWED = "showed",
-}
-
-enum Outcomes {
-    SLAMMED = "slammed",
-    ONE_LAST = "one_last",
-}
-
-interface Hand {
-    readonly cards: Card[]
-}
-
-interface Player {
-    readonly name: String
-}
-
-interface Trick {
-    // n-th card was played by n-th player
-    readonly cards: Card[]
-    readonly players: Player[]
-    readonly leadSuit?: Suit
-}
-
-interface CompletedTrick {
-    readonly trickNum: number
-    readonly cards: Card[]
-    readonly players: Player[]
-    readonly winner: Player
-}
-
-interface Bid {
-    readonly player: Player
-    readonly bid: BidValues
-    readonly calls: Calls[]
-}
-
-interface CurrentBids {
-    // in order of bid
-    readonly bids: Bid[]
-    // remaining bidders, in order of bidding, 0-th position is next bidder
-    readonly bidders: Player[]
-    readonly currentHigh: Bid
-}
-
-interface CompletedBids {
-    readonly winningBid: Bid
-    readonly calls: {Player: Calls[]}
-}
-
-interface ShowTrumpState {
-    readonly cards: TrumpCard[]
-    readonly playerRevealing?: Player
-    readonly playersUnacked: Player[] // if empty, all done.
-}
-
-interface JokerExchangeState {
-    readonly player: Player
-    readonly owedTo: Player
-    readonly cardExchanged?: Card // if present, exchange completed
-}
-
-/* ACTIONS */
-
-interface CallPartner {
-    readonly card: Card
-}
-
-interface MakeCall {
-    readonly call: Calls
-}
-
-interface PlayCard {
-    readonly card: Card
-}
-
 /* STATES */
 
+interface NewGameBoardState {
+    readonly players: Player[]
+    /** n-th value is readiness of n-th player */
+    readonly ready: boolean[]
+}
+type NewGameActions = EnterGameAction | PlayerReadyAction | MessageAction
+
 /**
- * Actions:
- *  - {@link Bid}
- *  - {@link MakeCall}
- *  - {@link AckTrump}
- *
  * Transitions:
  *  - {@link PartnerCallBoardState}
  *  - {@link DogRevealState}
@@ -195,13 +23,9 @@ interface BiddingBoardState {
     readonly currentBidder: Player
     readonly shows: ShowTrumpState[]
 }
+type BiddingStateActions = BidAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 /**
- * Actions:
- *  - {@link CallPartner}
- *  - {@link MakeCall}
- *  - {@link AckTrump}
- *
  * Transitions:
  *  - {@link DogRevealState}
  *  - {@link PlayingBoardState}
@@ -216,17 +40,13 @@ interface PartnerCallBoardState {
     readonly bidding: CompletedBids
     readonly shows: ShowTrumpState[]
 }
+type PartnerCallStateActions = CallPartnerAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 /**
- * Actions:
- *  - {@link AckDog}
- *  - {@link MakeCall}
- *  - {@link AckTrump}
- *
  * Transitions:
  *  - {@link BidderDogExchangePhase}
  */
-interface DogRevealState {
+interface DogRevealBoardState {
     readonly players: Player[]
     readonly bidder: Player
     readonly called?: Card
@@ -238,19 +58,13 @@ interface DogRevealState {
     readonly bidding: CompletedBids
     readonly shows: ShowTrumpState[]
 }
+type DogRevealStateActions = AckDogAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
 
 /**
- * Actions:
- *  - {@link TakeDog} (bidder only)
- *  - {@link AddToDog} (bidder only)
- *  - {@link AckDog} (bidder only)
- *  - {@link MakeCall}
- *  - {@link AckTrump}
- *
  * Transitions:
  *  - {@link PlayingBoardState}
  */
-interface BidderDogExchangePhase {
+interface BidderDogExchangeBoardState {
     readonly players: Player[]
     readonly bidder: Player
     readonly called?: Card
@@ -261,13 +75,11 @@ interface BidderDogExchangePhase {
     readonly bidding: CompletedBids
     readonly shows: ShowTrumpState[]
 }
+/** {@link TakeDogAction}, {@link AddToDogAction}, and {@link AckDogAction} are for bidder only */
+type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogAction |
+    MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 /**
- * Actions:
- *  - {@link PlayCard}
- *  - {@link MakeCall}
- *  - {@link AckTrump}
- *
  * Transitions:
  *  - {@link CompletedBoardState}
  */
@@ -288,6 +100,7 @@ interface PlayingBoardState {
     readonly currentPlayer: Player
     readonly pastTricks: CompletedTrick[]
 }
+type PlayingStateActions = PlayCardAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 interface CompletedBoardState {
     readonly players: Player[]
@@ -302,13 +115,9 @@ interface CompletedBoardState {
     readonly jokerState?: JokerExchangeState
 
     readonly pastTricks: CompletedTrick[]
-    readonly outcomes: {Player: Outcomes[]}
-
-    readonly pointsEarned: number
-    readonly bouts: number
-    readonly bidderWon: boolean
-    readonly pointsResult: number
+    readonly endState: CompletedGameState
 }
+type CompletedStateActions = MessageAction
 
 
 
