@@ -72,18 +72,6 @@ interface TrumpCard extends BaseCard {
 
 type Card = RegCard | TrumpCard
 
-function createAllCards() {
-    let cards = []
-    for (let suit in RegSuit) {
-        for (let value in RegValue) {
-            cards.push({ suit, value })
-        }
-    }
-    for (let value in TrumpValue) {
-        cards.push({ suit: TrumpSuit, value})
-    }
-}
-
 /* STRUCTS */
 
 enum BidValue {
@@ -105,16 +93,12 @@ enum Outcome {
     ONE_LAST = "one_last",
 }
 
-interface Hand {
-    readonly cards: Card[]
-}
-
 interface Player {
-    readonly name: String
+    readonly name: string
 }
 
 interface Trick {
-    readonly trickNum: number
+    readonly trick_num: number
     /** n-th card was played by n-th player */
     readonly cards: Card[]
     readonly players: Player[]
@@ -122,7 +106,7 @@ interface Trick {
 }
 
 interface CompletedTrick {
-    readonly trickNum: number
+    readonly trick_num: number
     readonly cards: Card[]
     readonly players: Player[]
     readonly winner: Player
@@ -139,44 +123,48 @@ interface CurrentBids {
     readonly bids: Bid[]
     /** remaining bidders, in order of bidding, 0-th position is next bidder */
     readonly bidders: Player[]
-    readonly currentHigh: Bid
+    readonly current_high?: Bid
 }
 
 interface CompletedBids {
-    readonly winningBid: Bid
-    readonly calls: {Player: Call[]}
+    readonly winning_bid: Bid
+    readonly calls: Map<Player, Call[]>
 }
 
 interface ShowTrumpState {
     readonly cards: TrumpCard[]
-    readonly playerRevealing: Player
+    readonly player_revealing: Player
     /** if empty, all done. */
-    readonly playersUnacked: Player[]
+    readonly players_unacked: Player[]
 }
 
 interface JokerExchangeState {
     readonly player: Player
-    readonly owedTo: Player
+    readonly owed_to: Player
     /** if present, exchange completed */
-    readonly cardExchanged?: Card
+    readonly card_exchanged?: Card
 }
 
 interface CompletedGameState {
     readonly bidder: Player
     readonly partner?: Player
 
-    readonly calls: {Player: Call[]}
-    readonly outcomes: {Player: Outcome[]}
-    readonly pointsEarned: number
+    readonly calls: Map<Player, Call[]>
+    readonly outcomes: Map<Player, Outcome[]>
+    readonly points_earned: number
     readonly bouts: number
-    readonly bidderWon: boolean
-    readonly pointsResult: number
+    readonly bidder_won: boolean
+    readonly points_result: number
+}
+
+interface PlayerEvent {
+    readonly type: string
+    readonly time: Date
 }
 
 /* ACTIONS */
 
-interface Action {
-    readonly type: string
+interface Action extends PlayerEvent {
     readonly player: Player;
 }
 
@@ -190,7 +178,7 @@ interface EnterGameAction extends Action {
 }
 
 interface PlayerReadyAction extends Action {
-    readonly type: 'player_ready'
+    readonly type: 'mark_player_ready'
 }
 
 interface BidAction extends Action {
@@ -209,7 +197,7 @@ interface ShowTrumpAction extends Action {
 interface AckTrumpShowAction extends Action {
     readonly type: 'ack_trump_show'
     /** If equal to {@link $player}, is player returning show to hand */
-    readonly showingPlayer: Player
+    readonly showing_player: Player
 }
 
 interface CallPartnerAction extends Action {
@@ -242,22 +230,21 @@ interface PlayCardAction extends Action {
 
 /* TRANSITIONS */
 
-interface Transition {
-    readonly type: String
+interface Transition extends PlayerEvent {
     /** if contains state for only one player, which player to send to */
-    readonly privateTransition?: Player
+    readonly private_to?: Player
 }
 
-interface NewGameTransition extends Transition {
-    readonly type: 'new_game'
-    readonly privateTransition: Player
+interface GameStartTransition extends Transition {
+    readonly type: 'game_start'
+    readonly private_to: Player
 
-    readonly deal: Card[]
+    readonly hand: Card[]
 }
 
 interface BiddingCompletedTransition extends Transition {
     readonly type: 'bidding_completed'
-    readonly privateTransition: undefined
+    readonly private_to: undefined
 
     readonly winner: Player
     readonly bid: BidValue
@@ -266,24 +253,48 @@ interface BiddingCompletedTransition extends Transition {
 
 interface DogRevealTransition extends Transition {
     readonly type: 'dog_reveal'
-    readonly privateTransition: undefined
+    readonly private_to: undefined
 
     readonly dog: Card[]
 }
 
 interface CompletedTrickTransition extends Transition {
     readonly type: 'completed_trick'
-    readonly privateTransition: undefined
+    readonly private_to: undefined
 
     readonly winner: Player
-    readonly winningCard: Card
-    readonly jokerState?: JokerExchangeState
+    readonly winning_card: Card
+    readonly joker_state?: JokerExchangeState
 }
 
 interface GameCompletedTransition extends Transition {
     readonly type: 'game_completed'
-    readonly privateTransition: undefined
+    readonly private_to: undefined
 
-    readonly endState: CompletedGameState
+    readonly end_state: CompletedGameState
 }
 
+
+/* VIEWS */
+
+interface PlayerView {
+    events: Event[]
+}
+
+interface NewGameView extends PlayerView {
+
+}
+
+/* ERRORS */
+
+const errorActionAlreadyHappened = function(action: Action, state: any) {
+    return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`);
+};
+
+const errorTooManyPlayers = function(player: Player, players: Player[]) {
+    return new Error(`Cannot add ${player} as there are already too many players: ${players}`);
+}
+
+const errorPlayerNotInGame = function(player: Player, players: Player[]) {
+    return new Error(`Cannot mark ${player} as ready because they're not in the game! Existing players: ${players}`);
+}

@@ -1,124 +1,22 @@
-/* STATES */
+const createAllCards = function(): Card[] {
+    const cards: Card[] = [];
+    for (const suit in RegSuit) {
+        for (const value in RegValue) {
+            cards.push({
+                suit: RegSuit[suit as keyof typeof RegSuit],
+                value: RegValue[value as keyof typeof RegValue] })
+        }
+    }
+    for (const value in TrumpValue) {
+        cards.push({ suit: TrumpSuit, value: TrumpValue[value as keyof typeof TrumpValue]})
+    }
+    return cards
+};
 
-interface NewGameBoardState {
-    readonly players: Player[]
-    /** n-th value is readiness of n-th player */
-    readonly ready: boolean[]
-}
-type NewGameActions = EnterGameAction | PlayerReadyAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link PartnerCallBoardState}
- *  - {@link DogRevealState}
- *  - {@link PlayingBoardState}
- */
-interface BiddingBoardState {
-    readonly players: Player[]
-
-    readonly hands: {Player: Hand}
-    readonly dog: Card[]
-
-    readonly bidding: CurrentBids
-    readonly currentBidder: Player
-    readonly shows: ShowTrumpState[]
-}
-type BiddingStateActions = BidAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link DogRevealState}
- *  - {@link PlayingBoardState}
- */
-interface PartnerCallBoardState {
-    readonly players: Player[]
-    readonly bidder: Player
-
-    readonly hands: {Player: Hand}
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
-}
-type PartnerCallStateActions = CallPartnerAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link BidderDogExchangePhase}
- */
-interface DogRevealBoardState {
-    readonly players: Player[]
-    readonly bidder: Player
-    readonly called?: Card
-
-    readonly hands: {Player: Hand}
-    readonly dog: Card[]
-    readonly playersUnacked: Player[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
-}
-type DogRevealStateActions = AckDogAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link PlayingBoardState}
- */
-interface BidderDogExchangeBoardState {
-    readonly players: Player[]
-    readonly bidder: Player
-    readonly called?: Card
-
-    readonly hands: {Player: Hand}
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
-}
-/** {@link TakeDogAction}, {@link AddToDogAction}, and {@link AckDogAction} are for bidder only */
-type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogAction |
-    MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link CompletedBoardState}
- */
-interface PlayingBoardState {
-    readonly players: Player[]
-    readonly bidder: Player
-    readonly called?: Card
-    readonly partner?: Player
-
-    readonly hands: {Player: Hand}
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
-    readonly jokerState?: JokerExchangeState
-
-    readonly currentTrick: Trick
-    readonly currentPlayer: Player
-    readonly pastTricks: CompletedTrick[]
-}
-type PlayingStateActions = PlayCardAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
-
-interface CompletedBoardState {
-    readonly players: Player[]
-    readonly bidder: Player
-    readonly called?: Card
-    readonly partner?: Player
-
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
-    readonly jokerState?: JokerExchangeState
-
-    readonly pastTricks: CompletedTrick[]
-    readonly endState: CompletedGameState
-}
-type CompletedStateActions = MessageAction
-
-
-
+const dealCards = function(players: Player[]): {dog: Card[], hands: Map<Player, Card[]>} {
+    const cards = _.shuffle<Card>(createAllCards());
+    const dogSize = players.length > 4 ? 3 : 6;
+    const [dog, ...hands] = _.chunk(cards, (cards.length - dogSize) / players.length);
+    return { dog, hands: new Map(_.zip(players, hands) as unknown as [Player, Card[]][]) };
+};
 
