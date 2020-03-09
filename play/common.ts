@@ -75,6 +75,7 @@ type Card = RegCard | TrumpCard
 /* STRUCTS */
 
 enum BidValue {
+    PASS = 0,
     TEN = 10,
     TWENTY = 20,
     FORTY = 40,
@@ -97,11 +98,16 @@ interface Player {
     readonly name: string
 }
 
+const DummyPlayer: Player = {
+    name: '[dummy null player]'
+};
+
 interface Trick {
     readonly trick_num: number
     /** n-th card was played by n-th player */
     readonly cards: Card[]
     readonly players: Player[]
+    readonly current_player: number
     readonly leadSuit?: Suit
 }
 
@@ -123,7 +129,7 @@ interface CurrentBids {
     readonly bids: Bid[]
     /** remaining bidders, in order of bidding, 0-th position is next bidder */
     readonly bidders: Player[]
-    readonly current_high?: Bid
+    readonly current_high: Bid
 }
 
 interface CompletedBids {
@@ -183,8 +189,7 @@ interface PlayerReadyAction extends Action {
 
 interface BidAction extends Action {
     readonly type: 'bid'
-    /** Null means pass */
-    readonly bid?: BidValue
+    readonly bid: BidValue
     readonly calls: Call[]
 }
 
@@ -235,8 +240,8 @@ interface Transition extends PlayerEvent {
     readonly private_to?: Player
 }
 
-interface GameStartTransition extends Transition {
-    readonly type: 'game_start'
+interface DealtHandTransition extends Transition {
+    readonly type: 'dealt_hand'
     readonly private_to: Player
 
     readonly hand: Card[]
@@ -246,9 +251,7 @@ interface BiddingCompletedTransition extends Transition {
     readonly type: 'bidding_completed'
     readonly private_to: undefined
 
-    readonly winner: Player
-    readonly bid: BidValue
-    readonly russian: boolean
+    readonly winning_bid: Bid
 }
 
 interface DogRevealTransition extends Transition {
@@ -256,6 +259,11 @@ interface DogRevealTransition extends Transition {
     readonly private_to: undefined
 
     readonly dog: Card[]
+}
+
+interface GameStartTransition extends Transition {
+    readonly type: 'game_start'
+    readonly first_player: Player
 }
 
 interface CompletedTrickTransition extends Transition {
@@ -272,6 +280,11 @@ interface GameCompletedTransition extends Transition {
     readonly private_to: undefined
 
     readonly end_state: CompletedGameState
+}
+
+interface GameAbortedTransition extends Transition {
+    readonly type: 'game_aborted'
+    readonly reason: string
 }
 
 
@@ -293,8 +306,16 @@ const errorActionAlreadyHappened = function(action: Action, state: any) {
 
 const errorTooManyPlayers = function(player: Player, players: Player[]) {
     return new Error(`Cannot add ${player} as there are already too many players: ${players}`);
-}
+};
 
 const errorPlayerNotInGame = function(player: Player, players: Player[]) {
     return new Error(`Cannot mark ${player} as ready because they're not in the game! Existing players: ${players}`);
+};
+
+const errorBiddingOutOfTurn = function(player: Player, current: Player) {
+    return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
+};
+
+const errorBidTooLow = function(action: BidValue, current: BidValue) {
+    return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
 }
