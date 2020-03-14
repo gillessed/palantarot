@@ -20,3 +20,10 @@ const dealCards = function(players: Player[]): {dog: Card[], hands: Map<Player, 
     return { dog, hands: new Map(_.zip(players, hands) as unknown as [Player, Card[]][]) };
 };
 
+const getTrumps = function(cards?: Card[]): TrumpCard[] {
+    return cards?.filter((card: Card): card is TrumpCard => card.suit == TrumpSuit) || [];
+};
+
+const cardsEqual = function(one: Card[], two: Card[]): boolean {
+    return _.isEqual(one.sort(), two.sort());
+};

@@ -84,14 +84,13 @@ enum BidValue {
 }
 
 enum Call {
-    RUSSIAN = "russian",
-    DECLARED_SLAM = "declared_slam",
-    SHOWED = "showed",
+    RUSSIAN = 'russian',
+    DECLARED_SLAM = 'declared_slam',
 }
 
 enum Outcome {
-    SLAMMED = "slammed",
-    ONE_LAST = "one_last",
+    SLAMMED = 'slammed',
+    ONE_LAST = 'one_last',
 }
 
 interface Player {
@@ -137,12 +136,7 @@ interface CompletedBids {
     readonly calls: Map<Player, Call[]>
 }
 
-interface ShowTrumpState {
-    readonly cards: TrumpCard[]
-    readonly player_revealing: Player
-    /** if empty, all done. */
-    readonly players_unacked: Player[]
-}
+interface ShowTrumpState extends Map<Player, Set<Player>> { }
 
 interface JokerExchangeState {
     readonly player: Player
@@ -165,13 +159,13 @@ interface CompletedGameState {
 
 interface PlayerEvent {
     readonly type: string
-    readonly time: Date
 }
 
 /* ACTIONS */
 
 interface Action extends PlayerEvent {
     readonly player: Player;
+    readonly time: Date
 }
 
 interface MessageAction extends Action {
@@ -210,9 +204,8 @@ interface CallPartnerAction extends Action {
     readonly card: Card
 }
 
-interface MakeCallAction extends Action {
-    readonly type: 'make_call'
-    readonly call: Call
+interface DeclareSlam extends Action {
+    readonly type: 'declare_slam'
 }
 
 interface AckDogAction extends Action {
@@ -245,6 +238,11 @@ interface DealtHandTransition extends Transition {
     readonly private_to: Player
 
     readonly hand: Card[]
+}
+
+interface EndTrumpShowTransition extends Transition {
+    readonly type: 'end_trump_show'
+    readonly player_showing_trump: Player
 }
 
 interface BiddingCompletedTransition extends Transition {
@@ -318,4 +316,16 @@ const errorBiddingOutOfTurn = function(player: Player, current: Player) {
 
 const errorBidTooLow = function(action: BidValue, current: BidValue) {
     return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
-}
+};
+
+const errorCannotShowTwice = function(player: Player) {
+    return new Error(`${player} cannot show trump twice!`)
+};
+
+const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
+    return new Error(`Invalid trump show ${action}, didn't get the following expected trump: ${expected}.`)
+};
+
+const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
+    return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
+};

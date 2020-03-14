@@ -41,7 +41,7 @@ const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGa
                 throw errorActionAlreadyHappened(action, state.ready)
             } else if (state.players.indexOf(action.player) < 0) {
                 throw errorPlayerNotInGame(action.player, state.players);
-            } else if (state.ready.length + 1 != state.players.length || state.players.length < 3) {
+            } else if (state.ready.length + 1 !== state.players.length || state.players.length < 3) {
                 return [
                     {
                         ...state,
@@ -51,7 +51,6 @@ const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGa
                 ]
             } else {
                 const {dog, hands} = dealCards(state.players);
-                const time = new Date();
                 return [
                     {
                         name: 'bidding',
@@ -67,13 +66,12 @@ const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGa
                                 calls: []
                             },
                         },
-                        shows: [],
+                        shows: new Map<Player, Set<Player>>(),
                     } as BiddingBoardState,
                     action,
                     ...Array.from(hands.entries()).map(([player, hand]): DealtHandTransition => ({
                         type: 'dealt_hand',
                         private_to: player,
-                        time,
                         hand,
                     }))
                 ]
@@ -88,10 +86,10 @@ interface BiddingBoardState extends BoardState {
     readonly dog: Card[]
 
     readonly bidding: CurrentBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
 }
-type BiddingStateActions = BidAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
-type BiddingStates = PartnerCallBoardState | DogRevealBoardState | PlayingBoardState | NewGameBoardState
+type BiddingStateActions = BidAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealBoardState | PlayingBoardState | NewGameBoardState
 
 function getTrickPlayerOrder(players: Player[], firstPlayer: Player) {
     const trickOrder = [...players];
@@ -109,27 +107,85 @@ function getAllCalls(players: Player[], bidding: CurrentBids) {
     return calls;
 }
 
+const updateBids = function(state: CurrentBids, bid: BidAction): CurrentBids {
+    if (state.bidders[0] !== bid.player) {
+        throw errorBiddingOutOfTurn(bid.player, state.bidders[0])
+    } else if (bid.bid == BidValue.PASS) {
+        return {
+            bids: [...state.bids, bid],
+            bidders: state.bidders.slice(1),
+            current_high: state.current_high,
+        }
+    } else if (state.current_high.bid >= bid.bid) {
+        throw errorBidTooLow(bid.bid, state.current_high.bid);
+    } else { // new bid is high
+        const bidders = [...state.bidders];
+        bidders.push(bidders.shift() as Player);
+        return {
+            bids: [...state.bids, bid],
+            bidders,
+            current_high: bid,
+        }
+    }
+};
+
 const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
-        case "make_call":
-            break;
+        case "declare_slam":
+            return [
+                {
+                    ...state,
+                    bidding: {
+                        ...state.bidding,
+                        bids: [
+                            ...state.bidding.bids,
+                            {
+                                player: action.player,
+                                bid: BidValue.PASS,
+                                calls: [Call.DECLARED_SLAM],
+                            },
+                        ],
+                    },
+                } as BiddingBoardState,
+                action,
+            ];
         case "show_trump":
-            break;
+            if (state.shows.has(action.player)) {
+                throw errorCannotShowTwice(action.player);
+            } else if (!cardsEqual(getTrumps(state.hands.get(action.player)), action.cards)) {
+                throw errorInvalidTrumpShow(action, getTrumps(state.hands.get(action.player)));
+            } else {
+                const shows = new Map<Player, Set<Player>>(state.shows);
+                shows.set(action.player, new Set(state.players));
+                return [{...state, shows}, action]
+            }
         case "ack_trump_show":
-            break;
+            const current_show = state.shows.get(action.showing_player);
+            if (current_show === undefined) {
+                throw errorTrumpNotBeingShown(action.showing_player, [...state.shows.keys()]);
+            } else if (!current_show.has(action.player)) {
+                return [state] // no-op, already acked
+            } else {
+                const shows = new Map<Player, Set<Player>>(state.shows);
+                const new_show = new Set<Player>(current_show);
+                new_show.delete(action.player);
+                shows.set(action.showing_player, new_show);
+                return [{...state, shows}, action]
+            }
         case "bid":
-            if (state.bidding.bidders[0] !== action.player) {
-                throw errorBiddingOutOfTurn(action.player, state.bidding.bidders[0])
-            } else if (action.bid != BidValue.PASS && state.bidding.current_high.bid >= action.bid) {
-                throw errorBidTooLow(action.bid, state.bidding.current_high.bid);
-            } else if (state.bidding.bidders.length > 1) {
-                // TODO update bids
-                return [state, action]
+            const new_bid_state = updateBids(state.bidding, action);
+            if (state.bidding.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
+                return [
+                    {
+                        ...state,
+                        bidding: new_bid_state,
+                    } as BiddingBoardState,
+                    action
+                ]
             } else { // last bid
-                // TODO update bids
-                if (state.bidding.current_high.bid == BidValue.PASS) { // all passes
+                if (state.bidding.current_high.bid === BidValue.PASS) { // all passes
                     return [
                         {
                             name: 'new_game',
@@ -226,7 +282,6 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                                 first_player: trickOrder[0],
                             },
                         ]
-
                     }
                 }
             }
@@ -247,9 +302,9 @@ interface PartnerCallBoardState extends BoardState {
     readonly dog: Card[]
 
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
 }
-type PartnerCallStateActions = CallPartnerAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
+type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 /**
  * Transitions:
@@ -266,9 +321,9 @@ interface DogRevealBoardState extends BoardState {
     readonly players_acked: Player[]
 
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
 }
-type DogRevealStateActions = AckDogAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
+type DogRevealStateActions = AckDogAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
 
 /**
  * Transitions:
@@ -284,11 +339,11 @@ interface BidderDogExchangeBoardState extends BoardState {
     readonly dog: Card[]
 
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
 }
 /** {@link TakeDogAction}, {@link AddToDogAction}, and {@link AckDogAction} are for bidder only */
 type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogAction |
-    MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
+    DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 /**
  * Transitions:
@@ -305,13 +360,13 @@ interface PlayingBoardState extends BoardState {
     readonly dog: Card[]
 
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
     readonly joker_state?: JokerExchangeState
 
     readonly current_trick: Trick
     readonly past_tricks: CompletedTrick[]
 }
-type PlayingStateActions = PlayCardAction | MakeCallAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
+type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 
 interface CompletedBoardState extends BoardState {
     readonly name: 'completed'
@@ -323,7 +378,7 @@ interface CompletedBoardState extends BoardState {
     readonly dog: Card[]
 
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState[]
+    readonly shows: ShowTrumpState
     readonly joker_state?: JokerExchangeState
 
     readonly past_tricks: CompletedTrick[]
