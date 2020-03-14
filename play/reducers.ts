@@ -116,7 +116,7 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                             },
                         ],
                     },
-                } as BiddingBoardState,
+                },
                 action,
             ];
         case "show_trump":
@@ -260,11 +260,11 @@ const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallSt
     switch (action.type) {
         case "message":
             return [state, action];
+        case "declare_slam":
+            break;
         case "show_trump":
             break;
         case "ack_trump_show":
-            break;
-        case "declare_slam":
             break;
         case "call_partner":
             break;

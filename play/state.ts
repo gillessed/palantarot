@@ -9,6 +9,12 @@ interface BoardState {
     readonly players: Player[]
 }
 
+interface DealtBoardState extends BoardState {
+    readonly hands: Map<Player, Card[]>
+    readonly dog: Card[]
+    readonly shows: ShowTrumpState
+}
+
 interface NewGameBoardState extends BoardState {
     readonly name: 'new_game'
 
@@ -18,28 +24,19 @@ interface NewGameBoardState extends BoardState {
 type NewGameActions = EnterGameAction | PlayerReadyAction | MessageAction
 type NewGameStates = NewGameBoardState | BiddingBoardState
 
-interface BiddingBoardState extends BoardState {
+interface BiddingBoardState extends DealtBoardState {
     readonly name: 'bidding'
 
-    readonly hands: Map<Player, Card[]>
-    readonly dog: Card[]
-
     readonly bidding: CurrentBids
-    readonly shows: ShowTrumpState
 }
 type BiddingStateActions = BidAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealBoardState | PlayingBoardState | NewGameBoardState
 
-interface PartnerCallBoardState extends BoardState {
+interface PartnerCallBoardState extends DealtBoardState {
     readonly name: 'partner_call'
 
-    readonly bidder: Player
-
-    readonly hands: Map<Player, Card[]>
-    readonly dog: Card[]
-
     readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState
+    readonly bidder: Player
 }
 type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 type PartnerCallStates = PartnerCallBoardState | DogRevealBoardState | PlayingBoardState
@@ -48,18 +45,15 @@ type PartnerCallStates = PartnerCallBoardState | DogRevealBoardState | PlayingBo
  * Transitions:
  *  - {@link BidderDogExchangePhase}
  */
-interface DogRevealBoardState extends BoardState {
+interface DogRevealBoardState extends DealtBoardState {
     readonly name: 'dog_reveal'
 
+    readonly bidding: CompletedBids
     readonly bidder: Player
-    readonly called?: Card
 
-    readonly hands: Map<Player, Card[]>
-    readonly dog: Card[]
+    readonly called?: Card
     readonly players_acked: Player[]
 
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState
 }
 type DogRevealStateActions = AckDogAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
 
@@ -67,17 +61,12 @@ type DogRevealStateActions = AckDogAction | DeclareSlam | ShowTrumpAction | AckT
  * Transitions:
  *  - {@link PlayingBoardState}
  */
-interface BidderDogExchangeBoardState extends BoardState {
+interface BidderDogExchangeBoardState extends DealtBoardState {
     readonly name: 'bidder_dog_exchange'
 
+    readonly bidding: CompletedBids
     readonly bidder: Player
     readonly called?: Card
-
-    readonly hands: Map<Player, Card[]>
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState
 }
 /** {@link TakeDogAction}, {@link AddToDogAction}, and {@link AckDogAction} are for bidder only */
 type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogAction |
@@ -87,18 +76,14 @@ type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogActi
  * Transitions:
  *  - {@link CompletedBoardState}
  */
-interface PlayingBoardState extends BoardState {
+interface PlayingBoardState extends DealtBoardState {
     readonly name: 'playing'
 
+    readonly bidding: CompletedBids
     readonly bidder: Player
     readonly called?: Card
     readonly partner?: Player
 
-    readonly hands: Map<Player, Card[]>
-    readonly dog: Card[]
-
-    readonly bidding: CompletedBids
-    readonly shows: ShowTrumpState
     readonly joker_state?: JokerExchangeState
 
     readonly current_trick: Trick
