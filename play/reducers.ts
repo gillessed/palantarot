@@ -97,6 +97,34 @@ const updateBids = function(state: CurrentBids, bid: BidAction): CurrentBids {
     }
 };
 
+function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: ShowTrumpAction): [T, ShowTrumpAction] {
+    if (state.shows.has(action.player)) {
+        throw errorCannotShowTwice(action.player);
+    } else if (!cardsEqual(getTrumps(state.hands.get(action.player)), action.cards)) {
+        throw errorInvalidTrumpShow(action, getTrumps(state.hands.get(action.player)));
+    } else {
+        const shows = new Map<Player, Set<Player>>(state.shows);
+        shows.set(action.player, new Set(state.players));
+        return [{...state, shows}, action]
+    }
+}
+
+function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: AckTrumpShowAction)
+        : [T, ...AckTrumpShowAction[]] {
+    const current_show = state.shows.get(action.showing_player);
+    if (current_show === undefined) {
+        throw errorTrumpNotBeingShown(action.showing_player, [...state.shows.keys()]);
+    } else if (!current_show.has(action.player)) {
+        return [state] // no-op, already acked
+    } else {
+        const shows = new Map<Player, Set<Player>>(state.shows);
+        const new_show = new Set<Player>(current_show);
+        new_show.delete(action.player);
+        shows.set(action.showing_player, new_show);
+        return [{...state, shows}, action]
+    }
+}
+
 const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function(state, action) {
     switch (action.type) {
         case "message":
@@ -120,28 +148,9 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                 action,
             ];
         case "show_trump":
-            if (state.shows.has(action.player)) {
-                throw errorCannotShowTwice(action.player);
-            } else if (!cardsEqual(getTrumps(state.hands.get(action.player)), action.cards)) {
-                throw errorInvalidTrumpShow(action, getTrumps(state.hands.get(action.player)));
-            } else {
-                const shows = new Map<Player, Set<Player>>(state.shows);
-                shows.set(action.player, new Set(state.players));
-                return [{...state, shows}, action]
-            }
+            return showTrumpActionReducer(state, action);
         case "ack_trump_show":
-            const current_show = state.shows.get(action.showing_player);
-            if (current_show === undefined) {
-                throw errorTrumpNotBeingShown(action.showing_player, [...state.shows.keys()]);
-            } else if (!current_show.has(action.player)) {
-                return [state] // no-op, already acked
-            } else {
-                const shows = new Map<Player, Set<Player>>(state.shows);
-                const new_show = new Set<Player>(current_show);
-                new_show.delete(action.player);
-                shows.set(action.showing_player, new_show);
-                return [{...state, shows}, action]
-            }
+            return ackTrumpShowActionReducer(state, action);
         case "bid":
             const new_bid_state = updateBids(state.bidding, action);
             if (state.bidding.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
@@ -261,11 +270,24 @@ const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallSt
         case "message":
             return [state, action];
         case "declare_slam":
-            break;
+            const calls = new Map<Player, Call[]>(state.bidding.calls);
+            const player_call = new Set<Call>(calls.get(action.player));
+            player_call.add(Call.DECLARED_SLAM);
+            calls.set(action.player, [...player_call]);
+            return [
+                {
+                    ...state,
+                    bidding: {
+                        ...state.bidding,
+                        calls,
+                    },
+                },
+                action,
+            ];
         case "show_trump":
-            break;
+            return showTrumpActionReducer(state, action);
         case "ack_trump_show":
-            break;
+            return ackTrumpShowActionReducer(state, action);
         case "call_partner":
             break;
     }
