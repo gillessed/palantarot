@@ -46,14 +46,14 @@ const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGa
                                 calls: []
                             },
                         },
-                        shows: new Map<Player, Set<Player>>(),
+                        shows: {},
                     } as BiddingBoardState,
                     action,
-                    ...Array.from(hands.entries()).map(([player, hand]): DealtHandTransition => ({
+                    ..._.map(hands).map((hand: Card[], player: number) => ({
                         type: 'dealt_hand',
-                        private_to: player,
+                        private_to: state.players[player],
                         hand,
-                    } as DealtHandTransition))
+                    }) as DealtHandTransition)
                 ]
             }
     }
@@ -67,10 +67,14 @@ function getTrickPlayerOrder(players: Player[], firstPlayer: Player) {
     return trickOrder;
 }
 
-function getAllCalls(players: Player[], bidding: CurrentBids) {
-    const calls = new Map<Player, Call[]>(players.map((player) => [player, []]));
+function getAllCalls(players: Player[], bidding: CurrentBids): { [player: number]: Call[] } {
+    const calls: { [player: number]: Call[] } = {};
     for (const bid of bidding.bids.values()) {
-        (calls.get(bid.player) as Call[]).push(...bid.calls)
+        const player_num = getPlayerNum(players, bid.player);
+        if (!calls[player_num]) {
+            calls[player_num] = []
+        }
+        calls[player_num].push(...bid.calls)
     }
     return calls;
 }
@@ -98,30 +102,42 @@ const updateBids = function(state: CurrentBids, bid: BidAction): CurrentBids {
 };
 
 function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: ShowTrumpAction): [T, ShowTrumpAction] {
-    if (state.shows.has(action.player)) {
+    const player_num = getPlayerNum(state.players, action.player);
+    if (state.shows[player_num]) {
         throw errorCannotShowTwice(action.player);
-    } else if (!cardsEqual(getTrumps(state.hands.get(action.player)), action.cards)) {
-        throw errorInvalidTrumpShow(action, getTrumps(state.hands.get(action.player)));
+    } else if (!cardsEqual(getTrumps(state.hands[player_num]), action.cards)) {
+        throw errorInvalidTrumpShow(action, getTrumps(state.hands[player_num]));
     } else {
-        const shows = new Map<Player, Set<Player>>(state.shows);
-        shows.set(action.player, new Set(state.players));
-        return [{...state, shows}, action]
+        return [
+            {
+                ...state,
+                shows: {
+                    ...state.shows,
+                    player_num: state.players,
+                } as ShowTrumpState,
+            } as T,
+            action
+        ]
     }
 }
 
 function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: AckTrumpShowAction)
         : [T, ...AckTrumpShowAction[]] {
-    const current_show = state.shows.get(action.showing_player);
+    const showing_player_num = getPlayerNum(state.players, action.showing_player);
+    const current_show = state.shows[showing_player_num];
     if (current_show === undefined) {
-        throw errorTrumpNotBeingShown(action.showing_player, [...state.shows.keys()]);
-    } else if (!current_show.has(action.player)) {
-        return [state] // no-op, already acked
+        throw errorTrumpNotBeingShown(action.showing_player, Object.keys(state.shows));
     } else {
-        const shows = new Map<Player, Set<Player>>(state.shows);
-        const new_show = new Set<Player>(current_show);
-        new_show.delete(action.player);
-        shows.set(action.showing_player, new_show);
-        return [{...state, shows}, action]
+        return [
+            {
+                ...state,
+                shows: {
+                    ...state.shows,
+                    showing_player_num: _.filter(current_show, (player) => !_.isEqual(player, action.player)),
+                }
+            },
+            action
+        ]
     }
 }
 
@@ -206,7 +222,7 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                                 bidder: state.bidding.current_high.player,
                                 hands: state.hands,
                                 dog: state.dog,
-                                players_acked: new Set<Player>(),
+                                players_acked: [],
 
                                 bidding: {
                                     winning_bid: state.bidding.current_high,
@@ -269,16 +285,16 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
 // Somebody please get me help...
 function declareSlamActionReducer<T extends DealtBoardState & { bidding: CompletedBids }>(state: T, action: DeclareSlam)
         : [T, DeclareSlam] {
-    const calls = new Map<Player, Call[]>(state.bidding.calls);
-    const player_call = new Set<Call>(calls.get(action.player));
-    player_call.add(Call.DECLARED_SLAM);
-    calls.set(action.player, [...player_call]);
+    const player_num = getPlayerNum(state.players, action.player);
     return [
         {
             ...state,
             bidding: {
                 ...state.bidding,
-                calls,
+                calls: {
+                    ...state.bidding.calls,
+                    player_num: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
+                },
             },
         } as T,
         action,
@@ -305,13 +321,13 @@ const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallSt
         case "ack_trump_show":
             return ackTrumpShowActionReducer(state, action);
         case "call_partner":
-            if (action.card.suit === TrumpSuit) {
+            if (action.card[0] === TrumpSuit) {
                 throw errorCannotCallTrump(action.card);
             }
             let partner = undefined;
-            for (const entry of state.hands.entries()) {
-                if (entry[1].indexOf(action.card) > -1) {
-                    partner = entry[0];
+            for (const player_num in state.hands) {
+                if (state.hands[player_num].indexOf(action.card) > -1) {
+                    partner = player_num;
                     break;
                 }
             }
@@ -339,7 +355,7 @@ const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallSt
                         name: 'dog_reveal',
                         called: action.card,
                         partner,
-                        players_acked: new Set<Player>(),
+                        players_acked: [],
                     } as DogRevealAndExchangeBoardState,
                     action,
                     {
@@ -367,21 +383,22 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
             } else if (action.dog.length !== state.dog.length) {
                 throw errorNewDogWrongSize(action.dog, state.dog.length);
             } else {
-                const player_hand = state.hands.get(state.bidder) || [];
+                const player_num = getPlayerNum(state.players, state.bidder);
+                const player_hand = state.hands[player_num];
                 const cards = [...player_hand, ...state.dog];
                 const new_player_hand = _.intersectionWith(cards, player_hand, _.isEqual);
-                const hands = new Map<Player, Card[]>(state.hands);
-                hands.set(state.bidder, new_player_hand);
                 if (new_player_hand.length !== player_hand.length) {
                     throw errorNewDogDoesntMatchHand(action.dog, cards);
-                } else if (state.players_acked.size < state.players.length - 1) {
-                    const players_acked = new Set<Player>(state.players_acked);
-                    players_acked.add(state.bidder);
+                } else if (state.players_acked.length < state.players.length - 1) {
+                    const players_acked = _.union(state.players_acked, [state.bidder]);
                     return [
                         {
                             ...state,
                             dog: action.dog,
-                            hands,
+                            hands: {
+                                ...state.hands,
+                                player_num: new_player_hand
+                            },
                             players_acked,
                         } as DogRevealAndExchangeBoardState,
                         action,
@@ -392,8 +409,10 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                             ...state,
                             name: 'playing',
                             dog: action.dog,
-                            hands,
-
+                            hands: {
+                                ...state.hands,
+                                player_num: new_player_hand
+                            },
                             current_trick: getNewTrick(state.players, state.bidder, 0),
                             past_tricks: [],
                         } as PlayingBoardState,
@@ -406,9 +425,8 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                 }
             }
         case "ack_dog":
-            const players_acked = new Set<Player>(state.players_acked);
-            players_acked.add(state.bidder);
-            if (players_acked.size < state.players.length) {
+            const players_acked = _.union(state.players_acked, [state.bidder]);
+            if (players_acked.length < state.players.length) {
                 return [
                     {
                         ...state,

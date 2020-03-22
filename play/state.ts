@@ -10,7 +10,7 @@ interface BoardState {
 }
 
 interface DealtBoardState extends BoardState {
-    readonly hands: Map<Player, Card[]>
+    readonly hands: { [player: number]: Card[] }
     readonly dog: Card[]
     readonly shows: ShowTrumpState
 }
@@ -18,7 +18,6 @@ interface DealtBoardState extends BoardState {
 interface NewGameBoardState extends BoardState {
     readonly name: 'new_game'
 
-    /** n-th value is readiness of n-th player */
     readonly ready: Player[]
 }
 type NewGameActions = EnterGameAction | PlayerReadyAction | MessageAction
@@ -49,7 +48,7 @@ interface DogRevealAndExchangeBoardState extends DealtBoardState {
     readonly called?: Card
     readonly partner?: Player
 
-    readonly players_acked: Set<Player>
+    readonly players_acked: Player[]
 
 }
 /** {@link SetDogAction} is for bidder only */

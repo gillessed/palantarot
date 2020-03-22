@@ -55,20 +55,9 @@ enum TrumpValue {
 
 type Bout = TrumpValue._1 | TrumpValue._21 | TrumpValue.Joker
 
-interface BaseCard {
-    readonly suit: Suit
-    readonly value: RegValue | TrumpValue
-}
+type RegCard = [RegSuit, RegValue];
 
-interface RegCard extends BaseCard {
-    readonly suit: RegSuit
-    readonly value: RegValue
-}
-
-interface TrumpCard extends BaseCard {
-    readonly suit: TrumpSuit
-    readonly value: TrumpValue
-}
+type TrumpCard = [TrumpSuit, TrumpValue];
 
 type Card = RegCard | TrumpCard
 
@@ -93,13 +82,9 @@ enum Outcome {
     ONE_LAST = 'one_last',
 }
 
-interface Player {
-    readonly name: string
-}
+type Player = String
 
-const DummyPlayer: Player = {
-    name: '[dummy null player]'
-};
+const DummyPlayer: Player = '[dummy null player]';
 
 interface Trick {
     readonly trick_num: number
@@ -133,10 +118,10 @@ interface CurrentBids {
 
 interface CompletedBids {
     readonly winning_bid: Bid
-    readonly calls: Map<Player, Call[]>
+    readonly calls: { [player: number]: Call[] }
 }
 
-interface ShowTrumpState extends Map<Player, Set<Player>> { }
+type ShowTrumpState = { [player: number]: Player[] };
 
 interface JokerExchangeState {
     readonly player: Player
@@ -149,8 +134,8 @@ interface CompletedGameState {
     readonly bidder: Player
     readonly partner?: Player
 
-    readonly calls: Map<Player, Call[]>
-    readonly outcomes: Map<Player, Outcome[]>
+    readonly calls: { [player: number]: Call[] }
+    readonly outcomes: { [player: number]: Outcome[] }
     readonly points_earned: number
     readonly bouts: number
     readonly bidder_won: boolean
@@ -305,7 +290,7 @@ const errorTooManyPlayers = function(player: Player, players: Player[]) {
 };
 
 const errorPlayerNotInGame = function(player: Player, players: Player[]) {
-    return new Error(`Cannot mark ${player} as ready because they're not in the game! Existing players: ${players}`);
+    return new Error(`Cannot find ${player}! Existing players: ${players}`);
 };
 
 const errorBiddingOutOfTurn = function(player: Player, current: Player) {
@@ -342,7 +327,7 @@ const errorNewDogWrongSize = function(dog: Card[], expected: number) {
 
 const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
     return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`);
-}
+};
 
 const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
     return new Error(`Cannot conduct ${action}, as requested card is not in the players hand! Hand contains ${hand}`)
