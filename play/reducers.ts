@@ -53,7 +53,7 @@ const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGa
                         type: 'dealt_hand',
                         private_to: player,
                         hand,
-                    }))
+                    } as DealtHandTransition))
                 ]
             }
     }
@@ -174,7 +174,7 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                         {
                             type: 'game_aborted',
                             reason: 'Everybody passed!',
-                        }
+                        } as GameAbortedTransition,
                     ]
                 } else if (state.players.length === 5) {
                     return [
@@ -194,7 +194,7 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                         {
                             type: 'bidding_completed',
                             winning_bid: state.bidding.current_high,
-                        }
+                        } as BiddingCompletedTransition,
                     ]
                 } else { // 3 or 4 players
                     if (state.bidding.current_high.bid <= BidValue.FORTY) {
@@ -206,23 +206,23 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                                 bidder: state.bidding.current_high.player,
                                 hands: state.hands,
                                 dog: state.dog,
-                                players_acked: [],
+                                players_acked: new Set<Player>(),
 
                                 bidding: {
                                     winning_bid: state.bidding.current_high,
                                     calls: getAllCalls(state.players, state.bidding),
                                 },
                                 shows: state.shows,
-                            } as DogRevealBoardState,
+                            } as DogRevealAndExchangeBoardState,
                             action,
                             {
                                 type: 'bidding_completed',
                                 winning_bid: state.bidding.current_high,
-                            },
+                            } as BiddingCompletedTransition,
                             {
                                 type: 'dog_reveal',
                                 dog: state.dog,
-                            },
+                            } as DogRevealTransition,
                         ]
                     } else { // 80 or 160 bid
                         const trickOrder = getTrickPlayerOrder(state.players, state.bidding.current_high.player);
@@ -253,11 +253,11 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                             {
                                 type: 'bidding_completed',
                                 winning_bid: state.bidding.current_high,
-                            },
+                            } as BiddingCompletedTransition,
                             {
                                 type: 'game_start',
                                 first_player: trickOrder[0],
-                            },
+                            } as GameStartTransition,
                         ]
                     }
                 }
@@ -265,30 +265,172 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
     }
 };
 
+// Is this generic type declaration the best thing about Typescript, or the BEST thing about Typescript???
+// Somebody please get me help...
+function declareSlamActionReducer<T extends DealtBoardState & { bidding: CompletedBids }>(state: T, action: DeclareSlam)
+        : [T, DeclareSlam] {
+    const calls = new Map<Player, Call[]>(state.bidding.calls);
+    const player_call = new Set<Call>(calls.get(action.player));
+    player_call.add(Call.DECLARED_SLAM);
+    calls.set(action.player, [...player_call]);
+    return [
+        {
+            ...state,
+            bidding: {
+                ...state.bidding,
+                calls,
+            },
+        } as T,
+        action,
+    ];
+}
+
+function getNewTrick(players: Player[], first_player: Player, trick_num: number) {
+    return {
+        trick_num,
+        cards: [],
+        players: getTrickPlayerOrder(players, first_player),
+        current_player: 0,
+    };
+}
+
 const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
         case "declare_slam":
-            const calls = new Map<Player, Call[]>(state.bidding.calls);
-            const player_call = new Set<Call>(calls.get(action.player));
-            player_call.add(Call.DECLARED_SLAM);
-            calls.set(action.player, [...player_call]);
-            return [
-                {
-                    ...state,
-                    bidding: {
-                        ...state.bidding,
-                        calls,
-                    },
-                },
-                action,
-            ];
+            return declareSlamActionReducer(state, action);
         case "show_trump":
             return showTrumpActionReducer(state, action);
         case "ack_trump_show":
             return ackTrumpShowActionReducer(state, action);
         case "call_partner":
-            break;
+            if (action.card.suit === TrumpSuit) {
+                throw errorCannotCallTrump(action.card);
+            }
+            let partner = undefined;
+            for (const entry of state.hands.entries()) {
+                if (entry[1].indexOf(action.card) > -1) {
+                    partner = entry[0];
+                    break;
+                }
+            }
+            if (state.bidding.winning_bid.bid > BidValue.FORTY) {
+                return [
+                    {
+                        ...state,
+                        name: 'playing',
+                        called: action.card,
+                        partner,
+
+                        current_trick: getNewTrick(state.players, state.bidder, 0),
+                        past_tricks: [],
+                    } as PlayingBoardState,
+                    action,
+                    {
+                        type: 'game_start',
+                        first_player: state.bidder,
+                    } as GameStartTransition,
+                ]
+            } else {
+                return [
+                    {
+                        ...state,
+                        name: 'dog_reveal',
+                        called: action.card,
+                        partner,
+                        players_acked: new Set<Player>(),
+                    } as DogRevealAndExchangeBoardState,
+                    action,
+                    {
+                        type: 'dog_reveal',
+                        dog: state.dog,
+                    } as DogRevealTransition,
+                ]
+            }
+    }
+};
+
+const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates> = function(state, action) {
+    switch (action.type) {
+        case "message":
+            return [state, action];
+        case "declare_slam":
+            return declareSlamActionReducer(state, action);
+        case "show_trump":
+            return showTrumpActionReducer(state, action);
+        case "ack_trump_show":
+            return ackTrumpShowActionReducer(state, action);
+        case "set_dog":
+            if (!_.isEqual(action.player, state.bidder)) {
+                throw errorCannotSetDogIfNotBidder(action.player, state.bidder);
+            } else if (action.dog.length !== state.dog.length) {
+                throw errorNewDogWrongSize(action.dog, state.dog.length);
+            } else {
+                const player_hand = state.hands.get(state.bidder) || [];
+                const cards = [...player_hand, ...state.dog];
+                const new_player_hand = _.intersectionWith(cards, player_hand, _.isEqual);
+                const hands = new Map<Player, Card[]>(state.hands);
+                hands.set(state.bidder, new_player_hand);
+                if (new_player_hand.length !== player_hand.length) {
+                    throw errorNewDogDoesntMatchHand(action.dog, cards);
+                } else if (state.players_acked.size < state.players.length - 1) {
+                    const players_acked = new Set<Player>(state.players_acked);
+                    players_acked.add(state.bidder);
+                    return [
+                        {
+                            ...state,
+                            dog: action.dog,
+                            hands,
+                            players_acked,
+                        } as DogRevealAndExchangeBoardState,
+                        action,
+                    ]
+                } else {
+                    return [
+                        {
+                            ...state,
+                            name: 'playing',
+                            dog: action.dog,
+                            hands,
+
+                            current_trick: getNewTrick(state.players, state.bidder, 0),
+                            past_tricks: [],
+                        } as PlayingBoardState,
+                        action,
+                        {
+                            type: 'game_start',
+                            first_player: state.bidder,
+                        } as GameStartTransition,
+                    ]
+                }
+            }
+        case "ack_dog":
+            const players_acked = new Set<Player>(state.players_acked);
+            players_acked.add(state.bidder);
+            if (players_acked.size < state.players.length) {
+                return [
+                    {
+                        ...state,
+                        players_acked,
+                    } as DogRevealAndExchangeBoardState,
+                    action,
+                ]
+            } else {
+                return [
+                    {
+                        ...state,
+                        name: 'playing',
+                        current_trick: getNewTrick(state.players, state.bidder, 0),
+                        past_tricks: [],
+                    } as PlayingBoardState,
+                    action,
+                    {
+                        type: 'game_start',
+                        first_player: state.bidder,
+                    } as GameStartTransition,
+                ]
+
+            }
     }
 };

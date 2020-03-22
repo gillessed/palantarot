@@ -30,7 +30,7 @@ interface BiddingBoardState extends DealtBoardState {
     readonly bidding: CurrentBids
 }
 type BiddingStateActions = BidAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
-type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealBoardState | PlayingBoardState | NewGameBoardState
+type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
 
 interface PartnerCallBoardState extends DealtBoardState {
     readonly name: 'partner_call'
@@ -39,38 +39,22 @@ interface PartnerCallBoardState extends DealtBoardState {
     readonly bidder: Player
 }
 type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
-type PartnerCallStates = PartnerCallBoardState | DogRevealBoardState | PlayingBoardState
+type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState
 
-/**
- * Transitions:
- *  - {@link BidderDogExchangePhase}
- */
-interface DogRevealBoardState extends DealtBoardState {
+interface DogRevealAndExchangeBoardState extends DealtBoardState {
     readonly name: 'dog_reveal'
 
     readonly bidding: CompletedBids
     readonly bidder: Player
-
     readonly called?: Card
-    readonly players_acked: Player[]
+    readonly partner?: Player
+
+    readonly players_acked: Set<Player>
 
 }
-type DogRevealStateActions = AckDogAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | TakeDogAction | MessageAction
-
-/**
- * Transitions:
- *  - {@link PlayingBoardState}
- */
-interface BidderDogExchangeBoardState extends DealtBoardState {
-    readonly name: 'bidder_dog_exchange'
-
-    readonly bidding: CompletedBids
-    readonly bidder: Player
-    readonly called?: Card
-}
-/** {@link TakeDogAction}, {@link AddToDogAction}, and {@link AckDogAction} are for bidder only */
-type BidderDogExchangeStateActions = TakeDogAction | AddToDogAction | AckDogAction |
-    DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+/** {@link SetDogAction} is for bidder only */
+type DogRevealStateActions = SetDogAction | AckDogAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
 
 /**
  * Transitions:

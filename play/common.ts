@@ -212,13 +212,9 @@ interface AckDogAction extends Action {
     readonly type: 'ack_dog'
 }
 
-interface TakeDogAction extends Action {
-    readonly type: 'take_dog'
-}
-
-interface AddToDogAction extends Action {
-    readonly type: 'add_to_dog'
-    readonly card: Card
+interface SetDogAction extends Action {
+    readonly type: 'set_dog'
+    readonly dog: Card[]
 }
 
 interface PlayCardAction extends Action {
@@ -261,6 +257,8 @@ interface DogRevealTransition extends Transition {
 
 interface GameStartTransition extends Transition {
     readonly type: 'game_start'
+    readonly private_to: undefined
+
     readonly first_player: Player
 }
 
@@ -328,4 +326,24 @@ const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpC
 
 const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
     return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
+};
+
+const errorCannotCallTrump = function(card: Card) {
+    return new Error(`You cannot call a trump card as your partner call! ${card}`)
+};
+
+const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
+    return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`)
+};
+
+const errorNewDogWrongSize = function(dog: Card[], expected: number) {
+    return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`);
+};
+
+const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
+    return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`);
+}
+
+const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
+    return new Error(`Cannot conduct ${action}, as requested card is not in the players hand! Hand contains ${hand}`)
 };
