@@ -119,27 +119,42 @@ function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: Sho
                     [player_num]: state.players,
                 } as ShowTrumpState,
             } as T,
-            action
+            action,
         ]
     }
 }
 
 function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: AckTrumpShowAction)
-        : [T, ...AckTrumpShowAction[]] {
+        : [T, ...(AckTrumpShowAction | EndTrumpShowTransition)[]] {
     const showing_player_num = getPlayerNum(state.players, action.showing_player);
     const current_show = state.shows[showing_player_num];
     if (current_show === undefined) {
         throw errorTrumpNotBeingShown(action.showing_player, Object.keys(state.shows));
     } else {
+        const new_show = _.filter(current_show, (player) => !_.isEqual(player, action.player));
+        let actions;
+        if (new_show.length === 0) {
+            actions = [
+                action
+            ];
+        } else {
+            actions = [
+                action,
+                {
+                    type: 'end_trump_show',
+                    player_showing_trump: action.showing_player
+                } as EndTrumpShowTransition
+            ];
+        }
         return [
             {
                 ...state,
                 shows: {
                     ...state.shows,
-                    [showing_player_num]: _.filter(current_show, (player) => !_.isEqual(player, action.player)),
+                    [showing_player_num]: new_show,
                 }
             },
-            action
+            ...actions,
         ]
     }
 }
@@ -404,7 +419,11 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                             },
                             players_acked,
                         } as DogRevealAndExchangeBoardState,
-                        action,
+                        {
+                            type: 'ack_dog',
+                            player: action.player,
+                            time: action.time,
+                        } as AckDogAction,
                     ]
                 } else {
                     return [
@@ -419,7 +438,11 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                             current_trick: getNewTrick(state.players, state.bidder, 0),
                             past_tricks: [],
                         } as PlayingBoardState,
-                        action,
+                        {
+                            type: 'ack_dog',
+                            player: action.player,
+                            time: action.time,
+                        } as AckDogAction,
                         {
                             type: 'game_start',
                             first_player: state.bidder,

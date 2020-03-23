@@ -1,3 +1,7 @@
+/*
+ * This file contains definitions common to both the client and server code.
+ */
+
 /* CARDS */
 
 enum RegSuit {
@@ -151,6 +155,10 @@ interface PlayerEvent {
 
 /* ACTIONS */
 
+/**
+ * Actions are sent by the player to the server,
+ * and are then relayed by the server to other players (assuming they are public).
+ */
 interface Action extends PlayerEvent {
     readonly player: Player;
     readonly time: Date
@@ -183,7 +191,6 @@ interface ShowTrumpAction extends Action {
 
 interface AckTrumpShowAction extends Action {
     readonly type: 'ack_trump_show'
-    /** If equal to {@link $player}, is player returning show to hand */
     readonly showing_player: Player
 }
 
@@ -212,6 +219,9 @@ interface PlayCardAction extends Action {
 
 /* TRANSITIONS */
 
+/**
+ * The server is also allowed to send messages to the players about transitions to game state.
+ */
 interface Transition extends PlayerEvent {
     /** if contains state for only one player, which player to send to */
     readonly private_to?: Player

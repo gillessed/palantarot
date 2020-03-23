@@ -1,6 +1,10 @@
 import {Comparator} from "../server/utils";
 import _ from "lodash";
 
+/*
+ * This file contains game code which is useful for both client and server.
+ */
+
 function createAllCards(): Card[] {
     const cards: Card[] = [];
     for (const suit in RegSuit) {

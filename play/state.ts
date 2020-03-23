@@ -1,8 +1,10 @@
+/*
+ * This file contains definitions used for the server.
+ */
+
 interface BoardReducer<STATE extends BoardState, ACTION extends Action, RESULT extends BoardState> {
     (state: STATE, action: ACTION): [RESULT, ...PlayerEvent[]]
 }
-
-/* STATES */
 
 interface BoardState {
     readonly name: string
