@@ -1,3 +1,6 @@
+import {cardsEqual, dealCards, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
+import _ from "lodash";
+
 const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
     switch (action.type) {
         case "message":
@@ -113,7 +116,7 @@ function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: Sho
                 ...state,
                 shows: {
                     ...state.shows,
-                    player_num: state.players,
+                    [player_num]: state.players,
                 } as ShowTrumpState,
             } as T,
             action
@@ -133,7 +136,7 @@ function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: 
                 ...state,
                 shows: {
                     ...state.shows,
-                    showing_player_num: _.filter(current_show, (player) => !_.isEqual(player, action.player)),
+                    [showing_player_num]: _.filter(current_show, (player) => !_.isEqual(player, action.player)),
                 }
             },
             action
@@ -293,7 +296,7 @@ function declareSlamActionReducer<T extends DealtBoardState & { bidding: Complet
                 ...state.bidding,
                 calls: {
                     ...state.bidding.calls,
-                    player_num: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
+                    [player_num]: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
                 },
             },
         } as T,
@@ -397,7 +400,7 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                             dog: action.dog,
                             hands: {
                                 ...state.hands,
-                                player_num: new_player_hand
+                                [player_num]: new_player_hand
                             },
                             players_acked,
                         } as DogRevealAndExchangeBoardState,
@@ -411,7 +414,7 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                             dog: action.dog,
                             hands: {
                                 ...state.hands,
-                                player_num: new_player_hand
+                                [player_num]: new_player_hand
                             },
                             current_trick: getNewTrick(state.players, state.bidder, 0),
                             past_tricks: [],
@@ -449,6 +452,122 @@ const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardSt
                     } as GameStartTransition,
                 ]
 
+            }
+    }
+};
+
+function isAfterFirstTurn(state: PlayingBoardState, action: Action) {
+    return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
+}
+
+const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function(state, action) {
+    switch (action.type) {
+        case "message":
+            return [state, action];
+        case "declare_slam":
+            if (isAfterFirstTurn(state, action)) {
+                throw errorAfterFirstTurn(action);
+            } else {
+                return declareSlamActionReducer(state, action);
+            }
+        case "show_trump":
+            if (isAfterFirstTurn(state, action)) {
+                throw errorAfterFirstTurn(action);
+            } else {
+                return showTrumpActionReducer(state, action);
+            }
+        case "ack_trump_show":
+            if (isAfterFirstTurn(state, action)) {
+                throw errorAfterFirstTurn(action);
+            } else {
+                return ackTrumpShowActionReducer(state, action);
+            }
+        case "play_card":
+            const player_num = getPlayerNum(state.players, action.player);
+            if (state.current_trick.players[state.current_trick.current_player] !== action.player) {
+                throw errorPlayingOutOfTurn(action.player, state.current_trick.players[state.current_trick.current_player]);
+            } else if (!_.find(state.hands[player_num], action.card)) {
+                throw errorCardNotInHand(action, state.hands[player_num]);
+            } else if (!_.find(getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards), action.card)) {
+                throw errorCannotPlayCard(
+                    action.card,
+                    state.current_trick.cards,
+                    getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards));
+            }
+            const hands = {
+                ...state.hands,
+                [player_num]: _.remove([...state.hands[player_num]], action.card),
+            };
+            if (state.current_trick.current_player < state.current_trick.players.length - 1) {
+                return [
+                    {
+                        ...state,
+                        hands,
+                        current_trick: {
+                            ...state.current_trick,
+                            cards: [...state.current_trick.cards, action.card],
+                            current_player: state.current_trick.current_player + 1,
+                        },
+                    } as PlayingBoardState,
+                    action,
+                ]
+            } else { // last card in trick
+                const [winning_card, winner] = getWinner(state.current_trick.cards, state.players);
+                const completed_trick = {
+                    trick_num: state.current_trick.trick_num,
+                    cards: [...state.current_trick.cards, action.card],
+                    players: state.current_trick.players,
+                    winner,
+                };
+                let joker_state = state.joker_state;
+                if (_.find(completed_trick.cards, TheJoker)) {
+                    joker_state = {
+                        player: completed_trick.players[_.findIndex(completed_trick.cards, TheJoker)],
+                        owed_to: winner,
+                    };
+                }
+                if (hands[0].length > 0) {
+                   return [
+                       {
+                           ...state,
+                           hands,
+                           joker_state,
+                           current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
+                           past_tricks: [...state.past_tricks, completed_trick],
+                       } as PlayingBoardState,
+                       action,
+                       {
+                           type: 'completed_trick',
+                           winner,
+                           winning_card,
+                           joker_state,
+                       } as CompletedTrickTransition,
+                   ]
+                } else {
+                    return [
+                        {
+                            ...state,
+                            name: 'completed',
+                            hands: undefined,
+                            joker_state,
+                            current_trick: undefined,
+                            past_tricks: [...state.past_tricks, completed_trick],
+
+                            end_state: [] as any as CompletedGameState // TODO finish
+                        } as CompletedBoardState,
+                        action,
+                        {
+                            type: 'completed_trick',
+                            winner,
+                            winning_card,
+                            joker_state,
+                        } as CompletedTrickTransition,
+                        {
+                            type: 'game_completed',
+                            end_state: [] as any as CompletedGameState // TODO finish
+                        } as GameCompletedTransition,
+                    ]
+                }
             }
     }
 };

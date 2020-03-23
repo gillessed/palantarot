@@ -73,6 +73,7 @@ interface PlayingBoardState extends DealtBoardState {
     readonly past_tricks: CompletedTrick[]
 }
 type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+type PlayingStates = PlayingBoardState | CompletedBoardState
 
 interface CompletedBoardState extends BoardState {
     readonly name: 'completed'
@@ -80,12 +81,12 @@ interface CompletedBoardState extends BoardState {
     readonly bidder: Player
     readonly called?: Card
     readonly partner?: Player
-
     readonly dog: Card[]
 
     readonly bidding: CompletedBids
     readonly shows: ShowTrumpState
     readonly joker_state?: JokerExchangeState
+    readonly joker_exchanged?: Card
 
     readonly past_tricks: CompletedTrick[]
     readonly end_state: CompletedGameState

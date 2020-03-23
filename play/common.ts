@@ -53,13 +53,17 @@ enum TrumpValue {
     _21 = 21,
 }
 
-type Bout = TrumpValue._1 | TrumpValue._21 | TrumpValue.Joker
+const TheJoker: [TrumpSuit, TrumpValue.Joker] = [TrumpSuit, TrumpValue.Joker];
+const TheOne: [TrumpSuit, TrumpValue._1] = [TrumpSuit, TrumpValue._1];
+const The21: [TrumpSuit, TrumpValue._21] = [TrumpSuit, TrumpValue._21];
 
 type RegCard = [RegSuit, RegValue];
 
 type TrumpCard = [TrumpSuit, TrumpValue];
 
 type Card = RegCard | TrumpCard
+
+type Bouts = typeof TheJoker | typeof TheOne | typeof The21;
 
 /* STRUCTS */
 
@@ -92,7 +96,6 @@ interface Trick {
     readonly cards: Card[]
     readonly players: Player[]
     readonly current_player: number
-    readonly leadSuit?: Suit
 }
 
 interface CompletedTrick {
@@ -126,18 +129,18 @@ type ShowTrumpState = { [player: number]: Player[] };
 interface JokerExchangeState {
     readonly player: Player
     readonly owed_to: Player
-    /** if present, exchange completed */
-    readonly card_exchanged?: Card
 }
 
 interface CompletedGameState {
     readonly bidder: Player
     readonly partner?: Player
+    readonly dog: Card[]
 
     readonly calls: { [player: number]: Call[] }
     readonly outcomes: { [player: number]: Outcome[] }
+    readonly joker_exchanged?: Card
     readonly points_earned: number
-    readonly bouts: number
+    readonly bouts: Bouts[]
     readonly bidder_won: boolean
     readonly points_result: number
 }
@@ -269,28 +272,18 @@ interface GameAbortedTransition extends Transition {
 }
 
 
-/* VIEWS */
-
-interface PlayerView {
-    events: Event[]
-}
-
-interface NewGameView extends PlayerView {
-
-}
-
 /* ERRORS */
 
 const errorActionAlreadyHappened = function(action: Action, state: any) {
-    return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`);
+    return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`)
 };
 
 const errorTooManyPlayers = function(player: Player, players: Player[]) {
-    return new Error(`Cannot add ${player} as there are already too many players: ${players}`);
+    return new Error(`Cannot add ${player} as there are already too many players: ${players}`)
 };
 
 const errorPlayerNotInGame = function(player: Player, players: Player[]) {
-    return new Error(`Cannot find ${player}! Existing players: ${players}`);
+    return new Error(`Cannot find ${player}! Existing players: ${players}`)
 };
 
 const errorBiddingOutOfTurn = function(player: Player, current: Player) {
@@ -322,13 +315,25 @@ const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
 };
 
 const errorNewDogWrongSize = function(dog: Card[], expected: number) {
-    return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`);
+    return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`)
 };
 
 const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
-    return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`);
+    return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`)
+};
+
+const errorAfterFirstTurn = function(action: Action) {
+    return new Error(`Cannot ${action}, as it is after this player's first turn.`)
+};
+
+const errorPlayingOutOfTurn = function(player: Player, current: Player) {
+    return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
 };
 
 const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
     return new Error(`Cannot conduct ${action}, as requested card is not in the players hand! Hand contains ${hand}`)
 };
+
+const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
+    return new Error(`Cannot play card ${card} into played cards ${trick}. You must play one of ${allowable}.`);
+}
