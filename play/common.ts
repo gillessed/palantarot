@@ -67,7 +67,7 @@ type TrumpCard = [TrumpSuit, TrumpValue];
 
 type Card = RegCard | TrumpCard
 
-type Bouts = typeof TheJoker | typeof TheOne | typeof The21;
+type Bout = typeof TheJoker | typeof TheOne | typeof The21;
 
 /* STRUCTS */
 
@@ -137,14 +137,14 @@ interface JokerExchangeState {
 
 interface CompletedGameState {
     readonly bidder: Player
+    readonly bid: BidValue
     readonly partner?: Player
     readonly dog: Card[]
 
     readonly calls: { [player: number]: Call[] }
     readonly outcomes: { [player: number]: Outcome[] }
-    readonly joker_exchanged?: Card
     readonly points_earned: number
-    readonly bouts: Bouts[]
+    readonly bouts: Bout[]
     readonly bidder_won: boolean
     readonly points_result: number
 }

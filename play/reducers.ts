@@ -1,4 +1,4 @@
-import {cardsEqual, dealCards, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
+import {cardsEqual, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
 import _ from "lodash";
 
 const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
@@ -483,6 +483,119 @@ function isAfterFirstTurn(state: PlayingBoardState, action: Action) {
     return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
 }
 
+function getCardsWon(bidding_team: Player[], tricks: CompletedTrick[], joker_state?: JokerExchangeState): Card[] {
+    const cards_won = [];
+    const cards_lost = [];
+    for (const trick of tricks) {
+        if (bidding_team.indexOf(trick.winner) > -1) { // bidding team won
+            cards_won.push(...trick.cards);
+        } else {
+            cards_lost.push(...trick.cards);
+        }
+    }
+
+    if (joker_state) {
+        if ((bidding_team.indexOf(joker_state.player) > -1) !== (bidding_team.indexOf(joker_state.owed_to) > -1)) {
+            if (bidding_team.indexOf(joker_state.player) > -1) { // joker played by bidder/partner, need to swap it back
+                if (cards_won.length > 0) {
+                    cards_lost.push(_.sortBy(cards_won, getCardPoint)[0]);
+                    cards_won.push(..._.remove(cards_lost, TheJoker));
+                }
+            } else { // joker played by team, need to swap it back
+                if (cards_lost.length > 0) {
+                    cards_won.push(_.sortBy(cards_lost, getCardPoint)[0]);
+                    cards_lost.push(..._.remove(cards_won, TheJoker));
+                }
+            }
+        }
+    }
+    return cards_won
+}
+
+function getOutcomes(players: Player[], bidding_team: Player[], tricks: CompletedTrick[])
+        : { [player: number]: Outcome[] } {
+    const outcomes: { [player: number]: Outcome[] } = {};
+
+    const tricks_won = tricks
+        .filter((trick) => bidding_team.indexOf(trick.winner) > -1)
+        .length;
+    if (tricks_won === tricks.length) {
+        for (const player of bidding_team) {
+            outcomes[players.indexOf(player)] = [Outcome.SLAMMED]
+        }
+    } else if (tricks_won === 0) {
+        for (const player_num of players.keys()) {
+            if (bidding_team.indexOf(players[player_num]) === -1) {
+                outcomes[player_num] = [Outcome.SLAMMED]
+            }
+        }
+    }
+
+    if (_.find(tricks[-1].cards, TheOne)) {
+        const one_last = players.indexOf(tricks[-1].winner);
+        if(outcomes[one_last] === undefined) {
+            outcomes[one_last] = []
+        }
+        outcomes[one_last].push(Outcome.ONE_LAST);
+    }
+
+    return outcomes;
+}
+
+function getFinalScore(
+        players: Player[],
+        bidding_team: Player[],
+        bid: BidValue,
+        cards_won: Card[],
+        shows: ShowTrumpState,
+        calls: { [player: number]: Call[] },
+        outcomes: { [player: number]: Outcome[] })
+        : { points_earned: number, bouts: Bout[], bidder_won: boolean, points_result: number} {
+    const bouts = _.filter(cards_won, (card): card is Bout =>
+        card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21);
+    const points_earned = cards_won.map(getCardPoint).reduce((a, b) => a + b, 0);
+    const needed_to_win = [56, 51, 41, 36][bouts.length];
+    const bidder_won = points_earned >= needed_to_win;
+
+    let points_result = bid;
+    points_result += Math.ceil(Math.abs(points_earned - needed_to_win) / 10) * 10;
+    for (const player_num in shows) {
+        points_result += 10;
+    }
+    points_result *= bidder_won ? 1 : -1;
+
+    for (const player_num in calls) {
+        if (calls[player_num].indexOf(Call.DECLARED_SLAM) > -1) {
+            let points = 200;
+            points *= outcomes[player_num].indexOf(Outcome.SLAMMED) > -1 ? 1 : -1;
+            points *= bidding_team.indexOf(players[player_num]) > -1 ? 1 : -1;
+            points_result += points;
+        }
+    }
+
+    for (const player_num in outcomes) {
+        if (outcomes[player_num].indexOf(Outcome.SLAMMED) > -1) {
+            points_result += bidding_team.indexOf(players[player_num]) > -1 ? 200 : -200;
+            break;
+        }
+    }
+
+    for (const player_num in outcomes) {
+        if (outcomes[player_num].indexOf(Outcome.ONE_LAST) > -1) {
+            points_result += bidding_team.indexOf(players[player_num]) > -1 ? 10 : -10;
+            break;
+        }
+    }
+
+    return {
+        points_earned,
+        bouts,
+        bidder_won,
+        points_result,
+    }
+}
+
+
 const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function(state, action) {
     switch (action.type) {
         case "message":
@@ -519,7 +632,7 @@ const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, 
             }
             const hands = {
                 ...state.hands,
-                [player_num]: _.remove([...state.hands[player_num]], action.card),
+                [player_num]: _.filter(state.hands[player_num], (card) => !_.isEqual(card, action.card)),
             };
             if (state.current_trick.current_player < state.current_trick.players.length - 1) {
                 return [
@@ -543,7 +656,7 @@ const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, 
                     winner,
                 };
                 let joker_state = state.joker_state;
-                if (_.find(completed_trick.cards, TheJoker)) {
+                if (_.find(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
                     joker_state = {
                         player: completed_trick.players[_.findIndex(completed_trick.cards, TheJoker)],
                         owed_to: winner,
@@ -567,6 +680,22 @@ const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, 
                        } as CompletedTrickTransition,
                    ]
                 } else {
+                    const tricks = [...state.past_tricks, completed_trick];
+                    const bidding_team = _.compact([state.bidder, state.partner]);
+                    const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
+                    const outcomes = getOutcomes(state.players, bidding_team, tricks);
+                    const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
+                        cards_won, state.shows, state.bidding.calls, outcomes);
+                    const end_state = {
+                        bidder: state.bidder,
+                        bid: state.bidding.winning_bid.bid,
+                        partner: state.partner,
+                        dog: state.dog,
+
+                        calls: state.bidding.calls,
+                        outcomes,
+                        ...final_score
+                    } as CompletedGameState;
                     return [
                         {
                             ...state,
@@ -574,9 +703,9 @@ const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, 
                             hands: undefined,
                             joker_state,
                             current_trick: undefined,
-                            past_tricks: [...state.past_tricks, completed_trick],
+                            past_tricks: tricks,
 
-                            end_state: [] as any as CompletedGameState // TODO finish
+                            end_state,
                         } as CompletedBoardState,
                         action,
                         {
@@ -587,7 +716,7 @@ const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, 
                         } as CompletedTrickTransition,
                         {
                             type: 'game_completed',
-                            end_state: [] as any as CompletedGameState // TODO finish
+                            end_state,
                         } as GameCompletedTransition,
                     ]
                 }

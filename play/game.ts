@@ -178,6 +178,39 @@ export const compareCards = function(lead_suit: Suit | undefined): Comparator<Ca
     }
 };
 
+export const getCardPoint = function(card: Card) {
+    if (card[0] === TrumpSuit) {
+        if (card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21) {
+            return 4.5
+        } else {
+            return 0.5
+        }
+    } else {
+        switch (card[1]) {
+            case RegValue._1:
+            case RegValue._2:
+            case RegValue._3:
+            case RegValue._4:
+            case RegValue._5:
+            case RegValue._6:
+            case RegValue._7:
+            case RegValue._8:
+            case RegValue._9:
+            case RegValue._10:
+                return 0.5;
+            case RegValue.V:
+                return 1.5;
+            case RegValue.C:
+                return 2.5;
+            case RegValue.D:
+                return 3.5;
+            case RegValue.R:
+                return 4.5;
+        }
+    }
+};
+
+// Note: this does not include the joker slam code. If this actually happens, well, I guess we can code it afterwards.
 export const getWinner = function(trick: Card[], players: Player[]): [Card, Player] {
     let [card, player] = [trick[0], players[0]];
     const comparer = compareCards(getLeadSuit(trick));
