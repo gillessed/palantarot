@@ -213,16 +213,13 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                 } else if (state.players.length === 5) {
                     return [
                         {
+                            ...state,
                             name: 'partner_call',
-                            players: state.players,
                             bidder: state.bidding.current_high.player,
-                            hands: state.hands,
-                            dog: state.dog,
                             bidding: {
                                 winning_bid: state.bidding.current_high,
                                 calls: getAllCalls(state.players, state.bidding),
                             },
-                            shows: state.shows,
                         } as PartnerCallBoardState,
                         action,
                         {
@@ -234,19 +231,14 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                     if (state.bidding.current_high.bid <= BidValue.FORTY) {
                         return [
                             {
+                                ...state,
                                 name: 'dog_reveal',
-                                players: state.players,
-
                                 bidder: state.bidding.current_high.player,
-                                hands: state.hands,
-                                dog: state.dog,
                                 players_acked: [],
-
                                 bidding: {
                                     winning_bid: state.bidding.current_high,
                                     calls: getAllCalls(state.players, state.bidding),
                                 },
-                                shows: state.shows,
                             } as DogRevealAndExchangeBoardState,
                             action,
                             {
@@ -259,28 +251,17 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                             } as DogRevealTransition,
                         ]
                     } else { // 80 or 160 bid
-                        const trickOrder = getTrickPlayerOrder(state.players, state.bidding.current_high.player);
+                        const bidder = state.bidding.current_high.player;
                         return [
                             {
+                                ...state,
                                 name: 'playing',
-                                players: state.players,
-
-                                bidder: state.bidding.current_high.player,
-                                hands: state.hands,
-                                dog: state.dog,
-
+                                bidder,
                                 bidding: {
                                     winning_bid: state.bidding.current_high,
                                     calls: getAllCalls(state.players, state.bidding),
                                 },
-                                shows: state.shows,
-
-                                current_trick: {
-                                    trick_num: 1,
-                                    cards: [],
-                                    players: trickOrder,
-                                    current_player: 0,
-                                },
+                                current_trick: getNewTrick(state.players, bidder, 0),
                                 past_tricks: [],
                             } as PlayingBoardState,
                             action,
@@ -290,7 +271,7 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
                             } as BiddingCompletedTransition,
                             {
                                 type: 'game_start',
-                                first_player: trickOrder[0],
+                                first_player: bidder,
                             } as GameStartTransition,
                         ]
                     }
@@ -299,8 +280,6 @@ const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, 
     }
 };
 
-// Is this generic type declaration the best thing about Typescript, or the BEST thing about Typescript???
-// Somebody please get me help...
 function declareSlamActionReducer<T extends DealtBoardState & { bidding: CompletedBids }>(state: T, action: DeclareSlam)
         : [T, DeclareSlam] {
     const player_num = getPlayerNum(state.players, action.player);
