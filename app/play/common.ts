@@ -4,18 +4,18 @@
 
 /* CARDS */
 
-enum RegSuit {
+export enum RegSuit {
     Spade = 'S',
     Heart = 'H',
     Diamond = 'D',
     Club = 'C',
 }
-type TrumpSuit = 'T'
-const TrumpSuit : TrumpSuit = 'T';
+export type TrumpSuit = 'T'
+export const TrumpSuit : TrumpSuit = 'T';
 
-type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
+export type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
 
-enum RegValue {
+export enum RegValue {
     _1 = 1,
     _2 = 2,
     _3 = 3,
@@ -32,7 +32,7 @@ enum RegValue {
     R = 'R',
 }
 
-enum TrumpValue {
+export enum TrumpValue {
     Joker = 'Joker',
     _1 = 1,
     _2 = 2,
@@ -57,21 +57,21 @@ enum TrumpValue {
     _21 = 21,
 }
 
-const TheJoker: [TrumpSuit, TrumpValue.Joker] = [TrumpSuit, TrumpValue.Joker];
-const TheOne: [TrumpSuit, TrumpValue._1] = [TrumpSuit, TrumpValue._1];
-const The21: [TrumpSuit, TrumpValue._21] = [TrumpSuit, TrumpValue._21];
+export const TheJoker: [TrumpSuit, TrumpValue.Joker] = [TrumpSuit, TrumpValue.Joker];
+export const TheOne: [TrumpSuit, TrumpValue._1] = [TrumpSuit, TrumpValue._1];
+export const The21: [TrumpSuit, TrumpValue._21] = [TrumpSuit, TrumpValue._21];
 
-type RegCard = [RegSuit, RegValue];
+export type RegCard = [RegSuit, RegValue];
 
-type TrumpCard = [TrumpSuit, TrumpValue];
+export type TrumpCard = [TrumpSuit, TrumpValue];
 
-type Card = RegCard | TrumpCard
+export type Card = RegCard | TrumpCard
 
-type Bout = typeof TheJoker | typeof TheOne | typeof The21;
+export type Bout = typeof TheJoker | typeof TheOne | typeof The21;
 
 /* STRUCTS */
 
-enum BidValue {
+export enum BidValue {
     PASS = 0,
     TEN = 10,
     TWENTY = 20,
@@ -80,21 +80,21 @@ enum BidValue {
     ONESIXTY = 160,
 }
 
-enum Call {
+export enum Call {
     RUSSIAN = 'russian',
     DECLARED_SLAM = 'declared_slam',
 }
 
-enum Outcome {
+export enum Outcome {
     SLAMMED = 'slammed',
     ONE_LAST = 'one_last',
 }
 
-type Player = String
+export type Player = String
 
-const DummyPlayer: Player = '[dummy null player]';
+export const DummyPlayer: Player = '[dummy null player]';
 
-interface Trick {
+export interface Trick {
     readonly trick_num: number
     /** n-th card was played by n-th player */
     readonly cards: Card[]
@@ -102,20 +102,20 @@ interface Trick {
     readonly current_player: number
 }
 
-interface CompletedTrick {
+export interface CompletedTrick {
     readonly trick_num: number
     readonly cards: Card[]
     readonly players: Player[]
     readonly winner: Player
 }
 
-interface Bid {
+export interface Bid {
     readonly player: Player
     readonly bid: BidValue
     readonly calls: Call[]
 }
 
-interface CurrentBids {
+export interface CurrentBids {
     /** in order of bid */
     readonly bids: Bid[]
     /** remaining bidders, in order of bidding, 0-th position is next bidder */
@@ -123,19 +123,19 @@ interface CurrentBids {
     readonly current_high: Bid
 }
 
-interface CompletedBids {
+export interface CompletedBids {
     readonly winning_bid: Bid
     readonly calls: { [player: number]: Call[] }
 }
 
-type ShowTrumpState = { [player: number]: Player[] };
+export type ShowTrumpState = { [player: number]: Player[] };
 
-interface JokerExchangeState {
+export interface JokerExchangeState {
     readonly player: Player
     readonly owed_to: Player
 }
 
-interface CompletedGameState {
+export interface CompletedGameState {
     readonly bidder: Player
     readonly bid: BidValue
     readonly partner?: Player
@@ -149,7 +149,7 @@ interface CompletedGameState {
     readonly points_result: number
 }
 
-interface PlayerEvent {
+export interface PlayerEvent {
     readonly type: string
 }
 
@@ -159,60 +159,60 @@ interface PlayerEvent {
  * Actions are sent by the player to the server,
  * and are then relayed by the server to other players (assuming they are public).
  */
-interface Action extends PlayerEvent {
+export interface Action extends PlayerEvent {
     readonly player: Player;
     readonly time: Date
 }
 
-interface MessageAction extends Action {
+export interface MessageAction extends Action {
     readonly type: 'message'
     readonly text: String
 }
 
-interface EnterGameAction extends Action {
+export interface EnterGameAction extends Action {
     readonly type: 'enter_game'
 }
 
-interface PlayerReadyAction extends Action {
+export interface PlayerReadyAction extends Action {
     readonly type: 'mark_player_ready'
 }
 
-interface BidAction extends Action {
+export interface BidAction extends Action {
     readonly type: 'bid'
     readonly bid: BidValue
     readonly calls: Call[]
 }
 
-interface ShowTrumpAction extends Action {
+export interface ShowTrumpAction extends Action {
     readonly type: 'show_trump'
     /** Needs to match all trumps in player's hand */
     readonly cards: TrumpCard[]
 }
 
-interface AckTrumpShowAction extends Action {
+export interface AckTrumpShowAction extends Action {
     readonly type: 'ack_trump_show'
     readonly showing_player: Player
 }
 
-interface CallPartnerAction extends Action {
+export interface CallPartnerAction extends Action {
     readonly type: 'call_partner'
     readonly card: Card
 }
 
-interface DeclareSlam extends Action {
+export interface DeclareSlam extends Action {
     readonly type: 'declare_slam'
 }
 
-interface AckDogAction extends Action {
+export interface AckDogAction extends Action {
     readonly type: 'ack_dog'
 }
 
-interface SetDogAction extends Action {
+export interface SetDogAction extends Action {
     readonly type: 'set_dog'
     readonly dog: Card[]
 }
 
-interface PlayCardAction extends Action {
+export interface PlayCardAction extends Action {
     readonly type: 'play_card'
     readonly card: Card
 }
@@ -222,45 +222,45 @@ interface PlayCardAction extends Action {
 /**
  * The server is also allowed to send messages to the players about transitions to game state.
  */
-interface Transition extends PlayerEvent {
+export interface Transition extends PlayerEvent {
     /** if contains state for only one player, which player to send to */
     readonly private_to?: Player
 }
 
-interface DealtHandTransition extends Transition {
+export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
     readonly private_to: Player
 
     readonly hand: Card[]
 }
 
-interface EndTrumpShowTransition extends Transition {
+export interface EndTrumpShowTransition extends Transition {
     readonly type: 'end_trump_show'
     readonly player_showing_trump: Player
 }
 
-interface BiddingCompletedTransition extends Transition {
+export interface BiddingCompletedTransition extends Transition {
     readonly type: 'bidding_completed'
     readonly private_to: undefined
 
     readonly winning_bid: Bid
 }
 
-interface DogRevealTransition extends Transition {
+export interface DogRevealTransition extends Transition {
     readonly type: 'dog_reveal'
     readonly private_to: undefined
 
     readonly dog: Card[]
 }
 
-interface GameStartTransition extends Transition {
+export interface GameStartTransition extends Transition {
     readonly type: 'game_start'
     readonly private_to: undefined
 
     readonly first_player: Player
 }
 
-interface CompletedTrickTransition extends Transition {
+export interface CompletedTrickTransition extends Transition {
     readonly type: 'completed_trick'
     readonly private_to: undefined
 
@@ -269,14 +269,14 @@ interface CompletedTrickTransition extends Transition {
     readonly joker_state?: JokerExchangeState
 }
 
-interface GameCompletedTransition extends Transition {
+export interface GameCompletedTransition extends Transition {
     readonly type: 'game_completed'
     readonly private_to: undefined
 
     readonly end_state: CompletedGameState
 }
 
-interface GameAbortedTransition extends Transition {
+export interface GameAbortedTransition extends Transition {
     readonly type: 'game_aborted'
     readonly reason: string
 }
@@ -284,66 +284,66 @@ interface GameAbortedTransition extends Transition {
 
 /* ERRORS */
 
-const errorActionAlreadyHappened = function(action: Action, state: any) {
+export const errorActionAlreadyHappened = function(action: Action, state: any) {
     return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`)
 };
 
-const errorTooManyPlayers = function(player: Player, players: Player[]) {
+export const errorTooManyPlayers = function(player: Player, players: Player[]) {
     return new Error(`Cannot add ${player} as there are already too many players: ${players}`)
 };
 
-const errorPlayerNotInGame = function(player: Player, players: Player[]) {
+export const errorPlayerNotInGame = function(player: Player, players: Player[]) {
     return new Error(`Cannot find ${player}! Existing players: ${players}`)
 };
 
-const errorBiddingOutOfTurn = function(player: Player, current: Player) {
+export const errorBiddingOutOfTurn = function(player: Player, current: Player) {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
 };
 
-const errorBidTooLow = function(action: BidValue, current: BidValue) {
+export const errorBidTooLow = function(action: BidValue, current: BidValue) {
     return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
 };
 
-const errorCannotShowTwice = function(player: Player) {
+export const errorCannotShowTwice = function(player: Player) {
     return new Error(`${player} cannot show trump twice!`)
 };
 
-const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
+export const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
     return new Error(`Invalid trump show ${action}, didn't get the following expected trump: ${expected}.`)
 };
 
-const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
+export const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
     return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
 };
 
-const errorCannotCallTrump = function(card: Card) {
+export const errorCannotCallTrump = function(card: Card) {
     return new Error(`You cannot call a trump card as your partner call! ${card}`)
 };
 
-const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
+export const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
     return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`)
 };
 
-const errorNewDogWrongSize = function(dog: Card[], expected: number) {
+export const errorNewDogWrongSize = function(dog: Card[], expected: number) {
     return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`)
 };
 
-const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
+export const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
     return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`)
 };
 
-const errorAfterFirstTurn = function(action: Action) {
+export const errorAfterFirstTurn = function(action: Action) {
     return new Error(`Cannot ${action}, as it is after this player's first turn.`)
 };
 
-const errorPlayingOutOfTurn = function(player: Player, current: Player) {
+export const errorPlayingOutOfTurn = function(player: Player, current: Player) {
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
 };
 
-const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
+export const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
     return new Error(`Cannot conduct ${action}, as requested card is not in the players hand! Hand contains ${hand}`)
 };
 
-const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
+export const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
     return new Error(`Cannot play card ${card} into played cards ${trick}. You must play one of ${allowable}.`);
-}
+};

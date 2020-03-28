@@ -33,6 +33,8 @@ import { rootSaga } from './services/rootSaga';
 import { SagaListener } from './services/sagaListener';
 import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 
+import play from './play/common';
+
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
   const middleware = [

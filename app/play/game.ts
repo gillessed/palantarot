@@ -1,5 +1,16 @@
-import {Comparator} from "../server/utils";
 import _ from "lodash";
+import {
+    Card,
+    errorPlayerNotInGame,
+    Player,
+    RegSuit,
+    RegValue,
+    Suit,
+    TheJoker,
+    TrumpCard,
+    TrumpSuit,
+    TrumpValue
+} from "./common";
 
 /*
  * This file contains game code which is useful for both client and server.
@@ -153,6 +164,8 @@ function getCardValueAsNumber(value: RegValue | TrumpValue): number {
             return value.valueOf();
     }
 }
+
+type Comparator<T> = (t1: T, T2: T) => number;
 
 export const compareCards = function(lead_suit: Suit | undefined): Comparator<Card> {
     return (left: Card, right: Card) => {

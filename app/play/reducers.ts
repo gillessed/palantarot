@@ -1,7 +1,75 @@
-import {cardsEqual, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
 import _ from "lodash";
+import {cardsEqual, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
+import {
+    AckDogAction,
+    AckTrumpShowAction,
+    BidAction,
+    BiddingCompletedTransition,
+    BidValue,
+    Bout,
+    Call,
+    CompletedBids,
+    CompletedGameState,
+    CompletedTrick,
+    CompletedTrickTransition,
+    CurrentBids,
+    DealtHandTransition,
+    DeclareSlam,
+    DogRevealTransition,
+    DummyPlayer,
+    EndTrumpShowTransition,
+    errorActionAlreadyHappened,
+    errorAfterFirstTurn,
+    errorBiddingOutOfTurn,
+    errorBidTooLow,
+    errorCannotCallTrump,
+    errorCannotPlayCard,
+    errorCannotSetDogIfNotBidder,
+    errorCannotShowTwice,
+    errorCardNotInHand,
+    errorInvalidTrumpShow,
+    errorNewDogDoesntMatchHand,
+    errorNewDogWrongSize,
+    errorPlayerNotInGame,
+    errorPlayingOutOfTurn,
+    errorTooManyPlayers,
+    errorTrumpNotBeingShown,
+    GameAbortedTransition,
+    GameCompletedTransition,
+    GameStartTransition,
+    JokerExchangeState,
+    Player,
+    Outcome,
+    ShowTrumpAction,
+    ShowTrumpState,
+    TheJoker,
+    TheOne,
+    TrumpSuit,
+    TrumpValue,
+    Card,
+    Action
+} from "./common";
+import {
+    BiddingBoardState, BiddingStateActions,
+    BiddingStates,
+    BoardReducer,
+    CompletedBoardState,
+    DealtBoardState,
+    DogRevealAndExchangeBoardState,
+    DogRevealStateActions,
+    DogRevealStates,
+    NewGameActions,
+    NewGameBoardState,
+    NewGameStates,
+    PartnerCallBoardState,
+    PartnerCallStateActions,
+    PartnerCallStates,
+    PlayingBoardState,
+    PlayingStateActions,
+    PlayingStates
+} from "./state";
 
-const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
+export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
@@ -159,7 +227,7 @@ function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: 
     }
 }
 
-const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function(state, action) {
+export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
@@ -307,7 +375,7 @@ function getNewTrick(players: Player[], first_player: Player, trick_num: number)
     };
 }
 
-const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates> = function(state, action) {
+export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
@@ -364,7 +432,7 @@ const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallSt
     }
 };
 
-const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates> = function(state, action) {
+export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
@@ -575,7 +643,7 @@ function getFinalScore(
 }
 
 
-const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function(state, action) {
+export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function(state, action) {
     switch (action.type) {
         case "message":
             return [state, action];
