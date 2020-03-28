@@ -16,17 +16,23 @@ import {
  * This file contains game code which is useful for both client and server.
  */
 
-function createAllCards(): Card[] {
+export function createAllCards(): Card[] {
     const cards: Card[] = [];
-    for (const suit in RegSuit) {
-        for (const value in RegValue) {
+    for (const suit of Object.keys(RegSuit)) {
+        for (const value of Object.keys(RegValue)) {
+            if (Number.parseInt(value)) { // stupid number keys...
+                continue;
+            }
             cards.push([
                 RegSuit[suit as keyof typeof RegSuit],
                 RegValue[value as keyof typeof RegValue]
             ])
         }
     }
-    for (const value in TrumpValue) {
+    for (const value of Object.keys(TrumpValue)) {
+        if (Number.parseInt(value)) { // stupid number keys...
+            continue;
+        }
         cards.push([TrumpSuit, TrumpValue[value as keyof typeof TrumpValue]])
     }
     return cards
@@ -43,10 +49,13 @@ function invalidDeal(hands: Card[][]): boolean {
 }
 
 export const dealCards = function(players: Player[]): {dog: Card[], hands: { [player: number]: Card[] }} {
+    const comparer = compareCards(undefined);
     while (true) {
         const cards = _.shuffle<Card>(createAllCards());
         const dogSize = players.length > 4 ? 3 : 6;
-        const [dog, ...hands] = _.chunk(cards, (cards.length - dogSize) / players.length);
+        const deal = _.chunk<Card>(cards, (cards.length - dogSize) / players.length);
+        const dog = deal[players.length];
+        const hands = deal.slice(0, players.length).map((hand) => hand.sort(comparer));
         if (invalidDeal(hands)) {
             continue; // Invalid hand, deal again!
         }
@@ -96,7 +105,7 @@ export const getCardsAllowedToPlay = function(hand: Card[], trick: Card[]): Card
         return hand // new trick, lead whatever
     }
 
-    const joker = _.filter(hand, TheJoker);
+    const joker = _.filter(hand, (card) => _.isEqual(card, TheJoker));
     const hand_in_suit = _.filter(hand, (card) => card[0] === lead_suit);
     if (lead_suit !== TrumpSuit && hand_in_suit.length > 0) {
         return [...hand_in_suit, ...joker] // can follow non-trump suit
@@ -162,6 +171,8 @@ function getCardValueAsNumber(value: RegValue | TrumpValue): number {
         case TrumpValue._20:
         case TrumpValue._21:
             return value.valueOf();
+        default:
+            throw new Error(value);
     }
 }
 
@@ -176,7 +187,7 @@ export const compareCards = function(lead_suit: Suit | undefined): Comparator<Ca
         } else if (right[1] === TrumpValue.Joker) {
             return 1;
         } else if (left[0] === right[0]) {
-            return getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1]);
+            return Math.sign(getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1]));
         } else if (left[0] === TrumpSuit) {
             return 1;
         } else if (right[0] === TrumpSuit) {
