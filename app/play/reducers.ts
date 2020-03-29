@@ -47,13 +47,16 @@ import {
     TrumpSuit,
     TrumpValue,
     Card,
-    Action
+    Action,
+    errorInvalidActionForGameState,
+    errorSetDogActionShouldBePrivate,
+    Bid
 } from "./common";
 import {
     BiddingBoardState, BiddingStateActions,
     BiddingStates,
     BoardReducer,
-    CompletedBoardState,
+    CompletedBoardState, CompletedStateActions,
     DealtBoardState,
     DogRevealAndExchangeBoardState,
     DogRevealStateActions,
@@ -127,12 +130,14 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                     }) as DealtHandTransition)
                 ]
             }
+        default:
+            throw errorInvalidActionForGameState(action, state.name);
     }
 };
 
 function getTrickPlayerOrder(players: Player[], firstPlayer: Player) {
     const trickOrder = [...players];
-    while (players[0] !== firstPlayer) {
+    while (trickOrder[0] !== firstPlayer) {
         trickOrder.push(trickOrder.shift() as Player)
     }
     return trickOrder;
@@ -150,13 +155,21 @@ function getAllCalls(players: Player[], bidding: CurrentBids): { [player: number
     return calls;
 }
 
-const updateBids = function(state: CurrentBids, bid: BidAction): CurrentBids {
+const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentBids {
+    const bid = {
+        ...bid_action,
+        calls: bid_action.calls || []
+    } as Bid;
     if (state.bidders[0] !== bid.player) {
         throw errorBiddingOutOfTurn(bid.player, state.bidders[0])
     } else if (bid.bid == BidValue.PASS) {
+        const bidders = state.bidders.slice(1);
+        if (bidders.length == 1 && state.current_high.player === bidders[0]) {
+            bidders.pop(); // all pass, only most recent bidder left -> bidding done.
+        }
         return {
             bids: [...state.bids, bid],
-            bidders: state.bidders.slice(1),
+            bidders,
             current_high: state.current_high,
         }
     } else if (state.current_high.bid >= bid.bid) {
@@ -209,7 +222,7 @@ function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: 
             actions = [
                 action,
                 {
-                    type: 'end_trump_show',
+                    type: 'trump_show_ended',
                     player_showing_trump: action.showing_player
                 } as EndTrumpShowTransition
             ];
@@ -255,7 +268,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
             return ackTrumpShowActionReducer(state, action);
         case "bid":
             const new_bid_state = updateBids(state.bidding, action);
-            if (state.bidding.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
+            if (new_bid_state.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
                 return [
                     {
                         ...state,
@@ -314,7 +327,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                                 winning_bid: state.bidding.current_high,
                             } as BiddingCompletedTransition,
                             {
-                                type: 'dog_reveal',
+                                type: 'dog_revealed',
                                 dog: state.dog,
                             } as DogRevealTransition,
                         ]
@@ -338,13 +351,15 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                                 winning_bid: state.bidding.current_high,
                             } as BiddingCompletedTransition,
                             {
-                                type: 'game_start',
+                                type: 'game_started',
                                 first_player: bidder,
                             } as GameStartTransition,
                         ]
                     }
                 }
             }
+        default:
+            throw errorInvalidActionForGameState(action, state.name);
     }
 };
 
@@ -409,7 +424,7 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                     } as PlayingBoardState,
                     action,
                     {
-                        type: 'game_start',
+                        type: 'game_started',
                         first_player: state.bidder,
                     } as GameStartTransition,
                 ]
@@ -424,11 +439,13 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                     } as DogRevealAndExchangeBoardState,
                     action,
                     {
-                        type: 'dog_reveal',
+                        type: 'dog_revealed',
                         dog: state.dog,
                     } as DogRevealTransition,
                 ]
             }
+        default:
+            throw errorInvalidActionForGameState(action, state.name);
     }
 };
 
@@ -445,6 +462,8 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
         case "set_dog":
             if (!_.isEqual(action.player, state.bidder)) {
                 throw errorCannotSetDogIfNotBidder(action.player, state.bidder);
+            } else if (!_.isEqual(action.player, action.private_to)) {
+                throw errorSetDogActionShouldBePrivate(action);
             } else if (action.dog.length !== state.dog.length) {
                 throw errorNewDogWrongSize(action.dog, state.dog.length);
             } else {
@@ -466,6 +485,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                             },
                             players_acked,
                         } as DogRevealAndExchangeBoardState,
+                        action,
                         {
                             type: 'ack_dog',
                             player: action.player,
@@ -491,14 +511,14 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                             time: action.time,
                         } as AckDogAction,
                         {
-                            type: 'game_start',
+                            type: 'game_started',
                             first_player: state.bidder,
                         } as GameStartTransition,
                     ]
                 }
             }
         case "ack_dog":
-            const players_acked = _.union(state.players_acked, [state.bidder]);
+            const players_acked = _.union(state.players_acked, [action.player]);
             if (players_acked.length < state.players.length) {
                 return [
                     {
@@ -517,12 +537,14 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                     } as PlayingBoardState,
                     action,
                     {
-                        type: 'game_start',
+                        type: 'game_started',
                         first_player: state.bidder,
                     } as GameStartTransition,
                 ]
 
             }
+        default:
+            throw errorInvalidActionForGameState(action, state.name);
     }
 };
 
@@ -578,8 +600,8 @@ function getOutcomes(players: Player[], bidding_team: Player[], tricks: Complete
         }
     }
 
-    if (_.find(tricks[-1].cards, TheOne)) {
-        const one_last = players.indexOf(tricks[-1].winner);
+    if (_.find(tricks[tricks.length-1].cards, TheOne)) {
+        const one_last = players.indexOf(tricks[tricks.length-1].winner);
         if(outcomes[one_last] === undefined) {
             outcomes[one_last] = []
         }
@@ -641,7 +663,6 @@ function getFinalScore(
         points_result,
     }
 }
-
 
 export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function(state, action) {
     switch (action.type) {
@@ -768,5 +789,15 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     ]
                 }
             }
+        default:
+            throw errorInvalidActionForGameState(action, state.name);
+    }
+};
+
+export const completedBoardReducer: BoardReducer<CompletedBoardState, CompletedStateActions, CompletedBoardState> = function(state, action) {
+    if (action.type === "message") {
+        return [state, action];
+    } else {
+        throw errorInvalidActionForGameState(action, state.name);
     }
 };

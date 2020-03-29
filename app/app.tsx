@@ -37,6 +37,8 @@ import * as playCommon from './play/common';
 import * as playGame from './play/game';
 import * as playState from './play/state';
 import * as playReducers from './play/reducers';
+import * as playServer from './play/server';
+import * as playTest from './play/test';
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -102,6 +104,8 @@ init();
     common: playCommon,
     state: playState,
     reducers: playReducers,
+    server: playServer,
+    test: playTest,
 };
 
 export function mergeContexts(t1: React.ValidationMap<any>, t2: React.ValidationMap<any>): React.ValidationMap<any> {

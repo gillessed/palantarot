@@ -12,6 +12,7 @@ export enum RegSuit {
 }
 export type TrumpSuit = 'T'
 export const TrumpSuit : TrumpSuit = 'T';
+RegSuit.Club
 
 export type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
 
@@ -151,6 +152,8 @@ export interface CompletedGameState {
 
 export interface PlayerEvent {
     readonly type: string
+    /** if contains state for only one player, which player to send to */
+    readonly private_to?: Player
 }
 
 /* ACTIONS */
@@ -158,61 +161,68 @@ export interface PlayerEvent {
 /**
  * Actions are sent by the player to the server,
  * and are then relayed by the server to other players (assuming they are public).
+ *
+ * Their types are present tense commands.
  */
 export interface Action extends PlayerEvent {
-    readonly player: Player;
-    readonly time: Date
+    readonly player: Player
+    readonly time: number
 }
 
-export interface MessageAction extends Action {
+export interface PublicAction extends Action {
+    readonly private_to?: undefined;
+}
+
+export interface MessageAction extends PublicAction {
     readonly type: 'message'
     readonly text: String
 }
 
-export interface EnterGameAction extends Action {
+export interface EnterGameAction extends PublicAction {
     readonly type: 'enter_game'
 }
 
-export interface PlayerReadyAction extends Action {
+export interface PlayerReadyAction extends PublicAction {
     readonly type: 'mark_player_ready'
 }
 
-export interface BidAction extends Action {
+export interface BidAction extends PublicAction {
     readonly type: 'bid'
     readonly bid: BidValue
-    readonly calls: Call[]
+    readonly calls?: Call[]
 }
 
-export interface ShowTrumpAction extends Action {
+export interface ShowTrumpAction extends PublicAction {
     readonly type: 'show_trump'
     /** Needs to match all trumps in player's hand */
     readonly cards: TrumpCard[]
 }
 
-export interface AckTrumpShowAction extends Action {
+export interface AckTrumpShowAction extends PublicAction {
     readonly type: 'ack_trump_show'
     readonly showing_player: Player
 }
 
-export interface CallPartnerAction extends Action {
+export interface CallPartnerAction extends PublicAction {
     readonly type: 'call_partner'
     readonly card: Card
 }
 
-export interface DeclareSlam extends Action {
+export interface DeclareSlam extends PublicAction {
     readonly type: 'declare_slam'
 }
 
-export interface AckDogAction extends Action {
+export interface AckDogAction extends PublicAction {
     readonly type: 'ack_dog'
 }
 
 export interface SetDogAction extends Action {
     readonly type: 'set_dog'
     readonly dog: Card[]
+    readonly private_to: Player
 }
 
-export interface PlayCardAction extends Action {
+export interface PlayCardAction extends PublicAction {
     readonly type: 'play_card'
     readonly card: Card
 }
@@ -221,10 +231,10 @@ export interface PlayCardAction extends Action {
 
 /**
  * The server is also allowed to send messages to the players about transitions to game state.
+ *
+ * Their types are all past tense.
  */
 export interface Transition extends PlayerEvent {
-    /** if contains state for only one player, which player to send to */
-    readonly private_to?: Player
 }
 
 export interface DealtHandTransition extends Transition {
@@ -235,7 +245,7 @@ export interface DealtHandTransition extends Transition {
 }
 
 export interface EndTrumpShowTransition extends Transition {
-    readonly type: 'end_trump_show'
+    readonly type: 'trump_show_ended'
     readonly player_showing_trump: Player
 }
 
@@ -247,14 +257,14 @@ export interface BiddingCompletedTransition extends Transition {
 }
 
 export interface DogRevealTransition extends Transition {
-    readonly type: 'dog_reveal'
+    readonly type: 'dog_revealed'
     readonly private_to: undefined
 
     readonly dog: Card[]
 }
 
 export interface GameStartTransition extends Transition {
-    readonly type: 'game_start'
+    readonly type: 'game_started'
     readonly private_to: undefined
 
     readonly first_player: Player
@@ -282,7 +292,11 @@ export interface GameAbortedTransition extends Transition {
 }
 
 
-/* ERRORS */
+/* USER ERRORS */
+
+export const errorInvalidActionForGameState = function(action: Action, state: string) {
+    return new Error(`Cannot ${action} as we're currently in game state ${state}!`)
+};
 
 export const errorActionAlreadyHappened = function(action: Action, state: any) {
     return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`)
@@ -322,6 +336,10 @@ export const errorCannotCallTrump = function(card: Card) {
 
 export const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
     return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`)
+};
+
+export const errorSetDogActionShouldBePrivate = function(action: SetDogAction) {
+    return new Error(`${action} should be private, and should have 'private_to' attribute set to the player`)
 };
 
 export const errorNewDogWrongSize = function(dog: Card[], expected: number) {
