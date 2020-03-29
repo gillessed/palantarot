@@ -1,7 +1,7 @@
 import {Game, testingGetState} from "./server";
 import * as assert from "assert";
-import {getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./game";
-import {BidValue, Call, Card} from "./common";
+import {cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./game";
+import {BidValue, Call, Card, CompletedGameState, GameCompletedTransition, TheOne} from "./common";
 import _ from "lodash";
 import {PlayingBoardState} from "./state";
 
@@ -58,7 +58,9 @@ function autoplayTrick(game: Game, time: () => number) {
     for (const player of order) {
         const state = testingGetState(game) as PlayingBoardState;
         const cards = getCardsAllowedToPlay(state.hands[getPlayerNum(state.players, player)], state.current_trick.cards);
-        game.playerAction({type: 'play_card', player, card: cards[0], time: time()});
+        // Play first available card, otherwise try to play one last. (Not smartest play, but good for testing)
+        const card = _.find(cards, (card) => !_.isEqual(card, TheOne)) || cardsContain(cards, TheOne);
+        game.playerAction({type: 'play_card', player, card, time: time()});
     }
 }
 
@@ -142,6 +144,14 @@ export const test = () => {
         autoplayTrick(game, time);
     }
     assert.deepStrictEqual(game.getEvents('dxiao', time() - 5).pop()?.type, 'game_completed');
+
+    const end_state = (game.getEvents('dxiao', time() - 5).pop() as GameCompletedTransition).end_state;
+    assert.deepStrictEqual(end_state.bidder_won, true);
+    assert.deepStrictEqual(end_state.outcomes[4], ['one_last']);
+    assert.deepStrictEqual(end_state.bouts.length, 3);
+    assert.deepStrictEqual(end_state.points_earned, 52);
+    assert.deepStrictEqual(end_state.shows[4], []);
+    assert.deepStrictEqual(end_state.points_result, 80);
 
     return game;
 };

@@ -144,6 +144,7 @@ export interface CompletedGameState {
 
     readonly calls: { [player: number]: Call[] }
     readonly outcomes: { [player: number]: Outcome[] }
+    readonly shows: Player[]
     readonly points_earned: number
     readonly bouts: Bout[]
     readonly bidder_won: boolean

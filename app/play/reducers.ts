@@ -578,12 +578,12 @@ function getCardsWon(bidding_team: Player[], tricks: CompletedTrick[], joker_sta
             if (bidding_team.indexOf(joker_state.player) > -1) { // joker played by bidder/partner, need to swap it back
                 if (cards_won.length > 0) {
                     cards_lost.push(_.sortBy(cards_won, getCardPoint)[0]);
-                    cards_won.push(...cardsWithout(cards_lost, TheJoker));
+                    cards_won.push(..._.remove(cards_lost, (card) => _.isEqual(card, TheJoker)));
                 }
             } else { // joker played by team, need to swap it back
                 if (cards_lost.length > 0) {
                     cards_won.push(_.sortBy(cards_lost, getCardPoint)[0]);
-                    cards_lost.push(...cardsWithout(cards_won, TheJoker));
+                    cards_lost.push(..._.remove(cards_won, (card) => _.isEqual(card, TheJoker)));
                 }
             }
         }
@@ -620,11 +620,6 @@ function getOutcomes(players: Player[], bidding_team: Player[], tricks: Complete
 
     return outcomes;
 }
-
-// TODO:
-//    * adjust calls for trump showing
-//    * figure out what happened to the joker
-//    * did the partner tricks get factored in?
 
 function getFinalScore(
         players: Player[],
@@ -769,6 +764,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     const bidding_team = _.compact([state.bidder, state.partner]);
                     const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
                     const outcomes = getOutcomes(state.players, bidding_team, tricks);
+                    const shows = Object.keys(state.shows).map((index) => state.players[Number.parseInt(index)]);
                     const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
                         cards_won, state.shows, state.bidding.calls, outcomes);
                     const end_state = {
@@ -778,6 +774,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                         dog: state.dog,
 
                         calls: state.bidding.calls,
+                        shows,
                         outcomes,
                         ...final_score
                     } as CompletedGameState;
