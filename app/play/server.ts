@@ -12,7 +12,7 @@ type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
 export class Game {
     static readonly create_new = function(): Game {
         return new Game(
-            Date.now() + "-" + Math.floor(Math.random() * (2 << 24)).toString(16),
+            Date.now() + "",
             {
                 'new_game': newGameBoardReducer,
                 'bidding': biddingBoardReducer,
@@ -29,16 +29,11 @@ export class Game {
             []);
     };
 
-    private readonly id: string;
-    private readonly reducers: ReducerMap;
-    private readonly log: PlayerEvent[];
-    private state: BoardState;
-
-    protected constructor(id: string, reducers: ReducerMap, state: BoardState, log: PlayerEvent[]) {
-        this.id = id;
-        this.reducers = reducers;
-        this.state = state;
-        this.log = log;
+    protected constructor(
+        public readonly id: string,
+        private readonly reducers: ReducerMap,
+        private state: BoardState,
+        private readonly log: PlayerEvent[]) {
     }
 
     public playerAction<T extends Action>(event: T): PlayerEvent[] {

@@ -14,6 +14,7 @@ import { Config } from './config';
 import { Database } from './db/dbConnector';
 import { WebsocketManager } from './websocket/WebsocketManager';
 import { SearchService } from './api/SearchService';
+import {PlayService} from "./play/PlayService";
 
 
 const oneDayMs = 1000 * 60 * 60 * 24;
@@ -118,6 +119,9 @@ export class App {
 
     const searchService = new SearchService(this.db);
     this.express.use('/api/v1/search', searchService.router);
+
+    const playService = new PlayService();
+    this.express.use('/api/v1/play', playService.router);
   }
  
   private redirectRoute() {
