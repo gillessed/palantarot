@@ -1,5 +1,15 @@
 import _ from "lodash";
-import {cardsEqual, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner} from "./game";
+import {
+    cardsContain,
+    cardsEqual,
+    cardsWithout,
+    dealCards,
+    getCardPoint,
+    getCardsAllowedToPlay,
+    getPlayerNum,
+    getTrumps,
+    getWinner
+} from "./game";
 import {
     AckDogAction,
     AckTrumpShowAction,
@@ -216,15 +226,15 @@ function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: 
         let actions;
         if (new_show.length === 0) {
             actions = [
-                action
-            ];
-        } else {
-            actions = [
                 action,
                 {
                     type: 'trump_show_ended',
                     player_showing_trump: action.showing_player
                 } as EndTrumpShowTransition
+            ];
+        } else {
+            actions = [
+                action
             ];
         }
         return [
@@ -406,8 +416,8 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
             }
             let partner = undefined;
             for (const player_num in state.hands) {
-                if (state.hands[player_num].indexOf(action.card) > -1) {
-                    partner = player_num;
+                if (cardsContain(state.hands[player_num], action.card)) {
+                    partner = state.players[player_num];
                     break;
                 }
             }
@@ -470,7 +480,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                 const player_num = getPlayerNum(state.players, state.bidder);
                 const player_hand = state.hands[player_num];
                 const cards = [...player_hand, ...state.dog];
-                const new_player_hand = _.intersectionWith(cards, player_hand, _.isEqual);
+                const new_player_hand = cardsWithout(cards, ...action.dog);
                 if (new_player_hand.length !== player_hand.length) {
                     throw errorNewDogDoesntMatchHand(action.dog, cards);
                 } else if (state.players_acked.length < state.players.length - 1) {
@@ -568,12 +578,12 @@ function getCardsWon(bidding_team: Player[], tricks: CompletedTrick[], joker_sta
             if (bidding_team.indexOf(joker_state.player) > -1) { // joker played by bidder/partner, need to swap it back
                 if (cards_won.length > 0) {
                     cards_lost.push(_.sortBy(cards_won, getCardPoint)[0]);
-                    cards_won.push(..._.remove(cards_lost, TheJoker));
+                    cards_won.push(...cardsWithout(cards_lost, TheJoker));
                 }
             } else { // joker played by team, need to swap it back
                 if (cards_lost.length > 0) {
                     cards_won.push(_.sortBy(cards_lost, getCardPoint)[0]);
-                    cards_lost.push(..._.remove(cards_won, TheJoker));
+                    cards_lost.push(...cardsWithout(cards_won, TheJoker));
                 }
             }
         }
@@ -600,7 +610,7 @@ function getOutcomes(players: Player[], bidding_team: Player[], tricks: Complete
         }
     }
 
-    if (_.find(tricks[tricks.length-1].cards, TheOne)) {
+    if (cardsContain(tricks[tricks.length-1].cards, TheOne)) {
         const one_last = players.indexOf(tricks[tricks.length-1].winner);
         if(outcomes[one_last] === undefined) {
             outcomes[one_last] = []
@@ -610,6 +620,11 @@ function getOutcomes(players: Player[], bidding_team: Player[], tricks: Complete
 
     return outcomes;
 }
+
+// TODO:
+//    * adjust calls for trump showing
+//    * figure out what happened to the joker
+//    * did the partner tricks get factored in?
 
 function getFinalScore(
         players: Player[],
@@ -621,7 +636,8 @@ function getFinalScore(
         outcomes: { [player: number]: Outcome[] })
         : { points_earned: number, bouts: Bout[], bidder_won: boolean, points_result: number} {
     const bouts = _.filter(cards_won, (card): card is Bout =>
-        card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21);
+        card[0] === TrumpSuit && (
+        card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
     const points_earned = cards_won.map(getCardPoint).reduce((a, b) => a + b, 0);
     const needed_to_win = [56, 51, 41, 36][bouts.length];
     const bidder_won = points_earned >= needed_to_win;
@@ -690,9 +706,9 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
             const player_num = getPlayerNum(state.players, action.player);
             if (state.current_trick.players[state.current_trick.current_player] !== action.player) {
                 throw errorPlayingOutOfTurn(action.player, state.current_trick.players[state.current_trick.current_player]);
-            } else if (!_.find(state.hands[player_num], action.card)) {
+            } else if (!cardsContain(state.hands[player_num], action.card)) {
                 throw errorCardNotInHand(action, state.hands[player_num]);
-            } else if (!_.find(getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards), action.card)) {
+            } else if (!cardsContain(getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards), action.card)) {
                 throw errorCannotPlayCard(
                     action.card,
                     state.current_trick.cards,
@@ -700,7 +716,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
             }
             const hands = {
                 ...state.hands,
-                [player_num]: _.filter(state.hands[player_num], (card) => !_.isEqual(card, action.card)),
+                [player_num]: cardsWithout(state.hands[player_num], action.card),
             };
             if (state.current_trick.current_player < state.current_trick.players.length - 1) {
                 return [
@@ -716,17 +732,18 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     action,
                 ]
             } else { // last card in trick
-                const [winning_card, winner] = getWinner(state.current_trick.cards, state.players);
+                const new_cards = [...state.current_trick.cards, action.card];
+                const [winning_card, winner] = getWinner(new_cards, state.current_trick.players);
                 const completed_trick = {
                     trick_num: state.current_trick.trick_num,
-                    cards: [...state.current_trick.cards, action.card],
+                    cards: new_cards,
                     players: state.current_trick.players,
                     winner,
                 };
                 let joker_state = state.joker_state;
-                if (_.find(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
+                if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
                     joker_state = {
-                        player: completed_trick.players[_.findIndex(completed_trick.cards, TheJoker)],
+                        player: completed_trick.players[_.findIndex(completed_trick.cards, (card) => _.isEqual(card, TheJoker))],
                         owed_to: winner,
                     };
                 }

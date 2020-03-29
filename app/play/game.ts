@@ -76,6 +76,14 @@ export const cardsEqual = function(one: Card[], two: Card[]): boolean {
     return _.isEqual(one.sort(), two.sort());
 };
 
+export const cardsContain = function(cards: Card[], target: Card): Card | undefined {
+    return _.find(cards, (card) => _.isEqual(card, target))
+};
+
+export const cardsWithout = function(cards: Card[], ...subtract: Card[]): Card[] {
+    return _.differenceWith(cards, subtract, _.isEqual)
+};
+
 export const getPlayerNum = function(players: Player[], player: Player) {
     const index = players.indexOf(player);
     if (index < 0) {
