@@ -296,11 +296,11 @@ export interface GameAbortedTransition extends Transition {
 /* USER ERRORS */
 
 export const errorInvalidActionForGameState = function(action: Action, state: string) {
-    return new Error(`Cannot ${action} as we're currently in game state ${state}!`)
+    return new Error(`Cannot ${action.type} as we're currently in game state ${state}!`)
 };
 
-export const errorActionAlreadyHappened = function(action: Action, state: any) {
-    return new Error(`Cannot ${action} as it has already happened! Existing state: ${state}`)
+export const errorActionAlreadyHappened = function(action: Action, state: Player[]) {
+    return new Error(`Cannot ${JSON.stringify(action)} as it has already happened! Existing state: ${state}`)
 };
 
 export const errorTooManyPlayers = function(player: Player, players: Player[]) {
@@ -324,7 +324,7 @@ export const errorCannotShowTwice = function(player: Player) {
 };
 
 export const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
-    return new Error(`Invalid trump show ${action}, didn't get the following expected trump: ${expected}.`)
+    return new Error(`Invalid trump show: Got ${action.cards}, expected ${expected}.`)
 };
 
 export const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
@@ -340,7 +340,7 @@ export const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Play
 };
 
 export const errorSetDogActionShouldBePrivate = function(action: SetDogAction) {
-    return new Error(`${action} should be private, and should have 'private_to' attribute set to the player`)
+    return new Error(`Setting dog should have 'private_to' attribute set to the player, instead got ${action.private_to}`)
 };
 
 export const errorNewDogWrongSize = function(dog: Card[], expected: number) {
@@ -352,7 +352,7 @@ export const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]
 };
 
 export const errorAfterFirstTurn = function(action: Action) {
-    return new Error(`Cannot ${action}, as it is after this player's first turn.`)
+    return new Error(`Cannot ${action.type}, as it is after this player's first turn.`)
 };
 
 export const errorPlayingOutOfTurn = function(player: Player, current: Player) {
@@ -360,7 +360,7 @@ export const errorPlayingOutOfTurn = function(player: Player, current: Player) {
 };
 
 export const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
-    return new Error(`Cannot conduct ${action}, as requested card is not in the players hand! Hand contains ${hand}`)
+    return new Error(`Cannot conduct ${action.type} with ${action.card}, as requested card is not in the players hand! Hand contains ${hand}`)
 };
 
 export const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
