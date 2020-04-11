@@ -112,6 +112,8 @@ export class ServerApi {
     return this.wrapPost('/search', searchQuery);
   }
 
+  public
+
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {

@@ -122,6 +122,7 @@ export class App {
 
     const playService = new PlayService();
     this.express.use('/api/v1/play', playService.router);
+    this.websocketManager.initPlayService(playService);
   }
  
   private redirectRoute() {
