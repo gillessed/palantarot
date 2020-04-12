@@ -59,26 +59,45 @@ export class PlayService {
         for (const player of game.getState().players) {
             const socketKey = this.getSocketKey(game_id, player);
             this.sockets.get(socketKey)?.emit(
-                'play_action',
+                'play_events',
                 events.filter((event) =>
                     event.private_to === undefined || event.private_to === player));
         }
     }
 
     public addSocket(game_id: string, player: Player, socket: WebSocket) {
+        if (!this.games.has(game_id)) {
+            socket.emit('error', `Cannot subscribe to ${game_id} as it does not exist.`);
+            return
+        }
         this.sockets.set(this.getSocketKey(game_id, player), socket);
-        socket.on('action', (action: Action) => {
-            try {
-                const messages = this.games.get(game_id)?.playerAction(action);
-                if (messages) {
-                    this.broadcastEvents(game_id, messages);
-                }
-            } catch (e) {
-                socket.emit("play_error", e)
+        socket.on('play_action', (action: Action) => this.playSocket(game_id, action));
+        socket.on('play_exit', this.removeSocket);
+        socket.on('close', () => this.removeSocket(game_id, player));
+    }
+
+    private removeSocket(game_id: string, player: Player) {
+        const socketKey = this.getSocketKey(game_id, player);
+        const socket = this.sockets.get(socketKey);
+        if (socket) {
+            socket.removeEventListener('play_action');
+            socket.removeEventListener("play_exit");
+            this.sockets.delete(socketKey);
+        }
+    }
+
+    private playSocket(game_id: string, action: Action) {
+        const socket = this.sockets.get(this.getSocketKey(game_id, action.player));
+        if (!socket) {
+            throw Error(`Could not find socket for ${game_id}, ${action.player}`);
+        }
+        try {
+            const messages = this.games.get(game_id)?.playerAction(action);
+            if (messages) {
+                this.broadcastEvents(game_id, messages);
             }
-        });
-        socket.on('leave', (game_id: string, player: Player) => {
-            this.sockets.delete(this.getSocketKey(game_id, player));
-        })
+        } catch (e) {
+            socket.emit("play_error", e)
+        }
     }
 }
