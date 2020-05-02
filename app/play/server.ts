@@ -13,6 +13,7 @@ export class Game {
     static readonly create_new = function(): Game {
         return new Game(
             Date.now() + "",
+            new Date(),
             {
                 'new_game': newGameBoardReducer,
                 'bidding': biddingBoardReducer,
@@ -31,6 +32,7 @@ export class Game {
 
     protected constructor(
         public readonly id: string,
+        private readonly created: Date,
         private readonly reducers: ReducerMap,
         private state: BoardState,
         private readonly log: PlayerEvent[]) {
@@ -60,6 +62,20 @@ export class Game {
 
     /* module */ getState() {
         return this.state;
+    }
+
+    private isAction(event: PlayerEvent): event is Action {
+        return (event as Action).time !== undefined;
+    }
+
+    /* module */ getLastAction(): number {
+        for (let i = this.log.length - 1; i >= 0; i--) {
+            const event = this.log[i];
+            if (this.isAction(event)) {
+                return event.time;
+            }
+        }
+        return this.created.valueOf()
     }
 }
 

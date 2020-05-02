@@ -20,6 +20,7 @@ import { StreaksService, streaksReducer } from './streaks/index';
 import { RefreshState } from './refresh/RefreshTypes';
 import { refreshReducer } from './refresh/RefreshReducer';
 import { SearchService, searchReducer } from './search/index';
+import { lobbyReducer, LobbyService } from "../play/lobby/LobbyService";
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -30,6 +31,7 @@ export interface ReduxState {
   deleteTarothon: DeleteTarothonService;
   deltas: DeltasService;
   games: GameService;
+  lobby: LobbyService;
   monthGames: MonthGamesService;
   players: PlayersService;
   recentGames: RecentGamesService;
@@ -53,6 +55,7 @@ export const rootReducer = combineReducers({
   deleteTarothon: deleteTarothonReducer,
   deltas: deltasReducer,
   games: gameReducer,
+  lobby: lobbyReducer,
   monthGames: monthGamesReducer,
   players: playersReducer,
   recentGames: recentGamesReducer,

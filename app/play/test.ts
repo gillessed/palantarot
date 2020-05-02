@@ -1,6 +1,6 @@
 import {Game, testingGetState} from "./server";
 import * as assert from "assert";
-import {cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./game";
+import {cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./card_utils";
 import {BidValue, Call, Card, CompletedGameState, GameCompletedTransition, TheOne} from "./common";
 import _ from "lodash";
 import {PlayingBoardState} from "./state";

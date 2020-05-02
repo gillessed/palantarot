@@ -22,6 +22,7 @@ import { TarothonDataDispatcher } from './tarothonData';
 import { StreaksDispatcher } from './streaks/index';
 import { SearchDispatcher, searchLoader } from './search/index';
 import { SearchQuery } from '../../server/model/Search';
+import {LobbyDispatcher, lobbyService} from "../play/lobby/LobbyService";
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
@@ -32,6 +33,7 @@ export interface Dispatchers {
   deleteTarothon: DeleteTarothonDispatcher;
   deltas: DeltasDispatcher;
   games: GameDispatcher;
+  lobby: LobbyDispatcher;
   monthGames: MonthGamesDispatcher;
   pageCache: PageCacheDispatcher;
   players: PlayersDispatcher;
@@ -76,6 +78,7 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
         },
       },
     ),
+    lobby: new lobbyService.dispatcher(store),
     monthGames: new MonthGamesDispatcher(
       store,
       {

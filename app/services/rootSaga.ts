@@ -21,6 +21,7 @@ import { streaksSaga } from './streaks/index';
 import { tarothonDataSaga } from './tarothonData';
 import { tarothonsSaga } from './tarothons/index';
 import { searchSaga } from './search/index';
+import {lobbyService} from "../play/lobby/LobbyService";
 
 
 
@@ -37,6 +38,7 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(authSaga, api),
     fork(deleteGameSaga, api),
     fork(gameSaga, api),
+    fork(lobbyService.saga, api),
     fork(monthGamesSaga, api),
     fork(playersSaga, api),
     fork(recentGamesSaga, api),

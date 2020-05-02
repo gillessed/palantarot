@@ -34,11 +34,12 @@ import { SagaListener } from './services/sagaListener';
 import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 
 import * as playCommon from './play/common';
-import * as playGame from './play/game';
+import * as playGame from './play/card_utils';
 import * as playState from './play/state';
 import * as playReducers from './play/reducers';
 import * as playServer from './play/server';
 import * as playTest from './play/test';
+import {LobbyContainer} from "./play/lobby/LobbyContainer";
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -79,6 +80,7 @@ async function init() {
         <Route path='/app/add-tarothon' component={TarothonFormContainer} />
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
+        <Route path='/app/lobby' component={LobbyContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
     );

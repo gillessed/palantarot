@@ -1,6 +1,6 @@
 import {Request, Response, Router} from 'express';
 import {Game} from "../../app/play/server";
-import {Action, Player, PlayerEvent} from "../../app/play/common";
+import {Action, GameDescription, Player, PlayerEvent} from "../../app/play/common";
 import WebSocket from "ws";
 
 export class PlayService {
@@ -24,7 +24,15 @@ export class PlayService {
     };
 
     public listGames = async (req: Request, res: Response) => {
-        res.send(this.games.keys());
+        const games: { [id: string]: GameDescription } = {};
+        for (const [k, v] of this.games) {
+            games[k] = {
+                state: v.getState().name,
+                players: v.getState().players,
+                last_updated: v.getLastAction(),
+            };
+        }
+        res.send(games);
     };
 
     public getEvents = async (req: Request, res: Response) => {

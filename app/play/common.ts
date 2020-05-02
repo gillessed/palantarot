@@ -292,6 +292,14 @@ export interface GameAbortedTransition extends Transition {
     readonly reason: string
 }
 
+/* LOBBY VIEW */
+
+export interface GameDescription {
+    readonly state: string
+    readonly players: Player[]
+    readonly last_updated: number
+}
+
 
 /* USER ERRORS */
 

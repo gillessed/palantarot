@@ -17,6 +17,7 @@ import { BidRequest, BidStats } from '../../server/model/Bid';
 import { Tarothon, NewTarothon, TarothonData } from '../../server/model/Tarothon';
 import { Streak } from '../../server/model/Streak';
 import { SearchQuery } from '../../server/model/Search';
+import {GameDescription} from "../play/common";
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -112,7 +113,13 @@ export class ServerApi {
     return this.wrapPost('/search', searchQuery);
   }
 
-  public
+  public playNewGame = (): Promise<string> => {
+    return this.wrapPost("/play/new_game", {})
+  }
+
+  public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {
+    return this.wrapGet("/play/games");
+  }
 
   // Helpers
 
