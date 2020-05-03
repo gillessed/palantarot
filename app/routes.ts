@@ -22,7 +22,7 @@ const DynamicRoutesInternal = {
   editTarothon: (tarothonId: string) => `/app/edit-tarothon/${tarothonId}`,
   player: (playerId: string) => `/app/player/${playerId}`,
   edit: (gameId: string) => `/app/edit/${gameId}`,
-  play: (gameId: string) => `/app/play/${gameId}`,
+  play: (player: string, gameId: string) => `/app/play/${player}/${gameId}`,
 };
 
 export const DynamicRoutes = DynamicRoutesInternal; 

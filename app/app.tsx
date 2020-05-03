@@ -40,6 +40,7 @@ import * as playReducers from './play/reducers';
 import * as playServer from './play/server';
 import * as playTest from './play/test';
 import {LobbyContainer} from "./play/lobby/LobbyContainer";
+import {InGameContainer} from "./play/ingame/InGameContainer";
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -81,6 +82,7 @@ async function init() {
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
         <Route path='/app/lobby' component={LobbyContainer} />
+        <Route path='/app/play/:player/:gameId' component={InGameContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
     );

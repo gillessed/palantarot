@@ -7,20 +7,26 @@ import {loadContainer} from "../../containers/LoadingContainer";
 import {Dispatchers} from "../../services/dispatchers";
 import {DynamicRoutes} from "../../routes";
 import history from '../../history';
+import {TextInput} from "../../components/forms/Elements";
 
 interface Props {
   games: Map<string, GameDescription>
   dispatchers: Dispatchers;
 }
 
-class LobbyInternal extends React.PureComponent<Props> {
+interface State {
+  player: string
+}
+
+class LobbyInternal extends React.PureComponent<Props, State> {
   private refresher: NodeJS.Timer;
   constructor(props: Props) {
     super(props);
+    this.state = {player: ""}
   }
 
   public componentWillMount() {
-    this.refresher = setInterval(() => this.props.dispatchers.lobby.request(), 10000);
+    this.refresher = setInterval(() => this.props.dispatchers.lobby.request(), 15000);
   }
 
   public componentWillUnmount(): void {
@@ -32,6 +38,7 @@ class LobbyInternal extends React.PureComponent<Props> {
       <div className='page-container'>
         <h1 className='bp3-heading'>Lobby</h1>
         <Button icon='new-object' onClick={this.newGame}>New Game</Button>
+        <TextInput label='Join Games As:' onChange={this.setName}/>
         <HTMLTable>
           <thead>
             <tr>
@@ -50,7 +57,7 @@ class LobbyInternal extends React.PureComponent<Props> {
                 <td>{game.players.join(", ")}</td>
                 <td>{moment(game.last_updated).fromNow()}</td>
                 <td>{game.state === "completed" ? " " :
-                  <Button icon='add' onClick={() => this.playGame(id)}>Join</Button>
+                  <Button icon='add' onClick={() => this.playGame(id)} disabled={!this.state.player}>Join</Button>
                 }</td>
               </tr>
             ))}
@@ -60,12 +67,20 @@ class LobbyInternal extends React.PureComponent<Props> {
     )
   }
 
+  private setName = (name: string) => {
+    this.setState({
+      player: name,
+    })
+  };
+
   private newGame = () => {
     this.props.dispatchers.lobby.newGame()
   };
 
   private playGame = (id: string) => {
-    history.push(DynamicRoutes.play(id))
+    if (this.state.player) {
+      history.push(DynamicRoutes.play(this.state.player, id))
+    }
   };
 }
 
