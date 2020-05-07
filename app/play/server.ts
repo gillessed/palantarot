@@ -49,15 +49,16 @@ export class Game {
         return new_events;
     }
 
-    public getEvents(player: Player, start_at: number = 0, limit: number = 100) {
+    public getEvents(player: Player, start_at: number = 0, limit: number = 100): [PlayerEvent[], number] {
         const events = [];
-        for (let i = start_at; i < this.log.length && events.length < limit; i++) {
+        let i = start_at;
+        for (; i < this.log.length && events.length < limit; i++) {
             const privacy = this.log[i].private_to;
             if (privacy === undefined || privacy === player) {
                 events.push(this.log[i]);
             }
         }
-        return events;
+        return [events, i];
     }
 
     /* module */ getState() {

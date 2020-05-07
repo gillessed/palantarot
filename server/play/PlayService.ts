@@ -82,6 +82,10 @@ export class PlayService {
         socket.on('play_action', (action: Action) => this.playSocket(game_id, action));
         socket.on('play_exit', this.removeSocket);
         socket.on('close', () => this.removeSocket(game_id, player));
+        socket.emit(
+          'play_events',
+          this.games.get(game_id)?.getEvents(player, 0, 10000) || []
+        )
     }
 
     private removeSocket(game_id: string, player: Player) {

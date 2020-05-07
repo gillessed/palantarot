@@ -21,6 +21,7 @@ import { RefreshState } from './refresh/RefreshTypes';
 import { refreshReducer } from './refresh/RefreshReducer';
 import { SearchService, searchReducer } from './search/index';
 import { lobbyReducer, LobbyService } from "../play/lobby/LobbyService";
+import {inGameReducer, InGameState} from "../play/ingame/InGameService";
 
 export interface ReduxState {
   addPlayer: AddPlayerService;
@@ -31,6 +32,7 @@ export interface ReduxState {
   deleteTarothon: DeleteTarothonService;
   deltas: DeltasService;
   games: GameService;
+  ingame: InGameState;
   lobby: LobbyService;
   monthGames: MonthGamesService;
   players: PlayersService;
@@ -55,6 +57,7 @@ export const rootReducer = combineReducers({
   deleteTarothon: deleteTarothonReducer,
   deltas: deltasReducer,
   games: gameReducer,
+  ingame: inGameReducer,
   lobby: lobbyReducer,
   monthGames: monthGamesReducer,
   players: playersReducer,

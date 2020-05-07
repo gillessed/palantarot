@@ -4,7 +4,7 @@ import {ServerApi} from "../../api/serverApi";
 import {ReduxState} from "../../services/rootReducer";
 import {Loader} from "../../services/loader";
 import {Dispatchers} from "../../services/dispatchers";
-import {PropertyCachingState, PropertyDispatcher} from "../../services/redux/serviceDispatcher";
+import {PropertyCachingState} from "../../services/redux/serviceDispatcher";
 import {GameDescription} from "../common";
 import {TypedAction} from "redoodle";
 import {Store} from "redux";

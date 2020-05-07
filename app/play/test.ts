@@ -1,7 +1,7 @@
 import {Game, testingGetState} from "./server";
 import * as assert from "assert";
 import {cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./card_utils";
-import {BidValue, Call, Card, CompletedGameState, GameCompletedTransition, TheOne} from "./common";
+import {BidValue, Call, Card, GameCompletedTransition, TheOne} from "./common";
 import _ from "lodash";
 import {PlayingBoardState} from "./state";
 
@@ -81,7 +81,7 @@ export const test = () => {
     game.playerAction({type: 'mark_player_ready', player: 'karl', time: time()});
     game.playerAction({type: 'mark_player_ready', player: 'dxiao', time: time()});
 
-    assert.deepStrictEqual(game.getEvents("dxiao").pop()?.type, 'dealt_hand');
+    assert.deepStrictEqual(game.getEvents("dxiao")[0].pop()?.type, 'dealt_hand');
 
     game.playerAction({type: 'bid', player: 'dxiao', bid: BidValue.TEN, time: time()});
     game.playerAction({type: 'bid', player: 'ericb', bid: BidValue.TWENTY, calls: [Call.RUSSIAN], time: time()});
@@ -91,11 +91,11 @@ export const test = () => {
     game.playerAction({type: 'bid', player: 'dxiao', bid: BidValue.PASS, time: time()});
     game.playerAction({type: 'bid', player: 'ericb', bid: BidValue.PASS, time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao').pop()?.type, 'bidding_completed');
+    assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'bidding_completed');
 
     game.playerAction({type: 'call_partner', player: 'samira', card: ["H", "R"], time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao').pop()?.type, 'dog_revealed');
+    assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'dog_revealed');
 
     game.playerAction({type: 'ack_dog', player: 'dxiao', time: time()});
     game.playerAction({type: 'ack_dog', player: 'ericb', time: time()});
@@ -103,7 +103,7 @@ export const test = () => {
     game.playerAction({type: 'ack_dog', player: 'karl', time: time()});
     game.playerAction({type: 'set_dog', player: 'samira', dog: [['D', 4], ['D', 8], ['H', 4]], private_to: 'samira', time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao').pop()?.type, 'game_started');
+    assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'game_started');
 
     game.playerAction({type: 'show_trump', player: 'samira', time: time(), cards: [
             ["T", "Joker"], [ "T", 1 ], [ "T", 10 ], [ "T", 13 ], [ "T", 14 ], [ "T", 15 ], [ "T", 17 ], ['T', 19], [ "T", 20 ]
@@ -114,7 +114,7 @@ export const test = () => {
     game.playerAction({type: 'ack_trump_show', player: 'karl', showing_player: 'samira', time: time()});
     game.playerAction({type: 'ack_trump_show', player: 'samira', showing_player: 'samira', time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao').pop()?.type, 'trump_show_ended');
+    assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'trump_show_ended');
 
     game.playerAction({type: 'play_card', player: 'samira', card: ['C', 5], time: time()});
     game.playerAction({type: 'play_card', player: 'dxiao', card: ['C', 3], time: time()});
@@ -122,7 +122,7 @@ export const test = () => {
     game.playerAction({type: 'play_card', player: 'gcole', card: ['C', 'R'], time: time()});
     game.playerAction({type: 'play_card', player: 'karl', card: ['C', 2], time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5).pop()?.type, 'completed_trick');
+    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5)[0].pop()?.type, 'completed_trick');
 
     game.playerAction({type: 'play_card', player: 'gcole', card: ['C', 1], time: time()});
     game.playerAction({type: 'play_card', player: 'karl', card: ['C', 9], time: time()});
@@ -130,7 +130,7 @@ export const test = () => {
     game.playerAction({type: 'play_card', player: 'dxiao', card: ['C', 'D'], time: time()});
     game.playerAction({type: 'play_card', player: 'ericb', card: ['T', 6], time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5).pop()?.type, 'completed_trick');
+    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5)[0].pop()?.type, 'completed_trick');
 
     game.playerAction({type: 'play_card', player: 'ericb', card: ['T', 8], time: time()});
     game.playerAction({type: 'play_card', player: 'gcole', card: ['T', 11], time: time()});
@@ -138,14 +138,14 @@ export const test = () => {
     game.playerAction({type: 'play_card', player: 'samira', card: ['T', 13], time: time()});
     game.playerAction({type: 'play_card', player: 'dxiao', card: ['T', 18], time: time()});
 
-    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5).pop()?.type, 'completed_trick');
+    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5)[0].pop()?.type, 'completed_trick');
 
     for (let i = 0; i < 12; i++) {
         autoplayTrick(game, time);
     }
-    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5).pop()?.type, 'game_completed');
+    assert.deepStrictEqual(game.getEvents('dxiao', time() - 5)[0].pop()?.type, 'game_completed');
 
-    const end_state = (game.getEvents('dxiao', time() - 5).pop() as GameCompletedTransition).end_state;
+    const end_state = (game.getEvents('dxiao', time() - 5)[0].pop() as GameCompletedTransition).end_state;
     assert.deepStrictEqual(end_state.bidder_won, true);
     assert.deepStrictEqual(end_state.outcomes[4], ['one_last']);
     assert.deepStrictEqual(end_state.bouts.length, 3);
