@@ -39,7 +39,7 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(authSaga, api),
     fork(deleteGameSaga, api),
     fork(gameSaga, api),
-    fork(inGameSaga, api),
+    fork(inGameSaga),
     fork(lobbySaga, api),
     fork(monthGamesSaga, api),
     fork(playersSaga, api),

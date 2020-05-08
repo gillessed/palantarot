@@ -2,7 +2,6 @@ import {Action, Player, PlayerEvent} from "../common";
 import {TypedAction, TypedReducer} from "redoodle";
 import {ReduxState} from "../../services/rootReducer";
 import {Store} from "redux";
-import {ServerApi} from "../../api/serverApi";
 import {call, cancelled, put, take} from "redux-saga/effects";
 import {takeEveryPayload} from "../../services/redux/serviceSaga";
 import {END, eventChannel, SagaIterator} from "redux-saga";
@@ -65,12 +64,16 @@ export class InGameDispatcher {
     this.store.dispatch(play_action(action));
   }
 
+  public actionError(error: Error) {
+    this.store.dispatch(play_error(error.message));
+  }
+
   public exitGame() {
     this.store.dispatch(exit_game());
   }
 }
 
-export function* inGameSaga (api: ServerApi) {
+export function* inGameSaga () {
   yield takeEveryPayload(join_game, function* (action: [Player, string]): SagaIterator {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const websocketUri = `${protocol}//${window.location.host}/ws`;
