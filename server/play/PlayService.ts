@@ -3,6 +3,27 @@ import {Game} from "../../app/play/server";
 import {Action, GameDescription, Player, PlayerEvent} from "../../app/play/common";
 import WebSocket from "ws";
 
+export interface PlayMessage {
+    type: 'play'
+    game: string
+    player: Player
+}
+
+export interface PlayError {
+    type: 'play_error'
+    error: string
+}
+
+export interface PlayUpdates {
+    type: 'play_updates'
+    events: PlayerEvent[]
+}
+
+export interface PlayAction {
+    type: 'play_action'
+    action: Action
+}
+
 export class PlayService {
     public router: Router;
     private games: Map<string, Game>;
@@ -15,6 +36,7 @@ export class PlayService {
         this.router.get('/games', this.listGames);
         this.router.get('/game/:id/:player', this.getEvents);
         this.router.post('/game/:id', this.playAction);
+        this.sockets = new Map<string, WebSocket>();
     }
 
     public newGame = async (req: Request, res: Response) => {
@@ -66,34 +88,42 @@ export class PlayService {
 
         for (const player of game.getState().players) {
             const socketKey = this.getSocketKey(game_id, player);
-            this.sockets.get(socketKey)?.emit(
-                'play_events',
-                events.filter((event) =>
-                    event.private_to === undefined || event.private_to === player));
+            this.sockets.get(socketKey)?.send(JSON.stringify({
+                type: 'play_updates',
+                events: events.filter((event) =>
+                  event.private_to === undefined || event.private_to === player)
+            } as PlayUpdates));
         }
     }
 
     public addSocket(game_id: string, player: Player, socket: WebSocket) {
         if (!this.games.has(game_id)) {
-            socket.emit('error', `Cannot subscribe to ${game_id} as it does not exist.`);
+            socket.send(JSON.stringify({
+                type: 'play_error',
+                error: `Cannot subscribe to ${game_id} as it does not exist.`
+            } as PlayError));
             return
         }
         this.sockets.set(this.getSocketKey(game_id, player), socket);
-        socket.on('play_action', (action: Action) => this.playSocket(game_id, action));
-        socket.on('play_exit', this.removeSocket);
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data as string);
+            if (data.type === 'play_action') {
+                const message: PlayAction = data;
+                this.playSocket(game_id, message.action);
+            }
+        };
         socket.on('close', () => this.removeSocket(game_id, player));
-        socket.emit(
-          'play_events',
-          this.games.get(game_id)?.getEvents(player, 0, 10000) || []
-        )
+        socket.send(JSON.stringify({
+            type: 'play_updates',
+            events: this.games.get(game_id)?.getEvents(player, 0, 10000) || []
+
+        } as PlayUpdates));
     }
 
     private removeSocket(game_id: string, player: Player) {
         const socketKey = this.getSocketKey(game_id, player);
         const socket = this.sockets.get(socketKey);
         if (socket) {
-            socket.removeEventListener('play_action');
-            socket.removeEventListener("play_exit");
             this.sockets.delete(socketKey);
         }
     }
@@ -109,7 +139,10 @@ export class PlayService {
                 this.broadcastEvents(game_id, messages);
             }
         } catch (e) {
-            socket.emit("play_error", e)
+            socket.send(JSON.stringify({
+                type: 'play_error',
+                error: e.message
+            }));
         }
     }
 }

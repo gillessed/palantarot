@@ -5,7 +5,7 @@ import {Store} from "redux";
 import {call, cancelled, put, take} from "redux-saga/effects";
 import {takeEveryPayload} from "../../services/redux/serviceSaga";
 import {END, eventChannel, SagaIterator} from "redux-saga";
-import WebSocket from "ws";
+import {PlayAction, PlayError, PlayMessage, PlayUpdates} from "../../../server/play/PlayService";
 
 export interface InGameState {
   readonly player: Player
@@ -78,11 +78,20 @@ export function* inGameSaga () {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const websocketUri = `${protocol}//${window.location.host}/ws`;
     const websocket = new WebSocket(websocketUri);
+    websocket.onopen = (event) => {
+      websocket.send(JSON.stringify({
+        type: 'play',
+        game: action[1],
+        player: action[0],
+      } as PlayMessage));
+    };
 
     const channel = yield call(listen, websocket);
-    websocket.emit('play', action[1], action[0]);
     yield takeEveryPayload(play_action, function* (action) {
-      websocket.emit('play_action', action)
+      websocket.send(JSON.stringify({
+        type: 'play_action',
+        action: action,
+      } as PlayAction))
     });
     yield takeEveryPayload(exit_game, function* () {
       channel.close();
@@ -101,22 +110,21 @@ export function* inGameSaga () {
   });
 }
 
+type Message = PlayUpdates | PlayError
+
 function listen(socket: WebSocket) {
   return eventChannel((emitter) => {
 
-    socket.on('play_events', (events: PlayerEvent[]) => {
-      emitter(events)
-    });
+    socket.onmessage = (event) => {
+      const data: Message = JSON.parse(event.data);
+      if (data.type === 'play_updates') {
+        emitter(data.events)
+      } else if (data.type === 'play_error') {
+        emitter({type: 'error', error: data.error})
+      }
+    };
 
-    socket.on('error', (error) => {
-      emitter({type: 'error', error: error.message})
-    });
-
-    socket.on('play_error', (error: string) => {
-      emitter({type: 'error', error})
-    });
-
-    socket.on('close', () => emitter(END));
+    socket.onclose = () => emitter(END);
     return () => {
       socket.close();
     }
