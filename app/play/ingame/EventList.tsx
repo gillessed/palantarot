@@ -39,38 +39,38 @@ class Event extends React.PureComponent<EventProps> {
         const message = event as MessageAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(message.time)}: {this.getPlayerName(message)} said: {renderCardsText(message.text)}
+            {Event.getTimeText(message.time)} {this.getPlayerName(message)} said: {renderCardsText(message.text)}
           </div>
         );
       case "enter_game":
         const enterGame = event as EnterGameAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(enterGame.time)}: {this.getPlayerName(enterGame)} joined the game.
+            {Event.getTimeText(enterGame.time)} {this.getPlayerName(enterGame)} joined the game.
           </div>
         );
       case "mark_player_ready":
         const playerReady = event as PlayerReadyAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(playerReady.time)}: {this.getPlayerName(playerReady, "You are", " is")} ready to start!
+            {Event.getTimeText(playerReady.time)} {this.getPlayerName(playerReady, "You are", " is")} ready to start!
           </div>
         );
       case "bid":
         const bid = event as BidAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(bid.time)}: {this.getPlayerName(bid)}
+            {Event.getTimeText(bid.time)} {this.getPlayerName(bid)}
             {Boolean(bid.bid)
-              ? ` bid ${bid.calls?.indexOf(Call.RUSSIAN) !== -1 ? "Russian " : " "}${bid.bid}`
-              : " passed"}
+              ? ` bid ${(bid.calls || []).indexOf(Call.RUSSIAN) !== -1 ? "Russian " : " "}${bid.bid}`
+              : " passed"}.
           </div>
         );
       case "show_trump":
         const showTrump = event as ShowTrumpAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(showTrump.time)}: {this.getPlayerName(showTrump)} showed {showTrump.cards.length} trump!
+            {Event.getTimeText(showTrump.time)} {this.getPlayerName(showTrump)} showed {showTrump.cards.length} trump!
             {renderCards(...showTrump.cards)}
           </div>
         );
@@ -78,7 +78,7 @@ class Event extends React.PureComponent<EventProps> {
         const ackShow = event as AckTrumpShowAction;
         return (
           <div className={classes + " system-event-low"}>
-            {Event.getTimeText(ackShow.time)}: {this.getPlayerName(ackShow)} acked
+            {Event.getTimeText(ackShow.time)} {this.getPlayerName(ackShow)} acked
             {this.getPlayerName({player: ackShow.showing_player}, "your", " 's")} trump show.
           </div>
         );
@@ -86,43 +86,44 @@ class Event extends React.PureComponent<EventProps> {
         const call = event as CallPartnerAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(call.time)}: {this.getPlayerName(call)} called {renderCards(call.card)}.
+            {Event.getTimeText(call.time)} {this.getPlayerName(call)} called {renderCards(call.card)}
           </div>
         );
       case "declare_slam":
         const declareSlam = event as DeclareSlam;
         return (
           <div className={classes}>
-            {Event.getTimeText(declareSlam.time)}: {this.getPlayerName(declareSlam)} DECLARED A SLAM!!!
+            {Event.getTimeText(declareSlam.time)} {this.getPlayerName(declareSlam)} DECLARED A SLAM!!!
           </div>
         );
       case "ack_dog":
         const ackDog = event as AckDogAction;
         return (
           <div className={classes + " system-event-low"}>
-            {Event.getTimeText(ackDog.time)}: {this.getPlayerName(ackDog)} acked the dog.
+            {Event.getTimeText(ackDog.time)} {this.getPlayerName(ackDog)} acked the dog.
           </div>
         );
       case "set_dog":
         const setDog = event as SetDogAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(setDog.time)}: {this.getPlayerName(setDog)} set the dog to {renderCards(...setDog.dog)}.
+            {Event.getTimeText(setDog.time)} {this.getPlayerName(setDog)} set the dog to {renderCards(...setDog.dog)}
           </div>
         );
       case "play_card":
         const playCard = event as PlayCardAction;
         return (
           <div className={classes}>
-            {Event.getTimeText(playCard.time)}: {this.getPlayerName(playCard)} played the {renderCards(playCard.card)}.
+            {Event.getTimeText(playCard.time)} {this.getPlayerName(playCard)} played the {renderCards(playCard.card)}
           </div>
         );
       case "dealt_hand":
         const dealt = event as DealtHandTransition;
         return (
           <div className={classes + " system-event"}>
-            -&gt; Let us begin! You have been dealt: {renderCards(...dealt.hand)}
-            And the bidding order will be {dealt.bidding_order.join(", ")}.
+            -&gt; Let us begin!
+            The player order will be {dealt.player_order.join(", ")}.
+            You have been dealt: {renderCards(...dealt.hand)}
           </div>
         );
       case "trump_show_ended":
@@ -161,7 +162,7 @@ class Event extends React.PureComponent<EventProps> {
         const trick = event as CompletedTrickTransition;
         return (
           <div className={classes + " system-event"}>
-            -&gt; {this.getPlayerName({player: trick.winner})} won the trick with the {renderCards(trick.winning_card)}.
+            -&gt; {this.getPlayerName({player: trick.winner})} won the trick with the {renderCards(trick.winning_card)}
             {trick.joker_state ?
               this.getPlayerName(trick.joker_state, "You owe", "owes") + " "
               + this.getPlayerName({player: trick.joker_state.owed_to}, "you") + " a card."
@@ -201,7 +202,11 @@ class Event extends React.PureComponent<EventProps> {
   }
 
   private static getTimeText(time: number) {
-    return new Date(time).toLocaleTimeString();
+    return (
+      <span className="event-list-time">
+        [{new Date(time).toLocaleTimeString()}]
+      </span>
+    )
   }
 }
 

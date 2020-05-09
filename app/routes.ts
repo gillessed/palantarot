@@ -10,6 +10,7 @@ const StaticRoutesInternal = {
   records: () => '/app/records',
   tarothons: () => '/app/tarothons',
   addTarothon: () => '/app/add-tarothon',
+  lobby: () => '/app/lobby',
   login: () => '/login',
 }
 

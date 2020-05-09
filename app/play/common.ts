@@ -255,7 +255,7 @@ export type TransitionType = 'dealt_hand' | 'trump_show_ended' | 'bidding_comple
 export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
     readonly private_to: Player
-    readonly bidding_order: Player[]
+    readonly player_order: Player[]
 
     readonly hand: Card[]
 }

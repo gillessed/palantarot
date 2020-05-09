@@ -53,14 +53,14 @@ export const testingSetShuffler = (new_shuffler: (cards: Card[]) => Card[] = _.s
 };
 let shuffler: (cards: Card[]) => Card[] = _.shuffle;
 
-export const dealCards = function(players: Player[]): {dog: Card[], hands: { [player: number]: Card[] }} {
+export const dealCards = function(players: number): {dog: Card[], hands: { [player: number]: Card[] }} {
     const comparer = compareCards(undefined);
     while (true) {
         const cards = shuffler(createAllCards());
-        const dogSize = players.length > 4 ? 3 : 6;
-        const deal = _.chunk<Card>(cards, (cards.length - dogSize) / players.length);
-        const dog = deal[players.length];
-        const hands = deal.slice(0, players.length).map((hand) => hand.sort(comparer));
+        const dogSize = players > 4 ? 3 : 6;
+        const deal = _.chunk<Card>(cards, (cards.length - dogSize) / players);
+        const dog = deal[players];
+        const hands = deal.slice(0, players).map((hand) => hand.sort(comparer));
         if (invalidDeal(hands)) {
             continue; // Invalid hand, deal again!
         }

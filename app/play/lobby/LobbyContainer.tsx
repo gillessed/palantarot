@@ -39,6 +39,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
         <h1 className='bp3-heading'>Lobby</h1>
         <Button icon='new-object' onClick={this.newGame}>New Game</Button>
         <TextInput label='Join Games As:' onChange={this.setName}/>
+        Open/In Progress Games:
         <HTMLTable>
           <thead>
             <tr>
@@ -50,7 +51,9 @@ class LobbyInternal extends React.PureComponent<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {[...this.props.games.entries()].map(([id, game]) => (
+            {[...this.props.games.entries()]
+              .filter(([_, game]) => game.state !== "completed")
+              .map(([id, game]) => (
               <tr key={id}>
                 <td>{id}</td>
                 <td>{game.state}</td>
@@ -59,6 +62,29 @@ class LobbyInternal extends React.PureComponent<Props, State> {
                 <td>{game.state === "completed" ? " " :
                   <Button icon='add' onClick={() => this.playGame(id)} disabled={!this.state.player}>Join</Button>
                 }</td>
+              </tr>
+            ))}
+          </tbody>
+        </HTMLTable>
+        Completed Games:
+        <HTMLTable>
+          <thead>
+          <tr>
+            <th>Game ID</th>
+            <th>Status</th>
+            <th>Players</th>
+            <th>Last Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {[...this.props.games.entries()]
+            .filter(([_, game]) => game.state === "completed")
+            .map(([id, game]) => (
+              <tr key={id}>
+                <td>{id}</td>
+                <td>{game.state}</td>
+                <td>{game.players.join(", ")}</td>
+                <td>{moment(game.last_updated).fromNow()}</td>
               </tr>
             ))}
           </tbody>

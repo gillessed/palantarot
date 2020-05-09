@@ -13,7 +13,6 @@ import {
 } from "../common";
 import React, {FormEvent, KeyboardEvent} from "react";
 import {Button, Checkbox, ControlGroup, Label, Radio, RadioGroup} from "@blueprintjs/core";
-import {parseCard} from "./Cards";
 
 interface BaseProps {
   submitAction(action: Omit<Action, "player" | "time">): void
@@ -39,15 +38,19 @@ abstract class ActionInput<Props, ActionState extends Action>
 
   protected readonly submitAction = () => {
     if (this.canSubmit()) {
-      this.props.submitAction({
-        ...this.state,
-        type: this.type,
-      });
+      this.props.submitAction(this.getAction());
     }
   };
 
   protected canSubmit = (): boolean => {
     return Boolean(this.state);
+  };
+
+  protected getAction = (): Omit<Action, "player" | "time"> => {
+    return {
+      ...this.state,
+      type: this.type,
+    }
   };
 
   protected abstract type: ActionType;
@@ -127,63 +130,74 @@ export class InputAckTrumpShow extends ActionInput<{}, AckTrumpShowAction> {
   };
 }
 
-export class InputCallPartner extends ActionInput<{}, CallPartnerAction> {
+export class InputCallPartner extends ActionInput<{cards: Card[]}, CallPartnerAction> {
   protected type: 'call_partner' = 'call_partner';
 
   public render() {
     return (
       <ControlGroup>
-        <Label className="bp3-inline">My partner is the: </Label>
-        <input type="text" onInput={this.setCard} onKeyUp={this.onKeyMaybeSubmit} size={8} />
         {this.renderSubmitButton("Call Partner")}
       </ControlGroup>
     )
   }
 
-  private setCard = (event: FormEvent<HTMLInputElement>) => {
-    this.setState({
-      card: parseCard(event.currentTarget.value),
-    })
+  protected canSubmit = () => {
+    return this.props.cards.length == 1
+  };
+
+  protected getAction = () => {
+    return {
+      type: this.type,
+      card: this.props.cards[0],
+    }
   };
 }
 
-export class InputSetDog extends ActionInput<{player: Player}, SetDogAction> {
+export class InputSetDog extends ActionInput<{player: Player, cards: Card[]}, SetDogAction> {
   protected type: 'set_dog' = 'set_dog';
 
   public render() {
     return (
       <ControlGroup>
-        <input type="text" onInput={this.setDog} onKeyUp={this.onKeyMaybeSubmit} size={20} />
         {this.renderSubmitButton("Set Dog")}
       </ControlGroup>
     )
   }
 
-  private setDog = (event: FormEvent<HTMLInputElement>) => {
-    this.setState({
-      dog: event.currentTarget.value.split(' ').map(parseCard),
+  protected canSubmit = () => {
+    return this.props.cards.length == 3 || this.props.cards.length == 6
+  };
+
+  protected getAction = () => {
+    return {
+      type: this.type,
+      dog: this.props.cards,
       private_to: this.props.player,
-    })
+    }
   }
 }
 
-export class InputPlayCard extends ActionInput<{hand: Card[]}, PlayCardAction> {
+export class InputPlayCard extends ActionInput<{cards: Card[]}, PlayCardAction> {
   protected type: 'play_card' = 'play_card';
 
   public render() {
     return (
       <ControlGroup>
-        <input type="text" onInput={this.setCard} onKeyUp={this.onKeyMaybeSubmit} size={8} />
         {this.renderSubmitButton("Play Card")}
       </ControlGroup>
     )
   }
 
-  private setCard = (event: FormEvent<HTMLInputElement>) => {
-    this.setState({
-      card: parseCard(event.currentTarget.value),
-    })
-  }
+  protected canSubmit = () => {
+    return this.props.cards.length == 1
+  };
+
+  protected getAction = () => {
+    return {
+      type: this.type,
+      card: this.props.cards[0],
+    }
+  };
 }
 type NoStateInputProps = {type: ActionType, label: string}
 

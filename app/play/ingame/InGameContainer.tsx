@@ -5,8 +5,8 @@ import {ReduxState} from "../../services/rootReducer";
 import {InGameState} from "./InGameService";
 import {connect} from "react-redux";
 import {EventList} from "./EventList";
-import {Action, ActionType, GameplayState} from "../common";
-import {renderCards} from "./Cards";
+import {Action, ActionType, Card, GameplayState} from "../common";
+import {SelectableCards} from "./Cards";
 import {
   InputAckTrumpShow,
   InputBid,
@@ -30,7 +30,9 @@ interface StateProps {
   game: InGameState
 }
 
-interface State {}
+interface State {
+  card_selection: Card[]
+}
 
 type Props = OwnProps & StateProps;
 
@@ -41,7 +43,9 @@ class InGameInternal extends React.PureComponent<Props, State> {
   constructor(props: Props, context: DispatchContext) {
     super(props, context);
     this.dispatchers = context.dispatchers;
-    this.state = {}
+    this.state = {
+      card_selection: [],
+    }
   }
 
   public componentWillMount() {
@@ -61,7 +65,11 @@ class InGameInternal extends React.PureComponent<Props, State> {
           events={this.props.game.events}
         />
         <div>
-          Hand: {renderCards(...this.props.game.state.hand)}
+          Player Order: {this.props.game.state.player_order.join(", ")}
+        </div><div>
+          Hand:
+          <SelectableCards cards={this.props.game.state.hand}
+                           onChange={this.setCardSelection} />
         </div><div>
           {this.stateToActions.get(this.props.game.state.state)?.map(this.renderInputParams)}
         </div>
@@ -99,14 +107,17 @@ class InGameInternal extends React.PureComponent<Props, State> {
       case "ack_trump_show":
         return <InputAckTrumpShow key={actionType} submitAction={this.submitAction} />;
       case "call_partner":
-        return <InputCallPartner key={actionType} submitAction={this.submitAction} />;
+        return <InputCallPartner key={actionType}
+                                 cards={this.state.card_selection}
+                                 submitAction={this.submitAction} />;
       case "set_dog":
         return <InputSetDog key={actionType}
                             player={this.props.game.player}
+                            cards={this.state.card_selection}
                             submitAction={this.submitAction} />;
       case "play_card":
         return <InputPlayCard key={actionType}
-                              hand={this.props.game.state.hand}
+                              cards={this.state.card_selection}
                               submitAction={this.submitAction} />;
       default:
         return <NoStateInput key={actionType}
@@ -114,6 +125,13 @@ class InGameInternal extends React.PureComponent<Props, State> {
                              label={actionType.replace("_", " ")}
                              submitAction={this.submitAction} />;
     }
+  };
+
+  private setCardSelection = (cards: Card[]) => {
+    this.setState({
+      ...this.state,
+      card_selection: cards,
+    })
   }
 }
 

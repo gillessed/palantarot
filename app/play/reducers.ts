@@ -114,17 +114,17 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                     action
                 ]
             } else {
-                const {dog, hands} = dealCards(state.players);
-                const bidders = _.shuffle(state.players);
+                const {dog, hands} = dealCards(state.players.length);
+                const player_order = _.shuffle(state.players);
                 return [
                     {
                         name: 'bidding',
-                        players: state.players,
+                        players: player_order,
                         hands,
                         dog,
                         bidding: {
                             bids: [],
-                            bidders,
+                            bidders: player_order,
                             current_high: {
                                 player: DummyPlayer,
                                 bid: BidValue.PASS,
@@ -136,9 +136,9 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                     action,
                     ..._.map(hands).map((hand: Card[], player: number) => ({
                         type: 'dealt_hand',
-                        private_to: state.players[player],
+                        private_to: player_order[player],
                         hand,
-                        bidding_order: bidders,
+                        player_order: player_order,
                     }) as DealtHandTransition)
                 ]
             }
@@ -189,6 +189,9 @@ const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentB
     } else { // new bid is high
         const bidders = [...state.bidders];
         bidders.push(bidders.shift() as Player);
+        if (bidders.length == 1) {
+            bidders.pop(); // all pass, only most recent bidder left -> bidding done.
+        }
         return {
             bids: [...state.bids, bid],
             bidders,

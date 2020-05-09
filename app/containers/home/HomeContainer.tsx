@@ -18,6 +18,7 @@ export class HomeContainer extends React.PureComponent<{}, {}> {
           {this.renderMenuItem('Records', 'glass', StaticRoutes.records())}
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
           {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothons(), Intent.WARNING)}
+          {this.renderMenuItem('Play Online', 'play', StaticRoutes.lobby(), Intent.WARNING)}
         </div>
         <div className='info-overlay'>
           <span className='callout'>

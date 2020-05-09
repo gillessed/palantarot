@@ -13,20 +13,24 @@ import {cardsWithout, compareCards} from "../cardUtils";
 export interface PlayState {
   readonly state: GameplayState
   readonly hand: Card[]
+  readonly player_order: Player[]
 }
 
 export const blank_state: PlayState = {
   state: "new_game",
   hand: [],
+  player_order: [],
 };
 
 export function updateForEvent(state: PlayState, event: PlayerEvent, player: Player): PlayState {
   switch (event.type) {
     case 'dealt_hand':
+      const dealtHand = event as DealtHandTransition;
       return {
         ...state,
         state: "bidding",
-        hand: (event as DealtHandTransition).hand,
+        hand: dealtHand.hand,
+        player_order: dealtHand.player_order,
       };
     case 'bidding_completed':
       return {
@@ -52,6 +56,7 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         ...state,
         state: "playing",
       };
+    case 'game_aborted':
     case 'game_completed':
       return {
         ...state,

@@ -11,6 +11,10 @@
   color: $gray3;
 }
 
+.event-list-time {
+  color: $gray5;
+}
+
 .error-event {
   color: $red3;
   font-style: italic;
@@ -23,6 +27,15 @@
 .card {
   margin-left: .25em;
   margin-right: .25em;
+}
+
+.card-selected {
+  border: $dark-gray3 solid 1px;
+  background-color: $light-gray3;
+}
+
+.card-selectable:hover {
+  border: $gray3 solid 1px;
 }
 
 .spade-suit {
