@@ -92,7 +92,11 @@ class InGameInternal extends React.PureComponent<Props, State> {
         ...action,
         player: this.props.game.player,
         time: Date.now(),
-      })
+      });
+      this.setState({
+        ...this.state,
+        card_selection: []
+      });
     } catch (e) {
       this.dispatchers.ingame.actionError(e);
     }
