@@ -6,17 +6,20 @@ import {call, cancelled, put, take} from "redux-saga/effects";
 import {takeEveryPayload} from "../../services/redux/serviceSaga";
 import {END, eventChannel, SagaIterator} from "redux-saga";
 import {PlayAction, PlayError, PlayMessage, PlayUpdates} from "../../../server/play/PlayService";
+import {blank_state, PlayState, updateForEvent} from "./play_logic";
 
 export interface InGameState {
   readonly player: Player
   readonly game_id: string
-  readonly events: PlayerEvent[];
+  readonly events: PlayerEvent[]
+  readonly state: PlayState
 }
 
 const empty_state: InGameState = {
   player: "<unknown player>",
   game_id: "<unknown game>",
   events: [],
+  state: blank_state,
 };
 
 const join_game = TypedAction.define("PLAY")<[Player, string]>();
@@ -31,6 +34,7 @@ export const inGameReducer = TypedReducer.builder<InGameState>()
     player: args[0],
     game_id: args[1],
     events: [],
+    state: blank_state,
   }))
   .withHandler(play_error.TYPE, (state, error) => ({
     ...state,
@@ -42,13 +46,20 @@ export const inGameReducer = TypedReducer.builder<InGameState>()
       }
     ]
   }))
-  .withHandler(play_update.TYPE, (state, updates) => ({
-    ...state,
-    events: [
-      ...state.events,
-      ...updates
-    ],
-  }))
+  .withHandler(play_update.TYPE, (state, updates) => {
+    let play_state = state.state;
+    for (const update of updates) {
+      play_state = updateForEvent(play_state, update, state.player);
+    }
+    return ({
+      ...state,
+      state: play_state,
+      events: [
+        ...state.events,
+        ...updates
+      ],
+    })
+  })
   .build();
 
 export class InGameDispatcher {
@@ -78,7 +89,7 @@ export function* inGameSaga () {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const websocketUri = `${protocol}//${window.location.host}/ws`;
     const websocket = new WebSocket(websocketUri);
-    websocket.onopen = (event) => {
+    websocket.onopen = () => {
       websocket.send(JSON.stringify({
         type: 'play',
         game: action[1],
@@ -117,10 +128,11 @@ function listen(socket: WebSocket) {
 
     socket.onmessage = (event) => {
       const data: Message = JSON.parse(event.data);
+      console.debug("Got data", data);
       if (data.type === 'play_updates') {
         emitter(data.events)
       } else if (data.type === 'play_error') {
-        emitter({type: 'error', error: data.error})
+        emitter([{type: 'error', error: data.error}])
       }
     };
 

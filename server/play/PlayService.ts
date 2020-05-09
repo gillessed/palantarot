@@ -27,6 +27,7 @@ export interface PlayAction {
 export class PlayService {
     public router: Router;
     private games: Map<string, Game>;
+    private players: Map<string, Set<Player>>;
     private sockets: Map<string, WebSocket>;
 
     constructor() {
@@ -36,12 +37,14 @@ export class PlayService {
         this.router.get('/games', this.listGames);
         this.router.get('/game/:id/:player', this.getEvents);
         this.router.post('/game/:id', this.playAction);
+        this.players = new Map<string, Set<Player>>();
         this.sockets = new Map<string, WebSocket>();
     }
 
     public newGame = async (req: Request, res: Response) => {
         const game = Game.create_new();
         this.games.set(game.id, game);
+        this.players.set(game.id, new Set<Player>());
         res.send(game.id);
     };
 
@@ -84,10 +87,9 @@ export class PlayService {
     }
 
     private async broadcastEvents(game_id: string, events: PlayerEvent[]) {
-        const game = this.games.get(game_id) as Game; // no undefined
-
-        for (const player of game.getState().players) {
+        for (const player of this.players.get(game_id) || []) {
             const socketKey = this.getSocketKey(game_id, player);
+            console.debug("sending update", socketKey);
             this.sockets.get(socketKey)?.send(JSON.stringify({
                 type: 'play_updates',
                 events: events.filter((event) =>
@@ -105,6 +107,7 @@ export class PlayService {
             return
         }
         this.sockets.set(this.getSocketKey(game_id, player), socket);
+        this.players.get(game_id)?.add(player);
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data as string);
             if (data.type === 'play_action') {
@@ -115,7 +118,7 @@ export class PlayService {
         socket.on('close', () => this.removeSocket(game_id, player));
         socket.send(JSON.stringify({
             type: 'play_updates',
-            events: this.games.get(game_id)?.getEvents(player, 0, 10000) || []
+            events: this.games.get(game_id)?.getEvents(player, 0, 10000)[0] || []
 
         } as PlayUpdates));
     }
@@ -124,6 +127,7 @@ export class PlayService {
         const socketKey = this.getSocketKey(game_id, player);
         const socket = this.sockets.get(socketKey);
         if (socket) {
+            this.players.get(game_id)?.delete(player);
             this.sockets.delete(socketKey);
         }
     }
@@ -135,6 +139,7 @@ export class PlayService {
         }
         try {
             const messages = this.games.get(game_id)?.playerAction(action);
+            console.debug("broadcast messages", messages);
             if (messages) {
                 this.broadcastEvents(game_id, messages);
             }

@@ -115,6 +115,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                 ]
             } else {
                 const {dog, hands} = dealCards(state.players);
+                const bidders = _.shuffle(state.players);
                 return [
                     {
                         name: 'bidding',
@@ -123,7 +124,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                         dog,
                         bidding: {
                             bids: [],
-                            bidders: state.players,
+                            bidders,
                             current_high: {
                                 player: DummyPlayer,
                                 bid: BidValue.PASS,
@@ -137,6 +138,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                         type: 'dealt_hand',
                         private_to: state.players[player],
                         hand,
+                        bidding_order: bidders,
                     }) as DealtHandTransition)
                 ]
             }
@@ -172,7 +174,7 @@ const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentB
     } as Bid;
     if (state.bidders[0] !== bid.player) {
         throw errorBiddingOutOfTurn(bid.player, state.bidders[0])
-    } else if (bid.bid == BidValue.PASS) {
+    } else if (bid.bid === BidValue.PASS || bid.bid === undefined) {
         const bidders = state.bidders.slice(1);
         if (bidders.length == 1 && state.current_high.player === bidders[0]) {
             bidders.pop(); // all pass, only most recent bidder left -> bidding done.

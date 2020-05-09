@@ -14,7 +14,7 @@ import {
     CompletedTrick,
     CurrentBids,
     DeclareSlam,
-    EnterGameAction,
+    EnterGameAction, GameplayState,
     JokerExchangeState,
     MessageAction,
     PlayCardAction,
@@ -32,7 +32,7 @@ export interface BoardReducer<STATE extends BoardState, ACTION extends Action, R
 }
 
 export interface BoardState {
-    readonly name: string
+    readonly name: GameplayState
     readonly players: Player[]
 }
 

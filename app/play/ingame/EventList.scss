@@ -1,6 +1,33 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
 .event-list {
 }
 
 .current-player {
   font-weight: bold;
+}
+
+.card {
+  margin-left: .25em;
+  margin-right: .25em;
+}
+
+.spade-suit {
+  color: $black;
+}
+
+.heart-suit {
+  color: $red3;
+}
+
+.club-suit {
+  color: $green3;
+}
+
+.diamond-suit {
+  color: $blue3;
+}
+
+.trump-suit {
+  color: $gold3;
 }

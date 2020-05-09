@@ -15,10 +15,10 @@ class Event extends React.PureComponent<EventProps> {
     const event = this.props.event;
     const value = JSON.stringify(event, Event.jsonReplacer);
     if (is_action(event)) {
-      const classes = "event-list" + (this.props.player === event.player) ? " current-player" : "";
+      const classes = "event-list" + (this.props.player === event.player ? " current-player" : "");
       return (
         <div className={classes}>
-          {event.player} {event.type}: {value}
+          {new Date(event.time).toLocaleTimeString()}: {event.player} {event.type}: {value}
         </div>
       )
     } else {
@@ -31,7 +31,7 @@ class Event extends React.PureComponent<EventProps> {
   }
 
   private static jsonReplacer(key: string, value: any) {
-    if (key === "player" || key === "type") {
+    if (key === "player" || key === "type" || key === "time") {
       return undefined
     } else {
       return value

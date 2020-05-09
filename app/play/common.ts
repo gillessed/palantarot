@@ -12,7 +12,6 @@ export enum RegSuit {
 }
 export type TrumpSuit = 'T'
 export const TrumpSuit : TrumpSuit = 'T';
-RegSuit.Club
 
 export type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
 
@@ -152,10 +151,17 @@ export interface CompletedGameState {
 }
 
 export interface PlayerEvent {
-    readonly type: string
+    readonly type: ActionType | TransitionType | 'error'
     /** if contains state for only one player, which player to send to */
     readonly private_to?: Player
 }
+
+export interface ErrorEvent extends PlayerEvent {
+    readonly type: 'error'
+    readonly error: string
+}
+
+export type GameplayState = 'new_game' | 'bidding' | 'partner_call' | 'dog_reveal' | 'playing' | 'completed';
 
 /* ACTIONS */
 
@@ -166,9 +172,13 @@ export interface PlayerEvent {
  * Their types are present tense commands.
  */
 export interface Action extends PlayerEvent {
+    readonly type: ActionType
     readonly player: Player
     readonly time: number
 }
+
+export type ActionType = 'message' | 'enter_game' | 'mark_player_ready' | 'bid' | 'show_trump' | 'ack_trump_show'
+    | 'call_partner' | 'declare_slam' | 'ack_dog' | 'set_dog' | 'play_card';
 
 export interface PublicAction extends Action {
     readonly private_to?: undefined;
@@ -236,11 +246,16 @@ export interface PlayCardAction extends PublicAction {
  * Their types are all past tense.
  */
 export interface Transition extends PlayerEvent {
+    readonly type: TransitionType
 }
+
+export type TransitionType = 'dealt_hand' | 'trump_show_ended' | 'bidding_completed' | 'dog_revealed' | 'game_started'
+    | 'completed_trick' | 'game_completed' | 'game_aborted';
 
 export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
     readonly private_to: Player
+    readonly bidding_order: Player[]
 
     readonly hand: Card[]
 }

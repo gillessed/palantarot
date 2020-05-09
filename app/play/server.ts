@@ -45,6 +45,7 @@ export class Game {
         }
         const [new_state, ...new_events] = reducer(this.state, event);
         this.state = new_state;
+        console.debug(JSON.stringify(new_state, null, 2));
         this.log.push(...new_events);
         return new_events;
     }
