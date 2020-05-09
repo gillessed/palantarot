@@ -341,6 +341,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                             {
                                 type: 'dog_revealed',
                                 dog: state.dog,
+                                player: state.bidding.current_high.player,
                             } as DogRevealTransition,
                         ]
                     } else { // 80 or 160 bid
@@ -453,6 +454,7 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                     {
                         type: 'dog_revealed',
                         dog: state.dog,
+                        player: state.bidder,
                     } as DogRevealTransition,
                 ]
             }

@@ -1,5 +1,6 @@
 import {Card, RegSuit, Suit, TrumpSuit} from "../common";
 import React from "react";
+import _ from "lodash";
 
 const suitEmoji = new Map<Suit, string>([
   [RegSuit.Spade, "♠"],
@@ -25,8 +26,15 @@ export function renderCards(...cards: Card[]) {
   ));
 }
 
-export function parseCard(card: string) {
+export function parseCard(card: string): Card {
   const suit = card[0];
   const value = parseInt(card.slice(1)) || card.slice(1);
   return [suit, value] as Card;
+}
+
+const cardPattern = /#[0-9JVCDR]{1,2}[SHDCT]/g;
+export function renderCardsText(text: string): (string | JSX.Element)[] {
+  const normal_bits = text.split(cardPattern) || [];
+  const card_bits = renderCards(...text.match(cardPattern)?.map(parseCard) || []);
+  return _.flatMap(normal_bits, (element, i) => [element, card_bits[i]]);
 }

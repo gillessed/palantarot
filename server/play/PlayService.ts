@@ -26,19 +26,17 @@ export interface PlayAction {
 
 export class PlayService {
     public router: Router;
-    private games: Map<string, Game>;
-    private players: Map<string, Set<Player>>;
-    private sockets: Map<string, WebSocket>;
 
-    constructor() {
+    constructor(
+        private readonly games = new Map<string, Game>(),
+        private readonly players = new Map<string, Set<Player>>(),
+        private readonly sockets = new Map<string, WebSocket>()
+    ) {
         this.router = Router();
-        this.games = new Map<string, Game>();
         this.router.post('/new_game', this.newGame);
         this.router.get('/games', this.listGames);
         this.router.get('/game/:id/:player', this.getEvents);
         this.router.post('/game/:id', this.playAction);
-        this.players = new Map<string, Set<Player>>();
-        this.sockets = new Map<string, WebSocket>();
     }
 
     public newGame = async (req: Request, res: Response) => {
@@ -82,14 +80,13 @@ export class PlayService {
         }
     };
 
-    private getSocketKey(game_id: string, player: Player) {
+    private static getSocketKey(game_id: string, player: Player) {
         return game_id + '-' + player;
     }
 
     private async broadcastEvents(game_id: string, events: PlayerEvent[]) {
         for (const player of this.players.get(game_id) || []) {
-            const socketKey = this.getSocketKey(game_id, player);
-            console.debug("sending update", socketKey);
+            const socketKey = PlayService.getSocketKey(game_id, player);
             this.sockets.get(socketKey)?.send(JSON.stringify({
                 type: 'play_updates',
                 events: events.filter((event) =>
@@ -106,7 +103,7 @@ export class PlayService {
             } as PlayError));
             return
         }
-        this.sockets.set(this.getSocketKey(game_id, player), socket);
+        this.sockets.set(PlayService.getSocketKey(game_id, player), socket);
         this.players.get(game_id)?.add(player);
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data as string);
@@ -124,7 +121,7 @@ export class PlayService {
     }
 
     private removeSocket(game_id: string, player: Player) {
-        const socketKey = this.getSocketKey(game_id, player);
+        const socketKey = PlayService.getSocketKey(game_id, player);
         const socket = this.sockets.get(socketKey);
         if (socket) {
             this.players.get(game_id)?.delete(player);
@@ -133,15 +130,15 @@ export class PlayService {
     }
 
     private playSocket(game_id: string, action: Action) {
-        const socket = this.sockets.get(this.getSocketKey(game_id, action.player));
+        const socket = this.sockets.get(PlayService.getSocketKey(game_id, action.player));
         if (!socket) {
             throw Error(`Could not find socket for ${game_id}, ${action.player}`);
         }
         try {
             const messages = this.games.get(game_id)?.playerAction(action);
-            console.debug("broadcast messages", messages);
             if (messages) {
-                this.broadcastEvents(game_id, messages);
+                this.broadcastEvents(game_id, messages)
+                    .catch(e => {throw new Error(e)});
             }
         } catch (e) {
             socket.send(JSON.stringify({

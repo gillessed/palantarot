@@ -1,5 +1,14 @@
-import {Card, DealtHandTransition, GameplayState, PlayCardAction, Player, PlayerEvent, SetDogAction} from "../common";
-import {cardsWithout} from "../card_utils";
+import {
+  Card,
+  DealtHandTransition,
+  DogRevealTransition,
+  GameplayState,
+  PlayCardAction,
+  Player,
+  PlayerEvent,
+  SetDogAction
+} from "../common";
+import {cardsWithout, compareCards} from "../card_utils";
 
 export interface PlayState {
   readonly state: GameplayState
@@ -25,10 +34,19 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         state: "partner_call",
       };
     case 'dog_revealed':
-      return {
-        ...state,
-        state: "dog_reveal",
-      };
+      const dogRevealed = event as DogRevealTransition;
+      if (dogRevealed.player === player) {
+        return {
+          ...state,
+          state: "dog_reveal",
+          hand: [...state.hand, ...dogRevealed.dog].sort(compareCards())
+        }
+      } else {
+        return {
+          ...state,
+          state: "dog_reveal",
+        };
+      }
     case 'game_started':
       return {
         ...state,
@@ -40,7 +58,7 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         state: "completed",
       };
     case 'play_card':
-      const playCard = (event as PlayCardAction);
+      const playCard = event as PlayCardAction;
       if (playCard.player === player) {
         return {
           ...state,
@@ -50,7 +68,7 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         return state;
       }
     case 'set_dog':
-      const set_dog = (event as SetDogAction);
+      const set_dog = event as SetDogAction;
       return {
         ...state,
         hand: cardsWithout(state.hand, ...set_dog.dog),

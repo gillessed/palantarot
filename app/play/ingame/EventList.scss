@@ -1,10 +1,23 @@
 @import "~@blueprintjs/core/lib/scss/variables";
 
-.event-list {
+.player-event {
+}
+
+.system-event {
+  color: $gray1;
+}
+
+.system-event-low {
+  color: $gray3;
+}
+
+.error-event {
+  color: $red3;
+  font-style: italic;
 }
 
 .current-player {
-  font-weight: bold;
+  font-style: italic;
 }
 
 .card {

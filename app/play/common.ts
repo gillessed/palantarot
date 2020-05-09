@@ -90,7 +90,7 @@ export enum Outcome {
     ONE_LAST = 'one_last',
 }
 
-export type Player = String
+export type Player = string
 
 export const DummyPlayer: Player = '[dummy null player]';
 
@@ -186,7 +186,7 @@ export interface PublicAction extends Action {
 
 export interface MessageAction extends PublicAction {
     readonly type: 'message'
-    readonly text: String
+    readonly text: string
 }
 
 export interface EnterGameAction extends PublicAction {
@@ -275,6 +275,7 @@ export interface BiddingCompletedTransition extends Transition {
 export interface DogRevealTransition extends Transition {
     readonly type: 'dog_revealed'
     readonly private_to: undefined
+    readonly player: Player
 
     readonly dog: Card[]
 }

@@ -191,7 +191,7 @@ function getCardValueAsNumber(value: RegValue | TrumpValue): number {
 
 type Comparator<T> = (t1: T, T2: T) => number;
 
-export const compareCards = function(lead_suit: Suit | undefined): Comparator<Card> {
+export const compareCards = function(lead_suit?: Suit | undefined): Comparator<Card> {
     return (left: Card, right: Card) => {
         if (_.isEqual(left, right)) {
             return 0;
