@@ -6,7 +6,7 @@ import {call, cancelled, put, take} from "redux-saga/effects";
 import {takeEveryPayload} from "../../services/redux/serviceSaga";
 import {END, eventChannel, SagaIterator} from "redux-saga";
 import {PlayAction, PlayError, PlayMessage, PlayUpdates} from "../../../server/play/PlayService";
-import {blank_state, PlayState, updateForEvent} from "./play_logic";
+import {blank_state, PlayState, updateForEvent} from "./playLogic";
 
 export interface InGameState {
   readonly player: Player

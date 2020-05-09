@@ -9,7 +9,7 @@ import {
     getPlayerNum,
     getTrumps,
     getWinner
-} from "./card_utils";
+} from "./cardUtils";
 import {
     AckDogAction,
     AckTrumpShowAction,

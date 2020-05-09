@@ -8,7 +8,7 @@ import {
   PlayerEvent,
   SetDogAction
 } from "../common";
-import {cardsWithout, compareCards} from "../card_utils";
+import {cardsWithout, compareCards} from "../cardUtils";
 
 export interface PlayState {
   readonly state: GameplayState

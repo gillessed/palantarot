@@ -34,7 +34,7 @@ import { SagaListener } from './services/sagaListener';
 import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 
 import * as playCommon from './play/common';
-import * as playGame from './play/card_utils';
+import * as playGame from './play/cardUtils';
 import * as playState from './play/state';
 import * as playReducers from './play/reducers';
 import * as playServer from './play/server';

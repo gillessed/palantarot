@@ -27,8 +27,8 @@ export function renderCards(...cards: Card[]) {
 }
 
 export function parseCard(card: string): Card {
-  const suit = card[0];
-  const value = parseInt(card.slice(1)) || card.slice(1);
+  const suit = card[card.length-1];
+  const value = parseInt(card.slice(1, card.length-1)) || card.slice(1, card.length-1);
   return [suit, value] as Card;
 }
 
