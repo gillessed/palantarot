@@ -37,6 +37,7 @@ export class PlayService {
         this.router.get('/games', this.listGames);
         this.router.get('/game/:id/:player', this.getEvents);
         this.router.post('/game/:id', this.playAction);
+        this.router.get('/debug/:id', this.debugView);
     }
 
     public newGame = async (req: Request, res: Response) => {
@@ -77,6 +78,20 @@ export class PlayService {
             res.send(reply);
         } catch (e) {
             res.send(400, { error: (e as Error).message });
+        }
+    };
+
+    public debugView = async (req: Request, res: Response) => {
+        const id = req.params['id'];
+        const game = this.games.get(id);
+        if (game == undefined) {
+            res.send(404, "unable to locate game " + id);
+        } else {
+            const reply = {
+                state: game.getState(),
+                events: game.getEvents('<debugplayer>', 0, 100000),
+            };
+            res.send(reply);
         }
     };
 

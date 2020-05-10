@@ -45,7 +45,6 @@ export class Game {
         }
         const [new_state, ...new_events] = reducer(this.state, event);
         this.state = new_state;
-        console.debug(JSON.stringify(new_state, null, 2));
         this.log.push(...new_events);
         return new_events;
     }
@@ -55,7 +54,7 @@ export class Game {
         let i = start_at;
         for (; i < this.log.length && events.length < limit; i++) {
             const privacy = this.log[i].private_to;
-            if (privacy === undefined || privacy === player) {
+            if (privacy === undefined || privacy === player || player === '<debug-player>') {
                 events.push(this.log[i]);
             }
         }
@@ -66,14 +65,14 @@ export class Game {
         return this.state;
     }
 
-    private isAction(event: PlayerEvent): event is Action {
+    private static isAction(event: PlayerEvent): event is Action {
         return (event as Action).time !== undefined;
     }
 
     /* module */ getLastAction(): number {
         for (let i = this.log.length - 1; i >= 0; i--) {
             const event = this.log[i];
-            if (this.isAction(event)) {
+            if (Game.isAction(event)) {
                 return event.time;
             }
         }
