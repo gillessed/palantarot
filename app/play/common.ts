@@ -136,6 +136,7 @@ export interface JokerExchangeState {
 }
 
 export interface CompletedGameState {
+    readonly players: Player[]
     readonly bidder: Player
     readonly bid: BidValue
     readonly partner?: Player
@@ -337,6 +338,10 @@ export const errorPlayerNotInGame = function(player: Player, players: Player[]) 
 
 export const errorBiddingOutOfTurn = function(player: Player, current: Player) {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
+};
+
+export const errorCanOnlyCallRussianOnTwenties = function(bid: Bid) {
+    return new Error(`${bid.player} illegally tried to bid a Russian ${bid.bid}!`);
 };
 
 export const errorBidTooLow = function(action: BidValue, current: BidValue) {

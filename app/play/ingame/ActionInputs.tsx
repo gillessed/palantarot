@@ -9,7 +9,7 @@ import {
   MessageAction,
   PlayCardAction,
   Player,
-  SetDogAction
+  SetDogAction, ShowTrumpAction, TrumpSuit
 } from "../common";
 import React, {FormEvent, KeyboardEvent} from "react";
 import {Button, Checkbox, ControlGroup, Label, Radio, RadioGroup} from "@blueprintjs/core";
@@ -134,11 +134,7 @@ export class InputCallPartner extends ActionInput<{cards: Card[]}, CallPartnerAc
   protected type: 'call_partner' = 'call_partner';
 
   public render() {
-    return (
-      <ControlGroup>
-        {this.renderSubmitButton("Call Partner")}
-      </ControlGroup>
-    )
+    return this.renderSubmitButton("Call Partner")
   }
 
   protected canSubmit = () => {
@@ -157,11 +153,7 @@ export class InputSetDog extends ActionInput<{player: Player, cards: Card[]}, Se
   protected type: 'set_dog' = 'set_dog';
 
   public render() {
-    return (
-      <ControlGroup>
-        {this.renderSubmitButton("Set Dog")}
-      </ControlGroup>
-    )
+    return this.renderSubmitButton("Set Dog")
   }
 
   protected canSubmit = () => {
@@ -181,11 +173,7 @@ export class InputPlayCard extends ActionInput<{cards: Card[]}, PlayCardAction> 
   protected type: 'play_card' = 'play_card';
 
   public render() {
-    return (
-      <ControlGroup>
-        {this.renderSubmitButton("Play Card")}
-      </ControlGroup>
-    )
+    return this.renderSubmitButton("Play Card")
   }
 
   protected canSubmit = () => {
@@ -199,6 +187,26 @@ export class InputPlayCard extends ActionInput<{cards: Card[]}, PlayCardAction> 
     }
   };
 }
+
+export class InputShowTrump extends ActionInput<{hand: Card[]}, ShowTrumpAction> {
+  protected type: 'show_trump' = 'show_trump';
+
+  public render() {
+    return this.renderSubmitButton("Show Trump");
+  }
+
+  protected canSubmit = () => {
+    return true;
+  };
+
+  protected getAction = () => {
+    return {
+      type: this.type,
+      cards: this.props.hand.filter(card => card[0] === TrumpSuit)
+    }
+  }
+}
+
 type NoStateInputProps = {type: ActionType, label: string}
 
 export class NoStateInput extends ActionInput<NoStateInputProps, Action> {

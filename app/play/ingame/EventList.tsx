@@ -14,7 +14,7 @@ import {
   GameAbortedTransition,
   GameCompletedTransition,
   GameStartTransition,
-  MessageAction,
+  MessageAction, Outcome,
   PlayCardAction,
   Player,
   PlayerEvent,
@@ -164,22 +164,14 @@ class Event extends React.PureComponent<EventProps> {
           <div className={classes + " system-event"}>
             -&gt; {this.getPlayerName({player: trick.winner})} won the trick with the {renderCards(trick.winning_card)}
             {trick.joker_state ?
-              this.getPlayerName(trick.joker_state, "You owe", "owes") + " "
+              this.getPlayerName(trick.joker_state, "You owe", " owes") + " "
               + this.getPlayerName({player: trick.joker_state.owed_to}, "you") + " a card."
               : ""
             }
           </div>
         );
       case "game_completed":
-        const ended = event as GameCompletedTransition;
-        return (
-          <div className={classes + " system-event"}>
-            -&gt; Game completed! Final results:
-            <pre><code>
-              {JSON.stringify(ended.end_state, null, 2)}
-            </code></pre>
-          </div>
-        );
+        return Event.renderGameCompleted(event, classes);
       case "game_aborted":
         const aborted = event as GameAbortedTransition;
         return (
@@ -195,6 +187,65 @@ class Event extends React.PureComponent<EventProps> {
           </div>
         );
     }
+  }
+
+  private static renderGameCompleted(event: PlayerEvent, classes: string) {
+    const ended = event as GameCompletedTransition;
+    const calls: string[] = [];
+    for (const player_num in ended.end_state.calls) {
+      if (ended.end_state.calls[player_num]) {
+        for (const call of ended.end_state.calls[player_num]) {
+          switch (call) {
+            case Call.RUSSIAN:
+              calls.push(ended.end_state.players[player_num] + " bid Russian 20");
+              break;
+            case Call.DECLARED_SLAM:
+              calls.push(ended.end_state.players[player_num] + " DECLARED A SLAM");
+              break;
+          }
+        }
+      }
+    }
+    const outcomes: string[] = [];
+    for (const player_num in ended.end_state.outcomes) {
+      if (ended.end_state.outcomes[player_num]) {
+        for (const outcome of ended.end_state.outcomes[player_num]) {
+          switch (outcome) {
+            case Outcome.ONE_LAST:
+              outcomes.push(ended.end_state.players[player_num] + " played the 1 last");
+              break;
+            case Outcome.SLAMMED:
+              outcomes.push(ended.end_state.players[player_num] + " SLAMMED");
+              break;
+          }
+        }
+      }
+    }
+    return (
+      <div className={classes + " system-event"}>
+        -&gt; Game completed!
+        <div>
+          Final results:
+        </div>
+        <ul>
+          <li>
+            The dog was {renderCards(...ended.end_state.dog)}
+          </li><li>
+            {ended.end_state.bidder} bid {ended.end_state.bid}
+            {ended.end_state.partner ? ", called " + ended.end_state.partner : ""}.
+          </li>
+          {calls.length ? <li>{calls.join(', ')}</li> : ""}
+          {outcomes.length ? <li>{outcomes.join(', ')}</li> : ""}
+          {ended.end_state.shows.length ? <li>{ended.end_state.shows.join(', ')} showed trump,</li> : ""}
+          <li>
+            Having earned {ended.end_state.points_earned} points
+            and the {renderCards(...ended.end_state.bouts)},
+            the bidding team {ended.end_state.bidder_won ? "won" : "lost"} for
+            a total {ended.end_state.points_result} points.
+          </li>
+        </ul>
+      </div>
+    );
   }
 
   private getPlayerName(message: {player: Player}, if_you = "You", if_not = "") {

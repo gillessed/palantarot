@@ -1,6 +1,7 @@
 import {Card, RegSuit, Suit, TrumpSuit} from "../common";
 import React from "react";
 import _ from "lodash";
+import {cardsContain, cardsWithout} from "../cardUtils";
 
 const suitEmoji = new Map<Suit, string>([
   [RegSuit.Spade, "♠"],
@@ -74,42 +75,25 @@ export function renderCardsText(text: string): (string | JSX.Element)[] {
 
 interface SelectableCardsProps {
   cards: Card[]
-  onChange?(cards: Card[]): void
+  selected: Card[]
+  onChange(cards: Card[]): void
 }
 
-interface SelectableCardsState {
-  selected: Set<Card>
-}
-export class SelectableCards extends React.PureComponent<SelectableCardsProps, SelectableCardsState> {
-  constructor(props: SelectableCardsProps) {
-    super(props);
-    this.state = {
-      selected: new Set<Card>()
-    }
-  }
-
+export class SelectableCards extends React.PureComponent<SelectableCardsProps> {
   public render() {
+    const set = new Set<Card>(this.props.selected);
     return this.props.cards.map((card: Card) =>
       <CardComponent key={toCardKey(card)}
                      card={card}
-                     selected={this.state.selected.has(card)}
+                     selected={set.has(card)}
                      onClick={this.changeSelected} />
     );
   }
 
   private changeSelected = (card: Card) => {
-    const new_selected = new Set<Card>(this.state.selected);
-    if (new_selected.has(card)) {
-      new_selected.delete(card);
-    } else {
-      new_selected.add(card);
-    }
-    this.setState({
-      ...this.state,
-      selected: new_selected,
-    });
-    if (this.props.onChange) {
-      this.props.onChange([...new_selected]);
-    }
+    const selected = cardsContain(this.props.selected, card)
+      ? cardsWithout(this.props.selected, card)
+      : [...this.props.selected, card];
+    this.props.onChange(selected);
   }
 }

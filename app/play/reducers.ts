@@ -60,7 +60,7 @@ import {
     Action,
     errorInvalidActionForGameState,
     errorSetDogActionShouldBePrivate,
-    Bid
+    Bid, errorCanOnlyCallRussianOnTwenties
 } from "./common";
 import {
     BiddingBoardState, BiddingStateActions,
@@ -174,6 +174,8 @@ const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentB
     } as Bid;
     if (state.bidders[0] !== bid.player) {
         throw errorBiddingOutOfTurn(bid.player, state.bidders[0])
+    } else if (bid.calls.indexOf(Call.RUSSIAN) !== -1 && bid.bid !== BidValue.TWENTY) {
+        throw errorCanOnlyCallRussianOnTwenties(bid);
     } else if (bid.bid === BidValue.PASS || bid.bid === undefined) {
         const bidders = state.bidders.slice(1);
         if (bidders.length == 1 && state.current_high.player === bidders[0]) {
@@ -292,7 +294,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                     action
                 ]
             } else { // last bid
-                if (state.bidding.current_high.bid === BidValue.PASS) { // all passes
+                if (new_bid_state.current_high.bid === BidValue.PASS) { // all passes
                     return [
                         {
                             name: 'new_game',
@@ -311,52 +313,52 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                         {
                             ...state,
                             name: 'partner_call',
-                            bidder: state.bidding.current_high.player,
+                            bidder: new_bid_state.current_high.player,
                             bidding: {
-                                winning_bid: state.bidding.current_high,
-                                calls: getAllCalls(state.players, state.bidding),
+                                winning_bid: new_bid_state.current_high,
+                                calls: getAllCalls(state.players, new_bid_state),
                             },
                         } as PartnerCallBoardState,
                         action,
                         {
                             type: 'bidding_completed',
-                            winning_bid: state.bidding.current_high,
+                            winning_bid: new_bid_state.current_high,
                         } as BiddingCompletedTransition,
                     ]
                 } else { // 3 or 4 players
-                    if (state.bidding.current_high.bid <= BidValue.FORTY) {
+                    if (new_bid_state.current_high.bid <= BidValue.FORTY) {
                         return [
                             {
                                 ...state,
                                 name: 'dog_reveal',
-                                bidder: state.bidding.current_high.player,
+                                bidder: new_bid_state.current_high.player,
                                 players_acked: [],
                                 bidding: {
-                                    winning_bid: state.bidding.current_high,
-                                    calls: getAllCalls(state.players, state.bidding),
+                                    winning_bid: new_bid_state.current_high,
+                                    calls: getAllCalls(state.players, new_bid_state),
                                 },
                             } as DogRevealAndExchangeBoardState,
                             action,
                             {
                                 type: 'bidding_completed',
-                                winning_bid: state.bidding.current_high,
+                                winning_bid: new_bid_state.current_high,
                             } as BiddingCompletedTransition,
                             {
                                 type: 'dog_revealed',
                                 dog: state.dog,
-                                player: state.bidding.current_high.player,
+                                player: new_bid_state.current_high.player,
                             } as DogRevealTransition,
                         ]
                     } else { // 80 or 160 bid
-                        const bidder = state.bidding.current_high.player;
+                        const bidder = new_bid_state.current_high.player;
                         return [
                             {
                                 ...state,
                                 name: 'playing',
                                 bidder,
                                 bidding: {
-                                    winning_bid: state.bidding.current_high,
-                                    calls: getAllCalls(state.players, state.bidding),
+                                    winning_bid: new_bid_state.current_high,
+                                    calls: getAllCalls(state.players, new_bid_state),
                                 },
                                 current_trick: getNewTrick(state.players, bidder, 0),
                                 past_tricks: [],
@@ -364,7 +366,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                             action,
                             {
                                 type: 'bidding_completed',
-                                winning_bid: state.bidding.current_high,
+                                winning_bid: new_bid_state.current_high,
                             } as BiddingCompletedTransition,
                             {
                                 type: 'game_started',
@@ -742,19 +744,19 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     players: state.current_trick.players,
                     winner,
                 };
-                let joker_state = state.joker_state;
+                let joker_state;
                 if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
                     joker_state = {
                         player: completed_trick.players[_.findIndex(completed_trick.cards, (card) => _.isEqual(card, TheJoker))],
                         owed_to: winner,
                     };
                 }
-                if (hands[0].length > 0) {
+                if (hands[0].length > 0) { // next trick!
                    return [
                        {
                            ...state,
                            hands,
-                           joker_state,
+                           joker_state: state.joker_state || joker_state,
                            current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
                            past_tricks: [...state.past_tricks, completed_trick],
                        } as PlayingBoardState,
@@ -766,7 +768,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                            joker_state,
                        } as CompletedTrickTransition,
                    ]
-                } else {
+                } else { // end of game!
                     const tricks = [...state.past_tricks, completed_trick];
                     const bidding_team = _.compact([state.bidder, state.partner]);
                     const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
@@ -775,6 +777,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
                         cards_won, state.shows, state.bidding.calls, outcomes);
                     const end_state = {
+                        players: state.players,
                         bidder: state.bidder,
                         bid: state.bidding.winning_bid.bid,
                         partner: state.partner,
@@ -790,7 +793,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                             ...state,
                             name: 'completed',
                             hands: undefined,
-                            joker_state,
+                            joker_state: state.joker_state || joker_state,
                             current_trick: undefined,
                             past_tricks: tricks,
 

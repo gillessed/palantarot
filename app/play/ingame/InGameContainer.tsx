@@ -13,7 +13,7 @@ import {
   InputCallPartner,
   InputMessage,
   InputPlayCard,
-  InputSetDog,
+  InputSetDog, InputShowTrump,
   NoStateInput
 } from "./ActionInputs";
 
@@ -69,6 +69,7 @@ class InGameInternal extends React.PureComponent<Props, State> {
         </div><div>
           Hand:
           <SelectableCards cards={this.props.game.state.hand}
+                           selected={this.state.card_selection}
                            onChange={this.setCardSelection} />
         </div><div>
           {this.stateToActions.get(this.props.game.state.state)?.map(this.renderInputParams)}
@@ -108,6 +109,10 @@ class InGameInternal extends React.PureComponent<Props, State> {
         return <InputMessage key={actionType} submitAction={this.submitAction} />;
       case "bid":
         return <InputBid key={actionType} submitAction={this.submitAction} />;
+      case "show_trump":
+        return <InputShowTrump key={actionType}
+                               hand={this.props.game.state.hand}
+                               submitAction={this.submitAction} />;
       case "ack_trump_show":
         return <InputAckTrumpShow key={actionType} submitAction={this.submitAction} />;
       case "call_partner":
