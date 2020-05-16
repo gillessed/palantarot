@@ -65,7 +65,7 @@ import {
     errorPlayerMarkedReady,
     errorPlayerNotReady,
     errorOnlyBidderCanDeclareSlam,
-    errorNotEnoughTrump
+    errorNotEnoughTrump, errorCannotLeadCalledSuit
 } from "./common";
 import {
     BiddingBoardState, BiddingStateActions,
@@ -379,7 +379,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                                     winning_bid: new_bid_state.current_high,
                                     calls: getAllCalls(state.players, new_bid_state),
                                 },
-                                current_trick: getNewTrick(state.players, bidder, 0),
+                                current_trick: getNewTrick(state.players, state.players[0], 0),
                                 past_tricks: [],
                             } as PlayingBoardState,
                             action,
@@ -459,7 +459,7 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                         called: action.card,
                         partner,
 
-                        current_trick: getNewTrick(state.players, state.bidder, 0),
+                        current_trick: getNewTrick(state.players, state.players[0], 0),
                         past_tricks: [],
                     } as PlayingBoardState,
                     action,
@@ -545,7 +545,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                                 ...state.hands,
                                 [player_num]: new_player_hand
                             },
-                            current_trick: getNewTrick(state.players, state.bidder, 0),
+                            current_trick: getNewTrick(state.players, state.players[0], 0),
                             past_tricks: [],
                         } as PlayingBoardState,
                         {
@@ -575,7 +575,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                     {
                         ...state,
                         name: 'playing',
-                        current_trick: getNewTrick(state.players, state.bidder, 0),
+                        current_trick: getNewTrick(state.players, state.players[0], 0),
                         past_tricks: [],
                     } as PlayingBoardState,
                     action,
@@ -741,6 +741,9 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     action.card,
                     state.current_trick.cards,
                     getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards));
+            } else if (!isAfterFirstTurn(state, action) && player_num === 0 && state.called
+                    && action.card[0] === state.called[0] && action.card[1] !== state.called[1]) {
+                throw errorCannotLeadCalledSuit(action.card, state.called);
             }
             const hands = {
                 ...state.hands,

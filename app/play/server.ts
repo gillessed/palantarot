@@ -1,5 +1,5 @@
 import {BoardReducer, BoardState, NewGameBoardState} from "./state";
-import {Action, Player, PlayerEvent} from "./common";
+import {Action, Player, PlayerEvent, Transition} from "./common";
 import {
     biddingBoardReducer, completedBoardReducer,
     dogRevealAndExchangeBoardReducer,
@@ -47,6 +47,10 @@ export class Game {
         this.state = new_state;
         this.log.push(...new_events);
         return new_events;
+    }
+
+    public appendTransition<T extends Transition>(event: T) {
+        this.log.push(event);
     }
 
     public getEvents(player: Player, start_at: number = 0, limit: number = 100): [PlayerEvent[], number] {

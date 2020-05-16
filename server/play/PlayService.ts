@@ -1,6 +1,13 @@
 import {Request, Response, Router} from 'express';
 import {Game} from "../../app/play/server";
-import {Action, GameDescription, Player, PlayerEvent, SystemEvent} from "../../app/play/common";
+import {
+    Action,
+    EnteredChatTransition,
+    GameDescription,
+    LeftChatTransition,
+    Player,
+    PlayerEvent,
+} from "../../app/play/common";
 import WebSocket from "ws";
 
 export interface PlayMessage {
@@ -35,8 +42,6 @@ export class PlayService {
         this.router = Router();
         this.router.post('/new_game', this.newGame);
         this.router.get('/games', this.listGames);
-        this.router.get('/game/:id/:player', this.getEvents);
-        this.router.post('/game/:id', this.playAction);
         this.router.get('/debug/:id', this.debugView);
     }
 
@@ -57,28 +62,6 @@ export class PlayService {
             };
         }
         res.send(games);
-    };
-
-    public getEvents = async (req: Request, res: Response) => {
-        const id = req.params['id'];
-        const player = req.params['player'] as Player;
-        const start_at = req.query['start_at'];
-        const limit = req.query['limit'];
-        res.send(this.games.get(id)?.getEvents(player, start_at, limit));
-    };
-
-    public playAction = async (req: Request, res: Response) => {
-        const id = req.params['id'];
-        const action = req.body as Action;
-        try {
-            const reply = this.games.get(id)?.playerAction(action);
-            if (reply) {
-                this.broadcastEvents(id, reply);
-            }
-            res.send(reply);
-        } catch (e) {
-            res.send(400, { error: (e as Error).message });
-        }
     };
 
     public debugView = async (req: Request, res: Response) => {
@@ -138,20 +121,14 @@ export class PlayService {
         socket.send(JSON.stringify({
             type: 'play_updates',
             events: this.games.get(game_id)?.getEvents(player, 0, 10000)[0] || []
-
         } as PlayUpdates));
-        this.broadcastEvents(game_id, [{
-                type: 'system',
-                text: `${player} has joined the chat.`,
-            } as SystemEvent])
+        const enteredChat = {
+            type: 'entered_chat',
+            player: player,
+        } as EnteredChatTransition;
+        this.games.get(game_id)?.appendTransition(enteredChat);
+        this.broadcastEvents(game_id, [enteredChat])
             .catch(e => {throw new Error(e)});
-        socket.send(JSON.stringify({
-            type: 'play_updates',
-            events: [{
-                type: 'system',
-                text: `Players currently in chat: ${[...this.players.get(game_id) || []].join(", ")}`
-            } as SystemEvent]
-        } as PlayUpdates));
     }
 
     private removeSocket(game_id: string, player: Player) {
@@ -160,10 +137,12 @@ export class PlayService {
         if (socket) {
             this.players.get(game_id)?.delete(player);
             this.sockets.delete(socketKey);
-            this.broadcastEvents(game_id, [{
-                    type: 'system',
-                    text: `${player} has left the chat.`,
-                } as SystemEvent])
+            const leftChat = {
+                type: 'left_chat',
+                player: player,
+            } as LeftChatTransition;
+            this.games.get(game_id)?.appendTransition(leftChat);
+            this.broadcastEvents(game_id, [leftChat])
                 .catch(e => {throw new Error(e)});
         }
     }

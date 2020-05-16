@@ -152,7 +152,7 @@ export interface CompletedGameState {
 }
 
 export interface PlayerEvent {
-    readonly type: ActionType | TransitionType | 'error' | 'system'
+    readonly type: ActionType | TransitionType | 'error'
     /** if contains state for only one player, which player to send to */
     readonly private_to?: Player
 }
@@ -160,12 +160,6 @@ export interface PlayerEvent {
 export interface ErrorEvent extends PlayerEvent {
     readonly type: 'error'
     readonly error: string
-    readonly private_to: undefined
-}
-
-export interface SystemEvent extends PlayerEvent {
-    readonly type: 'system'
-    readonly text: string
     readonly private_to: undefined
 }
 
@@ -266,7 +260,17 @@ export interface Transition extends PlayerEvent {
 }
 
 export type TransitionType = 'dealt_hand' | 'trump_show_ended' | 'bidding_completed' | 'dog_revealed' | 'game_started'
-    | 'completed_trick' | 'game_completed' | 'game_aborted';
+    | 'completed_trick' | 'game_completed' | 'game_aborted' | 'entered_chat' | 'left_chat';
+
+export interface EnteredChatTransition extends Transition {
+    readonly type: 'entered_chat'
+    readonly player: Player
+}
+
+export interface LeftChatTransition extends Transition {
+    readonly type: 'left_chat'
+    readonly player: Player
+}
 
 export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
@@ -426,3 +430,7 @@ export const errorCardNotInHand = function(action: Action & {card: Card}, hand: 
 export const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
     return new Error(`Cannot play card ${card} into played cards ${trick}. You must play one of ${allowable}.`);
 };
+
+export const errorCannotLeadCalledSuit = function(card: Card, called: Card) {
+    return new Error(`Cannot play card ${card} first turn because you called ${called}.`)
+}

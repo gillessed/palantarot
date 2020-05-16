@@ -1,6 +1,7 @@
 import {
   AckDogAction,
-  AckTrumpShowAction, Action,
+  AckTrumpShowAction,
+  Action,
   BidAction,
   BiddingCompletedTransition,
   Call,
@@ -9,18 +10,21 @@ import {
   DealtHandTransition,
   DeclareSlam,
   DogRevealTransition,
-  EndTrumpShowTransition,
+  EndTrumpShowTransition, EnteredChatTransition,
   EnterGameAction,
   GameAbortedTransition,
   GameCompletedTransition,
-  GameStartTransition, LeaveGameAction,
-  MessageAction, Outcome,
+  GameStartTransition,
+  LeaveGameAction, LeftChatTransition,
+  MessageAction,
+  Outcome,
   PlayCardAction,
   Player,
-  PlayerEvent, PlayerNotReadyAction,
+  PlayerEvent,
+  PlayerNotReadyAction,
   PlayerReadyAction,
   SetDogAction,
-  ShowTrumpAction, SystemEvent
+  ShowTrumpAction
 } from "../common";
 import * as React from "react";
 import {renderCards, renderCardsText} from "./Cards";
@@ -193,6 +197,20 @@ class Event extends React.PureComponent<EventProps> {
             -&gt; Game aborted: {aborted.reason}
           </div>
         );
+      case "entered_chat":
+        const enteredChat = event as EnteredChatTransition;
+        return (
+          <div className={classes + " system-event-low"}>
+            -&gt; {enteredChat.player} has entered chat.
+          </div>
+        );
+      case "left_chat":
+        const leftChat = event as LeftChatTransition;
+        return (
+          <div className={classes + " system-event-low"}>
+            -&gt; {leftChat.player} has left chat.
+          </div>
+        );
       case "error":
         const error = event as ErrorEvent;
         return (
@@ -200,13 +218,6 @@ class Event extends React.PureComponent<EventProps> {
             -&gt; Error: {error.error}
           </div>
         );
-      case "system":
-        const system = event as SystemEvent;
-        return (
-          <div className={classes + " system-event"}>
-            -&gt; {system.text}
-          </div>
-        )
     }
   }
 

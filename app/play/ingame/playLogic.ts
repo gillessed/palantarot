@@ -1,25 +1,28 @@
 import {
   Card,
   DealtHandTransition,
-  DogRevealTransition,
-  GameplayState,
+  DogRevealTransition, EnteredChatTransition,
+  GameplayState, LeftChatTransition,
   PlayCardAction,
   Player,
   PlayerEvent,
   SetDogAction
 } from "../common";
 import {cardsWithout, compareCards} from "../cardUtils";
+import _ from "lodash";
 
 export interface PlayState {
   readonly state: GameplayState
   readonly hand: Card[]
   readonly player_order: Player[]
+  readonly in_chat: Player[]
 }
 
 export const blank_state: PlayState = {
   state: "new_game",
   hand: [],
   player_order: [],
+  in_chat: [],
 };
 
 export function updateForEvent(state: PlayState, event: PlayerEvent, player: Player): PlayState {
@@ -78,7 +81,18 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         ...state,
         hand: cardsWithout(state.hand, ...set_dog.dog),
       };
-
+    case 'entered_chat':
+      const enteredChat = event as EnteredChatTransition;
+      return {
+        ...state,
+        in_chat: [...state.in_chat, enteredChat.player],
+      };
+    case 'left_chat':
+      const leftChat = event as LeftChatTransition;
+      return {
+        ...state,
+        in_chat: _.without(state.in_chat, leftChat.player),
+      }
     default:
       return state;
   }

@@ -64,7 +64,10 @@ class InGameInternal extends React.PureComponent<Props, State> {
           player={this.props.match.params.player}
           events={this.props.game.events}
         />
+        <hr />
         <div>
+          Chat: {this.props.game.state.in_chat.join(", ")}
+        </div><div>
           Player Order: {this.props.game.state.player_order.join(", ")}
         </div><div>
           Hand:
