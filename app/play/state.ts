@@ -15,11 +15,11 @@ import {
     CurrentBids,
     DeclareSlam,
     EnterGameAction, GameplayState,
-    JokerExchangeState,
+    JokerExchangeState, LeaveGameAction,
     MessageAction,
     PlayCardAction,
     Player,
-    PlayerEvent,
+    PlayerEvent, PlayerNotReadyAction,
     PlayerReadyAction,
     SetDogAction,
     ShowTrumpAction,
@@ -47,7 +47,7 @@ export interface NewGameBoardState extends BoardState {
 
     readonly ready: Player[]
 }
-export type NewGameActions = EnterGameAction | PlayerReadyAction | MessageAction
+export type NewGameActions = EnterGameAction | LeaveGameAction | PlayerReadyAction | PlayerNotReadyAction | MessageAction
 export type NewGameStates = NewGameBoardState | BiddingBoardState
 
 export interface BiddingBoardState extends DealtBoardState {
@@ -55,7 +55,7 @@ export interface BiddingBoardState extends DealtBoardState {
 
     readonly bidding: CurrentBids
 }
-export type BiddingStateActions = BidAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+export type BiddingStateActions = BidAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
 
 export interface PartnerCallBoardState extends DealtBoardState {

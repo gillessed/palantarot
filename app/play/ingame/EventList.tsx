@@ -13,14 +13,14 @@ import {
   EnterGameAction,
   GameAbortedTransition,
   GameCompletedTransition,
-  GameStartTransition,
+  GameStartTransition, LeaveGameAction,
   MessageAction, Outcome,
   PlayCardAction,
   Player,
-  PlayerEvent,
+  PlayerEvent, PlayerNotReadyAction,
   PlayerReadyAction,
   SetDogAction,
-  ShowTrumpAction
+  ShowTrumpAction, SystemEvent
 } from "../common";
 import * as React from "react";
 import {renderCards, renderCardsText} from "./Cards";
@@ -49,11 +49,25 @@ class Event extends React.PureComponent<EventProps> {
             {Event.getTimeText(enterGame.time)} {this.getPlayerName(enterGame)} joined the game.
           </div>
         );
+      case "leave_game":
+        const leaveGame = event as LeaveGameAction;
+        return (
+          <div className={classes}>
+            {Event.getTimeText(leaveGame.time)} {this.getPlayerName(leaveGame)} left the game.
+          </div>
+        );
       case "mark_player_ready":
         const playerReady = event as PlayerReadyAction;
         return (
           <div className={classes}>
             {Event.getTimeText(playerReady.time)} {this.getPlayerName(playerReady, "You are", " is")} ready to start!
+          </div>
+        );
+      case "unmark_player_ready":
+        const playerNotReady = event as PlayerNotReadyAction;
+        return (
+          <div className={classes}>
+            {Event.getTimeText(playerNotReady.time)} {this.getPlayerName(playerNotReady, "You are", " is")} no longer ready to start.
           </div>
         );
       case "bid":
@@ -176,16 +190,23 @@ class Event extends React.PureComponent<EventProps> {
         const aborted = event as GameAbortedTransition;
         return (
           <div className={classes + " system-event"}>
-            -&gt; Game aborted: {aborted.reason}.
+            -&gt; Game aborted: {aborted.reason}
           </div>
         );
       case "error":
         const error = event as ErrorEvent;
         return (
           <div className={classes + " error-event"}>
-            -&gt; Error: {error.error}.
+            -&gt; Error: {error.error}
           </div>
         );
+      case "system":
+        const system = event as SystemEvent;
+        return (
+          <div className={classes + " system-event"}>
+            -&gt; {system.text}
+          </div>
+        )
     }
   }
 

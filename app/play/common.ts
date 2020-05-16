@@ -152,7 +152,7 @@ export interface CompletedGameState {
 }
 
 export interface PlayerEvent {
-    readonly type: ActionType | TransitionType | 'error'
+    readonly type: ActionType | TransitionType | 'error' | 'system'
     /** if contains state for only one player, which player to send to */
     readonly private_to?: Player
 }
@@ -160,6 +160,13 @@ export interface PlayerEvent {
 export interface ErrorEvent extends PlayerEvent {
     readonly type: 'error'
     readonly error: string
+    readonly private_to: undefined
+}
+
+export interface SystemEvent extends PlayerEvent {
+    readonly type: 'system'
+    readonly text: string
+    readonly private_to: undefined
 }
 
 export type GameplayState = 'new_game' | 'bidding' | 'partner_call' | 'dog_reveal' | 'playing' | 'completed';
@@ -178,8 +185,8 @@ export interface Action extends PlayerEvent {
     readonly time: number
 }
 
-export type ActionType = 'message' | 'enter_game' | 'mark_player_ready' | 'bid' | 'show_trump' | 'ack_trump_show'
-    | 'call_partner' | 'declare_slam' | 'ack_dog' | 'set_dog' | 'play_card';
+export type ActionType = 'message' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
+    | 'bid' | 'show_trump' | 'ack_trump_show' | 'call_partner' | 'declare_slam' | 'ack_dog' | 'set_dog' | 'play_card';
 
 export interface PublicAction extends Action {
     readonly private_to?: undefined;
@@ -194,8 +201,16 @@ export interface EnterGameAction extends PublicAction {
     readonly type: 'enter_game'
 }
 
+export interface LeaveGameAction extends PublicAction {
+    readonly type: 'leave_game'
+}
+
 export interface PlayerReadyAction extends PublicAction {
     readonly type: 'mark_player_ready'
+}
+
+export interface PlayerNotReadyAction extends PublicAction {
+    readonly type: 'unmark_player_ready'
 }
 
 export interface BidAction extends PublicAction {
@@ -336,6 +351,14 @@ export const errorPlayerNotInGame = function(player: Player, players: Player[]) 
     return new Error(`Cannot find ${player}! Existing players: ${players}`)
 };
 
+export const errorPlayerMarkedReady = function(player: Player) {
+    return new Error(`Player ${player} cannot currently leave the game! They must unmark themselves as ready first.`)
+}
+
+export const errorPlayerNotReady = function(player: Player, players: Player[]) {
+    return new Error(`Player ${player} cannot unmark themselves as ready, because they weren't ready to start! ${players}`)
+}
+
 export const errorBiddingOutOfTurn = function(player: Player, current: Player) {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
 };
@@ -348,12 +371,20 @@ export const errorBidTooLow = function(action: BidValue, current: BidValue) {
     return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
 };
 
+export const errorOnlyBidderCanDeclareSlam = function(player: Player, bidder: Player) {
+    return new Error(`Player ${player} cannot declare a slam, only ${bidder} can!`)
+}
+
 export const errorCannotShowTwice = function(player: Player) {
     return new Error(`${player} cannot show trump twice!`)
 };
 
 export const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
     return new Error(`Invalid trump show: Got ${action.cards}, expected ${expected}.`)
+};
+
+export const errorNotEnoughTrump = function(trumps: number, needed: number) {
+    return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`)
 };
 
 export const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {

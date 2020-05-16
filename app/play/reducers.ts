@@ -60,7 +60,12 @@ import {
     Action,
     errorInvalidActionForGameState,
     errorSetDogActionShouldBePrivate,
-    Bid, errorCanOnlyCallRussianOnTwenties
+    Bid,
+    errorCanOnlyCallRussianOnTwenties,
+    errorPlayerMarkedReady,
+    errorPlayerNotReady,
+    errorOnlyBidderCanDeclareSlam,
+    errorNotEnoughTrump
 } from "./common";
 import {
     BiddingBoardState, BiddingStateActions,
@@ -100,6 +105,20 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                     action
                 ]
             }
+        case 'leave_game':
+            if (state.players.indexOf(action.player) < 0) {
+                throw errorPlayerNotInGame(action.player, state.players);
+            } else if (state.ready.indexOf(action.player) >= 0) {
+                throw errorPlayerMarkedReady(action.player);
+            } else {
+                return [
+                    {
+                        ...state,
+                        players: _.without(state.players, action.player),
+                    } as NewGameBoardState,
+                    action,
+                ]
+            }
         case 'mark_player_ready':
             if (state.ready.indexOf(action.player) >= 0) {
                 throw errorActionAlreadyHappened(action, state.ready)
@@ -111,7 +130,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                         ...state,
                         ready: [...state.ready, action.player]
                     } as NewGameBoardState,
-                    action
+                    action,
                 ]
             } else {
                 const {dog, hands} = dealCards(state.players.length);
@@ -140,6 +159,20 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                         hand,
                         player_order: player_order,
                     }) as DealtHandTransition)
+                ]
+            }
+        case 'unmark_player_ready':
+            if (state.players.indexOf(action.player) < 0) {
+                throw errorPlayerNotInGame(action.player, state.players);
+            } else if (state.ready.indexOf(action.player) < 0) {
+                throw errorPlayerNotReady(action.player, state.ready);
+            } else {
+                return [
+                    {
+                        ...state,
+                        ready: _.without(state.ready, action.player),
+                    } as NewGameBoardState,
+                    action,
                 ]
             }
         default:
@@ -208,6 +241,10 @@ function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: Sho
         throw errorCannotShowTwice(action.player);
     } else if (!cardsEqual(getTrumps(state.hands[player_num]), action.cards)) {
         throw errorInvalidTrumpShow(action, getTrumps(state.hands[player_num]));
+    } else if (state.players.length === 5 && action.cards.length < 8) {
+        throw errorNotEnoughTrump(action.cards.length, 8);
+    } else if (state.players.length < 5 && action.cards.length < 10) {
+        throw errorNotEnoughTrump(action.cards.length, 10);
     } else {
         return [
             {
@@ -261,24 +298,6 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
     switch (action.type) {
         case "message":
             return [state, action];
-        case "declare_slam":
-            return [
-                {
-                    ...state,
-                    bidding: {
-                        ...state.bidding,
-                        bids: [
-                            ...state.bidding.bids,
-                            {
-                                player: action.player,
-                                bid: BidValue.PASS,
-                                calls: [Call.DECLARED_SLAM],
-                            },
-                        ],
-                    },
-                },
-                action,
-            ];
         case "show_trump":
             return showTrumpActionReducer(state, action);
         case "ack_trump_show":
@@ -381,9 +400,12 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
     }
 };
 
-function declareSlamActionReducer<T extends DealtBoardState & { bidding: CompletedBids }>(state: T, action: DeclareSlam)
+function declareSlamActionReducer<T extends DealtBoardState & { bidder: Player, bidding: CompletedBids }>(state: T, action: DeclareSlam)
         : [T, DeclareSlam] {
     const player_num = getPlayerNum(state.players, action.player);
+    if (action.player != state.bidder) {
+        throw errorOnlyBidderCanDeclareSlam(action.player, state.bidder);
+    }
     return [
         {
             ...state,
@@ -485,6 +507,8 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                 throw errorSetDogActionShouldBePrivate(action);
             } else if (action.dog.length !== state.dog.length) {
                 throw errorNewDogWrongSize(action.dog, state.dog.length);
+            } else if (state.players_acked.indexOf(action.player) >= 0) {
+                throw errorActionAlreadyHappened(action, state.players_acked);
             } else {
                 const player_num = getPlayerNum(state.players, state.bidder);
                 const player_hand = state.hands[player_num];

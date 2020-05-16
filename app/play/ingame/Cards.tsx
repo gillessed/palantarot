@@ -66,7 +66,7 @@ export function renderCards(...cards: Card[]) {
   return cards.map((card: Card) => <CardComponent key={toCardKey(card)} card={card} />);
 }
 
-const cardPattern = /#[0-9JVCDR]{1,2}[SHDCT]/g;
+export const cardPattern = /#[0-9JVCDR]{1,2}[SHDCT]/g;
 export function renderCardsText(text: string): (string | JSX.Element)[] {
   const normal_bits = text.split(cardPattern) || [];
   const card_bits = renderCards(...text.match(cardPattern)?.map(parseCard) || []);

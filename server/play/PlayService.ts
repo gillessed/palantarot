@@ -1,6 +1,6 @@
 import {Request, Response, Router} from 'express';
 import {Game} from "../../app/play/server";
-import {Action, GameDescription, Player, PlayerEvent} from "../../app/play/common";
+import {Action, GameDescription, Player, PlayerEvent, SystemEvent} from "../../app/play/common";
 import WebSocket from "ws";
 
 export interface PlayMessage {
@@ -118,6 +118,13 @@ export class PlayService {
             } as PlayError));
             return
         }
+        if (this.sockets.has(PlayService.getSocketKey(game_id, player))) {
+            socket.send(JSON.stringify({
+                type: 'play_error',
+                error: `Cannot subscribe to ${game_id} as player ${player} is already in the game.`
+            } as PlayError));
+            return
+        }
         this.sockets.set(PlayService.getSocketKey(game_id, player), socket);
         this.players.get(game_id)?.add(player);
         socket.onmessage = (event) => {
@@ -133,6 +140,18 @@ export class PlayService {
             events: this.games.get(game_id)?.getEvents(player, 0, 10000)[0] || []
 
         } as PlayUpdates));
+        this.broadcastEvents(game_id, [{
+                type: 'system',
+                text: `${player} has joined the chat.`,
+            } as SystemEvent])
+            .catch(e => {throw new Error(e)});
+        socket.send(JSON.stringify({
+            type: 'play_updates',
+            events: [{
+                type: 'system',
+                text: `Players currently in chat: ${[...this.players.get(game_id) || []].join(", ")}`
+            } as SystemEvent]
+        } as PlayUpdates));
     }
 
     private removeSocket(game_id: string, player: Player) {
@@ -141,6 +160,11 @@ export class PlayService {
         if (socket) {
             this.players.get(game_id)?.delete(player);
             this.sockets.delete(socketKey);
+            this.broadcastEvents(game_id, [{
+                    type: 'system',
+                    text: `${player} has left the chat.`,
+                } as SystemEvent])
+                .catch(e => {throw new Error(e)});
         }
     }
 

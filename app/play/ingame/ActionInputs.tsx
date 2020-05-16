@@ -13,6 +13,7 @@ import {
 } from "../common";
 import React, {FormEvent, KeyboardEvent} from "react";
 import {Button, Checkbox, ControlGroup, Label, Radio, RadioGroup} from "@blueprintjs/core";
+import {cardPattern, parseCard} from "./Cards";
 
 interface BaseProps {
   submitAction(action: Omit<Action, "player" | "time">): void
@@ -130,23 +131,30 @@ export class InputAckTrumpShow extends ActionInput<{}, AckTrumpShowAction> {
   };
 }
 
-export class InputCallPartner extends ActionInput<{cards: Card[]}, CallPartnerAction> {
+export class InputCallPartner extends ActionInput<{}, CallPartnerAction> {
   protected type: 'call_partner' = 'call_partner';
 
   public render() {
-    return this.renderSubmitButton("Call Partner")
+    return (
+      <ControlGroup>
+        <input type="text" onInput={this.setCard} onKeyUp={this.onKeyMaybeSubmit} placeholder="e.g. #RS"/>
+        {this.renderSubmitButton("Call Partner")}
+      </ControlGroup>
+    )
   }
 
-  protected canSubmit = () => {
-    return this.props.cards.length == 1
-  };
-
-  protected getAction = () => {
-    return {
-      type: this.type,
-      card: this.props.cards[0],
+  private setCard = (event: FormEvent<HTMLInputElement>) => {
+    if (event.currentTarget.value.match(cardPattern)) {
+      this.setState({
+        card: parseCard(event.currentTarget.value),
+      })
+    } else {
+      this.setState({
+        card: undefined,
+      });
     }
-  };
+  }
+
 }
 
 export class InputSetDog extends ActionInput<{player: Player, cards: Card[]}, SetDogAction> {

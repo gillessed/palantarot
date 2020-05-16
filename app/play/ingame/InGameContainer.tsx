@@ -79,11 +79,11 @@ class InGameInternal extends React.PureComponent<Props, State> {
   }
 
   private stateToActions = new Map<GameplayState, ActionType[]>([
-    ["new_game", ["message", "enter_game", "mark_player_ready"]],
-    ["bidding", ["message", "bid", "declare_slam", "show_trump", "ack_trump_show"]],
-    ["partner_call", ["message", "call_partner", "declare_slam", "show_trump", "ack_trump_show"]],
-    ["dog_reveal", ["message", "set_dog", "ack_dog", "declare_slam", "show_trump", "ack_trump_show"]],
-    ["playing", ["message", "play_card", "declare_slam", "show_trump", "ack_trump_show"]],
+    ["new_game", ["message", "enter_game", "leave_game", "mark_player_ready", "unmark_player_ready"]],
+    ["bidding", ["message", "bid", "show_trump",]],
+    ["partner_call", ["message", "call_partner", "declare_slam", "show_trump"]],
+    ["dog_reveal", ["message", "set_dog", "ack_dog", "declare_slam", "show_trump"]],
+    ["playing", ["message", "play_card", "declare_slam", "show_trump"]],
     ["completed", ["message"]],
   ]);
 
@@ -117,7 +117,6 @@ class InGameInternal extends React.PureComponent<Props, State> {
         return <InputAckTrumpShow key={actionType} submitAction={this.submitAction} />;
       case "call_partner":
         return <InputCallPartner key={actionType}
-                                 cards={this.state.card_selection}
                                  submitAction={this.submitAction} />;
       case "set_dog":
         return <InputSetDog key={actionType}
