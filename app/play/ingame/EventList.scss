@@ -1,5 +1,21 @@
 @import "~@blueprintjs/core/lib/scss/variables";
 
+.action-display {
+  position: sticky;
+  bottom: 0px;
+  width: 100%;
+  background-color: $white;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.active-player {
+  background-color: $lime5 !important;
+}
+
 .player-event {
 }
 
@@ -8,7 +24,7 @@
 }
 
 .system-event-low {
-  color: $gray3;
+  color: $gray5;
 }
 
 .event-list-time {

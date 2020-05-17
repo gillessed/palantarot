@@ -1,8 +1,8 @@
 import {
-  Card,
+  Card, CompletedTrickTransition,
   DealtHandTransition,
   DogRevealTransition, EnteredChatTransition,
-  GameplayState, LeftChatTransition,
+  GameplayState, GameStartTransition, LeftChatTransition,
   PlayCardAction,
   Player,
   PlayerEvent,
@@ -16,6 +16,7 @@ export interface PlayState {
   readonly hand: Card[]
   readonly player_order: Player[]
   readonly in_chat: Player[]
+  readonly to_play: Player
 }
 
 export const blank_state: PlayState = {
@@ -23,6 +24,7 @@ export const blank_state: PlayState = {
   hand: [],
   player_order: [],
   in_chat: [],
+  to_play: "",
 };
 
 export function updateForEvent(state: PlayState, event: PlayerEvent, player: Player): PlayState {
@@ -55,9 +57,11 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
         };
       }
     case 'game_started':
+      const gameStarted = event as GameStartTransition;
       return {
         ...state,
         state: "playing",
+        to_play: gameStarted.first_player,
       };
     case 'game_aborted':
     case 'game_completed':
@@ -67,13 +71,25 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
       };
     case 'play_card':
       const playCard = event as PlayCardAction;
+      const to_play = state.player_order[
+        (state.player_order.indexOf(playCard.player) + 1) % state.player_order.length]
       if (playCard.player === player) {
         return {
           ...state,
           hand: cardsWithout(state.hand, playCard.card),
+          to_play,
         }
       } else {
-        return state;
+        return {
+          ...state,
+          to_play,
+        };
+      }
+    case 'completed_trick':
+      const completedTrick = event as CompletedTrickTransition;
+      return {
+        ...state,
+        to_play: completedTrick.winner,
       }
     case 'set_dog':
       const set_dog = event as SetDogAction;

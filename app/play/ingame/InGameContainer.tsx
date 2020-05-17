@@ -58,24 +58,29 @@ class InGameInternal extends React.PureComponent<Props, State> {
   }
 
   public render() {
+    const active_player = (this.props.game.state.state === "playing" &&
+      this.props.game.state.to_play === this.props.game.player ? " active-player" : "");
     return (
       <div>
         <EventList
           player={this.props.match.params.player}
           events={this.props.game.events}
         />
-        <hr />
-        <div>
-          Chat: {this.props.game.state.in_chat.join(", ")}
-        </div><div>
-          Player Order: {this.props.game.state.player_order.join(", ")}
-        </div><div>
-          Hand:
-          <SelectableCards cards={this.props.game.state.hand}
-                           selected={this.state.card_selection}
-                           onChange={this.setCardSelection} />
-        </div><div>
-          {this.stateToActions.get(this.props.game.state.state)?.map(this.renderInputParams)}
+        <div className={"action-display" + active_player}>
+          <div>
+            Chat: {this.props.game.state.in_chat.join(", ")}
+          </div>
+          <hr />
+          <div>
+            Player Order: {this.props.game.state.player_order.join(", ")}
+          </div><div>
+            Hand:
+            <SelectableCards cards={this.props.game.state.hand}
+                             selected={this.state.card_selection}
+                             onChange={this.setCardSelection} />
+          </div><div>
+            {this.stateToActions.get(this.props.game.state.state)?.map(this.renderInputParams)}
+          </div>
         </div>
       </div>
     )

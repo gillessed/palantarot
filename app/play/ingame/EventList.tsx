@@ -117,7 +117,7 @@ class Event extends React.PureComponent<EventProps> {
       case "ack_dog":
         const ackDog = event as AckDogAction;
         return (
-          <div className={classes + " system-event-low"}>
+          <div className={classes + " system-event"}>
             {Event.getTimeText(ackDog.time)} {this.getPlayerName(ackDog)} acked the dog.
           </div>
         );
@@ -201,14 +201,14 @@ class Event extends React.PureComponent<EventProps> {
         const enteredChat = event as EnteredChatTransition;
         return (
           <div className={classes + " system-event-low"}>
-            -&gt; {enteredChat.player} has entered chat.
+            -&gt; {this.getPlayerName(enteredChat, "You have", " has")} entered chat.
           </div>
         );
       case "left_chat":
         const leftChat = event as LeftChatTransition;
         return (
           <div className={classes + " system-event-low"}>
-            -&gt; {leftChat.player} has left chat.
+            -&gt; {this.getPlayerName(leftChat, "You have", " has")} left chat.
           </div>
         );
       case "error":
@@ -300,8 +300,11 @@ interface ListProps {
 
 export class EventList extends React.PureComponent<ListProps> {
   public render() {
-    return this.props.events.map((event, i) => (
-      <Event key={i} player={this.props.player} event={event} />
-    ));
+    return (
+      <div className="events-list">
+        {[...this.props.events].reverse().map((event, i) => (
+            <Event key={i} player={this.props.player} event={event} />))}
+      </div>
+    );
   }
 }

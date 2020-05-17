@@ -389,7 +389,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                             } as BiddingCompletedTransition,
                             {
                                 type: 'game_started',
-                                first_player: bidder,
+                                first_player: state.players[0],
                             } as GameStartTransition,
                         ]
                     }
@@ -465,7 +465,7 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                     action,
                     {
                         type: 'game_started',
-                        first_player: state.bidder,
+                        first_player: state.players[0],
                     } as GameStartTransition,
                 ]
             } else {
@@ -555,12 +555,15 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                         } as AckDogAction,
                         {
                             type: 'game_started',
-                            first_player: state.bidder,
+                            first_player: state.players[0],
                         } as GameStartTransition,
                     ]
                 }
             }
         case "ack_dog":
+            if (state.players_acked.indexOf(action.player) >= 0) {
+                throw errorActionAlreadyHappened(action, state.players_acked);
+            }
             const players_acked = _.union(state.players_acked, [action.player]);
             if (players_acked.length < state.players.length) {
                 return [
@@ -581,7 +584,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                     action,
                     {
                         type: 'game_started',
-                        first_player: state.bidder,
+                        first_player: state.players[0],
                     } as GameStartTransition,
                 ]
 
