@@ -1,5 +1,16 @@
 import _ from "lodash";
-import { Card, errorPlayerNotInGame, PlayerId, RegSuit, RegValue, Suit, TheJoker, TrumpCard, TrumpSuit, TrumpValue } from "./common";
+import {
+    Card,
+    errorPlayerNotInGame,
+    PlayerId,
+    RegSuit,
+    RegValue,
+    Suit,
+    TheJoker,
+    TrumpCard,
+    TrumpSuit,
+    TrumpValue
+} from "./common";
 
 /*
  * This file contains game code which is useful for both client and server.
@@ -25,6 +36,16 @@ export function createAllCards(): Card[] {
         cards.push([TrumpSuit, TrumpValue[value as keyof typeof TrumpValue]])
     }
     return cards
+}
+
+export function parseCard(card: string): Card {
+    const suit = card[card.length - 1];
+    const value = parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
+    return [suit, value] as Card;
+}
+
+export function toCardString(card: Card): string {
+    return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`
 }
 
 function invalidDeal(hands: Card[][]): boolean {

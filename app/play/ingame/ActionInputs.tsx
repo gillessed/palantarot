@@ -1,7 +1,8 @@
 import { Button, Checkbox, ControlGroup, Radio, RadioGroup } from "@blueprintjs/core";
 import React, { FormEvent, KeyboardEvent } from "react";
 import { Action, ActionType, BidAction, Call, CallPartnerAction, Card, MessageAction, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, TrumpSuit } from "../common";
-import { cardPattern, parseCard } from "./Cards";
+import { cardPattern} from "./Cards";
+import {parseCard} from "../cardUtils";
 
 interface BaseProps {
   submitAction(action: Omit<Action, "player" | "time">): void
@@ -51,7 +52,7 @@ export class InputMessage extends ActionInput<{}, MessageAction> {
   public render() {
     return (
       <ControlGroup>
-        <input type="text" onInput={this.setText} onKeyUp={this.onKeyMaybeSubmit} size={40} />
+        <input type="text" onInput={this.setText} onKeyUp={this.onKeyMaybeSubmit} size={40} value={this.state?.text || ""} />
         {this.renderSubmitButton("Send Message")}
       </ControlGroup>
     )
@@ -61,6 +62,19 @@ export class InputMessage extends ActionInput<{}, MessageAction> {
     this.setState({
       text: event.currentTarget.value,
     })
+  }
+
+  protected submitAction = () => {
+    if (this.canSubmit()) {
+      this.props.submitAction(this.getAction());
+      this.setState({
+        text: "",
+      })
+    }
+  }
+
+  protected canSubmit = (): boolean => {
+    return Boolean(this.state?.text)
   }
 }
 

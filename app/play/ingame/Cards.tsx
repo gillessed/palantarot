@@ -1,7 +1,7 @@
 import {Card, RegSuit, Suit, TrumpSuit} from "../common";
 import React from "react";
 import _ from "lodash";
-import {cardsContain, cardsWithout} from "../cardUtils";
+import {cardsContain, cardsWithout, parseCard, toCardString} from "../cardUtils";
 
 const suitEmoji = new Map<Suit, string>([
   [RegSuit.Spade, "♠"],
@@ -23,16 +23,6 @@ function toCardKey(card: Card) {
   return card.join("");
 }
 
-export function parseCard(card: string): Card {
-  const suit = card[card.length-1];
-  const value = parseInt(card.slice(1, card.length-1)) || card.slice(1, card.length-1);
-  return [suit, value] as Card;
-}
-
-export function toCardString(card: Card): string {
-  return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`
-}
-
 interface CardProps {
   card: Card
   selected?: boolean
@@ -51,8 +41,9 @@ export class CardComponent extends React.PureComponent<CardProps> {
     return (
       <span className={className} onClick={this.onClick} title={toCardString(card)}>
         {card[1] === "Joker" ? "J" : card[1]}{suitEmoji.get(card[0])}
+        <wbr />
       </span>
-    )
+  )
   }
 
   private onClick = () => {

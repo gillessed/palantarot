@@ -164,7 +164,7 @@ class Event extends React.PureComponent<EventProps> {
         const error = event as ErrorEvent;
         return (
           <div className={classes + " error-event"}>
-            -&gt; Error: {error.error}
+            -&gt; Error: {renderCardsText(error.error)}
           </div>
         );
     }

@@ -4,6 +4,8 @@
 
 /* CARDS */
 
+import {toCardString} from "./cardUtils";
+
 export enum RegSuit {
     Spade = 'S',
     Heart = 'H',
@@ -328,7 +330,7 @@ export const errorInvalidActionForGameState = function (action: Action, state: s
 };
 
 export const errorActionAlreadyHappened = function (action: Action, state: PlayerId[]) {
-    return new Error(`Cannot ${JSON.stringify(action)} as it has already happened! Existing state: ${state}`)
+    return new Error(`Cannot ${action.type} as it has already happened! Existing state: ${state}`)
 };
 
 export const errorTooManyPlayers = function (player: PlayerId, players: PlayerId[]) {
@@ -368,7 +370,7 @@ export const errorCannotShowTwice = function (player: PlayerId) {
 };
 
 export const errorInvalidTrumpShow = function (action: ShowTrumpAction, expected: TrumpCard[]) {
-    return new Error(`Invalid trump show: Got ${action.cards}, expected ${expected}.`)
+    return new Error(`Invalid trump show: Got ${action.cards.map(toCardString)}, expected ${expected.map(toCardString)}.`)
 };
 
 export const errorNotEnoughTrump = function (trumps: number, needed: number) {
@@ -380,7 +382,7 @@ export const errorCannotCallPartnerIfNotBidder = function (player: PlayerId, bid
 }
 
 export const errorCannotCallTrump = function (card: Card) {
-    return new Error(`You cannot call a trump card as your partner call! ${card}`)
+    return new Error(`You cannot call a trump card as your partner call! ${toCardString(card)}`)
 };
 
 export const errorCannotSetDogIfNotBidder = function (taker: PlayerId, bidder: PlayerId) {
@@ -392,11 +394,11 @@ export const errorSetDogActionShouldBePrivate = function (action: SetDogAction) 
 };
 
 export const errorNewDogWrongSize = function (dog: Card[], expected: number) {
-    return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`)
+    return new Error(`Proposed dog ${dog.map(toCardString)} does not have the expected number of cards, ${expected}.`)
 };
 
 export const errorNewDogDoesntMatchHand = function (dog: Card[], possible: Card[]) {
-    return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`)
+    return new Error(`Proposed dog ${dog.map(toCardString)} contains cards that are not in your hand or the dog: ${possible.map(toCardString)}.`)
 };
 
 export const errorAfterFirstTurn = function (action: Action) {
@@ -407,14 +409,14 @@ export const errorPlayingOutOfTurn = function (player: PlayerId, current: Player
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
 };
 
-export const errorCardNotInHand = function (action: Action & { card: Card }, hand: Card[]) {
-    return new Error(`Cannot conduct ${action.type} with ${action.card}, as requested card is not in the players hand! Hand contains ${hand}`)
+export const errorCardNotInHand = function (action: Action & {card: Card}, hand: Card[]) {
+    return new Error(`Cannot conduct ${action.type} with ${toCardString(action.card)}, as requested card is not in the players hand! Hand contains ${hand.map(toCardString)}`)
 };
 
 export const errorCannotPlayCard = function (card: Card, trick: Card[], allowable: Card[]) {
-    return new Error(`Cannot play card ${card} into played cards ${trick}. You must play one of ${allowable}.`);
+    return new Error(`Cannot play card ${toCardString(card)} into played cards ${trick.map(toCardString)}. You must play one of ${allowable.map(toCardString)}.`);
 };
 
 export const errorCannotLeadCalledSuit = function (card: Card, called: Card) {
-    return new Error(`Cannot play card ${card} first turn because you called ${called}.`)
+    return new Error(`Cannot play card ${toCardString(card)} first turn because you called ${toCardString(called)}.`)
 }
