@@ -1,9 +1,9 @@
 /*
  * This file contains definitions used for the server.
  */
-import { AckDogAction, AckTrumpShowAction, Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, GameplayState, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
+import { AckDogAction, AckTrumpShowAction, Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
 
-export enum BoardStateName {
+export enum GameplayState {
     NewGame = 'new_game',
     Bidding = 'bidding',
     PartnerCall = 'partner_call',
@@ -17,7 +17,7 @@ export interface BoardReducer<STATE extends BoardState, ACTION extends Action, R
 }
 
 export interface BoardState {
-    readonly name: GameplayState
+    readonly name: GameplayState;
     readonly players: PlayerId[]
 }
 
@@ -28,7 +28,7 @@ export interface DealtBoardState extends BoardState {
 }
 
 export interface NewGameBoardState extends BoardState {
-    readonly name: BoardStateName.NewGame;
+    readonly name: GameplayState.NewGame;
 
     readonly ready: PlayerId[]
 }
@@ -36,7 +36,7 @@ export type NewGameActions = EnterGameAction | LeaveGameAction | PlayerReadyActi
 export type NewGameStates = NewGameBoardState | BiddingBoardState
 
 export interface BiddingBoardState extends DealtBoardState {
-    readonly name: BoardStateName.Bidding;
+    readonly name: GameplayState.Bidding;
 
     readonly bidding: CurrentBids;
 }
@@ -44,7 +44,7 @@ export type BiddingStateActions = BidAction | ShowTrumpAction | AckTrumpShowActi
 export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
 
 export interface PartnerCallBoardState extends DealtBoardState {
-    readonly name: BoardStateName.PartnerCall
+    readonly name: GameplayState.PartnerCall
 
     readonly bidding: CompletedBids
     readonly bidder: PlayerId
@@ -53,7 +53,7 @@ export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrum
 export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
-    readonly name: BoardStateName.DogReveal;
+    readonly name: GameplayState.DogReveal;
 
     readonly bidding: CompletedBids
     readonly bidder: PlayerId
@@ -72,7 +72,7 @@ export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
  *  - {@link CompletedBoardState}
  */
 export interface PlayingBoardState extends DealtBoardState {
-    readonly name: BoardStateName.Playing;
+    readonly name: GameplayState.Playing;
 
     readonly bidding: CompletedBids
     readonly bidder: PlayerId
@@ -88,7 +88,7 @@ export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction
 export type PlayingStates = PlayingBoardState | CompletedBoardState
 
 export interface CompletedBoardState extends BoardState {
-    readonly name: BoardStateName.Completed;
+    readonly name: GameplayState.Completed;
 
     readonly bidder: PlayerId
     readonly called?: Card

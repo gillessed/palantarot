@@ -15,6 +15,7 @@ import { EnterContainer } from './containers/enter/EnterContainer';
 import { GameContainer } from './containers/game/GameContainer';
 import { HomeContainer } from './containers/home/HomeContainer';
 import { LoginContainer } from './containers/login/LoginContainer';
+import { PlayContainer } from './containers/play/PlayContainer';
 import { PlayerContainer } from './containers/player/PlayerContainer';
 import { RecentContainer } from './containers/recent/RecentContainer';
 import { RecordsContainer } from './containers/records/RecordsContainer';
@@ -28,7 +29,6 @@ import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { DispatcherProvider } from './dispatchProvider';
 import history from './history';
 import * as playCommon from './play/common';
-import { InGameContainer } from "./play/ingame/InGameContainer";
 import { LobbyContainer } from "./play/lobby/LobbyContainer";
 import * as playReducers from './play/reducers';
 import * as playServer from './play/server';
@@ -80,7 +80,7 @@ async function init() {
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
         <Route path='/app/lobby' component={LobbyContainer} />
-        <Route path='/app/play/:player/:gameId' component={InGameContainer} />
+        <Route path='/play/:player/:gameId' component={PlayContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
     );

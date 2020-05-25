@@ -1,9 +1,10 @@
 import _ from "lodash";
 import { cardsWithout, compareCards } from "../cardUtils";
-import { Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, GameplayState, GameStartTransition, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, SetDogAction } from '../common';
+import { Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, GameStartTransition, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, SetDogAction } from '../common';
+import { GameplayState } from '../state';
 
 export interface PlayState {
-  readonly state: GameplayState
+  readonly state: GameplayState;
   readonly hand: Card[]
   readonly player_order: PlayerId[]
   readonly in_chat: PlayerId[]
@@ -11,7 +12,7 @@ export interface PlayState {
 }
 
 export const blank_state: PlayState = {
-  state: "new_game",
+  state: GameplayState.NewGame,
   hand: [],
   player_order: [],
   in_chat: [],
@@ -24,41 +25,41 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
       const dealtHand = event as DealtHandTransition;
       return {
         ...state,
-        state: "bidding",
+        state: GameplayState.Bidding,
         hand: dealtHand.hand,
         player_order: dealtHand.player_order,
       };
     case 'bidding_completed':
       return {
         ...state,
-        state: "partner_call",
+        state: GameplayState.PartnerCall,
       };
     case 'dog_revealed':
       const dogRevealed = event as DogRevealTransition;
       if (dogRevealed.player === player) {
         return {
           ...state,
-          state: "dog_reveal",
+          state: GameplayState.DogReveal,
           hand: [...state.hand, ...dogRevealed.dog].sort(compareCards())
         }
       } else {
         return {
           ...state,
-          state: "dog_reveal",
+          state: GameplayState.DogReveal,
         };
       }
     case 'game_started':
       const gameStarted = event as GameStartTransition;
       return {
         ...state,
-        state: "playing",
+        state: GameplayState.Playing,
         to_play: gameStarted.first_player,
       };
     case 'game_aborted':
     case 'game_completed':
       return {
         ...state,
-        state: "completed",
+        state: GameplayState.Completed,
       };
     case 'play_card':
       const playCard = event as PlayCardAction;

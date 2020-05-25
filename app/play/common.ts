@@ -11,7 +11,7 @@ export enum RegSuit {
     Club = 'C',
 }
 export type TrumpSuit = 'T'
-export const TrumpSuit : TrumpSuit = 'T';
+export const TrumpSuit: TrumpSuit = 'T';
 
 export type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
 
@@ -162,8 +162,6 @@ export interface ErrorEvent extends PlayerEvent {
     readonly error: string
     readonly private_to: undefined
 }
-
-export type GameplayState = 'new_game' | 'bidding' | 'partner_call' | 'dog_reveal' | 'playing' | 'completed';
 
 /* ACTIONS */
 
@@ -339,98 +337,98 @@ export interface GameDescription {
 
 /* USER ERRORS */
 
-export const errorInvalidActionForGameState = function(action: Action, state: string) {
+export const errorInvalidActionForGameState = function (action: Action, state: string) {
     return new Error(`Cannot ${action.type} as we're currently in game state ${state}!`)
 };
 
-export const errorActionAlreadyHappened = function(action: Action, state: PlayerId[]) {
+export const errorActionAlreadyHappened = function (action: Action, state: PlayerId[]) {
     return new Error(`Cannot ${JSON.stringify(action)} as it has already happened! Existing state: ${state}`)
 };
 
-export const errorTooManyPlayers = function(player: PlayerId, players: PlayerId[]) {
+export const errorTooManyPlayers = function (player: PlayerId, players: PlayerId[]) {
     return new Error(`Cannot add ${player} as there are already too many players: ${players}`)
 };
 
-export const errorPlayerNotInGame = function(player: PlayerId, players: PlayerId[]) {
+export const errorPlayerNotInGame = function (player: PlayerId, players: PlayerId[]) {
     return new Error(`Cannot find ${player}! Existing players: ${players}`)
 };
 
-export const errorPlayerMarkedReady = function(player: PlayerId) {
+export const errorPlayerMarkedReady = function (player: PlayerId) {
     return new Error(`Player ${player} cannot currently leave the game! They must unmark themselves as ready first.`)
 }
 
-export const errorPlayerNotReady = function(player: PlayerId, players: PlayerId[]) {
+export const errorPlayerNotReady = function (player: PlayerId, players: PlayerId[]) {
     return new Error(`Player ${player} cannot unmark themselves as ready, because they weren't ready to start! ${players}`)
 }
 
-export const errorBiddingOutOfTurn = function(player: PlayerId, current: PlayerId) {
+export const errorBiddingOutOfTurn = function (player: PlayerId, current: PlayerId) {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
 };
 
-export const errorCanOnlyCallRussianOnTwenties = function(bid: Bid) {
+export const errorCanOnlyCallRussianOnTwenties = function (bid: Bid) {
     return new Error(`${bid.player} illegally tried to bid a Russian ${bid.bid}!`);
 };
 
-export const errorBidTooLow = function(action: BidValue, current: BidValue) {
+export const errorBidTooLow = function (action: BidValue, current: BidValue) {
     return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
 };
 
-export const errorOnlyBidderCanDeclareSlam = function(player: PlayerId, bidder: PlayerId) {
+export const errorOnlyBidderCanDeclareSlam = function (player: PlayerId, bidder: PlayerId) {
     return new Error(`Player ${player} cannot declare a slam, only ${bidder} can!`)
 }
 
-export const errorCannotShowTwice = function(player: PlayerId) {
+export const errorCannotShowTwice = function (player: PlayerId) {
     return new Error(`${player} cannot show trump twice!`)
 };
 
-export const errorInvalidTrumpShow = function(action: ShowTrumpAction, expected: TrumpCard[]) {
+export const errorInvalidTrumpShow = function (action: ShowTrumpAction, expected: TrumpCard[]) {
     return new Error(`Invalid trump show: Got ${action.cards}, expected ${expected}.`)
 };
 
-export const errorNotEnoughTrump = function(trumps: number, needed: number) {
+export const errorNotEnoughTrump = function (trumps: number, needed: number) {
     return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`)
 };
 
-export const errorTrumpNotBeingShown = function(player: PlayerId, playersShowing: PlayerId[]) {
+export const errorTrumpNotBeingShown = function (player: PlayerId, playersShowing: PlayerId[]) {
     return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
 };
 
-export const errorCannotCallTrump = function(card: Card) {
+export const errorCannotCallTrump = function (card: Card) {
     return new Error(`You cannot call a trump card as your partner call! ${card}`)
 };
 
-export const errorCannotSetDogIfNotBidder = function(taker: PlayerId, bidder: PlayerId) {
+export const errorCannotSetDogIfNotBidder = function (taker: PlayerId, bidder: PlayerId) {
     return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`)
 };
 
-export const errorSetDogActionShouldBePrivate = function(action: SetDogAction) {
+export const errorSetDogActionShouldBePrivate = function (action: SetDogAction) {
     return new Error(`Setting dog should have 'private_to' attribute set to the player, instead got ${action.private_to}`)
 };
 
-export const errorNewDogWrongSize = function(dog: Card[], expected: number) {
+export const errorNewDogWrongSize = function (dog: Card[], expected: number) {
     return new Error(`Proposed dog ${dog} does not have the expected number of cards, ${expected}.`)
 };
 
-export const errorNewDogDoesntMatchHand = function(dog: Card[], possible: Card[]) {
+export const errorNewDogDoesntMatchHand = function (dog: Card[], possible: Card[]) {
     return new Error(`Proposed dog ${dog} contains cards that are not in your hand or the dog: ${possible}.`)
 };
 
-export const errorAfterFirstTurn = function(action: Action) {
+export const errorAfterFirstTurn = function (action: Action) {
     return new Error(`Cannot ${action.type}, as it is after this player's first turn.`)
 };
 
-export const errorPlayingOutOfTurn = function(player: PlayerId, current: PlayerId) {
+export const errorPlayingOutOfTurn = function (player: PlayerId, current: PlayerId) {
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
 };
 
-export const errorCardNotInHand = function(action: Action & {card: Card}, hand: Card[]) {
+export const errorCardNotInHand = function (action: Action & { card: Card }, hand: Card[]) {
     return new Error(`Cannot conduct ${action.type} with ${action.card}, as requested card is not in the players hand! Hand contains ${hand}`)
 };
 
-export const errorCannotPlayCard = function(card: Card, trick: Card[], allowable: Card[]) {
+export const errorCannotPlayCard = function (card: Card, trick: Card[], allowable: Card[]) {
     return new Error(`Cannot play card ${card} into played cards ${trick}. You must play one of ${allowable}.`);
 };
 
-export const errorCannotLeadCalledSuit = function(card: Card, called: Card) {
+export const errorCannotLeadCalledSuit = function (card: Card, called: Card) {
     return new Error(`Cannot play card ${card} first turn because you called ${called}.`)
 }

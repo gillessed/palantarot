@@ -10,8 +10,6 @@ import { deleteTarothonReducer, DeleteTarothonService } from './deleteTarothon/i
 import { deltasReducer, DeltasService } from './deltas/index';
 import { gameReducer, GameService } from './game';
 import { monthGamesReducer, MonthGamesService } from './monthGames/index';
-import { playReducer } from './play/PlayReducers';
-import { PlayState } from './play/PlayState';
 import { playersReducer, PlayersService } from './players';
 import { recentGamesReducer, RecentGamesService } from './recentGames';
 import { recordsReducer, RecordsService } from './records/index';
@@ -37,7 +35,6 @@ export interface ReduxState {
   ingame: InGameState;
   lobby: LobbyService;
   monthGames: MonthGamesService;
-  play: PlayState;
   players: PlayersService;
   recentGames: RecentGamesService;
   records: RecordsService;
@@ -63,7 +60,6 @@ export const rootReducer = combineReducers({
   ingame: inGameReducer,
   lobby: lobbyReducer,
   monthGames: monthGamesReducer,
-  play: playReducer,
   players: playersReducer,
   recentGames: recentGamesReducer,
   records: recordsReducer,

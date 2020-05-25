@@ -15,38 +15,39 @@ export interface InGameState {
   readonly state: PlayState
 }
 
-const empty_state: InGameState = {
-  player: "<unknown player>",
-  game_id: "<unknown game>",
-  events: [],
-  state: blank_state,
-};
-
 const join_game = TypedAction.define("PLAY")<[PlayerId, string]>();
 const play_action = TypedAction.define("PLAY // ACTION")<Action>();
 const play_error = TypedAction.define("PLAY // ERROR")<string>();
 const play_update = TypedAction.define("PLAY // UPDATE")<PlayerEvent[]>();
 const exit_game = TypedAction.define("PLAY // EXIT")<void>();
 
-export const inGameReducer = TypedReducer.builder<InGameState>()
-  .withDefaultHandler((state= empty_state) => state)
-  .withHandler(join_game.TYPE, (state, args) => ({
+export const inGameReducer = TypedReducer.builder<InGameState | null>()
+  .withDefaultHandler((state = null) => state)
+  .withHandler(join_game.TYPE, (_: InGameState | null, args) => ({
     player: args[0],
     game_id: args[1],
     events: [],
     state: blank_state,
   }))
-  .withHandler(play_error.TYPE, (state, error) => ({
-    ...state,
-    events: [
-      ...state.events,
-      {
-        type: 'error',
-        error,
-      }
-    ]
-  }))
-  .withHandler(play_update.TYPE, (state, updates) => {
+  .withHandler(play_error.TYPE, (state: InGameState | null, error) => {
+    if (state == null) {
+      return null;
+    }
+    return {
+      ...state,
+      events: [
+        ...state.events,
+        {
+          type: 'error',
+          error,
+        }
+      ]
+    };
+  })
+  .withHandler(play_update.TYPE, (state: InGameState | null, updates: PlayerEvent[]) => {
+    if (state == null) {
+      return null;
+    }
     let play_state = state.state;
     for (const update of updates) {
       play_state = updateForEvent(play_state, update, state.player);
@@ -65,7 +66,7 @@ export const inGameReducer = TypedReducer.builder<InGameState>()
 export class InGameDispatcher {
   constructor(
     private readonly store: Store<ReduxState>,
-  ) {}
+  ) { }
 
   public joinGame(player: PlayerId, game: string) {
     this.store.dispatch(join_game([player, game]));
@@ -84,7 +85,7 @@ export class InGameDispatcher {
   }
 }
 
-export function* inGameSaga () {
+export function* inGameSaga() {
   yield takeEveryPayload(join_game, function* (action: [PlayerId, string]): SagaIterator {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const websocketUri = `${protocol}//${window.location.host}/ws`;
@@ -132,7 +133,7 @@ function listen(socket: WebSocket) {
       if (data.type === 'play_updates') {
         emitter(data.events)
       } else if (data.type === 'play_error') {
-        emitter([{type: 'error', error: data.error}])
+        emitter([{ type: 'error', error: data.error }])
       }
     };
 
