@@ -397,6 +397,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                             current_trick: getNewTrick(state.players, state.players[0], 0),
                             past_tricks: [],
                         } as PlayingBoardState,
+                        action,
                         {
                             type: 'game_started',
                             first_player: state.players[0],
