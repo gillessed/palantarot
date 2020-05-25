@@ -5,7 +5,7 @@ import { Dispatchers } from "../../services/dispatchers";
 import { ReduxState } from "../../services/rootReducer";
 import { Action, ActionType, Card } from "../common";
 import { GameplayState } from '../state';
-import { InputAckTrumpShow, InputBid, InputCallPartner, InputMessage, InputPlayCard, InputSetDog, InputShowTrump, NoStateInput } from "./ActionInputs";
+import { InputBid, InputCallPartner, InputMessage, InputPlayCard, InputSetDog, InputShowTrump, NoStateInput } from "./ActionInputs";
 import { SelectableCards } from "./Cards";
 import { EventList } from "./EventList";
 import { InGameState } from "./InGameService";
@@ -83,7 +83,7 @@ class InGameInternal extends React.PureComponent<Props, State> {
     [GameplayState.NewGame, ["message", "enter_game", "leave_game", "mark_player_ready", "unmark_player_ready"]],
     [GameplayState.Bidding, ["message", "bid", "show_trump",]],
     [GameplayState.PartnerCall, ["message", "call_partner", "declare_slam", "show_trump"]],
-    [GameplayState.DogReveal, ["message", "set_dog", "ack_dog", "declare_slam", "show_trump"]],
+    [GameplayState.DogReveal, ["message", "set_dog", "declare_slam", "show_trump"]],
     [GameplayState.Playing, ["message", "play_card", "declare_slam", "show_trump"]],
     [GameplayState.Completed, ["message"]],
   ]);
@@ -114,8 +114,6 @@ class InGameInternal extends React.PureComponent<Props, State> {
         return <InputShowTrump key={actionType}
                                hand={this.props.game.state.hand}
                                submitAction={this.submitAction} />;
-      case "ack_trump_show":
-        return <InputAckTrumpShow key={actionType} submitAction={this.submitAction} />;
       case "call_partner":
         return <InputCallPartner key={actionType}
                                  submitAction={this.submitAction} />;

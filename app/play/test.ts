@@ -67,7 +67,7 @@ function autoplayTrick(game: Game, time: () => number) {
 export const test = () => {
     const game = Game.create_new();
     const time = createTimer();
-    testingSetShuffler((cards: Card[]) => [..._.concat<Card>([], ...sample_deal.hands), ...sample_deal.dog]);
+    testingSetShuffler((_cards: Card[]) => [..._.concat<Card>([], ...sample_deal.hands), ...sample_deal.dog]);
 
     game.playerAction({type: 'enter_game', player: 'dxiao', time: time()});
     game.playerAction({type: 'enter_game', player: 'ericb', time: time()});
@@ -97,10 +97,6 @@ export const test = () => {
 
     assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'dog_revealed');
 
-    game.playerAction({type: 'ack_dog', player: 'dxiao', time: time()});
-    game.playerAction({type: 'ack_dog', player: 'ericb', time: time()});
-    game.playerAction({type: 'ack_dog', player: 'gcole', time: time()});
-    game.playerAction({type: 'ack_dog', player: 'karl', time: time()});
     game.playerAction({type: 'set_dog', player: 'samira', dog: [['D', 4], ['D', 8], ['H', 4]], private_to: 'samira', time: time()});
 
     assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'game_started');
@@ -108,13 +104,6 @@ export const test = () => {
     game.playerAction({type: 'show_trump', player: 'samira', time: time(), cards: [
             ["T", "Joker"], [ "T", 1 ], [ "T", 10 ], [ "T", 13 ], [ "T", 14 ], [ "T", 15 ], [ "T", 17 ], ['T', 19], [ "T", 20 ]
         ]});
-    game.playerAction({type: 'ack_trump_show', player: 'dxiao', showing_player: 'samira', time: time()});
-    game.playerAction({type: 'ack_trump_show', player: 'ericb', showing_player: 'samira', time: time()});
-    game.playerAction({type: 'ack_trump_show', player: 'gcole', showing_player: 'samira', time: time()});
-    game.playerAction({type: 'ack_trump_show', player: 'karl', showing_player: 'samira', time: time()});
-    game.playerAction({type: 'ack_trump_show', player: 'samira', showing_player: 'samira', time: time()});
-
-    assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'trump_show_ended');
 
     game.playerAction({type: 'play_card', player: 'samira', card: ['C', 5], time: time()});
     game.playerAction({type: 'play_card', player: 'dxiao', card: ['C', 3], time: time()});

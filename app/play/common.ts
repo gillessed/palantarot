@@ -128,7 +128,7 @@ export interface CompletedBids {
     readonly calls: { [player: number]: Call[] }
 }
 
-export type ShowTrumpState = { [player: number]: PlayerId[] };
+export type ShowTrumpState = PlayerId[];
 
 export interface JokerExchangeState {
     readonly player: PlayerId
@@ -178,7 +178,7 @@ export interface Action extends PlayerEvent {
 }
 
 export type ActionType = 'message' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
-    | 'bid' | 'show_trump' | 'ack_trump_show' | 'call_partner' | 'declare_slam' | 'ack_dog' | 'set_dog' | 'play_card';
+    | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card';
 
 export interface PublicAction extends Action {
     readonly private_to?: undefined;
@@ -217,11 +217,6 @@ export interface ShowTrumpAction extends PublicAction {
     readonly cards: TrumpCard[]
 }
 
-export interface AckTrumpShowAction extends PublicAction {
-    readonly type: 'ack_trump_show'
-    readonly showing_player: PlayerId
-}
-
 export interface CallPartnerAction extends PublicAction {
     readonly type: 'call_partner'
     readonly card: Card
@@ -229,10 +224,6 @@ export interface CallPartnerAction extends PublicAction {
 
 export interface DeclareSlam extends PublicAction {
     readonly type: 'declare_slam'
-}
-
-export interface AckDogAction extends PublicAction {
-    readonly type: 'ack_dog'
 }
 
 export interface SetDogAction extends Action {
@@ -257,7 +248,7 @@ export interface Transition extends PlayerEvent {
     readonly type: TransitionType
 }
 
-export type TransitionType = 'dealt_hand' | 'trump_show_ended' | 'bidding_completed' | 'dog_revealed' | 'game_started'
+export type TransitionType = 'dealt_hand' | 'bidding_completed' | 'dog_revealed' | 'game_started'
     | 'completed_trick' | 'game_completed' | 'game_aborted' | 'entered_chat' | 'left_chat';
 
 export interface EnteredChatTransition extends Transition {
@@ -276,11 +267,6 @@ export interface DealtHandTransition extends Transition {
     readonly player_order: PlayerId[]
 
     readonly hand: Card[]
-}
-
-export interface EndTrumpShowTransition extends Transition {
-    readonly type: 'trump_show_ended'
-    readonly player_showing_trump: PlayerId
 }
 
 export interface BiddingCompletedTransition extends Transition {
@@ -387,10 +373,6 @@ export const errorInvalidTrumpShow = function (action: ShowTrumpAction, expected
 
 export const errorNotEnoughTrump = function (trumps: number, needed: number) {
     return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`)
-};
-
-export const errorTrumpNotBeingShown = function (player: PlayerId, playersShowing: PlayerId[]) {
-    return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
 };
 
 export const errorCannotCallTrump = function (card: Card) {

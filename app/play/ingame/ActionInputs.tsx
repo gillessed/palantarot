@@ -1,6 +1,6 @@
-import { Button, Checkbox, ControlGroup, Label, Radio, RadioGroup } from "@blueprintjs/core";
+import { Button, Checkbox, ControlGroup, Radio, RadioGroup } from "@blueprintjs/core";
 import React, { FormEvent, KeyboardEvent } from "react";
-import { AckTrumpShowAction, Action, ActionType, BidAction, Call, CallPartnerAction, Card, MessageAction, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, TrumpSuit } from "../common";
+import { Action, ActionType, BidAction, Call, CallPartnerAction, Card, MessageAction, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, TrumpSuit } from "../common";
 import { cardPattern, parseCard } from "./Cards";
 
 interface BaseProps {
@@ -97,26 +97,6 @@ export class InputBid extends ActionInput<{}, BidAction> {
       calls: event.currentTarget.checked ? [Call.RUSSIAN] : undefined,
     });
   }
-}
-
-export class InputAckTrumpShow extends ActionInput<{}, AckTrumpShowAction> {
-  protected type: 'ack_trump_show' = 'ack_trump_show';
-
-  public render() {
-    return (
-      <ControlGroup>
-        <Label className="bp3-inline">Showing Player:</Label>
-        <input type="text" onInput={this.setShowingPlayer} onKeyUp={this.onKeyMaybeSubmit} />
-        {this.renderSubmitButton("Ack Trump Show")}
-      </ControlGroup>
-    )
-  }
-
-  private setShowingPlayer = (event: FormEvent<HTMLInputElement>) => {
-    this.setState({
-      showing_player: event.currentTarget.value
-    })
-  };
 }
 
 export class InputCallPartner extends ActionInput<{}, CallPartnerAction> {

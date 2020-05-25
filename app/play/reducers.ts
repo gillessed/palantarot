@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from "./cardUtils";
-import { AckDogAction, AckTrumpShowAction, Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, EndTrumpShowTransition, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, errorTrumpNotBeingShown, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
+import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
 import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
@@ -66,7 +66,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
                                 calls: []
                             },
                         },
-                        shows: {},
+                        shows: [],
                     } as BiddingBoardState,
                     action,
                     ..._.map(hands).map((hand: Card[], player: number) => ({
@@ -153,7 +153,7 @@ const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentB
 
 function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: ShowTrumpAction): [T, ShowTrumpAction] {
     const player_num = getPlayerNum(state.players, action.player);
-    if (state.shows[player_num]) {
+    if (state.shows.indexOf(action.player) >= 0) {
         throw errorCannotShowTwice(action.player);
     } else if (!cardsEqual(getTrumps(state.hands[player_num]), action.cards)) {
         throw errorInvalidTrumpShow(action, getTrumps(state.hands[player_num]));
@@ -165,47 +165,9 @@ function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: Sho
         return [
             {
                 ...state,
-                shows: {
-                    ...state.shows,
-                    [player_num]: state.players,
-                } as ShowTrumpState,
+                shows: [...state.shows, action.player],
             } as T,
             action,
-        ]
-    }
-}
-
-function ackTrumpShowActionReducer<T extends DealtBoardState>(state: T, action: AckTrumpShowAction)
-        : [T, ...(AckTrumpShowAction | EndTrumpShowTransition)[]] {
-    const showing_player_num = getPlayerNum(state.players, action.showing_player);
-    const current_show = state.shows[showing_player_num];
-    if (current_show === undefined) {
-        throw errorTrumpNotBeingShown(action.showing_player, Object.keys(state.shows));
-    } else {
-        const new_show = _.filter(current_show, (player) => !_.isEqual(player, action.player));
-        let actions;
-        if (new_show.length === 0) {
-            actions = [
-                action,
-                {
-                    type: 'trump_show_ended',
-                    player_showing_trump: action.showing_player
-                } as EndTrumpShowTransition
-            ];
-        } else {
-            actions = [
-                action
-            ];
-        }
-        return [
-            {
-                ...state,
-                shows: {
-                    ...state.shows,
-                    [showing_player_num]: new_show,
-                }
-            },
-            ...actions,
         ]
     }
 }
@@ -216,8 +178,6 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
             return [state, action];
         case "show_trump":
             return showTrumpActionReducer(state, action);
-        case "ack_trump_show":
-            return ackTrumpShowActionReducer(state, action);
         case "bid":
             const new_bid_state = updateBids(state.bidding, action);
             if (new_bid_state.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
@@ -267,7 +227,6 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                                 ...state,
                                 name: 'dog_reveal',
                                 bidder: new_bid_state.current_high.player,
-                                players_acked: [],
                                 bidding: {
                                     winning_bid: new_bid_state.current_high,
                                     calls: getAllCalls(state.players, new_bid_state),
@@ -354,8 +313,6 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
             return declareSlamActionReducer(state, action);
         case "show_trump":
             return showTrumpActionReducer(state, action);
-        case "ack_trump_show":
-            return ackTrumpShowActionReducer(state, action);
         case "call_partner":
             if (action.card[0] === TrumpSuit) {
                 throw errorCannotCallTrump(action.card);
@@ -391,7 +348,6 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
                         name: 'dog_reveal',
                         called: action.card,
                         partner,
-                        players_acked: [],
                     } as DogRevealAndExchangeBoardState,
                     action,
                     {
@@ -414,8 +370,6 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
             return declareSlamActionReducer(state, action);
         case "show_trump":
             return showTrumpActionReducer(state, action);
-        case "ack_trump_show":
-            return ackTrumpShowActionReducer(state, action);
         case "set_dog":
             if (!_.isEqual(action.player, state.bidder)) {
                 throw errorCannotSetDogIfNotBidder(action.player, state.bidder);
@@ -423,8 +377,6 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                 throw errorSetDogActionShouldBePrivate(action);
             } else if (action.dog.length !== state.dog.length) {
                 throw errorNewDogWrongSize(action.dog, state.dog.length);
-            } else if (state.players_acked.indexOf(action.player) >= 0) {
-                throw errorActionAlreadyHappened(action, state.players_acked);
             } else {
                 const player_num = getPlayerNum(state.players, state.bidder);
                 const player_hand = state.hands[player_num];
@@ -432,25 +384,6 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                 const new_player_hand = cardsWithout(cards, ...action.dog);
                 if (new_player_hand.length !== player_hand.length) {
                     throw errorNewDogDoesntMatchHand(action.dog, cards);
-                } else if (state.players_acked.length < state.players.length - 1) {
-                    const players_acked = _.union(state.players_acked, [state.bidder]);
-                    return [
-                        {
-                            ...state,
-                            dog: action.dog,
-                            hands: {
-                                ...state.hands,
-                                [player_num]: new_player_hand
-                            },
-                            players_acked,
-                        } as DogRevealAndExchangeBoardState,
-                        action,
-                        {
-                            type: 'ack_dog',
-                            player: action.player,
-                            time: action.time,
-                        } as AckDogAction,
-                    ]
                 } else {
                     return [
                         {
@@ -465,45 +398,11 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
                             past_tricks: [],
                         } as PlayingBoardState,
                         {
-                            type: 'ack_dog',
-                            player: action.player,
-                            time: action.time,
-                        } as AckDogAction,
-                        {
                             type: 'game_started',
                             first_player: state.players[0],
                         } as GameStartTransition,
                     ]
                 }
-            }
-        case "ack_dog":
-            if (state.players_acked.indexOf(action.player) >= 0) {
-                throw errorActionAlreadyHappened(action, state.players_acked);
-            }
-            const players_acked = _.union(state.players_acked, [action.player]);
-            if (players_acked.length < state.players.length) {
-                return [
-                    {
-                        ...state,
-                        players_acked,
-                    } as DogRevealAndExchangeBoardState,
-                    action,
-                ]
-            } else {
-                return [
-                    {
-                        ...state,
-                        name: 'playing',
-                        current_trick: getNewTrick(state.players, state.players[0], 0),
-                        past_tricks: [],
-                    } as PlayingBoardState,
-                    action,
-                    {
-                        type: 'game_started',
-                        first_player: state.players[0],
-                    } as GameStartTransition,
-                ]
-
             }
         default:
             throw errorInvalidActionForGameState(action, state.name);
@@ -591,7 +490,7 @@ function getFinalScore(
 
     let points_result = bid;
     points_result += Math.ceil(Math.abs(points_earned - needed_to_win) / 10) * 10;
-    for (const player_num in shows) {
+    for (const player of shows) {
         points_result += 10;
     }
     points_result *= bidder_won ? 1 : -1;
@@ -642,12 +541,6 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                 throw errorAfterFirstTurn(action);
             } else {
                 return showTrumpActionReducer(state, action);
-            }
-        case "ack_trump_show":
-            if (isAfterFirstTurn(state, action)) {
-                throw errorAfterFirstTurn(action);
-            } else {
-                return ackTrumpShowActionReducer(state, action);
             }
         case "play_card":
             const player_num = getPlayerNum(state.players, action.player);
@@ -719,7 +612,6 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                     const bidding_team = _.compact([state.bidder, state.partner]);
                     const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
                     const outcomes = getOutcomes(state.players, bidding_team, tricks);
-                    const shows = Object.keys(state.shows).map((index) => state.players[Number.parseInt(index)]);
                     const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
                         cards_won, state.shows, state.bidding.calls, outcomes);
                     const end_state = {
@@ -730,7 +622,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
                         dog: state.dog,
 
                         calls: state.bidding.calls,
-                        shows,
+                        shows: state.shows,
                         outcomes,
                         ...final_score
                     } as CompletedGameState;

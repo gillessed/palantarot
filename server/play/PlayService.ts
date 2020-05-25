@@ -113,7 +113,7 @@ export class PlayService {
         socket.on('close', () => this.removeSocket(game_id, player));
         socket.send(JSON.stringify({
             type: 'play_updates',
-            events: this.games.get(game_id)?.getEvents(player, 0, 10000)[0] || []
+            events: this.games.get(game_id)?.getEvents(player, 0, 100000)[0] || []
         } as PlayUpdates));
         const enteredChat = {
             type: 'entered_chat',

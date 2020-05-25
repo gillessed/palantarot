@@ -1,7 +1,7 @@
 /*
  * This file contains definitions used for the server.
  */
-import { AckDogAction, AckTrumpShowAction, Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
+import { Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
 
 export enum GameplayState {
     NewGame = 'new_game',
@@ -40,7 +40,7 @@ export interface BiddingBoardState extends DealtBoardState {
 
     readonly bidding: CurrentBids;
 }
-export type BiddingStateActions = BidAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
+export type BiddingStateActions = BidAction | ShowTrumpAction |  MessageAction
 export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
 
 export interface PartnerCallBoardState extends DealtBoardState {
@@ -49,7 +49,7 @@ export interface PartnerCallBoardState extends DealtBoardState {
     readonly bidding: CompletedBids
     readonly bidder: PlayerId
 }
-export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction |  MessageAction
 export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
@@ -59,12 +59,9 @@ export interface DogRevealAndExchangeBoardState extends DealtBoardState {
     readonly bidder: PlayerId
     readonly called?: Card
     readonly partner?: PlayerId
-
-    readonly players_acked: PlayerId[]
-
 }
 /** {@link SetDogAction} is for bidder only */
-export type DogRevealStateActions = SetDogAction | AckDogAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+export type DogRevealStateActions = SetDogAction |  DeclareSlam | ShowTrumpAction |  MessageAction
 export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
 
 /**
@@ -84,7 +81,7 @@ export interface PlayingBoardState extends DealtBoardState {
     readonly current_trick: Trick
     readonly past_tricks: CompletedTrick[]
 }
-export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
+export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction |  MessageAction
 export type PlayingStates = PlayingBoardState | CompletedBoardState
 
 export interface CompletedBoardState extends BoardState {

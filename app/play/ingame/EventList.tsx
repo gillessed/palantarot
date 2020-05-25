@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AckDogAction, AckTrumpShowAction, Action, BidAction, BiddingCompletedTransition, Call, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DeclareSlam, DogRevealTransition, EndTrumpShowTransition, EnteredChatTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, MessageAction, Outcome, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../common';
+import { Action, BidAction, BiddingCompletedTransition, Call, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DeclareSlam, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, MessageAction, Outcome, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../common';
 import { renderCards, renderCardsText } from "./Cards";
 
 interface EventProps {
@@ -65,14 +65,6 @@ class Event extends React.PureComponent<EventProps> {
             {renderCards(...showTrump.cards)}
           </div>
         );
-      case "ack_trump_show":
-        const ackShow = event as AckTrumpShowAction;
-        return (
-          <div className={classes + " system-event-low"}>
-            {Event.getTimeText(ackShow.time)} {this.getPlayerName(ackShow)} acked
-            {this.getPlayerName({player: ackShow.showing_player}, "your", " 's")} trump show.
-          </div>
-        );
       case "call_partner":
         const call = event as CallPartnerAction;
         return (
@@ -85,13 +77,6 @@ class Event extends React.PureComponent<EventProps> {
         return (
           <div className={classes}>
             {Event.getTimeText(declareSlam.time)} {this.getPlayerName(declareSlam)} DECLARED A SLAM!!!
-          </div>
-        );
-      case "ack_dog":
-        const ackDog = event as AckDogAction;
-        return (
-          <div className={classes + " system-event"}>
-            {Event.getTimeText(ackDog.time)} {this.getPlayerName(ackDog)} acked the dog.
           </div>
         );
       case "set_dog":
@@ -115,15 +100,6 @@ class Event extends React.PureComponent<EventProps> {
             -&gt; Let us begin!
             The player order will be {dealt.player_order.join(", ")}.
             You have been dealt: {renderCards(...dealt.hand)}
-          </div>
-        );
-      case "trump_show_ended":
-        const showEnded = event as EndTrumpShowTransition;
-        const player_obj = {player: showEnded.player_showing_trump};
-        return (
-          <div className={classes + " system-event-low"}>
-            -&gt; {this.getPlayerName(player_obj, "Your", "'s")}
-            trump have been returned to {this.getPlayerName(player_obj, "your", "'s")} hand.
           </div>
         );
       case "bidding_completed":
