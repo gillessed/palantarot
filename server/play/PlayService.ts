@@ -28,8 +28,11 @@ export class PlayService {
     public router: Router;
 
     constructor(
+        /** game_id -> Game */
         private readonly games = new Map<string, Game>(),
+        /** game_id -> set of players in game */
         private readonly players = new Map<string, Set<PlayerId>>(),
+        /** "game_id-player" -> socket */
         private readonly sockets = new Map<string, WebSocket>()
     ) {
         this.router = Router();
@@ -87,56 +90,79 @@ export class PlayService {
     }
 
     public addSocket(game_id: string, player: PlayerId, socket: WebSocket) {
-        if (!this.games.has(game_id)) {
-            socket.send(JSON.stringify({
-                type: 'play_error',
-                error: `Cannot subscribe to ${game_id} as it does not exist.`
-            } as PlayError));
-            return
-        }
-        if (this.sockets.has(PlayService.getSocketKey(game_id, player))) {
-            socket.send(JSON.stringify({
-                type: 'play_error',
-                error: `Cannot subscribe to ${game_id} as player ${player} is already in the game.`
-            } as PlayError));
-            return
-        }
-        this.sockets.set(PlayService.getSocketKey(game_id, player), socket);
-        this.players.get(game_id)?.add(player);
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data as string);
-            if (data.type === 'play_action') {
-                const message: PlayAction = data;
-                this.playSocket(game_id, message.action);
+        try {
+            // 1. check conditions
+            if (!this.games.has(game_id)) {
+                socket.send(JSON.stringify({
+                    type: 'play_error',
+                    error: `Cannot subscribe to ${game_id} as it does not exist.`
+                } as PlayError));
+                return
+            } else if (this.sockets.has(PlayService.getSocketKey(game_id, player))) {
+                socket.send(JSON.stringify({
+                    type: 'play_error',
+                    error: `Cannot subscribe to ${game_id} as player ${player} is already in the game.`
+                } as PlayError));
+                return
             }
-        };
-        socket.on('close', () => this.removeSocket(game_id, player));
-        socket.send(JSON.stringify({
-            type: 'play_updates',
-            events: this.games.get(game_id)?.getEvents(player, 0, 100000)[0] || []
-        } as PlayUpdates));
-        const enteredChat = {
-            type: 'entered_chat',
-            player: player,
-        } as EnteredChatTransition;
-        this.games.get(game_id)?.appendTransition(enteredChat);
-        this.broadcastEvents(game_id, [enteredChat])
-            .catch(e => {throw new Error(e)});
+
+            // 2. register handlers
+            this.sockets.set(PlayService.getSocketKey(game_id, player), socket);
+            this.players.get(game_id)?.add(player);
+            socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data as string);
+                    if (data.type === 'play_action') {
+                        const message: PlayAction = data;
+                        this.playSocket(game_id, message.action);
+                    }
+                } catch (e) {
+                    console.error("Error while trying to process player action", game_id, player, event.data, e);
+                    this.removeSocket(game_id, player);
+                }
+            };
+            socket.on('close', () => this.removeSocket(game_id, player));
+
+            // 3. update them on game state
+            socket.send(JSON.stringify({
+                type: 'play_updates',
+                events: this.games.get(game_id)?.getEvents(player, 0, 100000)[0] || []
+            } as PlayUpdates));
+
+            // 4. notify others that player entered the game
+            const enteredChat = {
+                type: 'entered_chat',
+                player: player,
+            } as EnteredChatTransition;
+            this.games.get(game_id)?.appendTransition(enteredChat);
+            this.broadcastEvents(game_id, [enteredChat])
+              .catch(e => {
+                  throw new Error(e)
+              });
+        } catch (e) {
+            console.error("Error while adding socket:", game_id, player, e)
+        }
     }
 
     private removeSocket(game_id: string, player: PlayerId) {
-        const socketKey = PlayService.getSocketKey(game_id, player);
-        const socket = this.sockets.get(socketKey);
-        if (socket) {
-            this.players.get(game_id)?.delete(player);
-            this.sockets.delete(socketKey);
-            const leftChat = {
-                type: 'left_chat',
-                player: player,
-            } as LeftChatTransition;
-            this.games.get(game_id)?.appendTransition(leftChat);
-            this.broadcastEvents(game_id, [leftChat])
-                .catch(e => {throw new Error(e)});
+        try {
+            const socketKey = PlayService.getSocketKey(game_id, player);
+            const socket = this.sockets.get(socketKey);
+            if (socket) {
+                this.players.get(game_id)?.delete(player);
+                this.sockets.delete(socketKey);
+                const leftChat = {
+                    type: 'left_chat',
+                    player: player,
+                } as LeftChatTransition;
+                this.games.get(game_id)?.appendTransition(leftChat);
+                this.broadcastEvents(game_id, [leftChat])
+                  .catch(e => {
+                      throw new Error(e)
+                  });
+            }
+        } catch (e) {
+            console.error("Error while trying to remove socket", game_id, player, e)
         }
     }
 

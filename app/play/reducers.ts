@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from "./cardUtils";
-import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
+import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
 import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
@@ -314,7 +314,9 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
         case "show_trump":
             return showTrumpActionReducer(state, action);
         case "call_partner":
-            if (action.card[0] === TrumpSuit) {
+            if (action.player !== state.bidder) {
+                throw errorCannotCallPartnerIfNotBidder(action.player, state.bidder);
+            } else if (action.card[0] === TrumpSuit) {
                 throw errorCannotCallTrump(action.card);
             }
             let partner = undefined;
@@ -371,7 +373,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
         case "show_trump":
             return showTrumpActionReducer(state, action);
         case "set_dog":
-            if (!_.isEqual(action.player, state.bidder)) {
+            if (action.player !== state.bidder) {
                 throw errorCannotSetDogIfNotBidder(action.player, state.bidder);
             } else if (!_.isEqual(action.player, action.private_to)) {
                 throw errorSetDogActionShouldBePrivate(action);

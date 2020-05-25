@@ -375,6 +375,10 @@ export const errorNotEnoughTrump = function (trumps: number, needed: number) {
     return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`)
 };
 
+export const errorCannotCallPartnerIfNotBidder = function (player: PlayerId, bidder: PlayerId) {
+    return new Error(`${player} cannot call a partner because they are not the the bidder, ${bidder}!`)
+}
+
 export const errorCannotCallTrump = function (card: Card) {
     return new Error(`You cannot call a trump card as your partner call! ${card}`)
 };
