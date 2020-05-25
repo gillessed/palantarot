@@ -20,27 +20,25 @@ import { RecentContainer } from './containers/recent/RecentContainer';
 import { RecordsContainer } from './containers/records/RecordsContainer';
 import { ResultsContainer } from './containers/results/ResultsContainer';
 import { SearchContainer } from './containers/search/SearchContainer';
+import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 import { EditTarothonContainer } from './containers/tarothon/EditTarothonContainer';
 import { TarothonContainer } from './containers/tarothon/TarothonContainer';
 import { TarothonFormContainer } from './containers/tarothon/TarothonFormContainer';
 import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { DispatcherProvider } from './dispatchProvider';
 import history from './history';
+import * as playCommon from './play/common';
+import { InGameContainer } from "./play/ingame/InGameContainer";
+import { LobbyContainer } from "./play/lobby/LobbyContainer";
+import * as playReducers from './play/reducers';
+import * as playServer from './play/server';
+import * as playState from './play/state';
+import * as playTest from './play/test';
 import { SagaProvider } from './sagaProvider';
 import { dispatcherCreators } from './services/dispatchers';
 import { ReduxState, rootReducer } from './services/rootReducer';
 import { rootSaga } from './services/rootSaga';
 import { SagaListener } from './services/sagaListener';
-import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
-
-import * as playCommon from './play/common';
-import * as playGame from './play/cardUtils';
-import * as playState from './play/state';
-import * as playReducers from './play/reducers';
-import * as playServer from './play/server';
-import * as playTest from './play/test';
-import {LobbyContainer} from "./play/lobby/LobbyContainer";
-import {InGameContainer} from "./play/ingame/InGameContainer";
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -104,7 +102,6 @@ async function init() {
 init();
 
 (window as any).play = {
-    game: playGame,
     common: playCommon,
     state: playState,
     reducers: playReducers,

@@ -1,31 +1,16 @@
 /*
  * This file contains definitions used for the server.
  */
+import { AckDogAction, AckTrumpShowAction, Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, GameplayState, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
 
-import {
-    AckDogAction,
-    AckTrumpShowAction,
-    Action,
-    BidAction,
-    CallPartnerAction,
-    Card,
-    CompletedBids,
-    CompletedGameState,
-    CompletedTrick,
-    CurrentBids,
-    DeclareSlam,
-    EnterGameAction, GameplayState,
-    JokerExchangeState, LeaveGameAction,
-    MessageAction,
-    PlayCardAction,
-    Player,
-    PlayerEvent, PlayerNotReadyAction,
-    PlayerReadyAction,
-    SetDogAction,
-    ShowTrumpAction,
-    ShowTrumpState,
-    Trick
-} from "./common";
+export enum BoardStateName {
+    NewGame = 'new_game',
+    Bidding = 'bidding',
+    PartnerCall = 'partner_call',
+    DogReveal = 'dog_reveal',
+    Playing = 'playing',
+    Completed = 'completed',
+}
 
 export interface BoardReducer<STATE extends BoardState, ACTION extends Action, RESULT extends BoardState> {
     (state: STATE, action: ACTION): [RESULT, ...PlayerEvent[]]
@@ -33,7 +18,7 @@ export interface BoardReducer<STATE extends BoardState, ACTION extends Action, R
 
 export interface BoardState {
     readonly name: GameplayState
-    readonly players: Player[]
+    readonly players: PlayerId[]
 }
 
 export interface DealtBoardState extends BoardState {
@@ -43,39 +28,39 @@ export interface DealtBoardState extends BoardState {
 }
 
 export interface NewGameBoardState extends BoardState {
-    readonly name: 'new_game'
+    readonly name: BoardStateName.NewGame;
 
-    readonly ready: Player[]
+    readonly ready: PlayerId[]
 }
 export type NewGameActions = EnterGameAction | LeaveGameAction | PlayerReadyAction | PlayerNotReadyAction | MessageAction
 export type NewGameStates = NewGameBoardState | BiddingBoardState
 
 export interface BiddingBoardState extends DealtBoardState {
-    readonly name: 'bidding'
+    readonly name: BoardStateName.Bidding;
 
-    readonly bidding: CurrentBids
+    readonly bidding: CurrentBids;
 }
 export type BiddingStateActions = BidAction | ShowTrumpAction | AckTrumpShowAction | MessageAction
 export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
 
 export interface PartnerCallBoardState extends DealtBoardState {
-    readonly name: 'partner_call'
+    readonly name: BoardStateName.PartnerCall
 
     readonly bidding: CompletedBids
-    readonly bidder: Player
+    readonly bidder: PlayerId
 }
 export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction | AckTrumpShowAction | MessageAction
 export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
-    readonly name: 'dog_reveal'
+    readonly name: BoardStateName.DogReveal;
 
     readonly bidding: CompletedBids
-    readonly bidder: Player
+    readonly bidder: PlayerId
     readonly called?: Card
-    readonly partner?: Player
+    readonly partner?: PlayerId
 
-    readonly players_acked: Player[]
+    readonly players_acked: PlayerId[]
 
 }
 /** {@link SetDogAction} is for bidder only */
@@ -87,12 +72,12 @@ export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
  *  - {@link CompletedBoardState}
  */
 export interface PlayingBoardState extends DealtBoardState {
-    readonly name: 'playing'
+    readonly name: BoardStateName.Playing;
 
     readonly bidding: CompletedBids
-    readonly bidder: Player
+    readonly bidder: PlayerId
     readonly called?: Card
-    readonly partner?: Player
+    readonly partner?: PlayerId
 
     readonly joker_state?: JokerExchangeState
 
@@ -103,11 +88,11 @@ export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction
 export type PlayingStates = PlayingBoardState | CompletedBoardState
 
 export interface CompletedBoardState extends BoardState {
-    readonly name: 'completed'
+    readonly name: BoardStateName.Completed;
 
-    readonly bidder: Player
+    readonly bidder: PlayerId
     readonly called?: Card
-    readonly partner?: Player
+    readonly partner?: PlayerId
     readonly dog: Card[]
 
     readonly bidding: CompletedBids

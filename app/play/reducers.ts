@@ -1,91 +1,7 @@
 import _ from "lodash";
-import {
-    cardsContain,
-    cardsEqual,
-    cardsWithout,
-    dealCards,
-    getCardPoint,
-    getCardsAllowedToPlay,
-    getPlayerNum,
-    getTrumps,
-    getWinner
-} from "./cardUtils";
-import {
-    AckDogAction,
-    AckTrumpShowAction,
-    BidAction,
-    BiddingCompletedTransition,
-    BidValue,
-    Bout,
-    Call,
-    CompletedBids,
-    CompletedGameState,
-    CompletedTrick,
-    CompletedTrickTransition,
-    CurrentBids,
-    DealtHandTransition,
-    DeclareSlam,
-    DogRevealTransition,
-    DummyPlayer,
-    EndTrumpShowTransition,
-    errorActionAlreadyHappened,
-    errorAfterFirstTurn,
-    errorBiddingOutOfTurn,
-    errorBidTooLow,
-    errorCannotCallTrump,
-    errorCannotPlayCard,
-    errorCannotSetDogIfNotBidder,
-    errorCannotShowTwice,
-    errorCardNotInHand,
-    errorInvalidTrumpShow,
-    errorNewDogDoesntMatchHand,
-    errorNewDogWrongSize,
-    errorPlayerNotInGame,
-    errorPlayingOutOfTurn,
-    errorTooManyPlayers,
-    errorTrumpNotBeingShown,
-    GameAbortedTransition,
-    GameCompletedTransition,
-    GameStartTransition,
-    JokerExchangeState,
-    Player,
-    Outcome,
-    ShowTrumpAction,
-    ShowTrumpState,
-    TheJoker,
-    TheOne,
-    TrumpSuit,
-    TrumpValue,
-    Card,
-    Action,
-    errorInvalidActionForGameState,
-    errorSetDogActionShouldBePrivate,
-    Bid,
-    errorCanOnlyCallRussianOnTwenties,
-    errorPlayerMarkedReady,
-    errorPlayerNotReady,
-    errorOnlyBidderCanDeclareSlam,
-    errorNotEnoughTrump, errorCannotLeadCalledSuit
-} from "./common";
-import {
-    BiddingBoardState, BiddingStateActions,
-    BiddingStates,
-    BoardReducer,
-    CompletedBoardState, CompletedStateActions,
-    DealtBoardState,
-    DogRevealAndExchangeBoardState,
-    DogRevealStateActions,
-    DogRevealStates,
-    NewGameActions,
-    NewGameBoardState,
-    NewGameStates,
-    PartnerCallBoardState,
-    PartnerCallStateActions,
-    PartnerCallStates,
-    PlayingBoardState,
-    PlayingStateActions,
-    PlayingStates
-} from "./state";
+import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from "./cardUtils";
+import { AckDogAction, AckTrumpShowAction, Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, EndTrumpShowTransition, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, errorTrumpNotBeingShown, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
+import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
     switch (action.type) {
@@ -180,15 +96,15 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
     }
 };
 
-function getTrickPlayerOrder(players: Player[], firstPlayer: Player) {
+function getTrickPlayerOrder(players: PlayerId[], firstPlayer: PlayerId) {
     const trickOrder = [...players];
     while (trickOrder[0] !== firstPlayer) {
-        trickOrder.push(trickOrder.shift() as Player)
+        trickOrder.push(trickOrder.shift() as PlayerId)
     }
     return trickOrder;
 }
 
-function getAllCalls(players: Player[], bidding: CurrentBids): { [player: number]: Call[] } {
+function getAllCalls(players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } {
     const calls: { [player: number]: Call[] } = {};
     for (const bid of bidding.bids.values()) {
         const player_num = getPlayerNum(players, bid.player);
@@ -223,7 +139,7 @@ const updateBids = function(state: CurrentBids, bid_action: BidAction): CurrentB
         throw errorBidTooLow(bid.bid, state.current_high.bid);
     } else { // new bid is high
         const bidders = [...state.bidders];
-        bidders.push(bidders.shift() as Player);
+        bidders.push(bidders.shift() as PlayerId);
         if (bidders.length == 1) {
             bidders.pop(); // all pass, only most recent bidder left -> bidding done.
         }
@@ -400,7 +316,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
     }
 };
 
-function declareSlamActionReducer<T extends DealtBoardState & { bidder: Player, bidding: CompletedBids }>(state: T, action: DeclareSlam)
+function declareSlamActionReducer<T extends DealtBoardState & { bidder: PlayerId, bidding: CompletedBids }>(state: T, action: DeclareSlam)
         : [T, DeclareSlam] {
     const player_num = getPlayerNum(state.players, action.player);
     if (action.player != state.bidder) {
@@ -421,7 +337,7 @@ function declareSlamActionReducer<T extends DealtBoardState & { bidder: Player, 
     ];
 }
 
-function getNewTrick(players: Player[], first_player: Player, trick_num: number) {
+function getNewTrick(players: PlayerId[], first_player: PlayerId, trick_num: number) {
     return {
         trick_num,
         cards: [],
@@ -598,7 +514,7 @@ function isAfterFirstTurn(state: PlayingBoardState, action: Action) {
     return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
 }
 
-function getCardsWon(bidding_team: Player[], tricks: CompletedTrick[], joker_state?: JokerExchangeState): Card[] {
+function getCardsWon(bidding_team: PlayerId[], tricks: CompletedTrick[], joker_state?: JokerExchangeState): Card[] {
     const cards_won = [];
     const cards_lost = [];
     for (const trick of tricks) {
@@ -627,7 +543,7 @@ function getCardsWon(bidding_team: Player[], tricks: CompletedTrick[], joker_sta
     return cards_won
 }
 
-function getOutcomes(players: Player[], bidding_team: Player[], tricks: CompletedTrick[])
+function getOutcomes(players: PlayerId[], bidding_team: PlayerId[], tricks: CompletedTrick[])
         : { [player: number]: Outcome[] } {
     const outcomes: { [player: number]: Outcome[] } = {};
 
@@ -658,8 +574,8 @@ function getOutcomes(players: Player[], bidding_team: Player[], tricks: Complete
 }
 
 function getFinalScore(
-        players: Player[],
-        bidding_team: Player[],
+        players: PlayerId[],
+        bidding_team: PlayerId[],
         bid: BidValue,
         cards_won: Card[],
         shows: ShowTrumpState,

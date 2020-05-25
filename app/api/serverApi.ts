@@ -1,23 +1,23 @@
-import { Month } from './../../server/model/Month';
-import { Result } from './../../server/model/Result';
-import { Game } from './../../server/model/Game';
-import { Player, NewPlayer } from './../../server/model/Player';
 import { ApisauceInstance, create } from 'apisauce';
-import { mapFromCollection } from '../../server/utils';
-import { RecentGameQuery } from '../../server/db/GameQuerier';
-import { AuthRequest } from '../services/auth/index';
-import { pTimeout } from '../../server/utils/index';
-import { StaticRoutes } from '../routes';
-import { Records } from '../../server/model/Records';
-import { Stats } from '../../server/model/Stats';
 import { DeltasRequest } from '../../server/api/StatsService';
-import { Deltas } from '../../server/model/Delta';
-import history from '../history';
+import { RecentGameQuery } from '../../server/db/GameQuerier';
 import { BidRequest, BidStats } from '../../server/model/Bid';
-import { Tarothon, NewTarothon, TarothonData } from '../../server/model/Tarothon';
-import { Streak } from '../../server/model/Streak';
+import { Deltas } from '../../server/model/Delta';
+import { Records } from '../../server/model/Records';
 import { SearchQuery } from '../../server/model/Search';
-import {GameDescription} from "../play/common";
+import { Stats } from '../../server/model/Stats';
+import { Streak } from '../../server/model/Streak';
+import { NewTarothon, Tarothon, TarothonData } from '../../server/model/Tarothon';
+import { mapFromCollection } from '../../server/utils';
+import { pTimeout } from '../../server/utils/index';
+import history from '../history';
+import { GameDescription } from "../play/common";
+import { StaticRoutes } from '../routes';
+import { AuthRequest } from '../services/auth/index';
+import { Game } from './../../server/model/Game';
+import { Month } from './../../server/model/Month';
+import { NewPlayer, Player } from './../../server/model/Player';
+import { Result } from './../../server/model/Result';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -120,7 +120,7 @@ export class ServerApi {
   public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {
     return this.wrapGet("/play/games");
   }
-
+  
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {

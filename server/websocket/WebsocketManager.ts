@@ -1,7 +1,7 @@
-import WebSocket, {MessageEvent} from 'ws';
-import https from 'https';
 import http from 'http';
-import {PlayMessage, PlayService} from "../play/PlayService";
+import https from 'https';
+import WebSocket, { MessageEvent } from 'ws';
+import { PlayMessage, PlayService } from "../play/PlayService";
 
 export enum MessageType {
   REFRESH = 'REFRESH',
@@ -15,7 +15,7 @@ export interface WebsocketMessage {
 export class WebsocketManager {
   private server: WebSocket.Server;
   private clients: Set<WebSocket>;
-  private play_service: PlayService;
+  private playService: PlayService;
 
   public start(server: http.Server | https.Server) {
     this.clients = new Set();
@@ -32,20 +32,20 @@ export class WebsocketManager {
       socket.onmessage = (event: MessageEvent) => {
         const data = JSON.parse(event.data as string);
         if (data.type === 'play') {
-          if (!this.play_service) {
+          if (!this.playService) {
             socket.emit("error",
               "Cannot subscribe to game, as service has not been initialized.");
             return;
           }
           const message: PlayMessage = data;
-          this.play_service.addSocket(message.game, message.player, socket);
+          this.playService.addSocket(message.game, message.player, socket);
         }
       };
     });
   }
 
   public initPlayService(service: PlayService) {
-    this.play_service = service;
+    this.playService = service;
   }
 
   private send(message: WebsocketMessage) {

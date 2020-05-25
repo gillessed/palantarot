@@ -1,22 +1,13 @@
-import {
-  Card, CompletedTrickTransition,
-  DealtHandTransition,
-  DogRevealTransition, EnteredChatTransition,
-  GameplayState, GameStartTransition, LeftChatTransition,
-  PlayCardAction,
-  Player,
-  PlayerEvent,
-  SetDogAction
-} from "../common";
-import {cardsWithout, compareCards} from "../cardUtils";
 import _ from "lodash";
+import { cardsWithout, compareCards } from "../cardUtils";
+import { Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, GameplayState, GameStartTransition, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, SetDogAction } from '../common';
 
 export interface PlayState {
   readonly state: GameplayState
   readonly hand: Card[]
-  readonly player_order: Player[]
-  readonly in_chat: Player[]
-  readonly to_play: Player
+  readonly player_order: PlayerId[]
+  readonly in_chat: PlayerId[]
+  readonly to_play: PlayerId
 }
 
 export const blank_state: PlayState = {
@@ -27,7 +18,7 @@ export const blank_state: PlayState = {
   to_play: "",
 };
 
-export function updateForEvent(state: PlayState, event: PlayerEvent, player: Player): PlayState {
+export function updateForEvent(state: PlayState, event: PlayerEvent, player: PlayerId): PlayState {
   switch (event.type) {
     case 'dealt_hand':
       const dealtHand = event as DealtHandTransition;

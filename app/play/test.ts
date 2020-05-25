@@ -1,9 +1,9 @@
-import {Game, testingGetState} from "./server";
 import * as assert from "assert";
-import {cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler} from "./cardUtils";
-import {BidValue, Call, Card, GameCompletedTransition, TheOne} from "./common";
 import _ from "lodash";
-import {PlayingBoardState} from "./state";
+import { cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler } from "./cardUtils";
+import { BidValue, Call, Card, GameCompletedTransition, TheOne } from "./common";
+import { Game, testingGetState } from "./server";
+import { PlayingBoardState } from "./state";
 
 const createTimer = () => {
     let logical_clock = 0;

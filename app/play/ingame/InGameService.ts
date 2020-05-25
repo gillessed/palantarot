@@ -1,15 +1,15 @@
-import {Action, Player, PlayerEvent} from "../common";
-import {TypedAction, TypedReducer} from "redoodle";
-import {ReduxState} from "../../services/rootReducer";
-import {Store} from "redux";
-import {call, cancelled, put, take} from "redux-saga/effects";
-import {takeEveryPayload} from "../../services/redux/serviceSaga";
-import {END, eventChannel, SagaIterator} from "redux-saga";
-import {PlayAction, PlayError, PlayMessage, PlayUpdates} from "../../../server/play/PlayService";
-import {blank_state, PlayState, updateForEvent} from "./playLogic";
+import { TypedAction, TypedReducer } from "redoodle";
+import { Store } from "redux";
+import { END, eventChannel, SagaIterator } from "redux-saga";
+import { call, cancelled, put, take } from "redux-saga/effects";
+import { PlayAction, PlayError, PlayMessage, PlayUpdates } from "../../../server/play/PlayService";
+import { takeEveryPayload } from "../../services/redux/serviceSaga";
+import { ReduxState } from "../../services/rootReducer";
+import { Action, PlayerEvent, PlayerId } from '../common';
+import { blank_state, PlayState, updateForEvent } from "./playLogic";
 
 export interface InGameState {
-  readonly player: Player
+  readonly player: PlayerId
   readonly game_id: string
   readonly events: PlayerEvent[]
   readonly state: PlayState
@@ -22,7 +22,7 @@ const empty_state: InGameState = {
   state: blank_state,
 };
 
-const join_game = TypedAction.define("PLAY")<[Player, string]>();
+const join_game = TypedAction.define("PLAY")<[PlayerId, string]>();
 const play_action = TypedAction.define("PLAY // ACTION")<Action>();
 const play_error = TypedAction.define("PLAY // ERROR")<string>();
 const play_update = TypedAction.define("PLAY // UPDATE")<PlayerEvent[]>();
@@ -67,7 +67,7 @@ export class InGameDispatcher {
     private readonly store: Store<ReduxState>,
   ) {}
 
-  public joinGame(player: Player, game: string) {
+  public joinGame(player: PlayerId, game: string) {
     this.store.dispatch(join_game([player, game]));
   }
 
@@ -85,7 +85,7 @@ export class InGameDispatcher {
 }
 
 export function* inGameSaga () {
-  yield takeEveryPayload(join_game, function* (action: [Player, string]): SagaIterator {
+  yield takeEveryPayload(join_game, function* (action: [PlayerId, string]): SagaIterator {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const websocketUri = `${protocol}//${window.location.host}/ws`;
     const websocket = new WebSocket(websocketUri);

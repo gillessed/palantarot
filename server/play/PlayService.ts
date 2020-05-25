@@ -1,19 +1,12 @@
-import {Request, Response, Router} from 'express';
-import {Game} from "../../app/play/server";
-import {
-    Action,
-    EnteredChatTransition,
-    GameDescription,
-    LeftChatTransition,
-    Player,
-    PlayerEvent,
-} from "../../app/play/common";
+import { Request, Response, Router } from 'express';
 import WebSocket from "ws";
+import { Action, EnteredChatTransition, GameDescription, LeftChatTransition, PlayerEvent, PlayerId } from "../../app/play/common";
+import { Game } from "../../app/play/server";
 
 export interface PlayMessage {
     type: 'play'
     game: string
-    player: Player
+    player: PlayerId
 }
 
 export interface PlayError {
@@ -36,7 +29,7 @@ export class PlayService {
 
     constructor(
         private readonly games = new Map<string, Game>(),
-        private readonly players = new Map<string, Set<Player>>(),
+        private readonly players = new Map<string, Set<PlayerId>>(),
         private readonly sockets = new Map<string, WebSocket>()
     ) {
         this.router = Router();
@@ -48,7 +41,7 @@ export class PlayService {
     public newGame = async (req: Request, res: Response) => {
         const game = Game.create_new();
         this.games.set(game.id, game);
-        this.players.set(game.id, new Set<Player>());
+        this.players.set(game.id, new Set<PlayerId>());
         res.send(game.id);
     };
 
@@ -78,7 +71,7 @@ export class PlayService {
         }
     };
 
-    private static getSocketKey(game_id: string, player: Player) {
+    private static getSocketKey(game_id: string, player: PlayerId) {
         return game_id + '-' + player;
     }
 
@@ -93,7 +86,7 @@ export class PlayService {
         }
     }
 
-    public addSocket(game_id: string, player: Player, socket: WebSocket) {
+    public addSocket(game_id: string, player: PlayerId, socket: WebSocket) {
         if (!this.games.has(game_id)) {
             socket.send(JSON.stringify({
                 type: 'play_error',
@@ -131,7 +124,7 @@ export class PlayService {
             .catch(e => {throw new Error(e)});
     }
 
-    private removeSocket(game_id: string, player: Player) {
+    private removeSocket(game_id: string, player: PlayerId) {
         const socketKey = PlayService.getSocketKey(game_id, player);
         const socket = this.sockets.get(socketKey);
         if (socket) {

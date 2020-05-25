@@ -1,19 +1,7 @@
-import {
-  AckTrumpShowAction,
-  Action,
-  ActionType,
-  BidAction,
-  Call,
-  CallPartnerAction,
-  Card,
-  MessageAction,
-  PlayCardAction,
-  Player,
-  SetDogAction, ShowTrumpAction, TrumpSuit
-} from "../common";
-import React, {FormEvent, KeyboardEvent} from "react";
-import {Button, Checkbox, ControlGroup, Label, Radio, RadioGroup} from "@blueprintjs/core";
-import {cardPattern, parseCard} from "./Cards";
+import { Button, Checkbox, ControlGroup, Label, Radio, RadioGroup } from "@blueprintjs/core";
+import React, { FormEvent, KeyboardEvent } from "react";
+import { AckTrumpShowAction, Action, ActionType, BidAction, Call, CallPartnerAction, Card, MessageAction, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, TrumpSuit } from "../common";
+import { cardPattern, parseCard } from "./Cards";
 
 interface BaseProps {
   submitAction(action: Omit<Action, "player" | "time">): void
@@ -157,7 +145,7 @@ export class InputCallPartner extends ActionInput<{}, CallPartnerAction> {
 
 }
 
-export class InputSetDog extends ActionInput<{player: Player, cards: Card[]}, SetDogAction> {
+export class InputSetDog extends ActionInput<{player: PlayerId, cards: Card[]}, SetDogAction> {
   protected type: 'set_dog' = 'set_dog';
 
   public render() {

@@ -1,16 +1,5 @@
 import _ from "lodash";
-import {
-    Card,
-    errorPlayerNotInGame,
-    Player,
-    RegSuit,
-    RegValue,
-    Suit,
-    TheJoker,
-    TrumpCard,
-    TrumpSuit,
-    TrumpValue
-} from "./common";
+import { Card, errorPlayerNotInGame, PlayerId, RegSuit, RegValue, Suit, TheJoker, TrumpCard, TrumpSuit, TrumpValue } from "./common";
 
 /*
  * This file contains game code which is useful for both client and server.
@@ -84,7 +73,7 @@ export const cardsWithout = function(cards: Card[], ...subtract: Card[]): Card[]
     return _.differenceWith(cards, subtract, _.isEqual)
 };
 
-export const getPlayerNum = function(players: Player[], player: Player) {
+export const getPlayerNum = function(players: PlayerId[], player: PlayerId) {
     const index = players.indexOf(player);
     if (index < 0) {
         throw errorPlayerNotInGame(player, players);
@@ -248,7 +237,7 @@ export const getCardPoint = function(card: Card) {
 };
 
 // Note: this does not include the joker slam code. If this actually happens, well, I guess we can code it afterwards.
-export const getWinner = function(trick: Card[], players: Player[]): [Card, Player] {
+export const getWinner = function(trick: Card[], players: PlayerId[]): [Card, PlayerId] {
     let [card, player] = [trick[0], players[0]];
     const comparer = compareCards(getLeadSuit(trick));
     for (const index in trick) {

@@ -1,16 +1,11 @@
-import {BoardReducer, BoardState, NewGameBoardState} from "./state";
-import {Action, Player, PlayerEvent, Transition} from "./common";
-import {
-    biddingBoardReducer, completedBoardReducer,
-    dogRevealAndExchangeBoardReducer,
-    newGameBoardReducer,
-    partnerCallBoardReducer, playingBoardReducer
-} from "./reducers";
+import { Action, PlayerEvent, PlayerId, Transition } from "./common";
+import { biddingBoardReducer, completedBoardReducer, dogRevealAndExchangeBoardReducer, newGameBoardReducer, partnerCallBoardReducer, playingBoardReducer } from "./reducers";
+import { BoardReducer, BoardState, NewGameBoardState } from "./state";
 
 type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
 
 export class Game {
-    static readonly create_new = function(): Game {
+    static readonly create_new = function (): Game {
         return new Game(
             Date.now() + "",
             new Date(),
@@ -53,7 +48,7 @@ export class Game {
         this.log.push(event);
     }
 
-    public getEvents(player: Player, start_at: number = 0, limit: number = 100): [PlayerEvent[], number] {
+    public getEvents(player: PlayerId, start_at: number = 0, limit: number = 100): [PlayerEvent[], number] {
         const events = [];
         let i = start_at;
         for (; i < this.log.length && events.length < limit; i++) {

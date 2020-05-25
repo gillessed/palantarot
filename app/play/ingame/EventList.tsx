@@ -1,36 +1,9 @@
-import {
-  AckDogAction,
-  AckTrumpShowAction,
-  Action,
-  BidAction,
-  BiddingCompletedTransition,
-  Call,
-  CallPartnerAction,
-  CompletedTrickTransition,
-  DealtHandTransition,
-  DeclareSlam,
-  DogRevealTransition,
-  EndTrumpShowTransition, EnteredChatTransition,
-  EnterGameAction,
-  GameAbortedTransition,
-  GameCompletedTransition,
-  GameStartTransition,
-  LeaveGameAction, LeftChatTransition,
-  MessageAction,
-  Outcome,
-  PlayCardAction,
-  Player,
-  PlayerEvent,
-  PlayerNotReadyAction,
-  PlayerReadyAction,
-  SetDogAction,
-  ShowTrumpAction
-} from "../common";
 import * as React from "react";
-import {renderCards, renderCardsText} from "./Cards";
+import { AckDogAction, AckTrumpShowAction, Action, BidAction, BiddingCompletedTransition, Call, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DeclareSlam, DogRevealTransition, EndTrumpShowTransition, EnteredChatTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, MessageAction, Outcome, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../common';
+import { renderCards, renderCardsText } from "./Cards";
 
 interface EventProps {
-  player: Player
+  player: PlayerId
   event: PlayerEvent
 }
 
@@ -280,7 +253,7 @@ class Event extends React.PureComponent<EventProps> {
     );
   }
 
-  private getPlayerName(message: {player: Player}, if_you = "You", if_not = "") {
+  private getPlayerName(message: {player: PlayerId}, if_you = "You", if_not = "") {
     return message.player === this.props.player ? if_you : message.player + if_not;
   }
 
@@ -295,7 +268,7 @@ class Event extends React.PureComponent<EventProps> {
 
 interface ListProps {
   events: PlayerEvent[]
-  player: Player
+  player: PlayerId
 }
 
 export class EventList extends React.PureComponent<ListProps> {

@@ -1,6 +1,6 @@
+import { Button, IconName, Intent } from '@blueprintjs/core';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IconName, Button, Intent } from '@blueprintjs/core';
 import { StaticRoutes } from '../../routes';
 
 export class HomeContainer extends React.PureComponent<{}, {}> {
@@ -19,7 +19,7 @@ export class HomeContainer extends React.PureComponent<{}, {}> {
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
           {this.renderMenuItem('Play Online', 'play', StaticRoutes.lobby())}
           {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothons(), Intent.WARNING)}
-        </div>
+      </div>
         <div className='info-overlay'>
           <span className='callout'>
             <span className='callout-text'>Join us on our </span>

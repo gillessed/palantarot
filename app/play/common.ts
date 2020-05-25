@@ -90,27 +90,27 @@ export enum Outcome {
     ONE_LAST = 'one_last',
 }
 
-export type Player = string
+export type PlayerId = string;
 
-export const DummyPlayer: Player = '[dummy null player]';
+export const DummyPlayer: PlayerId = '[dummy null player]';
 
 export interface Trick {
     readonly trick_num: number
     /** n-th card was played by n-th player */
     readonly cards: Card[]
-    readonly players: Player[]
+    readonly players: PlayerId[]
     readonly current_player: number
 }
 
 export interface CompletedTrick {
     readonly trick_num: number
     readonly cards: Card[]
-    readonly players: Player[]
-    readonly winner: Player
+    readonly players: PlayerId[]
+    readonly winner: PlayerId
 }
 
 export interface Bid {
-    readonly player: Player
+    readonly player: PlayerId
     readonly bid: BidValue
     readonly calls: Call[]
 }
@@ -119,7 +119,7 @@ export interface CurrentBids {
     /** in order of bid */
     readonly bids: Bid[]
     /** remaining bidders, in order of bidding, 0-th position is next bidder */
-    readonly bidders: Player[]
+    readonly bidders: PlayerId[]
     readonly current_high: Bid
 }
 
@@ -128,23 +128,23 @@ export interface CompletedBids {
     readonly calls: { [player: number]: Call[] }
 }
 
-export type ShowTrumpState = { [player: number]: Player[] };
+export type ShowTrumpState = { [player: number]: PlayerId[] };
 
 export interface JokerExchangeState {
-    readonly player: Player
-    readonly owed_to: Player
+    readonly player: PlayerId
+    readonly owed_to: PlayerId
 }
 
 export interface CompletedGameState {
-    readonly players: Player[]
-    readonly bidder: Player
+    readonly players: PlayerId[]
+    readonly bidder: PlayerId
     readonly bid: BidValue
-    readonly partner?: Player
+    readonly partner?: PlayerId
     readonly dog: Card[]
 
     readonly calls: { [player: number]: Call[] }
     readonly outcomes: { [player: number]: Outcome[] }
-    readonly shows: Player[]
+    readonly shows: PlayerId[]
     readonly points_earned: number
     readonly bouts: Bout[]
     readonly bidder_won: boolean
@@ -154,7 +154,7 @@ export interface CompletedGameState {
 export interface PlayerEvent {
     readonly type: ActionType | TransitionType | 'error'
     /** if contains state for only one player, which player to send to */
-    readonly private_to?: Player
+    readonly private_to?: PlayerId
 }
 
 export interface ErrorEvent extends PlayerEvent {
@@ -175,7 +175,7 @@ export type GameplayState = 'new_game' | 'bidding' | 'partner_call' | 'dog_revea
  */
 export interface Action extends PlayerEvent {
     readonly type: ActionType
-    readonly player: Player
+    readonly player: PlayerId
     readonly time: number
 }
 
@@ -221,7 +221,7 @@ export interface ShowTrumpAction extends PublicAction {
 
 export interface AckTrumpShowAction extends PublicAction {
     readonly type: 'ack_trump_show'
-    readonly showing_player: Player
+    readonly showing_player: PlayerId
 }
 
 export interface CallPartnerAction extends PublicAction {
@@ -240,7 +240,7 @@ export interface AckDogAction extends PublicAction {
 export interface SetDogAction extends Action {
     readonly type: 'set_dog'
     readonly dog: Card[]
-    readonly private_to: Player
+    readonly private_to: PlayerId
 }
 
 export interface PlayCardAction extends PublicAction {
@@ -264,25 +264,25 @@ export type TransitionType = 'dealt_hand' | 'trump_show_ended' | 'bidding_comple
 
 export interface EnteredChatTransition extends Transition {
     readonly type: 'entered_chat'
-    readonly player: Player
+    readonly player: PlayerId
 }
 
 export interface LeftChatTransition extends Transition {
     readonly type: 'left_chat'
-    readonly player: Player
+    readonly player: PlayerId
 }
 
 export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
-    readonly private_to: Player
-    readonly player_order: Player[]
+    readonly private_to: PlayerId
+    readonly player_order: PlayerId[]
 
     readonly hand: Card[]
 }
 
 export interface EndTrumpShowTransition extends Transition {
     readonly type: 'trump_show_ended'
-    readonly player_showing_trump: Player
+    readonly player_showing_trump: PlayerId
 }
 
 export interface BiddingCompletedTransition extends Transition {
@@ -295,7 +295,7 @@ export interface BiddingCompletedTransition extends Transition {
 export interface DogRevealTransition extends Transition {
     readonly type: 'dog_revealed'
     readonly private_to: undefined
-    readonly player: Player
+    readonly player: PlayerId
 
     readonly dog: Card[]
 }
@@ -304,14 +304,14 @@ export interface GameStartTransition extends Transition {
     readonly type: 'game_started'
     readonly private_to: undefined
 
-    readonly first_player: Player
+    readonly first_player: PlayerId
 }
 
 export interface CompletedTrickTransition extends Transition {
     readonly type: 'completed_trick'
     readonly private_to: undefined
 
-    readonly winner: Player
+    readonly winner: PlayerId
     readonly winning_card: Card
     readonly joker_state?: JokerExchangeState
 }
@@ -332,7 +332,7 @@ export interface GameAbortedTransition extends Transition {
 
 export interface GameDescription {
     readonly state: string
-    readonly players: Player[]
+    readonly players: PlayerId[]
     readonly last_updated: number
 }
 
@@ -343,27 +343,27 @@ export const errorInvalidActionForGameState = function(action: Action, state: st
     return new Error(`Cannot ${action.type} as we're currently in game state ${state}!`)
 };
 
-export const errorActionAlreadyHappened = function(action: Action, state: Player[]) {
+export const errorActionAlreadyHappened = function(action: Action, state: PlayerId[]) {
     return new Error(`Cannot ${JSON.stringify(action)} as it has already happened! Existing state: ${state}`)
 };
 
-export const errorTooManyPlayers = function(player: Player, players: Player[]) {
+export const errorTooManyPlayers = function(player: PlayerId, players: PlayerId[]) {
     return new Error(`Cannot add ${player} as there are already too many players: ${players}`)
 };
 
-export const errorPlayerNotInGame = function(player: Player, players: Player[]) {
+export const errorPlayerNotInGame = function(player: PlayerId, players: PlayerId[]) {
     return new Error(`Cannot find ${player}! Existing players: ${players}`)
 };
 
-export const errorPlayerMarkedReady = function(player: Player) {
+export const errorPlayerMarkedReady = function(player: PlayerId) {
     return new Error(`Player ${player} cannot currently leave the game! They must unmark themselves as ready first.`)
 }
 
-export const errorPlayerNotReady = function(player: Player, players: Player[]) {
+export const errorPlayerNotReady = function(player: PlayerId, players: PlayerId[]) {
     return new Error(`Player ${player} cannot unmark themselves as ready, because they weren't ready to start! ${players}`)
 }
 
-export const errorBiddingOutOfTurn = function(player: Player, current: Player) {
+export const errorBiddingOutOfTurn = function(player: PlayerId, current: PlayerId) {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
 };
 
@@ -375,11 +375,11 @@ export const errorBidTooLow = function(action: BidValue, current: BidValue) {
     return new Error(`Bid value of ${action} is too low! Need to either pass or exceed ${current}.`)
 };
 
-export const errorOnlyBidderCanDeclareSlam = function(player: Player, bidder: Player) {
+export const errorOnlyBidderCanDeclareSlam = function(player: PlayerId, bidder: PlayerId) {
     return new Error(`Player ${player} cannot declare a slam, only ${bidder} can!`)
 }
 
-export const errorCannotShowTwice = function(player: Player) {
+export const errorCannotShowTwice = function(player: PlayerId) {
     return new Error(`${player} cannot show trump twice!`)
 };
 
@@ -391,7 +391,7 @@ export const errorNotEnoughTrump = function(trumps: number, needed: number) {
     return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`)
 };
 
-export const errorTrumpNotBeingShown = function(player: Player, playersShowing: Player[]) {
+export const errorTrumpNotBeingShown = function(player: PlayerId, playersShowing: PlayerId[]) {
     return new Error(`Cannot acknowledge ${player}'s trump show, as only ${playersShowing} are currently showing trump.`)
 };
 
@@ -399,7 +399,7 @@ export const errorCannotCallTrump = function(card: Card) {
     return new Error(`You cannot call a trump card as your partner call! ${card}`)
 };
 
-export const errorCannotSetDogIfNotBidder = function(taker: Player, bidder: Player) {
+export const errorCannotSetDogIfNotBidder = function(taker: PlayerId, bidder: PlayerId) {
     return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`)
 };
 
@@ -419,7 +419,7 @@ export const errorAfterFirstTurn = function(action: Action) {
     return new Error(`Cannot ${action.type}, as it is after this player's first turn.`)
 };
 
-export const errorPlayingOutOfTurn = function(player: Player, current: Player) {
+export const errorPlayingOutOfTurn = function(player: PlayerId, current: PlayerId) {
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
 };
 
