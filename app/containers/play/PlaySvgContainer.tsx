@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { InGameState } from '../../play/ingame/InGameService';
 import './PlaySvgContainer.scss';
-import { PlaySvgRoot } from './svg/PlaySvgRoot';
+import { PlaySvgRoot } from './PlaySvgRoot';
 
 interface Props {
   players: Map<string, Player>;
