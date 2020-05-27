@@ -1,24 +1,20 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { ReduxState } from '../../../services/rootReducer';
-import { DogSvg } from './DogSvg';
-import { HandSvg } from './HandSvg';
-import { PlayerOtherTitleSvg } from './PlayerOtherTitleSvg';
-import { PlayerSelfTitleSvg } from './PlayerSelfTitleSvg';
-import { cards5, selfId, users5 } from './testState';
+import { Player } from '../../../server/model/Player';
+import { InGameState } from '../../play/ingame/InGameService';
+import { GameplayState } from '../../play/state';
+import { NewGameStateView } from './state/NewGameStateView';
+import { PlayerOtherTitleSvg } from './svg/PlayerOtherTitleSvg';
+import { PlayerSelfTitleSvg } from './svg/PlayerSelfTitleSvg';
+import { cards5, selfId, users5 } from './svg/testState';
 
-interface StateProps {
-}
-
-interface OwnProps {
+interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
+  game: InGameState;
 }
 
-type Props = StateProps & OwnProps;
-
-class PlaySvgRootInternal extends React.Component<Props> {
+export class PlaySvgRoot extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
@@ -37,7 +33,8 @@ class PlaySvgRootInternal extends React.Component<Props> {
         onMouseMove={this.onMouseMove}
       >
         <rect x={0} y={0} width={width} height={height} fill='#0F9960' />
-        <HandSvg
+        {this.renderStateView()}
+        {/* <HandSvg
           svgWidth={width}
           svgHeight={height}
           cards={hands[0]}
@@ -48,9 +45,20 @@ class PlaySvgRootInternal extends React.Component<Props> {
           cards={dog}
           flipped={true}
         />
-        {this.renderPlayerTitles5()}
+        {this.renderPlayerTitles5()} */}
       </svg>
     );
+  }
+
+  private renderStateView(): JSX.Element {
+    switch (this.props.game.state.state) {
+      case GameplayState.NewGame: return (
+        <NewGameStateView
+          {...this.props}
+        />
+      );
+      default: return null;
+    }
   }
 
   private renderPlayerTitles5() {
@@ -107,10 +115,3 @@ class PlaySvgRootInternal extends React.Component<Props> {
   private onMouseUp = (e: React.MouseEvent<SVGElement>) => {
   }
 }
-
-const mapStateToProps = (state: ReduxState) => {
-  return {
-  };
-};
-
-export const PlaySvgRoot = PlaySvgRootInternal;

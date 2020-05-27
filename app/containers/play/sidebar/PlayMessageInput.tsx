@@ -25,6 +25,7 @@ export class PlayMessageInput extends React.PureComponent<Props> {
           className='message-input'
           value={this.state.message}
           onChange={this.handleChange}
+          onKeyUp={this.handleKeyUp}
         />
         <Button
           className='message-send'
@@ -40,6 +41,13 @@ export class PlayMessageInput extends React.PureComponent<Props> {
     this.setState({
       message: event.target.value
     });
+  }
+
+  private handleKeyUp: React.KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.handleSend();
+    }
   }
 
   private handleSend = () => {
