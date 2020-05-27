@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsWithout, compareCards } from "../cardUtils";
-import { Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, GameStartTransition, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, SetDogAction } from '../common';
+import { Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, GameStartTransition, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayersSetTransition, SetDogAction } from '../common';
 import { GameplayState } from '../state';
 
 export interface PlayState {
@@ -25,9 +25,14 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
       const dealtHand = event as DealtHandTransition;
       return {
         ...state,
-        state: GameplayState.Bidding,
         hand: dealtHand.hand,
-        player_order: dealtHand.player_order,
+      };
+    case 'players_set':
+      const set = event as PlayersSetTransition;
+      return {
+        ...state,
+        state: GameplayState.Bidding,
+        player_order: set.player_order,
       };
     case 'bidding_completed':
       return {

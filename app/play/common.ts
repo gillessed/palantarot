@@ -250,23 +250,33 @@ export interface Transition extends PlayerEvent {
     readonly type: TransitionType
 }
 
-export type TransitionType = 'dealt_hand' | 'bidding_completed' | 'dog_revealed' | 'game_started'
+export type TransitionType = 'players_set' | 'dealt_hand' | 'bidding_completed' | 'dog_revealed' | 'game_started'
     | 'completed_trick' | 'game_completed' | 'game_aborted' | 'entered_chat' | 'left_chat';
 
 export interface EnteredChatTransition extends Transition {
     readonly type: 'entered_chat'
+    readonly private_to: undefined
+
     readonly player: PlayerId
 }
 
 export interface LeftChatTransition extends Transition {
     readonly type: 'left_chat'
+    readonly private_to: undefined
+
     readonly player: PlayerId
+}
+
+export interface PlayersSetTransition extends Transition {
+    readonly type: 'players_set'
+    readonly private_to: undefined
+
+    readonly player_order: PlayerId[]
 }
 
 export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
     readonly private_to: PlayerId
-    readonly player_order: PlayerId[]
 
     readonly hand: Card[]
 }

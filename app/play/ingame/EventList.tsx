@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Action, BidAction, BiddingCompletedTransition, Call, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DeclareSlam, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, MessageAction, Outcome, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../common';
+import { Action, BidAction, BiddingCompletedTransition, Call, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DeclareSlam, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, MessageAction, Outcome, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowTrumpAction } from '../common';
 import { renderCards, renderCardsText } from "./Cards";
 
 interface EventProps {
@@ -93,12 +93,18 @@ class Event extends React.PureComponent<EventProps> {
             {Event.getTimeText(playCard.time)} {this.getPlayerName(playCard)} played the {renderCards(playCard.card)}
           </div>
         );
+      case "players_set":
+        const set = event as PlayersSetTransition;
+        return (
+          <div className={classes + " system-event"}>
+            -&gt; Let us begin!
+            The player order will be {set.player_order.join(", ")}.
+          </div>
+        );
       case "dealt_hand":
         const dealt = event as DealtHandTransition;
         return (
           <div className={classes + " system-event"}>
-            -&gt; Let us begin!
-            The player order will be {dealt.player_order.join(", ")}.
             You have been dealt: {renderCards(...dealt.hand)}
           </div>
         );
