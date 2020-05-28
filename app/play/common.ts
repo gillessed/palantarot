@@ -147,10 +147,10 @@ export interface CompletedGameState {
     readonly calls: { [player: number]: Call[] }
     readonly outcomes: { [player: number]: Outcome[] }
     readonly shows: PlayerId[]
-    readonly points_earned: number
+    readonly pointsEarned: number
     readonly bouts: Bout[]
-    readonly bidder_won: boolean
-    readonly points_result: number
+    readonly bidderWon: boolean
+    readonly pointsResult: number
 }
 
 export interface PlayerEvent {

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsWithout, compareCards } from "../cardUtils";
-import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction } from '../common';
+import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, CompletedGameState } from '../common';
 import { GameplayState } from '../state';
 
 export interface TrickCards {
@@ -23,7 +23,7 @@ export interface PlayState {
   readonly partnerCard?: Card;
   readonly playedCard?: boolean;
   readonly trick: TrickCards;
-  // readonly endState?: CompletedGameState;
+  readonly endState?: CompletedGameState;
 }
 
 export const blank_state: PlayState = {

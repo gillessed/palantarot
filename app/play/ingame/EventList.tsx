@@ -225,10 +225,10 @@ class Event extends React.PureComponent<EventProps> {
           {outcomes.length ? <li>{outcomes.join(', ')}</li> : ""}
           {ended.end_state.shows.length ? <li>{ended.end_state.shows.join(', ')} showed trump,</li> : ""}
           <li>
-            Having earned {ended.end_state.points_earned} points
+            Having earned {ended.end_state.pointsEarned} points
             and the {renderCards(...ended.end_state.bouts)},
-            the bidding team {ended.end_state.bidder_won ? "won" : "lost"} for
-            a total {ended.end_state.points_result} points.
+            the bidding team {ended.end_state.bidderWon ? "won" : "lost"} for
+            a total {ended.end_state.pointsResult} points.
           </li>
         </ul>
       </div>
