@@ -108,6 +108,7 @@ export class PlayService {
             const enteredChat: EnteredChatTransition = {
               type: 'entered_chat',
               player: message.player,
+              private_to: undefined,
             };
             this.games.get(gameId)?.appendTransition(enteredChat);
             this.broadcastEvents(gameId, [enteredChat])

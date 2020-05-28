@@ -12,7 +12,7 @@ interface Props {
   onClick?: (card: Card) => void;
 }
 
-export class HandSvg extends React.PureComponent<Props> {
+export class HandSvg extends React.Component<Props> {
   public render() {
     const { svgWidth, svgHeight, cards, selectableFilter, selectedCards, onClick } = this.props;
     let left = (svgWidth - (Math.max(cards.length - 1, 0) * CardSeparation) - CardWidth) / 2;

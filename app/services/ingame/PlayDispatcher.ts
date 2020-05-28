@@ -1,4 +1,4 @@
-import { BidAction, BidValue, Call, CallPartnerAction, Card, EnterGameAction, LeaveGameAction, MessageAction, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction } from '../../play/common';
+import { BidAction, BidValue, Call, CallPartnerAction, Card, EnterGameAction, LeaveGameAction, MessageAction, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, PlayCardAction } from '../../play/common';
 import { InGameDispatcher } from './InGameDispatcher';
 
 export class PlayDispatcher {
@@ -85,6 +85,16 @@ export class PlayDispatcher {
       dog: [...cards],
       player: this.player,
       private_to: this.player,
+      time: time ?? Date.now(),
+    }
+    this.inGameDispatcher.playAction(action, this.debug);
+  }
+
+  public playCard(card: Card, time?: number) {
+    const action: PlayCardAction = {
+      type: 'play_card',
+      card,
+      player: this.player,
       time: time ?? Date.now(),
     }
     this.inGameDispatcher.playAction(action, this.debug);

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsWithout, compareCards } from "../cardUtils";
-import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction } from '../common';
+import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction } from '../common';
 import { GameplayState } from '../state';
 
 export interface TrickCards {
@@ -23,6 +23,7 @@ export interface PlayState {
   readonly partnerCard?: Card;
   readonly playedCard?: boolean;
   readonly trick: TrickCards;
+  // readonly endState?: CompletedGameState;
 }
 
 export const blank_state: PlayState = {
@@ -74,7 +75,6 @@ function dealtHand(state: PlayState, action: DealtHandTransition): PlayState {
     ...state,
     state: GameplayState.Bidding,
     hand: action.hand,
-    playerOrder: action.player_order,
     toBid: 0,
   };
 }
@@ -84,6 +84,7 @@ function playersSet(state: PlayState, action: PlayersSetTransition): PlayState {
     ...state,
     state: GameplayState.Bidding,
     playerOrder: action.player_order,
+    toBid: 0,
   };
 }
 
@@ -204,6 +205,13 @@ function completedTrick(state: PlayState, action: CompletedTrickTransition): Pla
   }
 }
 
+function gameComplete(state: PlayState, action: GameCompletedTransition): PlayState {
+  return {
+    ...state,
+    state: GameplayState.Completed,
+  };
+}
+
 export function updateForEvent(state: PlayState, event: PlayerEvent, player: PlayerId): PlayState {
   switch (event.type) {
     case 'mark_player_ready':
@@ -234,8 +242,9 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
       return playCard(state, event as PlayCardAction, player);
     case 'completed_trick':
       return completedTrick(state, event as CompletedTrickTransition);
-    case 'game_aborted':
     case 'game_completed':
+      return gameComplete(state, event as GameCompletedTransition);
+    case 'game_aborted':
       return {
         ...state,
         state: GameplayState.Completed,
