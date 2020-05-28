@@ -1,16 +1,5 @@
 import _ from "lodash";
-import {
-    Card,
-    errorPlayerNotInGame,
-    PlayerId,
-    RegSuit,
-    RegValue,
-    Suit,
-    TheJoker,
-    TrumpCard,
-    TrumpSuit,
-    TrumpValue
-} from "./common";
+import { Card, errorPlayerNotInGame, PlayerId, RegSuit, RegValue, Suit, The21, TheJoker, TheOne, TrumpCard, TrumpSuit, TrumpValue } from './common';
 
 /*
  * This file contains game code which is useful for both client and server.
@@ -113,32 +102,32 @@ function getLeadSuit(trick: Card[]): Suit | undefined {
 }
 
 function getLowestAllowableTrump(trick: Card[]): TrumpValue {
-    let lowest_allowed = TrumpValue._1;
+    let lowestAllowed = TrumpValue._1;
     for (const card of trick) {
-        if (card[0] === TrumpSuit && card[1] !== TrumpValue.Joker && lowest_allowed < card[1]) {
-            lowest_allowed = card[1]
+        if (card[0] === TrumpSuit && card[1] !== TrumpValue.Joker && lowestAllowed < card[1]) {
+            lowestAllowed = card[1]
         }
     }
-    return lowest_allowed;
+    return lowestAllowed;
 }
 
 export const getCardsAllowedToPlay = function(hand: Card[], trick: Card[]): Card[] {
-    const lead_suit = getLeadSuit(trick);
-    if (lead_suit === undefined) {
+    const leadsuit = getLeadSuit(trick);
+    if (leadsuit === undefined) {
         return hand // new trick, lead whatever
     }
 
     const joker = _.filter(hand, (card) => _.isEqual(card, TheJoker));
-    const hand_in_suit = _.filter(hand, (card) => card[0] === lead_suit);
-    if (lead_suit !== TrumpSuit && hand_in_suit.length > 0) {
-        return [...hand_in_suit, ...joker] // can follow non-trump suit
+    const handInSuit = _.filter(hand, (card) => card[0] === leadsuit);
+    if (leadsuit !== TrumpSuit && handInSuit.length > 0) {
+        return [...handInSuit, ...joker] // can follow non-trump suit
     }
 
     const lowest_allowed = getLowestAllowableTrump(trick);
-    const allowed_trump = _.filter(hand, (card) =>
+    const allowedTrump = _.filter(hand, (card) =>
         card[0] === TrumpSuit && card[1] !== TrumpValue.Joker && card[1] >= lowest_allowed);
-    if (allowed_trump.length > 0) {
-        return [...allowed_trump, ...joker] // can over-trump
+    if (allowedTrump.length > 0) {
+        return [...allowedTrump, ...joker] // can over-trump
     }
     const trump = _.filter(hand, (card) =>
        card[0] === TrumpSuit && card[1] !== TrumpValue.Joker);
@@ -268,3 +257,7 @@ export const getWinner = function(trick: Card[], players: PlayerId[]): [Card, Pl
     }
     return [card, player];
 };
+
+export function isBout(c: Card) {
+  return _.isEqual(c, TheJoker) || _.isEqual(c, TheOne) || _.isEqual(c, The21);
+}

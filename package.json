@@ -8,7 +8,7 @@
   "scripts": {
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
     "watch:migration": "webpack -w --config webpack-migration.config.js --mode development",
-    "watch:app": "NODE_OPTIONS=--max-old-space-size=4096 webpack-dev-server -w --config webpack-app.config.js --mode development",
+    "watch:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
     "dist:app": "NODE_OPTIONS=--max-old-space-size=4096 webpack --config webpack-app.config.js --mode production",
     "dist:server": "webpack --config webpack-server.config.js --mode production",
     "dist:migration": "webpack --config webpack-migration.config.js --mode production"
@@ -87,8 +87,5 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.10.3",
     "webpack-node-externals": "^1.7.2"
-  },
-  "resolutions": {
-    "fsevents": "1.2.11"
   }
 }

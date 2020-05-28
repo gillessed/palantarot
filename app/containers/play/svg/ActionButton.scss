@@ -1,0 +1,45 @@
+.action-button {
+  &.enabled {
+    cursor: pointer;
+  }
+  .action-button-rect {
+    stroke-width: 3;
+    stroke: #0E5A8A;
+    border-radius: 5px;
+
+    &.selected {
+      stroke: #F2B824;
+    }
+  }
+  
+  .action-button-rect.blue {
+    fill: #137CBD;
+
+    &.enabled:hover {
+      fill: #106BA3;
+    }
+
+    &.enabled:active {
+      fill: #156EA4;
+    }
+  }
+
+  .action-button-rect.white {
+    fill: #E1E8ED;
+
+    &.enabled:hover {
+      fill: #D8E1E8;
+    }
+
+    &.enabled:active {
+      fill: #EBF1F5;
+    }
+  }
+
+  .action-button-text {
+    font-family: blenderProBold;
+    font-size: 32;
+    fill: #F5F8FA;
+    pointer-events: none;
+  }
+}

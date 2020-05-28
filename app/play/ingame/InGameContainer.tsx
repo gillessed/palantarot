@@ -2,25 +2,25 @@ import React from "react";
 import { connect } from "react-redux";
 import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
 import { Dispatchers } from "../../services/dispatchers";
+import { InGameState } from "../../services/ingame/InGameTypes";
 import { ReduxState } from "../../services/rootReducer";
 import { Action, ActionType, Card } from "../common";
 import { GameplayState } from '../state';
 import { InputBid, InputCallPartner, InputMessage, InputPlayCard, InputSetDog, InputShowTrump, NoStateInput } from "./ActionInputs";
 import { SelectableCards } from "./Cards";
 import { EventList } from "./EventList";
-import { InGameState } from "./InGameService";
 
 interface OwnProps {
   match: {
     params: {
-      gameId: string
-      player: string
+      gameId: string;
+      player: string;
     }
   }
 }
 
 interface StateProps {
-  game: InGameState
+  game: InGameState;
 }
 
 interface State {
@@ -52,7 +52,7 @@ class InGameInternal extends React.PureComponent<Props, State> {
 
   public render() {
     const active_player = (this.props.game.state.state === "playing" &&
-      this.props.game.state.to_play === this.props.game.player ? " active-player" : "");
+      this.props.game.state.toPlay === this.props.game.player ? " active-player" : "");
     return (
       <div>
         <EventList
@@ -61,11 +61,11 @@ class InGameInternal extends React.PureComponent<Props, State> {
         />
         <div className={"action-display" + active_player}>
           <div>
-            Chat: {this.props.game.state.in_chat.join(", ")}
+            Chat: {this.props.game.state.inChat.join(", ")}
           </div>
           <hr />
           <div>
-            Player Order: {this.props.game.state.player_order.join(", ")}
+            Player Order: {this.props.game.state.playerOrder.join(", ")}
           </div><div>
             Hand:
             <SelectableCards cards={this.props.game.state.hand}

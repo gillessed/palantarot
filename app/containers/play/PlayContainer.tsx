@@ -5,10 +5,11 @@ import { Player } from '../../../server/model/Player';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import { Action } from '../../play/common';
-import { InGameState } from '../../play/ingame/InGameService';
 import { Dispatchers } from '../../services/dispatchers';
+import { InGameState } from '../../services/ingame/InGameTypes';
 import { playersLoader } from '../../services/players/index';
 import { ReduxState } from '../../services/rootReducer';
+import { registerDebugPlayers, unregisterDebugPlayers } from '../../utils/mockPlayers';
 import { loadContainer } from '../LoadingContainer';
 import './PlayContainer.scss';
 import { PlaySvgContainer } from './PlaySvgContainer';
@@ -42,48 +43,39 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
 
   public componentWillMount() {
     if (this.props.game == null) {
-      this.dispatchers.ingame.joinGame(
-        this.props.match.params.player,
-        this.props.match.params.gameId,
-      );
+      const { gameId, player } = this.props.match.params;
+      this.dispatchers.ingame.joinGame(player, gameId);
+      registerDebugPlayers(player, gameId, this.dispatchers.ingame);
     }
   }
 
   public componentWillUnmount() {
     this.dispatchers.ingame.exitGame();
+    unregisterDebugPlayers();
   }
 
   public render() {
     const { players, game } = this.props;
-    console.log(game);
-    if (game == null) {
+    if (game == null || game.events.length === 0) {
       return (
         <SpinnerOverlay size={Spinner.SIZE_LARGE} />
       );
     } else {
       return (
         <div className='play-container'>
-          <PlaySvgContainer players={players} game={game} />
+          <PlaySvgContainer
+            players={players}
+            game={game}
+            dispatchers={this.dispatchers}
+          />
           <PlaySidebar
             players={players}
             game={game}
             playerId={this.props.match.params.player}
-            playAction={this.playAction}
+            dispatchers={this.dispatchers}
           />
         </div>
       );
-    }
-  }
-
-  private playAction = (action: Omit<Action, 'time' | 'player'>) => {
-    try {
-      this.dispatchers.ingame.playAction({
-        ...action,
-        player: this.props.match.params.player,
-        time: Date.now(),
-      });
-    } catch (error) {
-      this.dispatchers.ingame.actionError(error);
     }
   }
 }

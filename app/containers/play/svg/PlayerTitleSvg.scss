@@ -2,9 +2,21 @@
   font-family: blenderProBold;
   font-size: 32;
   paint-order: stroke;
-  stroke: #FFFFFF;
   stroke-width: 2px;
   stroke-linecap: butt;
   stroke-linejoin: miter;
   font-weight: 800;
+}
+
+.player-text.highlight {
+  stroke: #FFB366;
+}
+
+.player-text.plain {
+  stroke: #F5F8FA;
+}
+
+.player-bid {
+  font-family: blenderProBold;
+  font-size: 96;
 }

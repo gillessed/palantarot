@@ -1,4 +1,5 @@
 import { all, fork } from 'redux-saga/effects';
+import { lobbySaga } from "../play/lobby/LobbyService";
 import { ServerApi } from './../api/serverApi';
 import { addNewPlayerSaga } from './addPlayer';
 import { addTarothonSaga } from './addTarothon/index';
@@ -8,6 +9,7 @@ import { deleteGameSaga } from './deleteGame/index';
 import { deleteTarothonSaga } from './deleteTarothon/index';
 import { deltasSaga } from './deltas/index';
 import { gameSaga } from './game';
+import { inGameSaga } from './ingame/InGameSagas';
 import { monthGamesSaga } from './monthGames/index';
 import { playersSaga } from './players';
 import { recentGamesSaga } from './recentGames';
@@ -16,13 +18,11 @@ import { refreshSaga } from './refresh/RefreshSaga';
 import { resultsSaga } from './results/index';
 import { listenerLoop, SagaListener } from './sagaListener';
 import { saveGameSaga } from './saveGame/index';
+import { searchSaga } from './search/index';
 import { statsSaga } from './stats/index';
 import { streaksSaga } from './streaks/index';
 import { tarothonDataSaga } from './tarothonData';
 import { tarothonsSaga } from './tarothons/index';
-import { searchSaga } from './search/index';
-import {lobbySaga} from "../play/lobby/LobbyService";
-import {inGameSaga} from "../play/ingame/InGameService";
 
 
 

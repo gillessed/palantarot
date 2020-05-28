@@ -1,0 +1,17 @@
+.card-image {
+  &.selectable {
+    cursor: pointer;
+  }
+}
+
+.card-outline {
+  stroke-width: 5;
+  stroke: #FFC940;
+  fill: #FFC94033;
+}
+
+.card-hover-outline {
+  stroke-width: 5;
+  stroke: #FFC940C0;
+  fill: none;
+}

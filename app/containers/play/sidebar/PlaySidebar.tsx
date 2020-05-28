@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { MessageAction, PlayerEvent } from '../../../play/common';
-import { InGameState } from '../../../play/ingame/InGameService';
-import { PlayActionDispatcher } from '../PlayContainer';
+import { Dispatchers } from '../../../services/dispatchers';
+import { InGameState } from '../../../services/ingame/InGameTypes';
 import { PlayMessage } from './PlayMessage';
 import { PlayMessageInput } from './PlayMessageInput';
 import './PlaySidebar.scss';
 
 interface Props {
-  playAction: PlayActionDispatcher;
   playerId: string;
   players: Map<string, Player>;
   game: InGameState;
+  dispatchers: Dispatchers;
 }
 
 export class PlaySidebar extends React.PureComponent<Props> {
@@ -22,7 +22,8 @@ export class PlaySidebar extends React.PureComponent<Props> {
           {...this.props.game.events.map(this.renderMessage)}
         </div>
         <PlayMessageInput
-          playAction={this.props.playAction}
+          player = {this.props.game.player}
+          dispatchers={this.props.dispatchers}
         />
       </div>
     );

@@ -1,13 +1,13 @@
-import {GameDescription} from "../common";
-import React from "react";
-import {Button, HTMLTable} from "@blueprintjs/core";
+import { Button, HTMLTable } from "@blueprintjs/core";
 import moment from "moment";
-import {lobbyLoader} from "./LobbyService";
-import {loadContainer} from "../../containers/LoadingContainer";
-import {Dispatchers} from "../../services/dispatchers";
-import {DynamicRoutes} from "../../routes";
+import React from "react";
+import { TextInput } from "../../components/forms/Elements";
+import { loadContainer } from "../../containers/LoadingContainer";
 import history from '../../history';
-import {TextInput} from "../../components/forms/Elements";
+import { DynamicRoutes } from "../../routes";
+import { Dispatchers } from "../../services/dispatchers";
+import { GameDescription } from "../common";
+import { lobbyLoader } from "./LobbyService";
 
 interface Props {
   games: Map<string, GameDescription>

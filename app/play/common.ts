@@ -4,7 +4,7 @@
 
 /* CARDS */
 
-import {toCardString} from "./cardUtils";
+import { toCardString } from "./cardUtils";
 
 export enum RegSuit {
     Spade = 'S',
@@ -278,6 +278,7 @@ export interface DealtHandTransition extends Transition {
     readonly type: 'dealt_hand'
     readonly private_to: PlayerId
 
+    readonly player_order: PlayerId[]
     readonly hand: Card[]
 }
 

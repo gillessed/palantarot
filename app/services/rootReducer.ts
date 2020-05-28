@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { inGameReducer, InGameState } from "../play/ingame/InGameService";
 import { lobbyReducer, LobbyService } from "../play/lobby/LobbyService";
 import { addPlayerReducer, AddPlayerService } from './addPlayer/index';
 import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
@@ -9,6 +8,8 @@ import { deleteGameReducer, DeleteGameService } from './deleteGame/index';
 import { deleteTarothonReducer, DeleteTarothonService } from './deleteTarothon/index';
 import { deltasReducer, DeltasService } from './deltas/index';
 import { gameReducer, GameService } from './game';
+import { inGameReducer } from './ingame/InGameReducer';
+import { InGameState } from './ingame/InGameTypes';
 import { monthGamesReducer, MonthGamesService } from './monthGames/index';
 import { playersReducer, PlayersService } from './players';
 import { recentGamesReducer, RecentGamesService } from './recentGames';

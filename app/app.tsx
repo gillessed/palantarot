@@ -39,6 +39,7 @@ import { dispatcherCreators } from './services/dispatchers';
 import { ReduxState, rootReducer } from './services/rootReducer';
 import { rootSaga } from './services/rootSaga';
 import { SagaListener } from './services/sagaListener';
+import { registerConsoleStore } from './utils/consoleStore';
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -56,13 +57,14 @@ async function init() {
   const api = new ServerApi('/api/v1');
   const sagaListeners: Set<SagaListener<any>> = new Set();
   sagaMiddleware.run(rootSaga, api, sagaListeners);
+  registerConsoleStore(store);
 
   const appElement = document.getElementById('app');
 
   if (appElement != null) {
     const routes = (
       <div>
-        <Route path='/' exact render={() => <Redirect from='/' to='/app/home' />}/>
+        <Route path='/' exact render={() => <Redirect from='/' to='/app/home' />} />
         <Route path='/app' component={AppContainer} />
         <Route path='/app/home' component={HomeContainer} />
         <Route path='/app/enter' component={EnterContainer} />
@@ -102,11 +104,11 @@ async function init() {
 init();
 
 (window as any).play = {
-    common: playCommon,
-    state: playState,
-    reducers: playReducers,
-    server: playServer,
-    test: playTest,
+  common: playCommon,
+  state: playState,
+  reducers: playReducers,
+  server: playServer,
+  test: playTest,
 };
 
 export function mergeContexts(t1: React.ValidationMap<any>, t2: React.ValidationMap<any>): React.ValidationMap<any> {

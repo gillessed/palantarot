@@ -1,12 +1,12 @@
 import { Button, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
-import { MessageAction } from '../../../play/common';
-import { PlayActionDispatcher } from '../PlayContainer';
+import { Dispatchers } from '../../../services/dispatchers';
 import './PlaySidebar.scss';
 
 interface Props {
-  playAction: PlayActionDispatcher;
+  player: string;
+  dispatchers: Dispatchers;
 }
 
 interface State {
@@ -51,13 +51,11 @@ export class PlayMessageInput extends React.PureComponent<Props> {
   }
 
   private handleSend = () => {
-    const action: Omit<MessageAction, 'player' | 'time'> = {
-      type: 'message',
-      text: this.state.message,
-    };
-    this.props.playAction(action);
-    this.setState({
-      message: '',
-    });
+    if (this.state.message.trim().length > 0) {
+      this.props.dispatchers.ingame.play(this.props.player).sendMessage(this.state.message);
+      this.setState({
+        message: '',
+      });
+    }
   }
 }

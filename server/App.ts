@@ -8,16 +8,17 @@ import { DynamicRoutes, DynamicRoutesEnumerable, StaticRoutes, StatisRoutesEnume
 import { AuthService, createRequestValidator } from './api/AuthService';
 import { GameService } from './api/GameService';
 import { PlayerService } from './api/PlayerService';
+import { SearchService } from './api/SearchService';
 import { StatsService } from './api/StatsService';
 import { TarothonService } from './api/TarothonService';
 import { Config } from './config';
 import { Database } from './db/dbConnector';
+import { PlayService } from "./play/PlayService";
 import { WebsocketManager } from './websocket/WebsocketManager';
-import { SearchService } from './api/SearchService';
-import {PlayService} from "./play/PlayService";
 
 
 const oneDayMs = 1000 * 60 * 60 * 24;
+const thirtyDaysMs =  oneDayMs * 30;
 const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon', '/.well-known'];
 
 export class App {
@@ -94,7 +95,7 @@ export class App {
     this.express.use('/favicon-16x16.png', express.static(this.config.assetDir + '/static/images/favicon-16x16.png'));
     this.express.use('/favicon-32x32.png', express.static(this.config.assetDir + '/static/images/favicon-32x32.png'));
     this.express.use('/src', express.static(path.resolve(this.config.assetDir, 'src')));
-    this.express.use('/static', express.static(path.resolve(this.config.assetDir, 'static')));
+    this.express.use('/static', express.static(path.resolve(this.config.assetDir, 'static'), { maxAge: thirtyDaysMs}));
     this.express.get('/icons-*', (req, res) => {
       const filename = path.basename(req.path);
       res.sendFile(path.resolve(this.config.assetDir, filename));

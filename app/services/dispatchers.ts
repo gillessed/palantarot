@@ -22,7 +22,7 @@ import { TarothonDataDispatcher } from './tarothonData';
 import { StreaksDispatcher } from './streaks/index';
 import { SearchDispatcher, searchLoader } from './search/index';
 import {LobbyDispatcher} from "../play/lobby/LobbyService";
-import {InGameDispatcher} from "../play/ingame/InGameService";
+import { InGameDispatcher } from './ingame/InGameDispatcher';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;

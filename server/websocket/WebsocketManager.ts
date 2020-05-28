@@ -1,7 +1,8 @@
 import http from 'http';
 import https from 'https';
 import WebSocket, { MessageEvent } from 'ws';
-import { PlayMessage, PlayService } from "../play/PlayService";
+import { PlayMessage } from '../play/PlayMessages';
+import { PlayService } from "../play/PlayService";
 
 export enum MessageType {
   REFRESH = 'REFRESH',
