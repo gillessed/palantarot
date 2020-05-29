@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsWithout, compareCards } from "../cardUtils";
-import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, CompletedGameState } from '../common';
+import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, Card, CompletedGameState, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnteredChatTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, LeftChatTransition, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowTrumpAction, TrumpCard } from '../common';
 import { GameplayState } from '../state';
 
 export interface TrickCards {
@@ -13,6 +13,7 @@ export interface TrickCards {
 export interface PlayState {
   readonly state: GameplayState;
   readonly hand: Card[];
+  readonly dog: Card[];
   readonly playerOrder: PlayerId[];
   readonly readiedPlayers: Set<PlayerId>;
   readonly inChat: PlayerId[];
@@ -20,15 +21,25 @@ export interface PlayState {
   readonly toBid?: number;
   readonly playerBids: Map<PlayerId, Bid>;
   readonly winningBid?: Bid;
+  readonly partner?: PlayerId;
   readonly partnerCard?: Card;
-  readonly playedCard?: boolean;
+  readonly anyPlayerPlayedCard?: boolean;
   readonly trick: TrickCards;
   readonly endState?: CompletedGameState;
+  readonly shows: ShowDetails[];
+  readonly showIndex: number | null;
+  readonly playedFirstCard?: boolean;
+}
+
+export interface ShowDetails {
+  player: PlayerId;
+  trumpCards: TrumpCard[];
 }
 
 export const blank_state: PlayState = {
   state: GameplayState.NewGame,
   hand: [],
+  dog: [],
   playerOrder: [],
   readiedPlayers: new Set(),
   inChat: [],
@@ -37,7 +48,9 @@ export const blank_state: PlayState = {
     order: [],
     cards: new Map(),
     completed: false,
-  }
+  },
+  shows: [],
+  showIndex: null,
 };
 
 function markPlayerReady(state: PlayState, action: PlayerReadyAction): PlayState {
@@ -83,8 +96,17 @@ function playersSet(state: PlayState, action: PlayersSetTransition): PlayState {
   return {
     ...state,
     state: GameplayState.Bidding,
-    playerOrder: action.player_order,
+    playerOrder: action.playerOrder,
     toBid: 0,
+  };
+}
+
+function showTrump(state: PlayState, action: ShowTrumpAction): PlayState {
+  const newShows = [...state.shows, { player: action.player, trumpCards: action.cards }];
+  return {
+    ...state,
+    shows: newShows,
+    showIndex: newShows.length - 1,
   };
 }
 
@@ -136,12 +158,14 @@ function dogRevealed(state: PlayState, action: DogRevealTransition, player: Play
     return {
       ...state,
       state: GameplayState.DogReveal,
-      hand: [...state.hand, ...action.dog].sort(compareCards())
+      hand: [...state.hand, ...action.dog].sort(compareCards()),
+      dog: action.dog,
     }
   } else {
     return {
       ...state,
       state: GameplayState.DogReveal,
+      dog: action.dog,
     };
   }
 }
@@ -179,22 +203,19 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
     cards: newTrickCards,
     completed: false,
   };
-  if (action.player === player) {
-    return {
-      ...state,
-      hand: cardsWithout(state.hand, action.card),
-      toPlay,
-      playedCard: true,
-      trick: newTrick,
-    }
-  } else {
-    return {
-      ...state,
-      toPlay,
-      playedCard: true,
-      trick: newTrick,
-    };
+  let partner = state.partner;
+  if (!partner && _.isEqual(state.partnerCard, action.card)) {
+    partner = action.player;
   }
+  return {
+    ...state,
+    hand: action.player === player ? cardsWithout(state.hand, action.card) : [],
+    toPlay,
+    playedCard: true,
+    trick: newTrick,
+    partner,
+    playedFirstCard: action.player === player,
+  };
 }
 
 function completedTrick(state: PlayState, action: CompletedTrickTransition): PlayState {
@@ -209,6 +230,7 @@ function gameComplete(state: PlayState, action: GameCompletedTransition): PlaySt
   return {
     ...state,
     state: GameplayState.Completed,
+    endState: action.end_state,
   };
 }
 
@@ -226,6 +248,8 @@ export function updateForEvent(state: PlayState, event: PlayerEvent, player: Pla
       return dealtHand(state, event as DealtHandTransition);
     case 'players_set':
       return playersSet(state, event as PlayersSetTransition);
+    case 'show_trump':
+      return showTrump(state, event as ShowTrumpAction);
     case 'bid':
       return bid(state, event as BidAction);
     case 'bidding_completed':

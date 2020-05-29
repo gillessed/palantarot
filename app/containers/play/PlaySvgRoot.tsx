@@ -10,6 +10,7 @@ import { PartnerCallStateView } from './state/PartnerCallStateView';
 import { PlayingStateView } from './state/PlayingGameStateView';
 import { Gradients } from './svg/Gradients';
 import { cards5 } from './svg/testState';
+import { CompletedStateView } from './state/CompletedGameStateView';
 
 interface Props {
   width: number;
@@ -58,7 +59,9 @@ export class PlaySvgRoot extends React.Component<Props> {
       case GameplayState.Playing: return (
         <PlayingStateView {...this.props} />
       );
-      case GameplayState.Completed: return null;
+      case GameplayState.Completed: return (
+        <CompletedStateView {...this.props} />
+      );
       default: return null;
     }
   }

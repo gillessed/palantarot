@@ -9,6 +9,7 @@ import { deleteGameSaga } from './deleteGame/index';
 import { deleteTarothonSaga } from './deleteTarothon/index';
 import { deltasSaga } from './deltas/index';
 import { gameSaga } from './game';
+import { gamePlayerSaga } from './gamePlayer/GamePlayerSagas';
 import { inGameSaga } from './ingame/InGameSagas';
 import { monthGamesSaga } from './monthGames/index';
 import { playersSaga } from './players';
@@ -35,6 +36,7 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(refreshSaga),
 
     // Services
+    fork(gamePlayerSaga),
     fork(addNewPlayerSaga, api),
     fork(authSaga, api),
     fork(deleteGameSaga, api),

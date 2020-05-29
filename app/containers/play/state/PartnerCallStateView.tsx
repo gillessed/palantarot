@@ -10,7 +10,6 @@ import { DogSvg } from '../svg/DogSvg';
 import { HandSvg } from '../svg/HandSvg';
 import { SuitIcons } from '../svg/SuitIcons';
 import { TitleOverlay } from '../svg/TitleOverlay';
-import './NewGameStateView.scss';
 
 interface Props {
   width: number;

@@ -1,28 +1,29 @@
+import { Store } from 'redux';
+import { LobbyDispatcher } from "../play/lobby/LobbyService";
 import { AddNewPlayerDispatcher } from './addPlayer/index';
+import { AddTarothonDispatcher } from './addTarothon/index';
+import { AuthDispatcher } from './auth/index';
+import { BidsDispatcher } from './bids/index';
+import { DeleteGameDispatcher } from './deleteGame/index';
+import { DeleteTarothonDispatcher } from './deleteTarothon/index';
+import { DeltasDispatcher } from './deltas/index';
 import { GameDispatcher } from './game/index';
+import { GamePlayerDispatcher } from './gamePlayer/GamePlayerDispatcher';
+import { InGameDispatcher } from './ingame/InGameDispatcher';
+import { MonthGamesDispatcher } from './monthGames/index';
+import { PageCacheDispatcher } from './pageCache/actions';
 import { PlayersDispatcher } from './players/index';
 import { RecentGamesDispatcher } from './recentGames/index';
-import { ResultsDispatcher } from './results/index';
-import { MonthGamesDispatcher } from './monthGames/index';
-import { SaveGameDispatcher } from './saveGame/index';
-import { DeleteGameDispatcher } from './deleteGame/index';
-import { ReduxState } from './rootReducer';
-import { AuthDispatcher } from './auth/index';
 import { RecordsDispatcher } from './records/index';
 import { CacheFunction } from './redux/serviceDispatcher';
-import { StatsDispatcher } from './stats/index';
-import { DeltasDispatcher } from './deltas/index';
-import { BidsDispatcher } from './bids/index';
-import { Store } from 'redux';
-import { PageCacheDispatcher } from './pageCache/actions';
-import { TarothonsDispatcher } from './tarothons/index';
-import { AddTarothonDispatcher } from './addTarothon/index';
-import { DeleteTarothonDispatcher } from './deleteTarothon/index';
-import { TarothonDataDispatcher } from './tarothonData';
-import { StreaksDispatcher } from './streaks/index';
+import { ResultsDispatcher } from './results/index';
+import { ReduxState } from './rootReducer';
+import { SaveGameDispatcher } from './saveGame/index';
 import { SearchDispatcher, searchLoader } from './search/index';
-import {LobbyDispatcher} from "../play/lobby/LobbyService";
-import { InGameDispatcher } from './ingame/InGameDispatcher';
+import { StatsDispatcher } from './stats/index';
+import { StreaksDispatcher } from './streaks/index';
+import { TarothonDataDispatcher } from './tarothonData';
+import { TarothonsDispatcher } from './tarothons/index';
 
 export interface Dispatchers {
   addPlayer: AddNewPlayerDispatcher;
@@ -33,6 +34,7 @@ export interface Dispatchers {
   deleteTarothon: DeleteTarothonDispatcher;
   deltas: DeltasDispatcher;
   games: GameDispatcher;
+  gamePlayer: GamePlayerDispatcher;
   ingame: InGameDispatcher;
   lobby: LobbyDispatcher;
   monthGames: MonthGamesDispatcher;
@@ -79,6 +81,7 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
         },
       },
     ),
+    gamePlayer: new GamePlayerDispatcher(store),
     ingame: new InGameDispatcher(store),
     lobby: new LobbyDispatcher(store),
     monthGames: new MonthGamesDispatcher(

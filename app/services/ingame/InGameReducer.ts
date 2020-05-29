@@ -30,14 +30,27 @@ const playUpdateReducer = (state: InGameState | null, updates: PlayerEvent[]): I
   for (const update of updates) {
     play_state = updateForEvent(play_state, update, state.player);
   }
-  return ({
+  return {
     ...state,
     state: play_state,
     events: [
       ...state.events,
       ...updates
     ],
-  })
+  };
+}
+
+const closeShowWindowReducer = (state: InGameState | null): InGameState | null => {
+  if (state === null) {
+    return null;
+  }
+  return {
+    ...state,
+    state: {
+      ...state.state,
+      showIndex: null,
+    },
+  };
 }
 
 export const inGameReducer = TypedReducer.builder<InGameState | null>()
@@ -45,5 +58,6 @@ export const inGameReducer = TypedReducer.builder<InGameState | null>()
 .withHandler(InGameActions.joinGame.TYPE, joinGameReducer)
 .withHandler(InGameActions.playError.TYPE, playErrorReducer)
 .withHandler(InGameActions.playUpdate.TYPE, playUpdateReducer)
+.withHandler(InGameActions.closeShowWindow.TYPE, closeShowWindowReducer)
 .withHandler(InGameActions.exitGame.TYPE, () => null)
 .build();

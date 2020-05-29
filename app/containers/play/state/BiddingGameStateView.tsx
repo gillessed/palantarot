@@ -8,8 +8,8 @@ import { ActionButton } from '../svg/ActionButton';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
 import { HandSvg } from '../svg/HandSvg';
+import { ShowOverlay } from '../svg/ShowOverlay';
 import { TitleOverlay } from '../svg/TitleOverlay';
-import './NewGameStateView.scss';
 
 interface Props {
   width: number;
@@ -21,7 +21,7 @@ interface Props {
 
 export class BiddingGameStateView extends React.PureComponent<Props> {
   public render() {
-    const { width, height, game, players } = this.props;
+    const { width, height, game, players, dispatchers } = this.props;
     const isParticipant = InGameSelectors.isParticipant(game);
     const dogSize = InGameSelectors.getDogSize(game);
     return (<g className='partner-call-state-view'>
@@ -42,6 +42,13 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
         emptyLength={dogSize}
       />
       {game.player === game.state.playerOrder[game.state.toBid ?? 0] && this.renderBiddingButtons()}
+      <ShowOverlay
+        width={width}
+        height={height}
+        players={players}
+        game={game}
+        dispatchers={dispatchers}
+      />
     </g>);
   }
 

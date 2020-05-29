@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from "./cardUtils";
+import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from './cardUtils';
 import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, PlayersSetTransition, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
 import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
@@ -50,16 +50,22 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
         ]
       } else {
         const { dog, hands } = dealCards(state.players.length);
-        const player_order = _.shuffle(state.players);
+        const playerOrder = _.shuffle(state.players);
+
+        // For debugging shows - give player Greg Cole a hand that can show.
+        // const { dog, hands } = SampleDeal;
+        // const playerOrder = _.shuffle(_.without(state.players, "Greg Cole"));
+        // playerOrder.push("Greg Cole");
+
         return [
           {
             name: 'bidding',
-            players: player_order,
+            players: playerOrder,
             hands,
             dog,
             bidding: {
               bids: [],
-              bidders: player_order,
+              bidders: playerOrder,
               current_high: {
                 player: DummyPlayer,
                 bid: BidValue.PASS,
@@ -71,11 +77,11 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
           action,
           {
             type: 'players_set',
-            player_order: player_order,
+            playerOrder,
           } as PlayersSetTransition,
           ..._.map(hands).map((hand: Card[], player: number) => ({
             type: 'dealt_hand',
-            private_to: player_order[player],
+            private_to: playerOrder[player],
             hand,
           }) as DealtHandTransition)
         ]

@@ -1,7 +1,8 @@
 import { defaultMemoize } from 'reselect';
-import { Card, PlayerId, RegValue, TrumpSuit } from '../../play/common';
+import { EventsToDisplay } from '../../containers/play/sidebar/PlaySidebar';
+import { Card, MessageAction, PlayerId, RegValue, TrumpSuit } from '../../play/common';
 import { TrickCards } from '../../play/ingame/playLogic';
-import { InGameState } from './InGameTypes';
+import { InGameState, MessageGroup, SidebarEvent } from './InGameTypes';
 
 const isParticipant = (state: InGameState) => {
   return state.state.playerOrder.indexOf(state.player) >= 0;
@@ -76,11 +77,7 @@ const getSuitCounts = defaultMemoize((game: InGameState) => {
   for (const card of game.state.hand) {
     const [ suitEnum ] = card;
     const suit = `${suitEnum}`;
-    if (!counts.has(suit)) {
-      counts.set(suit, 1);
-    } else {
-      counts.set(suit, counts.get(suit) ?? 0 + 1);
-    }
+    counts.set(suit, (counts.get(suit) ?? 0) + 1);
   }
   return counts;
 });
@@ -100,6 +97,39 @@ const getTrickCards = (trick?: TrickCards): Card[] => {
   return trick.order.map((player: PlayerId) => trick.cards.get(player)) as Card[];
 }
 
+const canShow = defaultMemoize((game: InGameState) => {
+  const hasNotShown = !game.state.shows.find((show) => show.player === game.player);
+  const showLimit = game.state.playerOrder.length === 5 ? 8 : 10;
+  const suitCount = getSuitCounts(game);
+  const enoughTrump = (suitCount.get(TrumpSuit) ?? 0) >= showLimit;
+  return hasNotShown && !game.state.playedFirstCard && enoughTrump;
+});
+
+const getEventsForSidebar = defaultMemoize((game: InGameState) => {
+  const filteredEvents = game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
+  const groupedEvents: SidebarEvent[] = [];
+  for (const event of filteredEvents) {
+    if (groupedEvents.length === 0 || event.type !== 'message') {
+      groupedEvents.push(event);
+    } else {
+      const currentMessage = event as MessageAction;
+      const previousEvent = groupedEvents[groupedEvents.length - 1];
+      if (previousEvent.type !== 'message_group' || previousEvent.author !== currentMessage.player) {
+        const messageGroup: MessageGroup = {
+          type: 'message_group',
+          author: currentMessage.player,
+          messages: [currentMessage.text],
+          time: currentMessage.time,
+        }
+        groupedEvents.push(messageGroup);
+      } else {
+        previousEvent.messages.push(currentMessage.text);
+      }
+    }
+  }
+  return groupedEvents;
+}); 
+
 export const InGameSelectors = {
   isParticipant,
   isGameFull,
@@ -111,4 +141,6 @@ export const InGameSelectors = {
   getValueCounts,
   canDropTrump,
   getTrickCards,
+  canShow,
+  getEventsForSidebar,
 };

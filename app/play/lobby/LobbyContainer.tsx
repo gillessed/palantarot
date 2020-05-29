@@ -1,28 +1,32 @@
 import { Button, HTMLTable } from "@blueprintjs/core";
 import moment from "moment";
 import React from "react";
+import { connect } from 'react-redux';
 import { TextInput } from "../../components/forms/Elements";
 import { loadContainer } from "../../containers/LoadingContainer";
 import history from '../../history';
 import { DynamicRoutes } from "../../routes";
 import { Dispatchers } from "../../services/dispatchers";
+import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
+import { ReduxState } from '../../services/rootReducer';
 import { GameDescription } from "../common";
 import { lobbyLoader } from "./LobbyService";
 
-interface Props {
-  games: Map<string, GameDescription>
+interface OwnProps {
+  games: Map<string, GameDescription>;
   dispatchers: Dispatchers;
 }
 
-interface State {
-  player: string
+interface StoreProps {
+  gamePlayer: GamePlayer | null;
 }
 
-class LobbyInternal extends React.PureComponent<Props, State> {
+type Props = OwnProps & StoreProps;
+
+class LobbyInternal extends React.PureComponent<Props> {
   private refresher: NodeJS.Timer;
   constructor(props: Props) {
     super(props);
-    this.state = {player: ""}
   }
 
   public componentWillMount() {
@@ -38,7 +42,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
       <div className='page-container'>
         <h1 className='bp3-heading'>Lobby</h1>
         <Button icon='new-object' onClick={this.newGame}>New Game</Button>
-        <TextInput label='Join Games As:' onChange={this.setName}/>
+        <TextInput label='Join Games As:' initialValue={this.props.gamePlayer?.playerId ?? ''} onChange={this.setName}/>
         Open/In Progress Games:
         <HTMLTable>
           <thead>
@@ -60,7 +64,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
                 <td>{game.players.join(", ")}</td>
                 <td>{moment(game.last_updated).fromNow()}</td>
                 <td>{game.state === "completed" ? " " :
-                  <Button icon='add' onClick={() => this.playGame(id)} disabled={!this.state.player}>Join</Button>
+                  <Button icon='add' onClick={() => this.playGame(id)} disabled={this.props.gamePlayer == null}>Join</Button>
                 }</td>
               </tr>
             ))}
@@ -94,9 +98,11 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
 
   private setName = (name: string) => {
-    this.setState({
-      player: name,
-    })
+    if (name.length === 0) {
+      this.props.dispatchers.gamePlayer.set(null);
+    } else {
+      this.props.dispatchers.gamePlayer.set({ playerId: name });
+    }
   };
 
   private newGame = () => {
@@ -104,12 +110,20 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   };
 
   private playGame = (id: string) => {
-    if (this.state.player) {
-      history.push(DynamicRoutes.play(this.state.player, id))
+    if (this.props.gamePlayer) {
+      history.push(DynamicRoutes.play(this.props.gamePlayer.playerId, id))
     }
   };
 }
 
+const mapStateToProps = (state: ReduxState) => {
+  return {
+    gamePlayer: state.gamePlayer,
+  };
+};
+
+const connectRedux = connect<StoreProps, {}, OwnProps>(mapStateToProps);
+
 export const LobbyContainer = loadContainer({
   games: lobbyLoader,
-})(LobbyInternal);
+})(connectRedux(LobbyInternal));

@@ -271,7 +271,7 @@ export interface PlayersSetTransition extends Transition {
     readonly type: 'players_set'
     readonly private_to: undefined
 
-    readonly player_order: PlayerId[]
+    readonly playerOrder: PlayerId[]
 }
 
 export interface DealtHandTransition extends Transition {

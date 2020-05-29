@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { isBout } from '../../../play/cardUtils';
 import { Card, RegValue, TrumpSuit } from '../../../play/common';
 import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
 import { ActionButton } from '../svg/ActionButton';
+import { DogSvg } from '../svg/DogSvg';
 import { HandSvg } from '../svg/HandSvg';
 import { TitleOverlay } from '../svg/TitleOverlay';
-import './NewGameStateView.scss';
-import { isBout } from '../../../play/cardUtils';
 
 interface Props {
   width: number;
@@ -28,12 +28,9 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
   };
   public render() {
     const { width, height, game, players } = this.props;
-    const { selectedCards } = this.state;
     const isParticipant = InGameSelectors.isParticipant(game);
-    const dogSize = InGameSelectors.getDogSize(game);
-    const status = selectedCards.size === 0
-      ? 'Select the cards do drop for your dog'
-      : `Selected ${selectedCards.size} / ${dogSize}`;
+    const isBidder = game.player === game.state.winningBid?.player;
+    const showBidderUi = isParticipant && isBidder;
     return (<g className='dog-reveal-state-view'>
       <TitleOverlay
         width={width}
@@ -41,39 +38,68 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
         players={players}
         game={game}
       />
-      {isParticipant && <HandSvg
+      {showBidderUi && this.renderBidderUi()}
+      {!showBidderUi && this.renderViewerUi()}
+    </g>);
+  }
+
+  private renderBidderUi() {
+    const { width, height, game, players } = this.props;
+    const { selectedCards } = this.state;
+    const dog = new Set(game.state.dog);
+    const dogSize = InGameSelectors.getDogSize(game);
+    const status = selectedCards.size === 0
+      ? 'Select the cards do drop for your dog'
+      : `Selected ${selectedCards.size} / ${dogSize}`;
+    return (
+      <>
+        <HandSvg
+          svgWidth={width}
+          svgHeight={height}
+          cards={game.state.hand}
+          selectedCards={selectedCards}
+          dogCards={dog}
+          selectableFilter={this.selectableCardFilter}
+          onClick={this.handleCardSelect}
+        />
+        <text
+          className='dog-drop-status unselectable'
+          x={width / 2}
+          y={height / 2- 100}
+          textAnchor='middle'
+          dominantBaseline='central'
+        >
+          {status}
+        </text>
+        <ActionButton
+          width={300}
+          height={100}
+          x={width / 2}
+          y={height / 2}
+          text='Drop cards'
+          onClick={this.handleDropCards}
+          disabled={selectedCards.size !== dogSize}
+        />
+      </>
+    );
+  }
+
+  private renderViewerUi() {
+    const { width, height, game } = this.props;
+    const dog = new Set(game.state.dog);
+    return (
+      <DogSvg
         svgWidth={width}
         svgHeight={height}
-        cards={game.state.hand}
-        selectableFilter={this.selectableCardFilter}
-        selectedCards={selectedCards}
-        onClick={this.handleCardSelect}
-      />}
-      <text
-        className='dog-drop-status unselectable'
-        x={width / 2}
-        y={height / 2- 100}
-        textAnchor='middle'
-        dominantBaseline='central'
-      >
-        {status}
-      </text>
-      <ActionButton
-        width={300}
-        height={100}
-        x={width / 2}
-        y={height / 2}
-        text='Drop cards'
-        onClick={this.handleDropCards}
-        disabled={selectedCards.size !== dogSize}
+        cards={[...dog]}
       />
-    </g>);
+    );
   }
 
   private selectableCardFilter = (card: Card) => {
     const { game } = this.props;
     const bidder = game.state.winningBid?.player;
-    if (!bidder) {
+    if (bidder !== game.player) {
       return false;
     }
     const canDropTrump = InGameSelectors.canDropTrump(game);
@@ -88,7 +114,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
   private handleDropCards = () => {
     const { game } = this.props;
     const bidder = game.state.winningBid?.player;
-    if (!bidder) {
+    if (bidder !== game.player) {
       return;
     }
     this.props.dispatchers.ingame.play(game.player).dropDog(this.state.selectedCards);

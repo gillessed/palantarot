@@ -7,14 +7,15 @@ interface Props {
   svgWidth: number;
   svgHeight: number;
   cards: Card[];
-  selectableFilter?: (card: Card) => boolean;
   selectedCards?: Set<Card>;
+  dogCards?: Set<Card>;
+  selectableFilter?: (card: Card) => boolean;
   onClick?: (card: Card) => void;
 }
 
 export class HandSvg extends React.Component<Props> {
   public render() {
-    const { svgWidth, svgHeight, cards, selectableFilter, selectedCards, onClick } = this.props;
+    const { svgWidth, svgHeight, cards, selectedCards, dogCards, selectableFilter, onClick } = this.props;
     let left = (svgWidth - (Math.max(cards.length - 1, 0) * CardSeparation) - CardWidth) / 2;
     const cardSvgs = []
     for (const card of cards) {
@@ -24,8 +25,9 @@ export class HandSvg extends React.Component<Props> {
         x={left}
         y={svgHeight - (selectable ? HandCardSelectablePopup : HandCardPopup)}
         card={card}
-        selected={selectedCards && selectedCards.has(card)}
         selectable={selectable}
+        dog={dogCards && dogCards.has(card)}
+        selected={selectedCards && selectedCards.has(card)}
         onClick={selectable ? onClick : undefined}
       />);
       left += CardSeparation;

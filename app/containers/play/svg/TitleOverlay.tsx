@@ -5,6 +5,7 @@ import { GameplayState } from '../../../play/state';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
 import { getTitleArrangementSpec, TitleArrangementSpec } from '../svg/TitleArrangementSpec';
+import { BottomLeftStatus } from './BottomLeftStatus';
 import { PlayerTitleSvg } from './PlayerTitleSvg';
 import { TopRightStatus } from './TopRightStatus';
 
@@ -17,22 +18,18 @@ interface Props {
 
 export class TitleOverlay extends React.PureComponent<Props> {
   public render() {
-    const { width, height, game } = this.props;
+    const { game } = this.props;
     const playerOrder = InGameSelectors.getRotatedPlayerOrder(game);
     const spec = getTitleArrangementSpec(playerOrder.length);
-    const bid = game.state.state === GameplayState.Bidding ? game.state.playerBids.get(playerOrder[0]) : undefined; 
     return (<g>
-      {this.renderTopRightStatus()}
+      <BottomLeftStatus {...this.props} />
+      <TopRightStatus {...this.props} />
       {this.renderOtherPlayerTitle(playerOrder, 0, spec)}
       {this.renderOtherPlayerTitle(playerOrder, 1, spec)}
       {this.renderOtherPlayerTitle(playerOrder, 2, spec)}
       {this.renderOtherPlayerTitle(playerOrder, 3, spec)}
       {this.renderOtherPlayerTitle(playerOrder, 4, spec)}
     </g>)
-  }
-
-  private renderTopRightStatus() {
-    return <TopRightStatus {...this.props} />;
   }
 
   private renderOtherPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
@@ -46,6 +43,7 @@ export class TitleOverlay extends React.PureComponent<Props> {
         player={{ firstName: playerOrder[index], lastName: '', id: playerOrder[index] }}
         showDealer={this.isDealer(index)}
         showCrown={this.isWinningBidder(index)}
+        showPerson={this.isPartner(index)}
         highlight={this.isHighlighted(index)}
         bid={bid}
         {...this.getReadyProps(index)}
@@ -97,6 +95,15 @@ export class TitleOverlay extends React.PureComponent<Props> {
     }
     const playerOrder = InGameSelectors.getRotatedPlayerOrder(game);
     return game.state.winningBid.player === playerOrder[index];
+  }
+
+  private isPartner = (index: number) => {
+    const { game } = this.props;
+    if (game.state.partner == null) {
+      return false;
+    }
+    const playerOrder = InGameSelectors.getRotatedPlayerOrder(game);
+    return game.state.partner === playerOrder[index];
   }
 
   private isPlayerToPlay = (index: number) => {

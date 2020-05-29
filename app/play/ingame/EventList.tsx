@@ -98,7 +98,7 @@ class Event extends React.PureComponent<EventProps> {
         return (
           <div className={classes + " system-event"}>
             -&gt; Let us begin!
-            The player order will be {set.player_order.join(", ")}.
+            The player order will be {set.playerOrder.join(", ")}.
           </div>
         );
       case "dealt_hand":

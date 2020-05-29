@@ -1,0 +1,101 @@
+.completed-game-message {
+  font-family: blenderProBold;
+  font-size: 32;
+  fill: #F5F8FA;
+  pointer-events: none;
+}
+
+.score-view { 
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #0D8050;
+  background-color: #0A6640;
+  border-radius: 8px;
+  font-family: blenderProBold;
+  font-size: 32;
+  color: #F5F8FA;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+
+  .close-button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+
+  .score-table {
+    width: 300px;
+    th {
+      font-family: blenderProBold;
+      font-size: 24;
+      color: #F5F8FA;
+      background-color: rgb(12, 75, 49);
+    }
+    td {
+      font-family: dinNextRegular;
+      font-size: 16;
+      color: #F5F8FA;
+    }
+  }
+
+  .dog-and-results {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .dog-view {
+      padding: 10px;
+      .dog-cards {
+        img {
+          width: 120px;
+          height: 187px;
+        }
+      }
+    }
+
+    .results-view {
+      width: 100%;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      
+      .result-view-internal {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        font-size: 24px;
+
+        .player-result {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+  
+        .result-separator {
+          margin-left: 20px;
+          margin-right: 20px;
+          width: 10px;
+          background-color: #0E5A8A;
+        }
+        
+        .points-earned {
+          font-family: blenderProBold;
+          font-size: 48;
+          &.plus{
+            color: #29A634;
+          }
+          &.minus{
+            color: #DB3737;
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,12 +7,14 @@ const playAction = TypedAction.define("PLAY // ACTION")<Action>();
 const playError = TypedAction.define("PLAY // ERROR")<string>();
 const playUpdate = TypedAction.define("PLAY // UPDATE")<PlayerEvent[]>();
 const exitGame = TypedAction.define("PLAY // EXIT")<void>();
+const closeShowWindow = TypedAction.define("PLAY // CLOSE SHOW INWDOW")<void>();
 export const InGameActions = {
   joinGame,
   playAction,
   playError,
   playUpdate,
   exitGame,
+  closeShowWindow,
 };
 
 const debugJoinGame = TypedAction.define("DEBUG PLAY // JOIN")<JoinGamePayload>();

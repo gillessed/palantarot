@@ -27,7 +27,7 @@ export class TopRightStatus extends React.PureComponent<Props> {
     }
     return (
       <foreignObject x={width - 250} y={0} width={250} height={120}>
-        <div className='top-left-status unselectable'>
+        <div className='top-right-status unselectable'>
           {text}
         </div>
       </foreignObject>

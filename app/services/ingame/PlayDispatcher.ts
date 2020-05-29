@@ -1,4 +1,4 @@
-import { BidAction, BidValue, Call, CallPartnerAction, Card, EnterGameAction, LeaveGameAction, MessageAction, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, PlayCardAction } from '../../play/common';
+import { BidAction, BidValue, Call, CallPartnerAction, Card, EnterGameAction, LeaveGameAction, MessageAction, PlayCardAction, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, TrumpCard } from '../../play/common';
 import { InGameDispatcher } from './InGameDispatcher';
 
 export class PlayDispatcher {
@@ -96,6 +96,20 @@ export class PlayDispatcher {
       card,
       player: this.player,
       time: time ?? Date.now(),
+    }
+    this.inGameDispatcher.playAction(action, this.debug);
+  }
+
+  public showTrump(cards: TrumpCard[], time?: number) {
+    if (this.debug) {
+      console.warn("Showing trump doesn't work with debug commands.");
+      return;
+    }
+    const action: ShowTrumpAction = {
+      type: 'show_trump',
+      cards,
+      player: this.player,
+      time: time?? Date.now(),
     }
     this.inGameDispatcher.playAction(action, this.debug);
   }

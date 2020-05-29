@@ -12,3 +12,12 @@ export interface JoinGamePayload {
   player: PlayerId;
   game: string;
 }
+
+export interface MessageGroup {
+  type: 'message_group';
+  author: PlayerId;
+  messages: string[];
+  time: number;
+}
+
+export type SidebarEvent = PlayerEvent | MessageGroup;

@@ -9,7 +9,6 @@ import { InGameState } from '../../../services/ingame/InGameTypes';
 import { HandSvg } from '../svg/HandSvg';
 import { TitleOverlay } from '../svg/TitleOverlay';
 import { TrickSvg } from '../svg/TrickSvg';
-import './NewGameStateView.scss';
 
 interface Props {
   width: number;
@@ -61,7 +60,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
     if (!toPlay || toPlay !== game.player) {
       return false;
     }
-    if (!game.state.playedCard && game.state.partnerCard) {
+    if (!game.state.anyPlayerPlayedCard && game.state.partnerCard) {
       const [ partnerSuit ] = game.state.partnerCard;
       if (suit !== partnerSuit || value === RegValue.R) {
         return true;

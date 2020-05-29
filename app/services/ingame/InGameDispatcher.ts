@@ -33,6 +33,10 @@ export class InGameDispatcher {
     return new PlayDispatcher(this, player, debug);
   }
 
+  public closeShowWindow() {
+    this.store.dispatch(InGameActions.closeShowWindow());
+  }
+
   // Debug
 
   public debugJoinGame(player: PlayerId, game: string) {

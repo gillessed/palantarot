@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
-import { Card, RegSuit, TrumpSuit } from '../../../play/common';
+import { Card, RegSuit, TrumpSuit, TrumpValue } from '../../../play/common';
 import { CardHeight, CardWidth } from './CardSpec';
 import './CardSvg.scss';
 
@@ -13,11 +13,12 @@ interface Props {
   enlarge?: boolean;
   selectable?: boolean;
   selected?: boolean;
-  onClick?: (card: Card) => void;
+  dog?: boolean;
   color?: 'black' | 'blue' | 'green' | 'red';
+  onClick?: (card: Card) => void;
 }
 
-const SuitMap = {
+export const SuitMap = {
   [TrumpSuit]: 'Trump',
   [RegSuit.Club]: 'Club',
   [RegSuit.Diamond]: 'Diamond',
@@ -29,25 +30,59 @@ interface State {
   hover: boolean;
 }
 
+interface OutlineLayout {
+  ox: number;
+  oy: number;
+  ow: number;
+  oh: number;
+}
+
+export function getCardText(card: Card) {
+  const [suit, value] = card;
+  let suitText = '';
+  if (value === TrumpValue.Joker) {
+    return 'the joker';
+  }
+  switch (suit) {
+    case RegSuit.Club: suitText = 'clubs'; break;
+    case RegSuit.Diamond: suitText = 'diamonds'; break;
+    case RegSuit.Heart: suitText = 'hearts'; break;
+    case RegSuit.Spade: suitText = 'spades'; break;
+    case TrumpSuit: suitText = 'trump'; break;
+  }
+  return `the ${value} of ${suitText}`;
+}
+
+export function getCardUrl(card: Card) {
+  const [suit, number] = card;
+  return `/static/images/cards/${SuitMap[suit]} ${number}.png`;
+}
+
+export const CardBackUrls = {
+  Red: '/static/images/cards/Card Back Red.png',
+  Green: '/static/images/cards/Card Back Green.png',
+  Blue: '/static/images/cards/Card Back Blue.png',
+  Black: '/static/images/cards/Card Back Black.png',
+};
+
 export class CardSvg extends React.PureComponent<Props> {
   public state: State = {
     hover: false,
   };
 
   public render() {
-    const { card, x, y, width, height, selectable, selected, color } = this.props;
+    const { card, x, y, width, height, selectable, selected, color, dog } = this.props;
     const { hover } = this.state;
     let link = '';
     if (card) {
-      const [suit, number] = card;
-      link = `/static/images/cards/${SuitMap[suit]} ${number}.png`;
+      link = getCardUrl(card);
     } else {
       switch (color) {
-        case 'red': link = '/static/images/cards/Card Back Red.png'; break;
-        case 'green': link = '/static/images/cards/Card Back Green.png'; break;
-        case 'blue': link = '/static/images/cards/Card Back Blue.png'; break;
-        case 'black': 
-        default: link = '/static/images/cards/Card Back Black.png';
+        case 'red': link = CardBackUrls.Red; break;
+        case 'green': link = CardBackUrls.Green; break;
+        case 'blue': link = CardBackUrls.Blue; break;
+        case 'black':
+        default: link = CardBackUrls.Black;
       }
     }
     const w = width != null ? width : CardWidth;
@@ -63,6 +98,12 @@ export class CardSvg extends React.PureComponent<Props> {
     const centery = y + h / 2;
     const outlineRadioX = 0.92;
     const outlineRadioY = 0.95;
+    const L: OutlineLayout = {
+      ox: centerx - w * outlineRadioX / 2,
+      oy: centery - h * outlineRadioY / 2,
+      ow: w * outlineRadioX,
+      oh: h * outlineRadioY
+    };
     return (
       <g>
         <image
@@ -76,6 +117,7 @@ export class CardSvg extends React.PureComponent<Props> {
           onMouseEnter={this.handleMouseOver}
           onMouseLeave={this.handleMouseExit}
         />
+        {dog && this.renderOutline('dog-card-outline', L)}
         {selectable && hover && <rect
           pointerEvents='none'
           className='card-hover-outline'
@@ -95,6 +137,20 @@ export class CardSvg extends React.PureComponent<Props> {
           height={h * outlineRadioY}
         />}
       </g>
+    );
+  }
+
+  private renderOutline(classes: string, L: OutlineLayout) {
+    return (
+      <rect
+        pointerEvents='none'
+        className={classes}
+        x={L.ox}
+        y={L.oy}
+        rx={8}
+        width={L.ow}
+        height={L.oh}
+      />
     );
   }
 

@@ -26,6 +26,7 @@ export namespace PlayerTitleSvg {
     showUnready?: boolean;
     showCrown?: boolean;
     showDealer?: boolean;
+    showPerson?: boolean;
     highlight?: boolean;
     bid?: Bid;
   }
@@ -113,7 +114,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
   }
 
   private renderIcons(L: Layout) {
-    const { showReady, showUnready, showCrown } = this.props;
+    const { showReady, showUnready, showCrown, showPerson } = this.props;
     const { textWidth } = this.state;
     if (textWidth === undefined) {
       return;
@@ -127,6 +128,9 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
     }
     if (showCrown) {
       icons.push({ icon: IconNames.CROWN, fill: `url(#${GradientIds.Crown})` });
+    }
+    if (showPerson) {
+      icons.push({ icon: IconNames.PERSON, fill: `url(#${GradientIds.Crown})` });
     }
     return (
       <g>
