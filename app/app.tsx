@@ -15,23 +15,31 @@ import { EnterContainer } from './containers/enter/EnterContainer';
 import { GameContainer } from './containers/game/GameContainer';
 import { HomeContainer } from './containers/home/HomeContainer';
 import { LoginContainer } from './containers/login/LoginContainer';
+import { PlayContainer } from './containers/play/PlayContainer';
 import { PlayerContainer } from './containers/player/PlayerContainer';
 import { RecentContainer } from './containers/recent/RecentContainer';
 import { RecordsContainer } from './containers/records/RecordsContainer';
 import { ResultsContainer } from './containers/results/ResultsContainer';
 import { SearchContainer } from './containers/search/SearchContainer';
+import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 import { EditTarothonContainer } from './containers/tarothon/EditTarothonContainer';
 import { TarothonContainer } from './containers/tarothon/TarothonContainer';
 import { TarothonFormContainer } from './containers/tarothon/TarothonFormContainer';
 import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { DispatcherProvider } from './dispatchProvider';
 import history from './history';
+import * as playCommon from './play/common';
+import { LobbyContainer } from "./play/lobby/LobbyContainer";
+import * as playReducers from './play/reducers';
+import * as playServer from './play/server';
+import * as playState from './play/state';
+import * as playTest from './play/test';
 import { SagaProvider } from './sagaProvider';
 import { dispatcherCreators } from './services/dispatchers';
 import { ReduxState, rootReducer } from './services/rootReducer';
 import { rootSaga } from './services/rootSaga';
 import { SagaListener } from './services/sagaListener';
-import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
+import { registerConsoleStore } from './utils/consoleStore';
 
 async function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -49,13 +57,14 @@ async function init() {
   const api = new ServerApi('/api/v1');
   const sagaListeners: Set<SagaListener<any>> = new Set();
   sagaMiddleware.run(rootSaga, api, sagaListeners);
+  registerConsoleStore(store);
 
   const appElement = document.getElementById('app');
 
   if (appElement != null) {
     const routes = (
       <div>
-        <Route path='/' exact render={() => <Redirect from='/' to='/app/home' />}/>
+        <Route path='/' exact render={() => <Redirect from='/' to='/app/home' />} />
         <Route path='/app' component={AppContainer} />
         <Route path='/app/home' component={HomeContainer} />
         <Route path='/app/enter' component={EnterContainer} />
@@ -72,6 +81,8 @@ async function init() {
         <Route path='/app/add-tarothon' component={TarothonFormContainer} />
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
+        <Route path='/app/lobby' component={LobbyContainer} />
+        <Route path='/play/:player/:gameId' component={PlayContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
     );
@@ -91,6 +102,14 @@ async function init() {
 }
 
 init();
+
+(window as any).play = {
+  common: playCommon,
+  state: playState,
+  reducers: playReducers,
+  server: playServer,
+  test: playTest,
+};
 
 export function mergeContexts(t1: React.ValidationMap<any>, t2: React.ValidationMap<any>): React.ValidationMap<any> {
   return {

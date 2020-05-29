@@ -1,0 +1,23 @@
+.card-image {
+  &.selectable {
+    cursor: pointer;
+  }
+}
+
+.card-outline {
+  stroke-width: 5;
+  stroke: #FFC940;
+  fill: #FFC94033;
+}
+
+.dog-card-outline {
+  fill: #AD99FF33;
+  stroke-width: 2;
+  stroke: #AD99FF70;
+}
+
+.card-hover-outline {
+  stroke-width: 5;
+  stroke: #FFC940C0;
+  fill: none;
+}

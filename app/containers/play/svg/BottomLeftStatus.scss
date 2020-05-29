@@ -1,0 +1,35 @@
+.bottom-left-status {
+  position: relative;
+  width: 400px;
+  height: 300px;
+
+  .bottom-left-background {
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    font-family: dinNextRegular;
+    font-size: 24;
+    color: #F5F8FA;
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 10px;
+    background-color: #0D8050;
+
+    .status-line {
+      display: flex;
+      margin-bottom: 0;
+      margin-right: 10px;
+      align-items: center;
+
+
+      .title {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .card-image {
+    height: 80px;
+    object-fit: contain;
+  }
+}

@@ -38,6 +38,7 @@
 @import './components/tarothon/TarothonForm.scss';
 @import './components/monthPicker/MonthPicker.scss';
 @import './components/search/SearchForm.scss';
+@import './play/ingame/EventList.scss';
 
 .title {
   display: flex;
@@ -184,4 +185,11 @@ th.sortable {
 .bp3-tab {
   font-family: blenderProBold;
   font-size: 18;
+}
+
+.unselectable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

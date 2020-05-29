@@ -1,0 +1,76 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+.action-display {
+  position: sticky;
+  bottom: 0px;
+  width: 100%;
+  background-color: $white;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.active-player {
+  background-color: $lime5 !important;
+}
+
+.player-event {
+}
+
+.system-event {
+  color: $gray1;
+}
+
+.system-event-low {
+  color: $gray5;
+}
+
+.event-list-time {
+  color: $gray5;
+}
+
+.error-event {
+  color: $red3;
+  font-style: italic;
+}
+
+.current-player {
+  font-style: italic;
+}
+
+.card {
+  margin-left: .25em;
+  margin-right: .25em;
+  border: 1px;
+}
+
+.card-selected {
+  border: $dark-gray3 solid 1px;
+  background-color: $light-gray3;
+}
+
+.card-selectable:hover {
+  border: $gray3 solid 1px;
+}
+
+.spade-suit {
+  color: $black;
+}
+
+.heart-suit {
+  color: $red3;
+}
+
+.club-suit {
+  color: $green3;
+}
+
+.diamond-suit {
+  color: $blue3;
+}
+
+.trump-suit {
+  color: $gold3;
+}
