@@ -102,7 +102,7 @@ const canShow = defaultMemoize((game: InGameState) => {
   const showLimit = game.state.playerOrder.length === 5 ? 8 : 10;
   const suitCount = getSuitCounts(game);
   const enoughTrump = (suitCount.get(TrumpSuit) ?? 0) >= showLimit;
-  return hasNotShown && !game.state.playedFirstCard && enoughTrump;
+  return hasNotShown && !game.state.anyPlayerPlayedCard && enoughTrump;
 });
 
 const getEventsForSidebar = defaultMemoize((game: InGameState) => {

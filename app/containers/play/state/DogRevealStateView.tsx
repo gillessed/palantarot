@@ -65,7 +65,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
         <text
           className='dog-drop-status unselectable'
           x={width / 2}
-          y={height / 2- 100}
+          y={height / 2 - 100}
           textAnchor='middle'
           dominantBaseline='central'
         >
@@ -87,12 +87,20 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
   private renderViewerUi() {
     const { width, height, game } = this.props;
     const dog = new Set(game.state.dog);
+    const isParticipant = InGameSelectors.isParticipant(game);
     return (
-      <DogSvg
-        svgWidth={width}
-        svgHeight={height}
-        cards={[...dog]}
-      />
+      <>
+        {isParticipant && <HandSvg
+          svgWidth={width}
+          svgHeight={height}
+          cards={game.state.hand}
+        />}
+        <DogSvg
+          svgWidth={width}
+          svgHeight={height}
+          cards={[...dog]}
+        />
+      </>
     );
   }
 
@@ -103,7 +111,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
       return false;
     }
     const canDropTrump = InGameSelectors.canDropTrump(game);
-    const [ suit, value ] = card;
+    const [suit, value] = card;
     if (canDropTrump) {
       return value !== RegValue.R && !isBout(card);
     } else {

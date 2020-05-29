@@ -28,7 +28,6 @@ export interface PlayState {
   readonly endState?: CompletedGameState;
   readonly shows: ShowDetails[];
   readonly showIndex: number | null;
-  readonly playedFirstCard?: boolean;
 }
 
 export interface ShowDetails {
@@ -214,7 +213,7 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
     playedCard: true,
     trick: newTrick,
     partner,
-    playedFirstCard: action.player === player,
+    anyPlayerPlayedCard: action.player === player,
   };
 }
 
