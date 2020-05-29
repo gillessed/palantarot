@@ -209,7 +209,7 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
   }
   return {
     ...state,
-    hand: action.player === player ? cardsWithout(state.hand, action.card) : [],
+    hand: action.player === player ? cardsWithout(state.hand, action.card) : state.hand,
     toPlay,
     playedCard: true,
     trick: newTrick,
