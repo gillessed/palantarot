@@ -115,7 +115,7 @@ function getTrickPlayerOrder(players: PlayerId[], firstPlayer: PlayerId) {
 
 function getAllCalls(players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } {
   const calls: { [player: number]: Call[] } = {};
-  for (const bid of bidding.bids.values()) {
+  for (const bid of bidding.bids) {
     const player_num = getPlayerNum(players, bid.player);
     if (!calls[player_num]) {
       calls[player_num] = []
