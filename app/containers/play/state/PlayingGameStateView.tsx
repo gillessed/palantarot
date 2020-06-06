@@ -67,6 +67,9 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
       }
       return false;
     }
+    if (game.state.trick.completed) {
+      return true;
+    }
     const trickCards = InGameSelectors.getTrickCards(game.state.trick);
     const allowedCards = getCardsAllowedToPlay(game.state.hand, trickCards);
     return !!allowedCards.find((c) => _.isEqual(c, card));

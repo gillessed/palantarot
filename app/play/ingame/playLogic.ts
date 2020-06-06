@@ -210,10 +210,10 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
     ...state,
     hand: action.player === player ? cardsWithout(state.hand, action.card) : state.hand,
     toPlay,
-    playedCard: true,
+    playedCard: action.player === player,
     trick: newTrick,
     partner,
-    anyPlayerPlayedCard: action.player === player,
+    anyPlayerPlayedCard: true,
   };
 }
 
