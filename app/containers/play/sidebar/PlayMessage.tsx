@@ -31,11 +31,3 @@ export class PlayMessage extends React.PureComponent<Props> {
     );
   }  
 }
-
-function getTimeText(time: number) {
-  return (
-    <span className="event-list-time">
-      [{new Date(time).toLocaleTimeString()}]
-    </span>
-  )
-}

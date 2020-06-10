@@ -1,11 +1,12 @@
+import { Alignment, Button, ButtonGroup, Checkbox, Intent } from '@blueprintjs/core';
+import classNames from 'classnames';
 import React from 'react';
+import { createSelector } from 'reselect';
 import { Game, PlayerHand } from '../../../server/model/Game';
 import { Player } from '../../../server/model/Player';
-import { SelectInput, PointsInput } from './Elements';
 import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
-import { ButtonGroup, Button, Checkbox, Alignment, Intent } from '@blueprintjs/core';
-import classNames from 'classnames';
-import { createSelector } from 'reselect';
+import { getPlayerName } from '../../services/players/playerName';
+import { PointsInput, SelectInput } from './Elements';
 
 interface Props {
   recentPlayers?: Player[];
@@ -457,7 +458,7 @@ export class GameForm extends React.PureComponent<Props, State> {
       .map((item) => {
         if (item.duplicate) {
           const player = item.state.player!;
-          const error = `Player ${player.firstName} ${player.lastName} appears more than once.`;
+          const error = `Player ${getPlayerName(player)} appears more than once.`;
           return {
             ...item.state,
             error

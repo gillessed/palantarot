@@ -1,7 +1,7 @@
-import { SagaIterator } from 'redux-saga';
-import { put, call, takeEvery, takeLatest } from 'redux-saga/effects';
 import { TypedAction } from 'redoodle';
-import { ServiceActions, PropertyActions } from './serviceActions';
+import { SagaIterator } from 'redux-saga';
+import { call, put } from 'redux-saga/effects';
+import { PropertyActions, ServiceActions } from './serviceActions';
 
 export interface AsyncOperationBasePayload<T> {
   arg: T;
@@ -48,22 +48,4 @@ export function createSagaPropertyOperation<ARG, RESULT>(
       yield put(actions.error({ error }));
     }
   };
-}
-
-export function takeLatestTyped<ARG>(
-  actionType: TypedAction.Definition<string, ARG>,
-  saga: (action: TypedAction<ARG>) => IterableIterator<any>) {
-  return takeLatest(actionType.TYPE, saga);
-}
-
-export function takeEveryTyped<ARG>(
-  actionType: TypedAction.Definition<string, ARG>,
-  saga: (action: TypedAction<ARG>) => IterableIterator<any>) {
-  return takeEvery(actionType.TYPE, saga);
-}
-
-export function takeEveryPayload<ARG>(
-  actionType: TypedAction.Definition<string, ARG>,
-  saga: (payload: ARG) => IterableIterator<any>) {
-  return takeEveryTyped(actionType, (action) => saga(action.payload));
 }

@@ -1,19 +1,17 @@
 import { TypedAction } from 'redoodle';
 import { Action, PlayerEvent } from '../../play/common';
+import { inGameSocketService } from './InGameSagas';
 import { JoinGamePayload } from './InGameTypes';
 
-const joinGame = TypedAction.define("PLAY")<JoinGamePayload>();
 const playAction = TypedAction.define("PLAY // ACTION")<Action>();
 const playError = TypedAction.define("PLAY // ERROR")<string>();
 const playUpdate = TypedAction.define("PLAY // UPDATE")<PlayerEvent[]>();
-const exitGame = TypedAction.define("PLAY // EXIT")<void>();
 const closeShowWindow = TypedAction.define("PLAY // CLOSE SHOW INWDOW")<void>();
 export const InGameActions = {
-  joinGame,
   playAction,
   playError,
   playUpdate,
-  exitGame,
+  exitGame: inGameSocketService.actions.close,
   closeShowWindow,
 };
 

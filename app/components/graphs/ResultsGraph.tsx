@@ -1,6 +1,7 @@
-import React, { PureComponent } from 'react';
 import Plottable from 'plottable';
-import { ScorePoint, Timeseries, PlayerResult } from './index';
+import React, { PureComponent } from 'react';
+import { getPlayerName } from '../../services/players/playerName';
+import { PlayerResult, ScorePoint, Timeseries } from './index';
 
 interface Metadata {
   color: string;
@@ -64,7 +65,7 @@ export class ResultsGraph extends PureComponent<Props, {}> {
 
     const colorScale = new Plottable.Scales.Color();
     colorScale
-      .domain(props.results.map((result) => `${result.player.firstName} ${result.player.lastName}`))
+      .domain(props.results.map((result) => getPlayerName(result.player)))
       .range(ResultsGraph.colors.slice(0, props.results.length));
     const legend = new Plottable.Components.Legend(colorScale)
       .xAlignment(Plottable.XAlignment.center)

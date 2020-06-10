@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { Player } from '../../../server/model/Player';
 import { loadContainer } from '../../containers/LoadingContainer';
 import { playersLoader } from '../../services/players/index';
+import { getPlayerName } from '../../services/players/playerName';
 import { findMatches } from '../../utils/stringMatch';
 
 const PlayerSelectInput = Select.ofType<PlayerSelect.Item>();
@@ -39,6 +40,10 @@ const NO_FILTER_ITEM: PlayerSelect.Item = {
   queryText: '',
 };
 
+const PopoverProps = {
+  usePortal: false,
+};
+
 export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, PlayerSelect.State> {
   private unselectedItem: PlayerSelect.Item;
   constructor(props: PlayerSelect.Props) {
@@ -59,7 +64,7 @@ export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, Player
     (playerMap: Map<string, Player>) => {
       const players: Array<Player> = Array.from(playerMap.values());
       const items: PlayerSelect.Item[] = players.map((p) => {
-        const text = `${p.firstName} ${p.lastName}`;
+        const text = getPlayerName(p);
         return {
           text,
           queryText: text.toLowerCase(),
@@ -98,6 +103,7 @@ export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, Player
           itemListPredicate={this.queryPlayers}
           onItemSelect={this.onPlayerSelected}
           noResults={<MenuItem disabled={true} text='No results.' />}
+          popoverProps={PopoverProps}
         >
           <Button text={filterText} rightIcon='caret-down' fill />
         </PlayerSelectInput>

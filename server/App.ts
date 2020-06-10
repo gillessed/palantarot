@@ -121,9 +121,8 @@ export class App {
     const searchService = new SearchService(this.db);
     this.express.use('/api/v1/search', searchService.router);
 
-    const playService = new PlayService();
+    const playService = new PlayService(this.websocketManager);
     this.express.use('/api/v1/play', playService.router);
-    this.websocketManager.initPlayService(playService);
   }
  
   private redirectRoute() {

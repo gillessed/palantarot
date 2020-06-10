@@ -1,11 +1,11 @@
 import { TypedAction, TypedReducer } from 'redoodle';
 import { Store } from 'redux';
-import { all, put } from 'redux-saga/effects';
-import { takeLatestTyped } from '../redux/serviceSaga';
+import { all, put, takeLatest } from 'redux-saga/effects';
 import { ReduxState } from '../rootReducer';
 import { NewPlayer, Player } from './../../../server/model/Player';
 import { curry } from './../../../server/utils';
 import { ServerApi } from './../../api/serverApi';
+
 export interface AddNewPlayerPayload {
   newPlayer: NewPlayer,
   redirect?: string,
@@ -34,7 +34,7 @@ export class AddNewPlayerDispatcher {
 
 export function* addNewPlayerSaga(api: ServerApi) {
   yield all([
-    takeLatestTyped(addNewPlayerActions.request, curry(addPlayer)(api)),
+    takeLatest(addNewPlayerActions.request.TYPE, curry(addPlayer)(api)),
   ]);
 }
 

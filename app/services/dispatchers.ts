@@ -1,5 +1,4 @@
 import { Store } from 'redux';
-import { LobbyDispatcher } from "../play/lobby/LobbyService";
 import { AddNewPlayerDispatcher } from './addPlayer/index';
 import { AddTarothonDispatcher } from './addTarothon/index';
 import { AuthDispatcher } from './auth/index';
@@ -10,6 +9,7 @@ import { DeltasDispatcher } from './deltas/index';
 import { GameDispatcher } from './game/index';
 import { GamePlayerDispatcher } from './gamePlayer/GamePlayerDispatcher';
 import { InGameDispatcher } from './ingame/InGameDispatcher';
+import { LobbyDispatcher } from './lobby/LobbyDispatcher';
 import { MonthGamesDispatcher } from './monthGames/index';
 import { PageCacheDispatcher } from './pageCache/actions';
 import { PlayersDispatcher } from './players/index';

@@ -1,13 +1,17 @@
-import * as React from 'react';
-import { Loaders, Loader, DefaultArgToKey } from '../services/loader';
-import { ReduxState } from '../services/rootReducer';
-import { connect } from 'react-redux';
-import { Loadable } from '../services/redux/loadable';
-import { DispatchersContextType, DispatchContext } from '../dispatchProvider';
-import { Dispatchers } from '../services/dispatchers';
-import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
 import { Spinner } from '@blueprintjs/core';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
+import { DispatchContext, DispatchersContextType } from '../dispatchProvider';
+import { Dispatchers } from '../services/dispatchers';
+import { DefaultArgToKey, Loader, Loaders } from '../services/loader';
+import { Loadable } from '../services/redux/loadable';
 import { refreshSelector } from '../services/refresh/RefreshTypes';
+import { ReduxState } from '../services/rootReducer';
+
+export interface LoaderOptions {
+  hideSpinnerOnReload?: boolean;
+}
 
 interface OtherProps {
   dispatchers?: Dispatchers;
@@ -16,7 +20,7 @@ interface OtherProps {
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
+export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options?: LoaderOptions) {
   type LOADABLES = {
     [K in keyof T]: T[K] extends Loader<ReduxState, infer ARG, infer RESULT>
     ? Loadable<ARG, RESULT>
@@ -82,6 +86,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
       }
 
       public render() {
+        const showSpinner = options?.hideSpinnerOnReload !== true;
         const ownProps = { ...this.props } as any;
         let errors: any[] = [];
         let hasLoading = false;
@@ -113,7 +118,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T) {
           if (hasLoading) {
             return (
               <div style={{ position: 'relative' }}>
-                <SpinnerOverlay size={Spinner.SIZE_LARGE} />
+                {showSpinner && <SpinnerOverlay size={Spinner.SIZE_LARGE} />}
                 <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading} />
               </div>
             );

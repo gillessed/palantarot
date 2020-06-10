@@ -1,5 +1,5 @@
-import { put } from 'redux-saga/effects';
-import { takeEveryPayload } from '../redux/serviceSaga';
+import { TypedAction } from 'redoodle';
+import { put, takeEvery } from 'redux-saga/effects';
 import { GamePlayerActions } from './GamePlayerActions';
 import { GamePlayer } from './GamePlayerTypes';
 
@@ -26,7 +26,8 @@ function deleteCookie(key: string) {
   setCookie(key, '', 0);
 }
 
-function* setGamePlayerSaga(gamePlayer: GamePlayer | null) {
+function* setGamePlayerSaga(action: TypedAction<GamePlayer | null>) {
+  const gamePlayer = action.payload;
   if (gamePlayer === null) {
     deleteCookie(GamePlayerCookie);
   } else {
@@ -51,5 +52,5 @@ export function* gamePlayerSaga() {
     }
   }
 
-  yield takeEveryPayload(GamePlayerActions.set, setGamePlayerSaga);
+  yield takeEvery(GamePlayerActions.set.TYPE, setGamePlayerSaga);
 }

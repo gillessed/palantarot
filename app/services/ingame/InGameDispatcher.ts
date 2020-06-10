@@ -2,6 +2,7 @@ import { Store } from 'redux';
 import { Action, PlayerId } from '../../play/common';
 import { ReduxState } from '../rootReducer';
 import { DebugInGameActions, InGameActions } from './InGameActions';
+import { inGameSocketService } from './InGameSagas';
 import { PlayDispatcher } from './PlayDispatcher';
 
 export class InGameDispatcher {
@@ -12,7 +13,7 @@ export class InGameDispatcher {
   // Game Actions
 
   public joinGame(player: PlayerId, game: string) {
-    this.store.dispatch(InGameActions.joinGame({ player, game }));
+    this.store.dispatch(inGameSocketService.actions.join({ player, game }));
   }
 
   public playAction(action: Action, debug?: boolean) {

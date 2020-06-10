@@ -1,5 +1,4 @@
 import { all, fork } from 'redux-saga/effects';
-import { lobbySaga } from "../play/lobby/LobbyService";
 import { ServerApi } from './../api/serverApi';
 import { addNewPlayerSaga } from './addPlayer';
 import { addTarothonSaga } from './addTarothon/index';
@@ -11,6 +10,7 @@ import { deltasSaga } from './deltas/index';
 import { gameSaga } from './game';
 import { gamePlayerSaga } from './gamePlayer/GamePlayerSagas';
 import { inGameSaga } from './ingame/InGameSagas';
+import { lobbySaga } from './lobby/LobbySaga';
 import { monthGamesSaga } from './monthGames/index';
 import { playersSaga } from './players';
 import { recentGamesSaga } from './recentGames';

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { Bid, BidValue, Call } from '../../../play/common';
+import { getPlayerName } from '../../../services/players/playerName';
 import { CardHeight, CardWidth, HandCardPopup } from './CardSpec';
 import { CardSvg } from './CardSvg';
 import { GradientIds } from './Gradients';
@@ -55,7 +56,7 @@ interface State {
 const TopCardY = -CardHeight + 70;
 const HorizontalX = CardWidth / 2;
 const TextMargin = 10;
-const TextHeight = 35;
+const TextHeight = 28;
 const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
@@ -64,7 +65,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
 
   public render() {
     const { player, showDealer, highlight, bid } = this.props;
-    const playerName = player ? `${player.firstName} ${player.lastName}` : 'Unknown Player';
+    const playerName = player ? `${getPlayerName(name)}` : 'Unknown Player';
     const L = this.getLayout();
     const textClasses = classNames('player-text unselectable',
       {
@@ -174,18 +175,18 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
     if (side === 'top') {
       L.cardx = position - CardWidth / 2;
       L.cardy = TopCardY;
-      L.texty = TextHeight + TextMargin;
+      L.texty = TextHeight + TextMargin + CardHeight + TopCardY;
       L.icony = L.texty - IconSize.width / 2 - 15;
-      L.bidy = L.cardy + CardHeight + 90;
+      L.bidy = L.cardy + CardHeight + 110;
       L.bidx = position;
       L.bidAnchor = 'middle';
       L.icony = L.texty - IconSize.width / 2 - IconYOffset;
       if (text === 'before') {
-        L.textx = L.cardx - TextMargin;
+        L.textx = L.cardx - TextMargin + CardWidth;
         L.textAnchor = 'end';
         L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
       } else {
-        L.textx = L.cardx + CardWidth + TextMargin;
+        L.textx = L.cardx + TextMargin;
         L.textAnchor = 'start';
         L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
       }
@@ -220,8 +221,8 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
         L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
       }
       L.icony = L.texty - IconSize.width / 2 - IconYOffset;
-    } else {
-      L.cardx = svgWidth - CardWidth - 160;
+    } else if (side === 'bottom') {
+      L.cardx = svgWidth - CardWidth - 50;
       L.cardy = svgHeight - HandCardPopup;
       L.textx = svgWidth - 50;
       L.texty = svgHeight - HandCardPopup - 10;

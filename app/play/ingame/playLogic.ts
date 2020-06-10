@@ -153,17 +153,20 @@ function callPartner(state: PlayState, action: CallPartnerAction): PlayState {
 }
 
 function dogRevealed(state: PlayState, action: DogRevealTransition, player: PlayerId): PlayState {
+  const selfCall = !!action.dog.find((card) => _.isEqual(card, state.partnerCard));
   if (action.player === player) {
     return {
       ...state,
       state: GameplayState.DogReveal,
       hand: [...state.hand, ...action.dog].sort(compareCards()),
+      partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
     }
   } else {
     return {
       ...state,
       state: GameplayState.DogReveal,
+      partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
     };
   }

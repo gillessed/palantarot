@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
 import Plottable from 'plottable';
-import { PointFlow, PointDelta } from '../../../server/model/PointFlow';
+import React, { PureComponent } from 'react';
 import { Player } from '../../../server/model/Player';
+import { PointDelta } from '../../../server/model/PointFlow';
 import { Timeseries } from '../../components/graphs/index';
-import { createSelector } from 'reselect';
+import { getPlayerName } from '../../services/players/playerName';
 
 interface Metadata {
   color: string;
@@ -52,7 +52,7 @@ export class PointFlowChart extends PureComponent<Props, {}> {
 
   private getName = (d: PointDelta) => {
     const player = this.props.players.get(d.player);
-    return player ? `${player.firstName} ${player.lastName}` : 'Unknown Player';
+    return getPlayerName(player);
   }
 
   private renderChart(props: Props) {
