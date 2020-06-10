@@ -2,6 +2,7 @@ import { TypedReducer } from 'redoodle';
 import { ErrorEvent, PlayerEvent } from '../../play/common';
 import { blank_state, updateForEvent } from '../../play/ingame/playLogic';
 import { InGameActions } from './InGameActions';
+import { inGameSocketService } from './InGameSagas';
 import { InGameState, JoinGamePayload } from './InGameTypes';
 
 const joinGameReducer = (_: InGameState | null, payload: JoinGamePayload) => ({
@@ -55,7 +56,7 @@ const closeShowWindowReducer = (state: InGameState | null): InGameState | null =
 
 export const inGameReducer = TypedReducer.builder<InGameState | null>()
 .withDefaultHandler((state = null) => state)
-.withHandler(InGameActions.joinGame.TYPE, joinGameReducer)
+.withHandler(inGameSocketService.actions.join.TYPE, joinGameReducer)
 .withHandler(InGameActions.playError.TYPE, playErrorReducer)
 .withHandler(InGameActions.playUpdate.TYPE, playUpdateReducer)
 .withHandler(InGameActions.closeShowWindow.TYPE, closeShowWindowReducer)

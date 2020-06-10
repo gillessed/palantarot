@@ -36,6 +36,15 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
   public state: State = {
     showMessages: true,
   };
+  private messageDiv: HTMLDivElement;
+
+  public componentWillReceiveProps(nextProps: Props) {
+    const currentEvents = this.props.game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
+    const nextEvents = nextProps.game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
+    if (this.messageDiv && currentEvents.length < nextEvents.length) {
+      this.messageDiv.scrollTop = this.messageDiv.scrollHeight;
+    }
+  }
 
   public render() {
     const { showMessages } = this.state;
@@ -67,7 +76,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
             onClick={this.setShowPlayers}
           />
         </ButtonGroup>
-        <div className='list-container'>
+        <div className='list-container' ref={this.setRef}>
           {showMessages && this.renderMessages()}
           {!showMessages && this.renderPlayers()}
         </div>
@@ -77,6 +86,12 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
         />
       </div>
     );
+  }
+
+  private setRef = (element: HTMLDivElement) => {
+    if (element) {
+      this.messageDiv = element;
+    }
   }
 
   private setShowMessages = () => {
@@ -89,7 +104,6 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
   }
 
   private renderMessage = (event: SidebarEvent, index: number) => {
-    const { game } = this.props;
     switch (event.type) {
       case 'message_group':
         return (
@@ -101,7 +115,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
         );
       case 'bid':
         const bidEvent = event as BidAction;
-        const bidRussian = bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1 >= 0;
+        const bidRussian = (bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1) >= 0;
         const bidMessage = bidEvent.bid === BidValue.PASS
           ? `${bidEvent.player} passed`
           : `${bidEvent.player} bid ${bidRussian ? 'russian 20' : bidEvent.bid}`;

@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ReduxState } from '../../services/rootReducer';
-import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { NewPlayer } from '../../../server/model/Player';
+import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { AddPlayerService } from '../../services/addPlayer/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
-import { Dispatchers } from '../../services/dispatchers';
-import { StaticRoutes } from '../../routes';
+import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import history from '../../history';
+import { StaticRoutes } from '../../routes';
+import { AddPlayerService } from '../../services/addPlayer/index';
+import { Dispatchers } from '../../services/dispatchers';
+import { getPlayerName } from '../../services/players/playerName';
+import { ReduxState } from '../../services/rootReducer';
 
 interface StateProps {
   addPlayerService: AddPlayerService,
@@ -47,7 +48,7 @@ export class Internal extends React.Component<Props, State> {
     } else if (nextProps.addPlayerService.newPlayer && nextProps.addPlayerService.newPlayer !== this.props.addPlayerService.newPlayer) {
       const player = nextProps.addPlayerService.newPlayer;
       Palantoaster.show({
-        message: `Added player ${player.firstName} ${player.lastName}.`,
+        message: `Added player ${getPlayerName(player)}.`,
         intent: TIntent.SUCCESS,
       });
       if (nextProps.addPlayerService.redirect) {

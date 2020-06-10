@@ -1,20 +1,23 @@
-import { Result, RoleResult, Role } from './../model/Result';
-import { Game } from './../model/Game';
-import { GameQuerier } from './../db/GameQuerier';
-import { Database } from './../db/dbConnector';
-import { Router, Request, Response } from 'express';
-import { Month, IMonth } from '../model/Month';
+import { Request, Response, Router } from 'express';
 import moment from 'moment-timezone';
 import { RecentGameQuery } from '../db/GameQuerier';
+import { IMonth, Month } from '../model/Month';
 import { Records } from '../model/Records';
+import { RefreshSocketManager } from '../websocket/RefreshSocketManager';
 import { WebsocketManager } from '../websocket/WebsocketManager';
+import { Database } from './../db/dbConnector';
+import { GameQuerier } from './../db/GameQuerier';
+import { Game } from './../model/Game';
+import { Result, Role, RoleResult } from './../model/Result';
 
 export class GameService {
   public router: Router;
   private gameDb: GameQuerier;
+  private refreshSocketManager: RefreshSocketManager;
 
-  constructor(db: Database, private websocketManager: WebsocketManager) {
+  constructor(db: Database, websocketManager: WebsocketManager) {
     this.router = Router();
+    this.refreshSocketManager = new RefreshSocketManager(websocketManager);
     this.gameDb = new GameQuerier(db);
     this.router.get('/records', this.getRecords);
     this.router.post('/month', this.getMonthResults);
@@ -159,7 +162,7 @@ export class GameService {
     const newGame = req.body as Game;
     this.gameDb.saveGame(newGame).then(() => {
       res.sendStatus(200);
-      this.websocketManager.sendNewDataMessage();
+      this.refreshSocketManager.sendRefreshMessage();
     }).catch((e) => {
       res.send({ error: 'Could not save game: ' + e});
     });
@@ -169,7 +172,7 @@ export class GameService {
     const { gameId } = req.body;
     this.gameDb.deleteGame(gameId).then(() => {
       res.sendStatus(200);
-      this.websocketManager.sendNewDataMessage();
+      this.refreshSocketManager.sendRefreshMessage();
     }).catch((e) => {
       res.send({ error: 'Could not delete game: ' + e});
     });

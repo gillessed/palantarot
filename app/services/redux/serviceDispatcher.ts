@@ -1,11 +1,11 @@
-import { ServiceActions, PropertyActions } from './serviceActions';
-import { Store } from 'redux';
-import { ReduxState } from '../rootReducer';
-import { Loadable, LoadableCache } from './loadable';
-import { Month, IMonth } from '../../../server/model/Month';
 import * as _ from 'lodash';
 import { debounce } from 'plottable/build/src/utils/windowUtils';
+import { Store } from 'redux';
+import { IMonth, Month } from '../../../server/model/Month';
 import { DefaultArgToKey } from '../loader';
+import { ReduxState } from '../rootReducer';
+import { Loadable, LoadableCache } from './loadable';
+import { PropertyActions, ServiceActions } from './serviceActions';
 
 export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
@@ -73,10 +73,10 @@ export interface ServiceDispatcher<ARG> {
 
 export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: PropertyActions<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
-    private debounce: number;
-    private caching?: PropertyCachingState<ARG, RESULT>;
+    protected debounce: number;
+    protected caching?: PropertyCachingState<ARG, RESULT>;
     constructor(
-      private readonly store: Store<ReduxState>,
+      protected readonly store: Store<ReduxState>,
       options?: {
         caching?: PropertyCachingState<ARG, RESULT>,
         debounce?: number,

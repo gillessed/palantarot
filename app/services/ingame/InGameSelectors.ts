@@ -109,12 +109,12 @@ const getEventsForSidebar = defaultMemoize((game: InGameState) => {
   const filteredEvents = game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
   const groupedEvents: SidebarEvent[] = [];
   for (const event of filteredEvents) {
-    if (groupedEvents.length === 0 || event.type !== 'message') {
+    if (event.type !== 'message') {
       groupedEvents.push(event);
     } else {
       const currentMessage = event as MessageAction;
-      const previousEvent = groupedEvents[groupedEvents.length - 1];
-      if (previousEvent.type !== 'message_group' || previousEvent.author !== currentMessage.player) {
+      const previousEvent = groupedEvents.length > 0 ? groupedEvents[groupedEvents.length - 1] : undefined;
+      if (!previousEvent || previousEvent.type !== 'message_group' || previousEvent.author !== currentMessage.player) {
         const messageGroup: MessageGroup = {
           type: 'message_group',
           author: currentMessage.player,

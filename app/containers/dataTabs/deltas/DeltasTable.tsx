@@ -1,10 +1,11 @@
-import * as React from 'react';
-import { playersLoader } from '../../../services/players/index';
-import { deltasLoader } from '../../../services/deltas/index';
-import { Player } from '../../../../server/model/Player';
-import { Deltas, Delta } from '../../../../server/model/Delta';
 import { HTMLTable } from '@blueprintjs/core';
+import * as React from 'react';
+import { Delta, Deltas } from '../../../../server/model/Delta';
+import { Player } from '../../../../server/model/Player';
 import { DeltaIcon } from '../../../components/deltaIcon/DeltaIcon';
+import { deltasLoader } from '../../../services/deltas/index';
+import { playersLoader } from '../../../services/players/index';
+import { getPlayerName } from '../../../services/players/playerName';
 import { loadContainer } from '../../LoadingContainer';
 
 interface Props {
@@ -44,10 +45,7 @@ class DeltasTableInternal extends React.PureComponent<Props, {}> {
 
   private renderDelta = (delta: Delta, index: number) => {
     const player = this.props.players.get(delta.playerId);
-    let playerName = delta.playerId;
-    if (player) {
-      playerName = `${player.firstName} ${player.lastName}`;
-    }
+    const playerName = getPlayerName(player);
     return (
       <tr key={index}>
         <td>{playerName}</td>

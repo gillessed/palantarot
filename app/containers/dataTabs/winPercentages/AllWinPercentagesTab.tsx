@@ -1,11 +1,12 @@
-import * as React from 'react';
-import { StatEntry, AggregatedStats, getAverages } from '../../../../server/model/Stats';
 import { Checkbox, HTMLTable } from '@blueprintjs/core';
-import { chop } from '../../../../server/utils';
+import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { AggregatedStats, getAverages, StatEntry } from '../../../../server/model/Stats';
+import { chop } from '../../../../server/utils';
 import { playersLoader } from '../../../services/players/index';
-import { loadContainer } from '../../LoadingContainer';
+import { getPlayerName } from '../../../services/players/playerName';
 import { statsLoader } from '../../../services/stats/index';
+import { loadContainer } from '../../LoadingContainer';
 import { AllWinPercentagesTableHeader } from './AllWinPercentagesTableHeader';
 
 interface Props {
@@ -54,7 +55,7 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
       const player = this.props.players.get(playerId);
       if (average && player) {
         playerAverages.push({
-          playerName: `${player.firstName} ${player.lastName}`,
+          playerName: getPlayerName(player),
           stats: average,
         });
       }

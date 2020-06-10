@@ -10,7 +10,7 @@ export type Player = NewPlayer & {
 export const Player = {
   getName: (playerId: string, player?: Player): string => {
     if (player) {
-      return player.firstName + ' ' + player.lastName;
+      return `${player.firstName} ${player.lastName}`;
     } else {
       return 'Uknown Player: ' + playerId;
     }

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
-import { playersLoader } from '../../services/players/index';
 import { Result } from '../../../server/model/Result';
-import { loadContainer } from '../LoadingContainer';
+import { playersLoader } from '../../services/players/index';
+import { getPlayerName } from '../../services/players/playerName';
 import { resultsLoader } from '../../services/results/index';
+import { loadContainer } from '../LoadingContainer';
 
 interface Props {
   playerId: string;
@@ -15,7 +16,7 @@ class PlayerBannerInternal extends React.PureComponent<Props, {}> {
 
   public render() {
     const player = this.props.players.get(this.props.playerId)!;
-    const playerName = `${player.firstName} ${player.lastName}`;
+    const playerName = getPlayerName(player);
     const sortedResults = this.props.results
       .sort((r1: Result, r2: Result) => {
         if (r1.all.points > r2.all.points) {

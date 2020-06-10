@@ -3,6 +3,7 @@ import { Player } from '../../../../server/model/Player';
 import { BidsGraph } from './BidsGraph';
 import { PlayerSelectContainer } from '../../../components/forms/PlayerSelect';
 import { BidRequest } from '../../../../server/model/Bid';
+import { getPlayerName } from '../../../services/players/playerName';
 
 interface State {
   filterPlayer?: Player;
@@ -31,7 +32,7 @@ export class AllBidsTab extends React.PureComponent<{}, State> {
     const player = this.state.filterPlayer;
     let title: string;
     if (player) {
-      title = `${player.firstName} ${player.lastName}'s Bid Breakdown `;
+      title = `${getPlayerName(player)}'s Bid Breakdown `;
     } else {
       title = 'All Bids';
     }

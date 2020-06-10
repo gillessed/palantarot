@@ -1,8 +1,8 @@
-import { all } from 'redux-saga/effects';
+import { all, takeEvery } from 'redux-saga/effects';
 import { Loadable } from '../redux/loadable';
 import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { generatePropertyService } from '../redux/serviceGenerator';
-import { createSagaPropertyOperation, takeEveryTyped } from '../redux/serviceSaga';
+import { createSagaPropertyOperation } from '../redux/serviceSaga';
 import { ServerApi } from './../../api/serverApi';
 
 export type DeleteGameService = Loadable<string, void>;
@@ -22,8 +22,8 @@ export const deleteGameReducer = deleteGameService.reducer.build();
 
 export const deleteGameSaga = function* (api: ServerApi) {
   yield all([
-    takeEveryTyped(
-      deleteGameActions.request,
+    takeEvery(
+      deleteGameActions.request.TYPE,
       createSagaPropertyOperation(deleteGameOperation(api), deleteGameActions),
     )
   ]);

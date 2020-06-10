@@ -70,8 +70,8 @@ function buildDispatcher(player: string, game: string, dispatcher: InGameDispatc
 export function registerDebugPlayers(player: string, gameId: string, dispatcher: InGameDispatcher) {
   const d: D = {
     p2: buildDispatcher("Player 2", gameId, dispatcher),
-    p3: buildDispatcher("Player 3", gameId, dispatcher),
-    p4: buildDispatcher("Player 4", gameId, dispatcher),
+    p3: buildDispatcher("Player 3 Long Long Name", gameId, dispatcher),
+    p4: buildDispatcher("Player 4 Name", gameId, dispatcher),
     p5: buildDispatcher("Player 5", gameId, dispatcher),
     p6: buildDispatcher("Player 6", gameId, dispatcher),
     p7: buildDispatcher("Player 7", gameId, dispatcher),

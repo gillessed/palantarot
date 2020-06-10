@@ -8,6 +8,7 @@ import { ActionButton } from '../svg/ActionButton';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
 import { HandSvg } from '../svg/HandSvg';
+import { ShowOverlay } from '../svg/ShowOverlay';
 import { SuitIcons } from '../svg/SuitIcons';
 import { TitleOverlay } from '../svg/TitleOverlay';
 
@@ -32,7 +33,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     suit: RegSuit.Spade,
   };
   public render() {
-    const { width, height, game, players } = this.props;
+    const { width, height, game, players, dispatchers } = this.props;
     const isParticipant = InGameSelectors.isParticipant(game);
     const dogSize = InGameSelectors.getDogSize(game);
     return (<g className='partnet-call-state-view'>
@@ -53,6 +54,13 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         emptyLength={dogSize}
       />
       {game.player === game.state.winningBid?.player && this.renderPartnerCallButtons()}
+      <ShowOverlay
+        width={width}
+        height={height}
+        players={players}
+        game={game}
+        dispatchers={dispatchers}
+      />
     </g>);
   }
 

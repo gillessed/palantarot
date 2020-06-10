@@ -29,7 +29,7 @@ import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { DispatcherProvider } from './dispatchProvider';
 import history from './history';
 import * as playCommon from './play/common';
-import { LobbyContainer } from "./play/lobby/LobbyContainer";
+import { LobbyContainer } from "./containers/lobby/LobbyContainer";
 import * as playReducers from './play/reducers';
 import * as playServer from './play/server';
 import * as playState from './play/state';

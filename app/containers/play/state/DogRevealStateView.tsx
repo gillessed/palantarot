@@ -8,6 +8,7 @@ import { InGameState } from '../../../services/ingame/InGameTypes';
 import { ActionButton } from '../svg/ActionButton';
 import { DogSvg } from '../svg/DogSvg';
 import { HandSvg } from '../svg/HandSvg';
+import { ShowOverlay } from '../svg/ShowOverlay';
 import { TitleOverlay } from '../svg/TitleOverlay';
 
 interface Props {
@@ -44,7 +45,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
   }
 
   private renderBidderUi() {
-    const { width, height, game, players } = this.props;
+    const { width, height, game, players, dispatchers } = this.props;
     const { selectedCards } = this.state;
     const dog = new Set(game.state.dog);
     const dogSize = InGameSelectors.getDogSize(game);
@@ -79,6 +80,13 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
           text='Drop cards'
           onClick={this.handleDropCards}
           disabled={selectedCards.size !== dogSize}
+        />
+        <ShowOverlay
+          width={width}
+          height={height}
+          players={players}
+          game={game}
+          dispatchers={dispatchers}
         />
       </>
     );

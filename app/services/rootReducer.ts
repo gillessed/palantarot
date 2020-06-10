@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { lobbyReducer, LobbyService } from "../play/lobby/LobbyService";
 import { addPlayerReducer, AddPlayerService } from './addPlayer/index';
 import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
 import { authReducer, AuthService } from './auth/index';
@@ -12,6 +11,8 @@ import { gamePlayerReducer } from './gamePlayer/GamePlayerReducer';
 import { GamePlayer } from './gamePlayer/GamePlayerTypes';
 import { inGameReducer } from './ingame/InGameReducer';
 import { InGameState } from './ingame/InGameTypes';
+import { lobbyReducer } from './lobby/LobbyReducer';
+import { LobbyService } from './lobby/LobbyTypes';
 import { monthGamesReducer, MonthGamesService } from './monthGames/index';
 import { playersReducer, PlayersService } from './players';
 import { recentGamesReducer, RecentGamesService } from './recentGames';

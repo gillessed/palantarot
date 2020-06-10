@@ -1,15 +1,9 @@
+import { takeEvery } from 'redux-saga/effects';
 import { ServerApi } from './../../api/serverApi';
-import {
-  generateServiceActions,
-  generatePropertyActions,
-} from './serviceActions';
+import { generatePropertyActions, generateServiceActions } from './serviceActions';
+import { generatePropertyDispatcher, generateServiceDispatcher } from './serviceDispatcher';
 import { generatePropertyReducer, generateServiceReducer } from './serviceReducer';
-import { generateServiceDispatcher, generatePropertyDispatcher } from './serviceDispatcher';
-import { 
-  createSagaPropertyOperation, 
-  createSagaServiceOperation,
-  takeEveryTyped
- } from './serviceSaga';
+import { createSagaPropertyOperation, createSagaServiceOperation } from './serviceSaga';
 
 export function generatePropertyService<ARG, RESULT>(
   prefix: string,
@@ -19,8 +13,8 @@ export function generatePropertyService<ARG, RESULT>(
   const dispatcher = generatePropertyDispatcher(actions);
   const reducer = generatePropertyReducer(actions);
   const saga = function* (api: ServerApi) {
-    yield takeEveryTyped(
-      actions.request,
+    yield takeEvery(
+      actions.request.TYPE,
       createSagaPropertyOperation<ARG, RESULT>(operation(api), actions),
     );
   }
@@ -41,8 +35,8 @@ export function generateService<ARG, RESULT, KEY = ARG>(
   const dispatcher = generateServiceDispatcher<ARG, RESULT, KEY>(actions);
   const reducer = generateServiceReducer(actions, argMapper);
   const saga = function* (api: ServerApi) {
-    yield takeEveryTyped(
-      actions.request,
+    yield takeEvery(
+      actions.request.TYPE,
       createSagaServiceOperation<ARG, RESULT>(operation(api), actions),
     );
   }

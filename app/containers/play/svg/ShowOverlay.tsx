@@ -26,7 +26,7 @@ interface State {
 }
 
 const WindowInset = 200;
-const CardAreaMargin = 300;
+const CardAreaMargin = 100;
 
 export class ShowOverlay extends React.PureComponent<Props, State> {
   public state: State = {};
@@ -50,7 +50,9 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
   private renderShowWindow(showDetail: ShowDetails) {
     const { width, height, game } = this.props;
     const cardy = height / 2 - CardHeight / 2;
-    const cardoverlap = (width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) / (showDetail.trumpCards.length - 1);
+    const cardOverlap = Math.min((width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) / (showDetail.trumpCards.length - 1), CardWidth + 10);
+    const showWidth = cardOverlap * (showDetail.trumpCards.length - 1) + CardWidth;
+    const startX = width / 2 - showWidth / 2;
     return (
       <g>
         <rect
@@ -74,7 +76,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
           return (
             <CardSvg
               key={index}
-              x={WindowInset + CardAreaMargin + index * cardoverlap}
+              x={startX + index * cardOverlap}
               y={cardy}
               card={card}
             />

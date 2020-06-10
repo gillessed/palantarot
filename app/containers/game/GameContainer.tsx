@@ -1,23 +1,24 @@
+import { Button, Dialog, Intent, Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ReduxState } from '../../services/rootReducer';
-import { Player } from '../../../server/model/Player';
-import { PlayerHand, Game } from '../../../server/model/Game';
-import { PlayersService } from '../../services/players';
-import { GameService } from '../../services/game';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { formatTimestamp } from '../../../server/utils/index';
-import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
-import { Dispatchers } from '../../services/dispatchers';
 import { Link } from 'react-router-dom';
-import { Dialog, Button, Intent, Spinner } from '@blueprintjs/core';
-import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
+import { Game, PlayerHand } from '../../../server/model/Game';
+import { Player } from '../../../server/model/Player';
+import { formatTimestamp } from '../../../server/utils/index';
 import { mergeContexts } from '../../app';
-import { SagaListener } from '../../services/sagaListener';
-import { deleteGameActions, DeleteGameService } from '../../services/deleteGame/index';
+import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { StaticRoutes, DynamicRoutes } from '../../routes';
+import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import history from '../../history';
+import { DynamicRoutes, StaticRoutes } from '../../routes';
+import { getSagaContext, SagaContextType, SagaRegistration } from '../../sagaProvider';
+import { deleteGameActions, DeleteGameService } from '../../services/deleteGame/index';
+import { Dispatchers } from '../../services/dispatchers';
+import { GameService } from '../../services/game';
+import { PlayersService } from '../../services/players';
+import { getPlayerName } from '../../services/players/playerName';
+import { ReduxState } from '../../services/rootReducer';
+import { SagaListener } from '../../services/sagaListener';
 
 interface OwnProps {
   match: {
@@ -168,7 +169,7 @@ class Internal extends React.PureComponent<Props, State> {
   ) => {
     if (handData) {
       const player = players.get(handData.id)!;
-      const playerName = player ? `${player.firstName} ${player.lastName}` : `Unknown Player: ${handData.id}`;
+      const playerName = player ? `${getPlayerName(player)}` : `Unknown Player: ${handData.id}`;
       const points = handData.pointsEarned;
       let containerStyle: string = 'player-container';
       if (points > 0) {

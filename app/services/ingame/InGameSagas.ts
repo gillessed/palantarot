@@ -1,91 +1,84 @@
-import { END, eventChannel, SagaIterator } from 'redux-saga';
-import { call, cancelled, put, take } from 'redux-saga/effects';
+import { Intent } from '@blueprintjs/core';
+import { TypedAction } from 'redoodle';
+import { all, fork, put, takeEvery } from 'redux-saga/effects';
 import { DebugPlayAction, DebugPlayMessage, PlayAction, PlayError, PlayMessage, PlayUpdates } from '../../../server/play/PlayMessages';
-import { PlayerEvent } from '../../play/common';
-import { takeEveryPayload, takeLatestTyped } from '../redux/serviceSaga';
+import { Palantoaster } from '../../components/toaster/Toaster';
+import history from '../../history';
+import { Action, AutoplayActionType, ErrorCode, ErrorEvent } from '../../play/common';
+import { StaticRoutes } from '../../routes';
+import { createSocketService, MessagePayload } from '../socket/socketService';
 import { DebugInGameActions, InGameActions } from './InGameActions';
 import { JoinGamePayload } from './InGameTypes';
 
-export const AutoplayActionType = 'debug_autoplay';
-
-function* joinGameSaga(payload: JoinGamePayload): SagaIterator {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const websocketUri = `${protocol}//${window.location.host}/ws`;
-  const websocket = new WebSocket(websocketUri);
-  const message: PlayMessage = {
+export const inGameSocketService = createSocketService<JoinGamePayload, PlayMessage>(
+  'PLAY',
+  (payload: JoinGamePayload) => ({
     type: 'play',
     game: payload.game,
     player: payload.player,
-  }
-  websocket.onopen = () => {
-    websocket.send(JSON.stringify(message));
-  };
+  }),
+);
 
-  const channel = yield call(listen, websocket);
-  yield takeEveryPayload(InGameActions.playAction, function* (action) {
-    const message: PlayAction = {
-      type: 'play_action',
-      action: action,
+function* handleMessage(action: TypedAction<MessagePayload<JoinGamePayload>>) {
+  const { message, metadata } = action.payload;
+  if (message.type === 'play_updates') {
+    const playUpdates = message as PlayUpdates;
+    yield put(InGameActions.playUpdate(playUpdates.events));
+  } else if (message.type === 'play_error') {
+    const playError = message as PlayError;
+    const errorEvent: ErrorEvent = {
+      type: 'error',
+      error: playError.error,
+      errorCode: playError.errorCode,
+      private_to: undefined,
+    };
+    if (errorEvent.errorCode === ErrorCode.DOES_NOT_EXIST) {
+      history.push(StaticRoutes.lobby());
+      Palantoaster.show({
+        message: `Could not find game with id ${metadata.game}`,
+        intent: Intent.DANGER,
+      });
     }
-    websocket.send(JSON.stringify(message));
-  });
-  yield takeEveryPayload(InGameActions.exitGame, function* () {
-    channel.close();
-  });
-  yield takeEveryPayload(DebugInGameActions.debugJoinGame, function* (action) {
-    const debugMessage: DebugPlayMessage = {
-      type: 'debug_play',
-      player: action.player,
-    }
-    websocket.send(JSON.stringify(debugMessage));
-  });
-  yield takeEveryPayload(DebugInGameActions.debugPlayAction, function* (action) {
-    const debugMessage: DebugPlayAction = {
-      type: 'debug_play_action',
-      action: action,
-    }
-    websocket.send(JSON.stringify(debugMessage));
-  });
-  yield takeLatestTyped(DebugInGameActions.autoplay, function* () {
-    const autoplayMessage = {
-      type: AutoplayActionType,
-    }
-    websocket.send(JSON.stringify(autoplayMessage));
-  });
-  try {
-    while (true) {
-      const events: PlayerEvent[] = yield take(channel);
-      yield put(InGameActions.playUpdate(events))
-    }
-  } finally {
-    if (yield cancelled()) {
-      channel.close();
-    }
+    yield put(InGameActions.playUpdate([errorEvent]));
   }
 }
 
 export function* inGameSaga() {
-  yield takeEveryPayload(InGameActions.joinGame, joinGameSaga);
+  yield all([
+    takeEvery(inGameSocketService.actions.message.TYPE, handleMessage),
+    takeEvery(InGameActions.playAction.TYPE, playActionSaga),
+    takeEvery(DebugInGameActions.debugJoinGame.TYPE, debugJoinGameSaga),
+    takeEvery(DebugInGameActions.debugPlayAction.TYPE, debugPlayActionSaga),
+    takeEvery(DebugInGameActions.autoplay.TYPE, autoplaySaga),
+    fork(inGameSocketService.saga),
+  ]);
 }
 
-type Message = PlayUpdates | PlayError;
+function* playActionSaga(action: TypedAction<Action>) {
+  const message: PlayAction = {
+    type: 'play_action',
+    action: action.payload,
+  };
+  yield put(inGameSocketService.actions.send(message));
+}
 
-function listen(socket: WebSocket) {
-  return eventChannel((emitter) => {
+function* debugJoinGameSaga(action: TypedAction<JoinGamePayload>) {
+  const debugMessage: DebugPlayMessage = {
+    type: 'debug_play',
+    player: action.payload.player,
+  };
+  yield put(inGameSocketService.actions.send(debugMessage));
+}
 
-    socket.onmessage = (event) => {
-      const data: Message = JSON.parse(event.data);
-      console.debug("Got data", data);
-      if (data.type === 'play_updates') {
-        emitter(data.events)
-      } else if (data.type === 'play_error') {
-        emitter([{ type: 'error', error: data.error }])
-      }
-    };
+function* debugPlayActionSaga(action: TypedAction<Action>) {
+  const debugMessage: DebugPlayAction = {
+    type: 'debug_play_action',
+    action: action.payload,
+  };
+  yield put(inGameSocketService.actions.send(debugMessage));
+}
 
-    socket.onclose = () => emitter(END);
-    return () => {
-      socket.close();
-    }
-  });
+function* autoplaySaga() {
+  const autoplayMessage = { type: AutoplayActionType };
+  yield put(inGameSocketService.actions.send(autoplayMessage));
 }

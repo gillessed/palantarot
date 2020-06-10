@@ -1,15 +1,16 @@
+import { Alignment, Checkbox, Dialog, FormGroup, Intent } from '@blueprintjs/core';
 import * as React from 'react';
-import { Player, NewPlayer } from '../../../server/model/Player';
-import { Dialog, Checkbox, Alignment, FormGroup, InputGroup, Intent } from '@blueprintjs/core';
-import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { AddPlayerService } from '../../services/addPlayer/index';
-import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { connect } from 'react-redux';
-import { ReduxState } from '../../services/rootReducer';
-import { DispatchersContextType, DispatchContext } from '../../dispatchProvider';
-import { Dispatchers } from '../../services/dispatchers';
+import { NewPlayer, Player } from '../../../server/model/Player';
+import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { PlayerSelectContainer } from '../../components/forms/PlayerSelect';
+import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
+import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
+import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
+import { AddPlayerService } from '../../services/addPlayer/index';
+import { Dispatchers } from '../../services/dispatchers';
+import { getPlayerName } from '../../services/players/playerName';
+import { ReduxState } from '../../services/rootReducer';
 
 export interface PlayerState {
   role: string;
@@ -68,7 +69,7 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
     ) {
       const player = nextProps.addPlayerService.newPlayer;
       Palantoaster.show({
-        message: `Added player ${player.firstName} ${player.lastName}.`,
+        message: `Added player ${getPlayerName(player)}.`,
         intent: TIntent.SUCCESS,
       });
       this.props.onChange({

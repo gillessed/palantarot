@@ -7,6 +7,7 @@ import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
 import { HandSvg } from '../svg/HandSvg';
+import { ShowOverlay } from '../svg/ShowOverlay';
 import { TitleOverlay } from '../svg/TitleOverlay';
 import { TrickSvg } from '../svg/TrickSvg';
 
@@ -27,7 +28,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
     selectedCards: new Set(),
   };
   public render() {
-    const { width, height, game, players } = this.props;
+    const { width, height, game, players, dispatchers } = this.props;
     const { selectedCards } = this.state;
     const isParticipant = InGameSelectors.isParticipant(game);
     return (<g className='playing-state-view'>
@@ -49,6 +50,13 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
         svgWidth={width}
         svgHeight={height}
         game={game}
+      />
+      <ShowOverlay
+        width={width}
+        height={height}
+        players={players}
+        game={game}
+        dispatchers={dispatchers}
       />
     </g>);
   }

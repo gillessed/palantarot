@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { BidRequest } from '../../../../server/model/Bid';
-import { BidsGraph } from './BidsGraph';
-import { loadContainer } from '../../LoadingContainer';
+import { Player } from '../../../../server/model/Player';
 import { playersLoader } from '../../../services/players/index';
+import { getPlayerName } from '../../../services/players/playerName';
+import { loadContainer } from '../../LoadingContainer';
+import { BidsGraph } from './BidsGraph';
 
 interface Props {
   playerId: string;
@@ -21,7 +22,7 @@ class PlayerBidsTabInternal extends React.PureComponent<Props, {}> {
 
   private renderGraph() {
     const player = this.props.players.get(this.props.playerId)!;
-    const title = `${player.firstName} ${player.lastName}'s Bid Breakdown `;
+    const title = `${getPlayerName(player)}'s Bid Breakdown `;
     const request: BidRequest = {
       playerId: this.props.playerId,
     };
