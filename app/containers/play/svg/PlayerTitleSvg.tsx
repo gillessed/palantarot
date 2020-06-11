@@ -61,11 +61,22 @@ const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
 export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, State> {
+  private textElement: SVGTextElement;
   public state: State = {};
+
+  public componentWillReceiveProps(nextProps: PlayerTitleSvg.Props) {
+    if (this.props.player !== nextProps.player) {
+      setTimeout(() => {
+        if (this.textElement) {
+          this.setState({ textWidth: this.textElement.getComputedTextLength() });
+        }
+      }, 0);
+    }
+  }
 
   public render() {
     const { player, showDealer, highlight, bid } = this.props;
-    const playerName = player ? `${getPlayerName(name)}` : 'Unknown Player';
+    const playerName = player ? `${getPlayerName(player)}` : 'Unknown Player';
     const L = this.getLayout();
     const textClasses = classNames('player-text unselectable',
       {
@@ -152,6 +163,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
 
   private setTextRef = (textElement?: SVGTextElement | null) => {
     if (textElement) {
+      this.textElement = textElement;
       this.setState({ textWidth: textElement.getComputedTextLength() });
     }
   }

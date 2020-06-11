@@ -33,14 +33,15 @@ export class TitleOverlay extends React.PureComponent<Props> {
   }
 
   private renderOtherPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
-    const { width, height, game } = this.props;
+    const { width, height, game, players } = this.props;
     if (playerOrder.length <= index) {
       return null;
     }
-    const bid = game.state.state === GameplayState.Bidding ? game.state.playerBids.get(playerOrder[index]) : undefined; 
+    const bid = game.state.state === GameplayState.Bidding ? game.state.playerBids.get(playerOrder[index]) : undefined;
+    const player = players.get(playerOrder[index]);
     return (
       <PlayerTitleSvg
-        player={{ firstName: playerOrder[index], lastName: '', id: playerOrder[index] }}
+        player={player}
         showDealer={this.isDealer(index)}
         showCrown={this.isWinningBidder(index)}
         showPerson={this.isPartner(index)}

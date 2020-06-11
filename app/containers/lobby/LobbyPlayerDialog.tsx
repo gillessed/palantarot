@@ -4,12 +4,14 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { PlayerSelect } from '../../components/forms/PlayerSelect';
+import { Palantoaster } from '../../components/toaster/Toaster';
 
 interface Props {
   isOpen: boolean;
   players: Map<string, Player>;
   playerId?: string;
   onConfirm: (playerId: string) => void;
+  onClose: () => void;
 }
 
 interface State {
@@ -26,15 +28,13 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    const contentClasses = classNames(Classes.DIALOG_BODY, 'lobby-select-container')
+    const contentClasses = classNames(Classes.DIALOG_BODY, 'lobby-select-container');
     return (
       <Dialog
         isOpen={this.props.isOpen}
         icon={IconNames.USER}
-        title='Select player'
-        isCloseButtonShown={false}
-        canEscapeKeyClose={false}
-        canOutsideClickClose={false}
+        title='Who Are You?'
+        onClose={this.handleClose}
       >
         <div className={contentClasses}>
           <PlayerSelect
@@ -65,6 +65,23 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
   public handleConfirm = () => {
     if (this.state.player != null) {
       this.props.onConfirm(this.state.player.id);
+    } else {
+      this.showErrror();
     }
+  }
+
+  public handleClose = () => {
+    if (this.props.playerId != null) {
+      this.props.onClose();
+    } else {
+      this.showErrror();
+    }
+  }
+
+  private showErrror = () => {
+    Palantoaster.show({
+      message: 'You must choose an identity to play.',
+      intent: Intent.DANGER,
+    });
   }
 }

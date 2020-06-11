@@ -1,55 +1,83 @@
+import { Player } from '../../server/model/Player';
+import { PlayerId } from '../play/common';
 import { GameplayState } from '../play/state';
 import { InGameDispatcher } from '../services/ingame/InGameDispatcher';
 import { InGameState } from '../services/ingame/InGameTypes';
 import { PlayDispatcher } from '../services/ingame/PlayDispatcher';
+import { getWindowRedux } from './consoleStore';
 
-type DebugDispatcher = PlayDispatcher & { joinLobby: () => void };
+type DebugGroupActions = {
+  numJoinGame(playerNum: number): void;
+  numEnterGame(playerNum: number): void;
+  numReady(playerNum: number): void;
+}
+type DebugDispatchers = {
+  [key: string]: DebugDispatcher;
+}
+type DebugPlayers = {
+  startGame(playerNumber: number): void;
+  autoplay(): void;
+} & DebugGroupActions & DebugDispatchers;
+type DebugDispatcher = PlayDispatcher & { joinGame: () => void };
+type DebugPlayerInfo = {
+  key: string;
+  id: string;
+}
+const DebugPlayerKeys = ['playertwo', 'playerthree', 'playerfour', 'playerfive'];
 
-interface D  {
-  p2: DebugDispatcher;
-  p3: DebugDispatcher;
-  p4: DebugDispatcher;
-  p5: DebugDispatcher;
-  p6: DebugDispatcher;
-  p7: DebugDispatcher;
+function getPlayerKey(player: Player) {
+  return `${player.firstName.toLocaleLowerCase()}${player.lastName.toLocaleLowerCase()}`;
 }
 
-function getArray(d: D) {
-  return [d.p2, d.p3, d.p4, d.p5];
+function buildDispatcher(playerId: PlayerId, game: string, dispatcher: InGameDispatcher): DebugDispatcher {
+  const obj: Partial<DebugDispatcher> = dispatcher.play(playerId, true);
+  obj.joinGame = () => dispatcher.debugJoinGame(playerId, game);
+  return obj as DebugDispatcher;
 }
 
-function joinLobby(d: D) {
+function getDebugPlayers(selfId: string, allPlayers: Player[]): DebugPlayerInfo[] {
+  const otherPlayers: DebugPlayerInfo[] = allPlayers
+    .filter((player) => player.id !== selfId)
+    .map((player) => ({ key: getPlayerKey(player), id: player.id }));
+  const nonDebugPlayers = otherPlayers.filter((info) => DebugPlayerKeys.indexOf(info.key) < 0);
+  const debugPlayers: DebugPlayerInfo[] = [];
+  for (const debugPlayerKey of DebugPlayerKeys) {
+    const info = otherPlayers.find((playerInfo) => playerInfo.key === debugPlayerKey);
+    if (info) {
+      debugPlayers.push(info);
+    }
+  }
+  for (const nonDebugPlayer of nonDebugPlayers) {
+    debugPlayers.push(nonDebugPlayer);
+  }
+  return debugPlayers;
+}
+
+function getGroupAction(
+  action: keyof DebugDispatcher,
+  selfId: PlayerId,
+  gameId: string,
+  players: Player[],
+  inGameDispatcher: InGameDispatcher,
+) {
   return (count: number) => {
-    const da = getArray(d);
-    for (let i = 0; i < count; i++) {
-      da[i].joinLobby();
+    const debugPlayers = getDebugPlayers(selfId, players);
+    if (debugPlayers.length < count) {
+      console.warn('Could not perform action as not enough players exist in the database.');
+      return;
+    }
+    for (const info of debugPlayers) {
+      const dispatcher =  buildDispatcher(info.id, gameId, inGameDispatcher);
+      (dispatcher[action] as Function)();
     }
   }
 }
 
-function enterGame(d: D) {
+function getStartGame(groupActions: DebugGroupActions) {
   return (count: number) => {
-    const da = getArray(d);
-    for (let i = 0; i < count; i++) {
-      da[i].enterGame();
-    }
-  }
-}
-
-function ready(d: D) {
-  return (count: number) => {
-    const da = getArray(d);
-    for (let i = 0; i < count; i++) {
-      da[i].markAsReady();
-    }
-  }
-}
-
-function startGame(d: D) {
-  return (count: number) => {
-    joinLobby(d)(count);
-    enterGame(d)(count);
-    ready(d)(count);
+    groupActions.numJoinGame(count);
+    groupActions.numEnterGame(count);
+    groupActions.numReady(count);
   }
 }
 
@@ -59,32 +87,30 @@ function autopass(game: InGameState | null, dispatcher: InGameDispatcher) {
   }
   const player = game.state.playerOrder[game.state.toBid];
   dispatcher.play(player).pass();
-} 
-
-function buildDispatcher(player: string, game: string, dispatcher: InGameDispatcher): DebugDispatcher {
-  const obj: any = dispatcher.play(player, true);
-  obj.joinLobby = () => dispatcher.debugJoinGame(player, game);
-  return obj;
 }
 
 export function registerDebugPlayers(player: string, gameId: string, dispatcher: InGameDispatcher) {
-  const d: D = {
-    p2: buildDispatcher("Player 2", gameId, dispatcher),
-    p3: buildDispatcher("Player 3 Long Long Name", gameId, dispatcher),
-    p4: buildDispatcher("Player 4 Name", gameId, dispatcher),
-    p5: buildDispatcher("Player 5", gameId, dispatcher),
-    p6: buildDispatcher("Player 6", gameId, dispatcher),
-    p7: buildDispatcher("Player 7", gameId, dispatcher),
-  };
-  const dw = {
-    enterGame: enterGame(d),
-    joinLobby: joinLobby(d),
-    ready: ready(d),
-    startGame: startGame(d),
+  const playerMap = getWindowRedux().getState().players.value;
+  if (!playerMap) {
+    return;
+  }
+  const players = [...playerMap.values()];
+  const debugPlayers = getDebugPlayers(player, players);
+  const groupActions: DebugGroupActions = {
+    numJoinGame: getGroupAction('joinGame', player, gameId, players, dispatcher),
+    numEnterGame: getGroupAction('enterGame', player, gameId, players, dispatcher),
+    numReady: getGroupAction('markAsReady', player, gameId, players, dispatcher),
+  }
+  const d = {
+    ...groupActions,
+    startGame: getStartGame(groupActions),
     autoplay: () => dispatcher.autoplay(),
-  };
+  } as DebugPlayers;
+  for (const debugPlayer of debugPlayers) {
+    const playDispatcher = buildDispatcher(debugPlayer.id, gameId, dispatcher);
+    d[debugPlayer.key] = playDispatcher;
+  }
   (window as any).d = d;
-  (window as any).dw = dw;
 }
 
 export function unregisterDebugPlayers() {

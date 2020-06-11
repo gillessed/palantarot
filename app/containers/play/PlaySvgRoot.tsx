@@ -4,13 +4,12 @@ import { GameplayState } from '../../play/state';
 import { Dispatchers } from '../../services/dispatchers';
 import { InGameState } from '../../services/ingame/InGameTypes';
 import { BiddingGameStateView } from './state/BiddingGameStateView';
+import { CompletedStateView } from './state/CompletedGameStateView';
 import { DogRevealStateView } from './state/DogRevealStateView';
 import { NewGameStateView } from './state/NewGameStateView';
 import { PartnerCallStateView } from './state/PartnerCallStateView';
 import { PlayingStateView } from './state/PlayingGameStateView';
 import { Gradients } from './svg/Gradients';
-import { cards5 } from './svg/testState';
-import { CompletedStateView } from './state/CompletedGameStateView';
 
 interface Props {
   width: number;
@@ -28,7 +27,6 @@ export class PlaySvgRoot extends React.Component<Props> {
 
   public render() {
     const { width, height } = this.props;
-    const { hands, dog } = cards5;
     return (
       <svg
         className='play-svg'

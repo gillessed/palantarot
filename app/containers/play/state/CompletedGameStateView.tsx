@@ -8,6 +8,7 @@ import { CompletedGameState, Outcome, PlayerId } from '../../../play/common';
 import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
+import { getPlayerName } from '../../../services/players/playerName';
 import { ActionButton } from '../svg/ActionButton';
 import { getCardUrl } from '../svg/CardSvg';
 import { TitleOverlay } from '../svg/TitleOverlay';
@@ -206,6 +207,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
   }
 
   private renderResultsView(state: CompletedGameState) {
+    const { players } = this.props;
     const results: Result[] = [];
     const playerOrder: string[] = [state.bidder];
     const rest = new Set(state.players);
@@ -240,6 +242,8 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
               'plus': result.points >= 0,
               'minus': result.points < 0,
             });
+            const player = players.get(result.player);
+            const playerName = getPlayerName(player);
             return (
               <React.Fragment key={index}>
                 <div className='result-separator' key={`separator-${index}`} />
@@ -259,7 +263,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
                     iconSize={30}
                     color='#C274C2'
                   />}
-                  <span className='unselectable'>{result.player}</span>
+                  <span className='unselectable'>{playerName}</span>
                   <span className={pointsClasses}>{result.points}</span>
                 </div>
               </React.Fragment >

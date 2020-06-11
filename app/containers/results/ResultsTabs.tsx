@@ -1,14 +1,14 @@
+import { Tab, Tabs } from '@blueprintjs/core';
 import * as React from 'react';
 import { IMonth } from '../../../server/model/Month';
+import { Player } from '../../../server/model/Player';
 import { Result, RoleResult, RoleResultRankChange } from '../../../server/model/Result';
-import { Tabs, Tab } from '@blueprintjs/core';
+import { integerComparator } from '../../../server/utils/index';
 import { ResultsGraphContainer } from '../../components/results/ResultsGraphContainer';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
-import { Player } from '../../../server/model/Player';
-import { integerComparator } from '../../../server/utils/index';
-import { loadContainer } from '../LoadingContainer';
 import { playersLoader } from '../../services/players/index';
 import { resultsLoader } from '../../services/results/index';
+import { loadContainer } from '../LoadingContainer';
 
 interface Props {
   players: Map<string, Player>;
@@ -42,7 +42,7 @@ class ResultsTabsInternal extends React.PureComponent<Props> {
       );
     } else {
       return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 200 }}>
+        <div className='no-results-container' >
           <h4 className='bp3-heading'> No results for this month!</h4>
         </div>
       );

@@ -104,12 +104,14 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
   }
 
   private renderMessage = (event: SidebarEvent, index: number) => {
+    const { players, game } = this.props;
     switch (event.type) {
       case 'message_group':
         return (
           <PlayMessage
-            game={this.props.game}
+            game={game}
             message={event}
+            players={players}
             key={index}
           />
         );
