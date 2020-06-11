@@ -9,3 +9,11 @@
 .lobby-tab-container {
   margin-top: 20px;
 }
+
+.no-games-container {
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  width          : 100%;
+  height         : 200;
+}

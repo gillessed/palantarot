@@ -1,4 +1,4 @@
-import { Button, HTMLTable, Intent, Tab, Tabs, Tag } from '@blueprintjs/core';
+import { Button, Classes, HTMLTable, Intent, Tab, Tabs, Tag } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import moment from "moment";
 import React from "react";
@@ -113,6 +113,13 @@ class LobbyInternal extends React.PureComponent<Props, State> {
 
   private renderOpenGames = () => {
     const openGames = LobbySelectors.getOpenGames(this.props.games);
+    if (openGames.length === 0) {
+      return (
+        <div className='no-games-container'>
+          <h4 className={Classes.HEADING}>No open games found. Press 'New Game' to start a new game.</h4>
+        </div>
+      );
+    }
     return (
       <HTMLTable>
         <thead>
@@ -141,6 +148,13 @@ class LobbyInternal extends React.PureComponent<Props, State> {
 
   private renderInProgressGames = () => {
     const inProgressGames = LobbySelectors.getInProgressGames(this.props.games);
+    if (inProgressGames.length === 0) {
+      return (
+        <div className='no-games-container'>
+          <h4 className={Classes.HEADING}>No games in progress found.</h4>
+        </div>
+      );
+    }
     return (
       <HTMLTable>
         <thead>
@@ -172,7 +186,14 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
 
   private renderCompletedGames = () => {
-    const inProgressGames = LobbySelectors.getCompletedGames(this.props.games);
+    const completedGames = LobbySelectors.getCompletedGames(this.props.games);
+    if (completedGames.length === 0) {
+      return (
+        <div className='no-games-container'>
+          <h4 className={Classes.HEADING}>No completed games found.</h4>
+        </div>
+      );
+    }
     return (
       <HTMLTable>
         <thead>
@@ -183,7 +204,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
           </tr>
         </thead>
         <tbody>
-          {inProgressGames.map((game) => (
+          {completedGames.map((game) => (
             <tr key={game.id}>
               <td>{game.id}</td>
               <td>{moment(game.dateCreated).fromNow()}</td>

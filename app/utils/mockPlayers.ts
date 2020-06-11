@@ -66,7 +66,8 @@ function getGroupAction(
       console.warn('Could not perform action as not enough players exist in the database.');
       return;
     }
-    for (const info of debugPlayers) {
+    for (let i = 0; i < count; i++) {
+      const info = debugPlayers[i];
       const dispatcher =  buildDispatcher(info.id, gameId, inGameDispatcher);
       (dispatcher[action] as Function)();
     }

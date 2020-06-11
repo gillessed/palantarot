@@ -4,20 +4,32 @@ import { InGameState } from '../../../services/ingame/InGameTypes';
 import './BottomLeftStatus.scss';
 import { getCardUrl } from './CardSvg';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
+export namespace BottomLeftStatus {
+  export interface Props {
+    width: number;
+    height: number;
+    players: Map<string, Player>;
+    game: InGameState;
+  }
 }
+export const BottomLeftStatusLayout = {
+  Left: 300,
+  Height: 300,
+  Width: 400,
+};
 
-export class BottomLeftStatus extends React.PureComponent<Props> {
+export class BottomLeftStatus extends React.PureComponent<BottomLeftStatus.Props> {
   public render() {
     const { height, game } = this.props;
     const partnerCall = game.state.partnerCard;
     const dog = game.state.dog;
     return (
-      <foreignObject x={0} y={height - 300} width={400} height={300}>
+      <foreignObject
+        x={0}
+        y={height - BottomLeftStatusLayout.Height}
+        width={BottomLeftStatusLayout.Width}
+        height={BottomLeftStatusLayout.Height}
+      >
         <div className='bottom-left-status'>
           <div className='bottom-left-background'>
             {partnerCall && <div className='status-line'>

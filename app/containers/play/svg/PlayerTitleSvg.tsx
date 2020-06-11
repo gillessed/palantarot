@@ -32,10 +32,16 @@ export namespace PlayerTitleSvg {
     bid?: Bid;
   }
 
+  export interface State {
+    textWidth?: number;
+  }
+
+  export type ArrangementArgs = ArrangementProps & State;
+
   export type Props = ArrangementProps & OwnProps;
 }
 
-interface Layout {
+export interface TitleLayout {
   cardx: number;
   cardy: number;
   textx: number;
@@ -49,10 +55,6 @@ interface Layout {
   bidAnchor: string;
 }
 
-interface State {
-  textWidth?: number;
-}
-
 const TopCardY = -CardHeight + 70;
 const HorizontalX = CardWidth / 2;
 const TextMargin = 10;
@@ -60,9 +62,9 @@ const TextHeight = 28;
 const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
-export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, State> {
+export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, PlayerTitleSvg.State> {
   private textElement: SVGTextElement;
-  public state: State = {};
+  public state: PlayerTitleSvg.State = {};
 
   public componentWillReceiveProps(nextProps: PlayerTitleSvg.Props) {
     if (this.props.player !== nextProps.player) {
@@ -77,7 +79,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
   public render() {
     const { player, showDealer, highlight, bid } = this.props;
     const playerName = player ? `${getPlayerName(player)}` : 'Unknown Player';
-    const L = this.getLayout();
+    const L = getTitleLayout({ ...this.props, ...this.state });
     const textClasses = classNames('player-text unselectable',
       {
         'highlight': highlight,
@@ -106,7 +108,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
     );
   }
 
-  private renderBid(bid: Bid, L: Layout) {
+  private renderBid(bid: Bid, L: TitleLayout) {
     const fillId = bid.bid === BidValue.PASS ? GradientIds.PassText : GradientIds.BidText;
     const text = bid.bid === BidValue.PASS ? 'PASS' :
       (bid.bid === BidValue.TWENTY && bid.calls.indexOf(Call.RUSSIAN) >= 0) ? 'R 20' :
@@ -125,7 +127,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
     );
   }
 
-  private renderIcons(L: Layout) {
+  private renderIcons(L: TitleLayout) {
     const { showReady, showUnready, showCrown, showPerson } = this.props;
     const { textWidth } = this.state;
     if (textWidth === undefined) {
@@ -167,91 +169,91 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, St
       this.setState({ textWidth: textElement.getComputedTextLength() });
     }
   }
+}
 
-  private getLayout() {
-    const { svgWidth, svgHeight, side, position, text } = this.props;
-    const { textWidth } = this.state;
-    const L: Layout = {
-      cardx: 0,
-      cardy: 0,
-      textx: 0,
-      texty: 0,
-      textAnchor: 'auto',
-      iconx: 100000,
-      icony: 0,
-      iconxdelta: 0,
-      bidx: 100000,
-      bidy: 0,
-      bidAnchor: 'auto',
-    }
-    if (side === 'top') {
-      L.cardx = position - CardWidth / 2;
-      L.cardy = TopCardY;
-      L.texty = TextHeight + TextMargin + CardHeight + TopCardY;
-      L.icony = L.texty - IconSize.width / 2 - 15;
-      L.bidy = L.cardy + CardHeight + 110;
-      L.bidx = position;
-      L.bidAnchor = 'middle';
-      L.icony = L.texty - IconSize.width / 2 - IconYOffset;
-      if (text === 'before') {
-        L.textx = L.cardx - TextMargin + CardWidth;
-        L.textAnchor = 'end';
-        L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
-      } else {
-        L.textx = L.cardx + TextMargin;
-        L.textAnchor = 'start';
-        L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
-      }
-    } else if (side === 'left') {
-      L.cardx = -CardWidth + HorizontalX;
-      L.cardy = position;
-      L.textAnchor = 'start';
-      L.textx = TextMargin;
-      L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
-      L.bidy = L.cardy + CardHeight / 2;
-      L.bidx = HorizontalX + 30;
-      L.bidAnchor = 'start';
-      if (text === 'before') {
-        L.texty = L.cardy - TextMargin;
-      } else {
-        L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
-      }
-      L.icony = L.texty - IconSize.width / 2 - IconYOffset;
-      L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
-    } else if (side === 'right') {
-      L.cardx = svgWidth - HorizontalX;
-      L.cardy = position;
-      L.textAnchor = 'end';
-      L.textx = svgWidth - TextMargin;
-      L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
-      L.bidy = L.cardy + CardHeight / 2;
-      L.bidx = L.cardx - 30;
-      L.bidAnchor = 'end';
-      if (text === 'before') {
-        L.texty = L.cardy - TextMargin;
-      } else {
-        L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
-      }
-      L.icony = L.texty - IconSize.width / 2 - IconYOffset;
-    } else if (side === 'bottom') {
-      L.cardx = svgWidth - CardWidth - 50;
-      L.cardy = svgHeight - HandCardPopup;
-      L.textx = svgWidth - 50;
-      L.texty = svgHeight - HandCardPopup - 10;
-      L.textAnchor = 'end';
-      L.icony = svgHeight - HandCardPopup - 10 - IconSize.height / 2 - 15;
-      L.bidy = svgHeight - HandCardPopup - 80;
-      L.bidAnchor = 'end';
-      if (textWidth !== undefined) {
-        L.iconx = svgWidth - 50 - textWidth - IconSize.width - 10;
-        L.bidx = svgWidth - 50 - textWidth - 80;
-      }
-    }
-    if (text === 'before') {
-      L.iconxdelta = -IconXDelta;
-    } else {
-      L.iconxdelta = IconXDelta;
-    }
-    return L;
+export function getTitleLayout({
+  svgWidth, svgHeight, side, position, text, textWidth,
+}: PlayerTitleSvg.ArrangementArgs) {
+  const L: TitleLayout = {
+    cardx: 0,
+    cardy: 0,
+    textx: 0,
+    texty: 0,
+    textAnchor: 'auto',
+    iconx: 100000,
+    icony: 0,
+    iconxdelta: 0,
+    bidx: 100000,
+    bidy: 0,
+    bidAnchor: 'auto',
   }
+  if (side === 'top') {
+    L.cardx = position - CardWidth / 2;
+    L.cardy = TopCardY;
+    L.texty = TextHeight + TextMargin + CardHeight + TopCardY;
+    L.icony = L.texty - IconSize.width / 2 - 15;
+    L.bidy = L.cardy + CardHeight + 110;
+    L.bidx = position;
+    L.bidAnchor = 'middle';
+    L.icony = L.texty - IconSize.width / 2 - IconYOffset;
+    if (text === 'before') {
+      L.textx = L.cardx - TextMargin + CardWidth;
+      L.textAnchor = 'end';
+      L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
+    } else {
+      L.textx = L.cardx + TextMargin;
+      L.textAnchor = 'start';
+      L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
+    }
+  } else if (side === 'left') {
+    L.cardx = -CardWidth + HorizontalX;
+    L.cardy = position;
+    L.textAnchor = 'start';
+    L.textx = TextMargin;
+    L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
+    L.bidy = L.cardy + CardHeight / 2;
+    L.bidx = HorizontalX + 30;
+    L.bidAnchor = 'start';
+    if (text === 'before') {
+      L.texty = L.cardy - TextMargin;
+    } else {
+      L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
+    }
+    L.icony = L.texty - IconSize.width / 2 - IconYOffset;
+    L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
+  } else if (side === 'right') {
+    L.cardx = svgWidth - HorizontalX;
+    L.cardy = position;
+    L.textAnchor = 'end';
+    L.textx = svgWidth - TextMargin;
+    L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
+    L.bidy = L.cardy + CardHeight / 2;
+    L.bidx = L.cardx - 30;
+    L.bidAnchor = 'end';
+    if (text === 'before') {
+      L.texty = L.cardy - TextMargin;
+    } else {
+      L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
+    }
+    L.icony = L.texty - IconSize.width / 2 - IconYOffset;
+  } else if (side === 'bottom') {
+    L.cardx = svgWidth - CardWidth - 50;
+    L.cardy = svgHeight - HandCardPopup;
+    L.textx = svgWidth - 50;
+    L.texty = svgHeight - HandCardPopup - 10;
+    L.textAnchor = 'end';
+    L.icony = svgHeight - HandCardPopup - 10 - IconSize.height / 2 - 15;
+    L.bidy = svgHeight - HandCardPopup - 80;
+    L.bidAnchor = 'end';
+    if (textWidth !== undefined) {
+      L.iconx = svgWidth - 50 - textWidth - IconSize.width - 10;
+      L.bidx = svgWidth - 50 - textWidth - 80;
+    }
+  }
+  if (text === 'before') {
+    L.iconxdelta = -IconXDelta;
+  } else {
+    L.iconxdelta = IconXDelta;
+  }
+  return L;
 }
