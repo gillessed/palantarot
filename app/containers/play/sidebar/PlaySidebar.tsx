@@ -8,6 +8,7 @@ import { StaticRoutes } from '../../../routes';
 import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState, SidebarEvent } from '../../../services/ingame/InGameTypes';
+import { getPlayerName } from '../../../services/players/playerName';
 import { CardBackUrls, getCardText } from '../svg/CardSvg';
 import { GameEventMessage } from './GameEventMessage';
 import { PlayMessage } from './PlayMessage';
@@ -118,18 +119,21 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
       case 'bid':
         const bidEvent = event as BidAction;
         const bidRussian = (bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1) >= 0;
+        const bidderName = getPlayerName(players.get(bidEvent.player));
         const bidMessage = bidEvent.bid === BidValue.PASS
-          ? `${bidEvent.player} passed`
-          : `${bidEvent.player} bid ${bidRussian ? 'russian 20' : bidEvent.bid}`;
+          ? `${bidderName} passed`
+          : `${bidderName} bid ${bidRussian ? 'russian 20' : bidEvent.bid}`;
         return <GameEventMessage key={index} message={bidMessage} />;
       case 'bidding_completed':
         const biddingCompletedTransition = event as BiddingCompletedTransition;
         const biddingCompletedWinner = biddingCompletedTransition.winning_bid.player;
-        const biddingCompletedMessage = `${biddingCompletedWinner} has won the bid`
+        const biddingCompletedPlayerName = getPlayerName(players.get(biddingCompletedWinner));
+        const biddingCompletedMessage = `${biddingCompletedPlayerName} has won the bid`;
         return <GameEventMessage key={index} message={biddingCompletedMessage} />;
       case 'call_partner':
         const callEvent = event as CallPartnerAction;
-        const callMessage = `${callEvent.player} has called ${getCardText(callEvent.card)}`
+        const callPlayerName = getPlayerName(players.get(callEvent.player));
+        const callMessage = `${callPlayerName} has called ${getCardText(callEvent.card)}`
         return <GameEventMessage key={index} message={callMessage} />;
       default: return null;
     }
@@ -144,16 +148,17 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
   }
 
   private renderPlayer = (player: PlayerId) => {
-    const { game } = this.props;
+    const { game, players } = this.props;
     const isParticipant = game.state.playerOrder.indexOf(player) >= 0;
     const isYou = game.player === player;
+    const playerName = getPlayerName(players.get(player));
     return (
       <div key={player} className='player-row'>
         <Icon
           icon={isParticipant ? IconNames.PERSON : IconNames.EYE_OPEN}
           color={isYou ? '#0F9960' : isParticipant ? '#137CBD' : '#F5F8FA'}
         />
-        <span className='player-name unselectable'>{player} {isYou && ' (You)'}</span>
+        <span className='player-name unselectable'>{playerName} {isYou && ' (You)'}</span>
       </div>
     );
   }
