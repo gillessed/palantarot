@@ -31,7 +31,7 @@ export class TopRightStatus extends React.PureComponent<Props> {
       case GameplayState.DogReveal:
         const revealId = game.state.winningBid?.player ?? "";
         const revealName = getPlayerName(players.get(revealId));
-        text = `${revealId} is dropping their dog`; break;
+        text = `${revealName} is dropping their dog`; break;
       case GameplayState.Playing: text = this.getPlayingStatus(); break;
     }
     if (text.length === 0) {
