@@ -489,6 +489,7 @@ function getFinalScore(
   bidding_team: PlayerId[],
   bid: BidValue,
   cards_won: Card[],
+  dog: Card[],
   shows: ShowTrumpState,
   calls: { [player: number]: Call[] },
   outcomes: { [player: number]: Outcome[] })
@@ -496,7 +497,7 @@ function getFinalScore(
   const bouts = _.filter(cards_won, (card): card is Bout =>
     card[0] === TrumpSuit && (
       card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
-  const pointsEarned = cards_won.map(getCardPoint).reduce((a, b) => a + b, 0);
+  const pointsEarned = [...cards_won, ...dog].map(getCardPoint).reduce((a, b) => a + b, 0);
   const neededToWin = [56, 51, 41, 36][bouts.length];
   const bidderWon = pointsEarned >= neededToWin;
 
@@ -625,7 +626,7 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
           const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
           const outcomes = getOutcomes(state.players, bidding_team, tricks);
           const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
-            cards_won, state.shows, state.bidding.calls, outcomes);
+            cards_won, state.dog, state.shows, state.bidding.calls, outcomes);
           const end_state = {
             players: state.players,
             bidder: state.bidder,
