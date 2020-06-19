@@ -499,7 +499,7 @@ function getFinalScore(
       card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
   const trickPoints = cards_won.map(getCardPoint).reduce((a, b) => a + b, 0);
   const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
-  const pointsEarned = trickPoints + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : -1));
+  const pointsEarned = trickPoints + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : 0));
   const neededToWin = [56, 51, 41, 36][bouts.length];
   const bidderWon = pointsEarned >= neededToWin;
 
