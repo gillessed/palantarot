@@ -1,27 +1,35 @@
 import { Action, PlayerEvent, PlayerId, Transition } from "./common";
 import { biddingBoardReducer, completedBoardReducer, dogRevealAndExchangeBoardReducer, newGameBoardReducer, partnerCallBoardReducer, playingBoardReducer } from "./reducers";
-import { BoardReducer, BoardState, NewGameBoardState } from "./state";
+import { BoardReducer, BoardState, GameplayState, NewGameBoardState } from './state';
 
 type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
 
+function createInitialState(): NewGameBoardState {
+  return {
+    name: GameplayState.NewGame,
+    players: [],
+    ready: [],
+  };
+}
+
+function buildReducer() {
+  return {
+    'new_game': newGameBoardReducer,
+    'bidding': biddingBoardReducer,
+    'partner_call': partnerCallBoardReducer,
+    'dog_reveal': dogRevealAndExchangeBoardReducer,
+    'playing': playingBoardReducer,
+    'completed': completedBoardReducer,
+  };
+}
+
 export class Game {
-  static readonly create_new = function (): Game {
+  static readonly createNew = function (): Game {
     return new Game(
-      Date.now() + "",
+      `${Date.now()}`,
       new Date(),
-      {
-        'new_game': newGameBoardReducer,
-        'bidding': biddingBoardReducer,
-        'partner_call': partnerCallBoardReducer,
-        'dog_reveal': dogRevealAndExchangeBoardReducer,
-        'playing': playingBoardReducer,
-        'completed': completedBoardReducer,
-      },
-      {
-        name: 'new_game',
-        players: [],
-        ready: [],
-      } as NewGameBoardState,
+      buildReducer(),
+      createInitialState(),
       []);
   };
 
@@ -30,27 +38,27 @@ export class Game {
     public readonly created: Date,
     private readonly reducers: ReducerMap,
     private state: BoardState,
-    private readonly log: PlayerEvent[]) {
-  }
+    private readonly log: PlayerEvent[],
+  ) {}
 
   public playerAction<T extends Action>(event: T): PlayerEvent[] {
     const reducer = this.reducers[this.state.name];
     if (reducer === undefined) {
       throw new Error(`Cannot find reducer for ${this.state.name}, known reducers are ${Object.keys(this.reducers)}`)
     }
-    const [new_state, ...new_events] = reducer(this.state, event);
-    this.state = new_state;
-    this.log.push(...new_events);
-    return new_events;
+    const [newState, ...newEvents] = reducer(this.state, event);
+    this.state = newState;
+    this.log.push(...newEvents);
+    return newEvents;
   }
 
   public appendTransition<T extends Transition>(event: T) {
     this.log.push(event);
   }
 
-  public getEvents(player: PlayerId, start_at: number = 0, limit: number = 100): [PlayerEvent[], number] {
+  public getEvents(player: PlayerId, startAt: number = 0, limit: number = 100): [PlayerEvent[], number] {
     const events = [];
-    let i = start_at;
+    let i = startAt;
     for (; i < this.log.length && events.length < limit; i++) {
       const privacy = this.log[i].private_to;
       if (privacy === undefined || privacy === player || player === '<debug-player>') {

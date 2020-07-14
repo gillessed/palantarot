@@ -28,7 +28,7 @@ export class PlayService {
   }
 
   public newGame = async (req: Request, res: Response) => {
-    const game = Game.create_new();
+    const game = Game.createNew();
     this.games.set(game.id, game);
     this.players.set(game.id, new Set<PlayerId>());
     res.send(game.id);

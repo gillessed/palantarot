@@ -207,8 +207,6 @@ class LobbyInternal extends React.PureComponent<Props, State> {
           {completedGames.map((game) => (
             <tr key={game.id}>
               <td>{game.id}</td>
-              <td>{moment(game.dateCreated).fromNow()}</td>
-              <td>{StateMap[game.state]}</td>
               <td>{this.renderPlayers(game.players)}</td>
               <td>{moment(game.lastUpdated).fromNow()}</td>
               <td>
@@ -267,7 +265,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
 
   private playGame = (id: string) => {
     if (this.props.gamePlayer) {
-      history.push(DynamicRoutes.play(this.props.gamePlayer.playerId, id));
+      history.push(DynamicRoutes.play(id));
     }
   };
 

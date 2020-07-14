@@ -65,7 +65,7 @@ function autoplayTrick(game: Game, time: () => number) {
 }
 
 export const test = () => {
-  const game = Game.create_new();
+  const game = Game.createNew();
   const time = createTimer();
   testingSetShuffler((_cards: Card[]) => [..._.concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
 

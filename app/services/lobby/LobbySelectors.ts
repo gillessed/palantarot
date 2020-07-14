@@ -23,7 +23,7 @@ export const getInProgressGames = defaultMemoize((lobby: Map<string, GameDescrip
 
 export const getCompletedGames = defaultMemoize((lobby: Map<string, GameDescription>) => {
   return [...lobby.values()]
-    .filter((game) => game.state !== GameplayState.NewGame && game.state !== GameplayState.Completed)
+    .filter((game) => game.state === GameplayState.Completed)
     .sort(gameComparator);
 });
 

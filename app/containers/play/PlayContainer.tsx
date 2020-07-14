@@ -1,11 +1,15 @@
-import { Spinner } from '@blueprintjs/core';
+import { Intent, Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Player } from '../../../server/model/Player';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
+import { Palantoaster } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
+import history from '../../history';
 import { Action } from '../../play/common';
+import { StaticRoutes } from '../../routes';
 import { Dispatchers } from '../../services/dispatchers';
+import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
 import { InGameState } from '../../services/ingame/InGameTypes';
 import { playersLoader } from '../../services/players/index';
 import { ReduxState } from '../../services/rootReducer';
@@ -20,13 +24,13 @@ interface OwnProps {
   match: {
     params: {
       gameId: string;
-      player: string;
     }
   }
 }
 
 interface StoreProps {
   game: InGameState | null;
+  gamePlayer: GamePlayer | null;
 }
 
 type Props = OwnProps & StoreProps;
@@ -42,10 +46,19 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
   }
 
   public componentWillMount() {
+    const { gamePlayer } = this.props;
+    if (gamePlayer == null) {
+      history.push(StaticRoutes.lobby());
+      Palantoaster.show({
+        intent: Intent.DANGER,
+        message: 'You have not chosen a player id.',
+      });
+      return;
+    }
     if (this.props.game == null) {
-      const { gameId, player } = this.props.match.params;
-      this.dispatchers.ingame.joinGame(player, gameId);
-      registerDebugPlayers(player, gameId, this.dispatchers.ingame);
+      const { gameId } = this.props.match.params;
+      this.dispatchers.ingame.joinGame(gamePlayer.playerId, gameId);
+      registerDebugPlayers(gamePlayer.playerId, gameId, this.dispatchers.ingame);
     }
   }
 
@@ -55,8 +68,8 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
   }
 
   public render() {
-    const { players, game } = this.props;
-    if (game == null || game.events.length === 0) {
+    const { players, game, gamePlayer } = this.props;
+    if (game == null || game.events.length === 0 || gamePlayer == null) {
       return (
         <SpinnerOverlay size={Spinner.SIZE_LARGE} />
       );
@@ -71,7 +84,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
           <PlaySidebar
             players={players}
             game={game}
-            playerId={this.props.match.params.player}
+            playerId={gamePlayer.playerId}
             dispatchers={this.dispatchers}
           />
         </div>
@@ -83,6 +96,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
 const mapStateToProps = (state: ReduxState): StoreProps => {
   return {
     game: state.ingame,
+    gamePlayer: state.gamePlayer,
   };
 }
 
