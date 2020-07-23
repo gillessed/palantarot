@@ -21,6 +21,7 @@ import { PlayerContainer } from './containers/player/PlayerContainer';
 import { RecentContainer } from './containers/recent/RecentContainer';
 import { RecordsContainer } from './containers/records/RecordsContainer';
 import { ResultsContainer } from './containers/results/ResultsContainer';
+import { RulesContainer } from './containers/rules/RulesContainer';
 import { SearchContainer } from './containers/search/SearchContainer';
 import { SearchResultsContainer } from './containers/search/SearchResultsContainer';
 import { EditTarothonContainer } from './containers/tarothon/EditTarothonContainer';
@@ -82,6 +83,7 @@ async function init() {
         <Route path='/app/tarothon/:tarothonId' component={TarothonContainer} />
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
         <Route path='/app/lobby' component={LobbyContainer} />
+        <Route path='/app/rules' component={RulesContainer} />
         <Route path='/play/:gameId' component={PlayContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>

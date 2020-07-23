@@ -12,6 +12,7 @@ const StaticRoutesInternal = {
   addTarothon: () => '/app/add-tarothon',
   lobby: () => '/app/lobby',
   login: () => '/login',
+  rules: () => '/app/rules',
 }
 
 export const StaticRoutes = StaticRoutesInternal; 

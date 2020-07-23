@@ -1,0 +1,51 @@
+.rules-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 1024px;
+
+  p {
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin-top: 20px;
+  }
+
+  img {
+    flex-shrink: 1;
+    width: 60px;
+    overflow: hidden;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  .card-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    max-width: 1024px;
+  }
+
+  .card-with-subtitle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 1024px;
+  }
+
+  .important-text {
+    font-weight: bold;
+  }
+
+  .equation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-style: italic;
+  }
+}
