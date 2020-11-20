@@ -1,7 +1,7 @@
-import { Client } from 'pg';
 import * as fs from 'fs';
-import { SqlConfig, Dump, Hand, PlayerHand } from './dump';
+import { Client } from 'pg';
 import { Player } from '../server/model/Player';
+import { Dump, Hand, PlayerHand, SqlConfig } from './dump';
 
 if (process.argv.length !== 4) {
     console.log('Usage: node psqlInjest.js CONFIG_FILE DUMP_FILE');
@@ -15,7 +15,9 @@ const client = new Client(config);
 inject();
 
 async function inject() {
+    console.log('foo');
     await client.connect();
+    console.log('bar');
 
     try {
         const playerColumns: [keyof Player, string][] = [

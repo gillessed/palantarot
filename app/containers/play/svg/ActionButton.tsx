@@ -17,7 +17,7 @@ interface Props {
 
 export class ActionButton extends React.PureComponent<Props> {
   public render() {
-    const { x, y, width, height, className, text, onClick, disabled, selected, color } = this.props;
+    const { x, y, width, height, className, text, disabled, selected, color } = this.props;
     const left = x - width / 2;
     const top = y - height / 2;
     const classes = classNames(
@@ -38,7 +38,7 @@ export class ActionButton extends React.PureComponent<Props> {
       },
     );
     return (
-      <g className={classes} opacity={disabled ? 0.5 : 1} onClick={onClick}>
+      <g className={classes} opacity={disabled ? 0.5 : 1} onClick={this.onClick}>
         <rect
           className={rectClasses}
           width={width}
@@ -58,5 +58,11 @@ export class ActionButton extends React.PureComponent<Props> {
         </text>
       </g>
     );
+  }
+
+  private onClick = () => {
+    if (this.props.onClick && !this.props.disabled) {
+      this.props.onClick();
+    }
   }
 }
