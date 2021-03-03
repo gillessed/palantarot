@@ -16,6 +16,7 @@ import { lobbyLoader } from '../../services/lobby/LobbyService';
 import { playersLoader } from '../../services/players/index';
 import { getPlayerName } from '../../services/players/playerName';
 import { ReduxState } from '../../services/rootReducer';
+import { GameSettingsDialog } from './GameSettingsDialog';
 import './LobbyContainer.scss';
 import { LobbyPlayerDialog } from "./LobbyPlayerDialog";
 
@@ -48,6 +49,7 @@ const StateMap: { [key: string]: string } = {
 
 interface State {
   isPlayerDialogOpen: boolean;
+  isGameSettingsDialogOpen: boolean;
   selectedTabId: string;
 }
 
@@ -58,6 +60,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
     this.state = {
       isPlayerDialogOpen: !validPlayerId,
       selectedTabId: LobbyTabs.OpenGames,
+      isGameSettingsDialogOpen: false,
     };
   }
 
@@ -107,6 +110,11 @@ class LobbyInternal extends React.PureComponent<Props, State> {
           onConfirm={this.handlePlayerConfirmed}
           onClose={this.closePlayerDialog}
         />
+        <GameSettingsDialog
+          isOpen={this.state.isGameSettingsDialogOpen}
+          onClose={this.closeGameSettingsDialog}
+          dispatchers={this.props.dispatchers}
+        />
       </div>
     )
   }
@@ -128,6 +136,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
             <th>Created</th>
             <th>Players</th>
             <th>Join Game</th>
+            <th>Autolog</th>
+            <th>Baker-Bengtson</th>
           </tr>
         </thead>
         <tbody>
@@ -139,6 +149,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
               <td>
                 <Button icon={IconNames.ADD} onClick={() => this.playGame(game.id)} disabled={this.props.gamePlayer == null}>Join</Button>
               </td>
+              <td>{game.settings.autologEnabled ? 'Yes' : 'No'}</td>
+              <td>{game.settings.bakerBengtsonVariant ? 'Yes' : 'No'}</td>
             </tr>
           ))}
         </tbody>
@@ -260,7 +272,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
     }
   }
   private newGame = () => {
-    this.props.dispatchers.lobby.newGame();
+    this.setState({ isGameSettingsDialogOpen: true });
   };
 
   private playGame = (id: string) => {
@@ -271,6 +283,10 @@ class LobbyInternal extends React.PureComponent<Props, State> {
 
   private handleTabChange = (tabId: string) => {
     this.setState({ selectedTabId: tabId });
+  }
+
+  private closeGameSettingsDialog = () => {
+    this.setState({ isGameSettingsDialogOpen: false });
   }
 }
 

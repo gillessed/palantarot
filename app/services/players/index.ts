@@ -48,7 +48,6 @@ export const PlayersSelectors = {
         bots.push(player);
       }
     }
-    console.log(players, bots);
     return bots;
   }
 }

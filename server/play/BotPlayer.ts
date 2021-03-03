@@ -107,6 +107,7 @@ function convertStateToInGame(game: Game, botId: string,): InGameState {
     events: game.getEvents(botId)[0],
     state: playState,
     autoplay: false,
+    settings: game.settings,
   };
 }
 

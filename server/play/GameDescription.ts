@@ -1,11 +1,12 @@
 import { PlayerId } from '../../app/play/common';
-import { Game } from '../../app/play/server';
+import { Game, GameSettings } from '../../app/play/server';
 
 export interface GameDescription {
   readonly id: string;
   readonly dateCreated: number;
   readonly state: string;
   readonly players: PlayerId[];
+  readonly settings: GameSettings;
   readonly lastUpdated: number;
 }
 
@@ -16,5 +17,6 @@ export function getGameDescription(game: Game): GameDescription {
     state: game.getState().name,
     players: game.getState().players,
     lastUpdated: game.getLastAction(),
+    settings: game.settings,
   }
 }

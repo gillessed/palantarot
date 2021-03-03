@@ -1,5 +1,5 @@
 import { TypedReducer } from 'redoodle';
-import { ErrorEvent, PlayerEvent } from '../../play/common';
+import { ErrorEvent, GameSettingsAction, PlayerEvent } from '../../play/common';
 import { BlankState, updateForEvent } from '../../play/ingame/playLogic';
 import { InGameActions } from './InGameActions';
 import { inGameSocketService } from './InGameSagas';
@@ -11,6 +11,7 @@ const joinGameReducer = (_: InGameState | null, payload: JoinGamePayload): InGam
   events: [],
   state: BlankState,
   autoplay: false,
+  settings: null,
 });
 
 const playErrorReducer = (state: InGameState | null, error: string): InGameState | null => {
@@ -29,7 +30,12 @@ const playUpdateReducer = (state: InGameState | null, updates: PlayerEvent[]): I
     return null;
   }
   let play_state = state.state;
+  let settings = state.settings;
   for (const update of updates) {
+    if (update.type === 'game_settings') {
+      const settingsAction = update as GameSettingsAction;
+      settings = settingsAction.settings;
+    }
     play_state = updateForEvent(play_state, update, state.player);
   }
   return {
@@ -39,6 +45,7 @@ const playUpdateReducer = (state: InGameState | null, updates: PlayerEvent[]): I
       ...state.events,
       ...updates
     ],
+    settings,
   };
 }
 

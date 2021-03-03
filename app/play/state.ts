@@ -1,7 +1,7 @@
 /*
  * This file contains definitions used for the server.
  */
-import { Action, Bid, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
+import { Action, Bid, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, GameSettingsAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
 
 export enum GameplayState {
     NewGame = 'new_game',
@@ -32,7 +32,7 @@ export interface NewGameBoardState extends BoardState {
 
     readonly ready: PlayerId[]
 }
-export type NewGameActions = EnterGameAction | LeaveGameAction | PlayerReadyAction | PlayerNotReadyAction | MessageAction
+export type NewGameActions = GameSettingsAction | EnterGameAction | LeaveGameAction | PlayerReadyAction | PlayerNotReadyAction | MessageAction
 export type NewGameStates = NewGameBoardState | BiddingBoardState
 
 export interface BiddingBoardState extends DealtBoardState {

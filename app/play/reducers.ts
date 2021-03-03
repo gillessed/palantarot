@@ -5,6 +5,8 @@ import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, Co
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
   switch (action.type) {
+    case "game_settings":
+      return [state, action];
     case "message":
       return [state, action];
     case 'enter_game':

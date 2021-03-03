@@ -1,4 +1,4 @@
-import { Action, PlayerEvent, PlayerId, Transition } from "./common";
+import { Action, GameSettingsAction, PlayerEvent, PlayerId, Transition } from "./common";
 import { biddingBoardReducer, completedBoardReducer, dogRevealAndExchangeBoardReducer, newGameBoardReducer, partnerCallBoardReducer, playingBoardReducer } from "./reducers";
 import { BoardReducer, BoardState, GameplayState, NewGameBoardState } from './state';
 
@@ -23,14 +23,33 @@ function buildReducer() {
   };
 }
 
+export interface GameSettings {
+  autologEnabled: boolean;
+  bakerBengtsonVariant: boolean;
+}
+export const DefaultGameSettings: GameSettings = {
+  autologEnabled: true,
+  bakerBengtsonVariant: false,
+}
+
 export class Game {
-  static readonly createNew = function (): Game {
-    return new Game(
+  static readonly createNew = (settings: GameSettings = DefaultGameSettings): Game => {
+    const game = new Game(
       `${Date.now()}`,
       new Date(),
       buildReducer(),
       createInitialState(),
-      []);
+      [],
+      settings,
+    );
+    const action: GameSettingsAction = {
+      type: 'game_settings',
+      settings,
+      player: 'god',
+      time: Date.now(),
+    };
+    game.playerAction(action);
+    return game;
   };
 
   protected constructor(
@@ -39,6 +58,7 @@ export class Game {
     private readonly reducers: ReducerMap,
     private state: BoardState,
     private readonly log: PlayerEvent[],
+    public readonly settings: GameSettings,
   ) {}
 
   public playerAction<T extends Action>(event: T): PlayerEvent[] {

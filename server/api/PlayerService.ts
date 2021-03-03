@@ -32,7 +32,6 @@ export class PlayerService {
     const adminPassword = req.headers[AdminPasswordKey];
     const newPlayer = req.body as NewPlayer;
     if (newPlayer.isBot && adminPassword !== this.config.adminPassword) {
-      console.log(req.headers);
       res.send({ error: 'You do not have permission to create a bot' });
       return;
     }

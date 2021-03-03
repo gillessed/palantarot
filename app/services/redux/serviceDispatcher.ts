@@ -29,7 +29,6 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
     }
 
     public request(args: ARG[], force?: boolean) {
-      console.log('***** request',args);
       let uncachedArgs = Array.from(args);
       if (this.caching) {
         const { isCached } = this.caching;

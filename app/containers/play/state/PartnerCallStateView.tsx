@@ -84,9 +84,10 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     const { width, height, game } = this.props;
     const y = height / 2 + CardHeight / 2 + 50;
     const counts = InGameSelectors.getValueCounts(game);
-    const canPickD = counts.get(RegValue.R) === 4;
-    const canPickC = canPickD && counts.get(RegValue.D) === 4;
-    const canPickV = canPickC && counts.get(RegValue.C) === 4;
+    const allowAll = game.settings?.bakerBengtsonVariant;
+    const canPickD = counts.get(RegValue.R) === 4 || allowAll;
+    const canPickC = canPickD && counts.get(RegValue.D) === 4 || allowAll;
+    const canPickV = canPickC && counts.get(RegValue.C) === 4 || allowAll;
     return (<>
       <ActionButton
         width={100}

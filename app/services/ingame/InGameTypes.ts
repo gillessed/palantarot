@@ -1,5 +1,6 @@
 import { PlayerEvent, PlayerId } from '../../play/common';
 import { PlayState } from '../../play/ingame/playLogic';
+import { GameSettings } from '../../play/server';
 
 export interface InGameState {
   readonly player: PlayerId;
@@ -7,6 +8,7 @@ export interface InGameState {
   readonly events: PlayerEvent[];
   readonly state: PlayState;
   readonly autoplay: boolean;
+  readonly settings: GameSettings | null;
 }
 
 export interface JoinGamePayload {

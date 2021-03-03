@@ -14,6 +14,7 @@ import { mapFromCollection } from '../../server/utils';
 import { pTimeout } from '../../server/utils/index';
 import { getAdminPassword } from '../admin';
 import history from '../history';
+import { GameSettings } from '../play/server';
 import { StaticRoutes } from '../routes';
 import { AuthRequest } from '../services/auth/index';
 import { Game } from './../../server/model/Game';
@@ -115,8 +116,8 @@ export class ServerApi {
     return this.wrapPost('/search', searchQuery);
   }
 
-  public playNewGame = (): Promise<string> => {
-    return this.wrapPost("/play/new_game", {});
+  public playNewGame = (settings: GameSettings): Promise<string> => {
+    return this.wrapPost("/play/new_game", settings);
   }
 
   public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {

@@ -1,12 +1,12 @@
-import { Database } from './dbConnector';
-import { HandData, PlayerHand, Game } from './../model/Game';
 import moment from 'moment-timezone';
-import { QueryBuilder, UpsertBuilder, Queries } from './queryBuilder/QueryBuilder';
+import { QueryResult } from 'pg';
 import { GamePartial } from '../model/Game';
 import { MonthlyScore } from '../model/Records';
-import { Result, Role, RoleResult } from '../model/Result';
-import { QueryResult } from 'pg';
-import { SearchQuery, PlayerPredicate } from '../model/Search';
+import { Role, RoleResult } from '../model/Result';
+import { PlayerPredicate, SearchQuery } from '../model/Search';
+import { Game, HandData, PlayerHand } from './../model/Game';
+import { Database } from './dbConnector';
+import { Queries, QueryBuilder, UpsertBuilder } from './queryBuilder/QueryBuilder';
 
 export interface RecentGameQuery {
   count: number;
@@ -103,12 +103,6 @@ export class GameQuerier {
     );
 
     sqlQuery.orderBy('hand.timestamp', 'desc');
-
-    console.log('\n');
-    console.log(sqlQuery.getIndexedQueryString());
-    console.log('\n');
-    console.log(sqlQuery.getValues());
-    console.log('\n');
 
     const result = await this.db.query(sqlQuery.getIndexedQueryString(), sqlQuery.getValues());
     const games = this.getGamesFromResults(result.rows).slice(0, query.count);

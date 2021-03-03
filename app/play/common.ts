@@ -5,6 +5,7 @@
 /* CARDS */
 
 import { toCardString } from "./cardUtils";
+import { GameSettings } from "./server";
 
 export enum RegSuit {
   Spade = 'S',
@@ -213,11 +214,16 @@ export interface Action extends PlayerEvent {
   readonly time: number
 }
 
-export type ActionType = 'message' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
+export type ActionType = 'game_settings' | 'message' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
   | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card';
 
 export interface PublicAction extends Action {
   readonly privateTo?: undefined;
+}
+
+export interface GameSettingsAction extends PublicAction {
+  readonly type: 'game_settings';
+  readonly settings: GameSettings;
 }
 
 export interface MessageAction extends PublicAction {

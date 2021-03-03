@@ -1,4 +1,5 @@
 import { Store } from 'redux';
+import { GameSettings } from '../../play/server';
 import { PropertyCachingState } from '../redux/serviceDispatcher';
 import { ReduxState } from '../rootReducer';
 import { LobbyActions } from './LobbyActions';
@@ -17,8 +18,8 @@ export class LobbyDispatcher extends lobbyService.dispatcher {
     super(reduxStore, options);
   }
 
-  public newGame() {
-    this.store.dispatch(LobbyActions.newGame());
+  public newGame(settings: GameSettings) {
+    this.store.dispatch(LobbyActions.newGame(settings));
   }
 
   public socketConnect() {

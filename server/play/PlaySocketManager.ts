@@ -1,12 +1,14 @@
 import { Action, AutoplayActionType, EnteredChatTransition, EnterGameAction, LeaveGameAction, LeftChatTransition, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, Transition } from '../../app/play/common';
 import { RandomBotType } from '../../bots/RandomBot';
 import { TarotBotRegistry } from '../../bots/TarotBot';
+import { GameQuerier } from '../db/GameQuerier';
 import { PlayerQuerier } from '../db/PlayerQuerier';
 import { Player } from '../model/Player';
 import { JsonSocket } from '../websocket/JsonSocket';
 import { SocketChannelManager } from '../websocket/SocketChannelManager';
 import { SocketMessage } from '../websocket/SocketMessage';
 import { WebsocketManager } from '../websocket/WebsocketManager';
+import { autologGame } from './Autolog';
 import { autoplayNextCard } from './Autoplay';
 import { getNextPlayer, playForBot } from './BotPlayer';
 import { AddBotAction, AddBotActionType, DebugPlayAction, DebugPlayMessage, PlayAction, PlayMessage, RemoveBotAction, RemoveBotActionType } from './PlayMessages';
@@ -22,6 +24,7 @@ export class PlaySocketManager extends SocketChannelManager<PlayMessage> {
     websocketManager: WebsocketManager,
     private playService: PlayService,
     private playerQuerier: PlayerQuerier,
+    private gameQuerier: GameQuerier,
     private botRegistry: TarotBotRegistry,
   ) {
     super(websocketManager, PlaySocketManager.Type);
@@ -56,7 +59,6 @@ export class PlaySocketManager extends SocketChannelManager<PlayMessage> {
 
   private getSocketMessageHandler(gameId: string, playerId: PlayerId) {
     return (event: SocketMessage) => {
-      console.log(JSON.stringify(event, null, 2));
       try {
         switch (event.type) {
           case 'play_action':
@@ -134,6 +136,7 @@ export class PlaySocketManager extends SocketChannelManager<PlayMessage> {
         }
         nextPlayerId = getNextPlayer(game);
       }
+      autologGame(game, this.gameQuerier);
     });
   }
 

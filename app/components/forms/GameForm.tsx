@@ -7,6 +7,8 @@ import { Player } from '../../../server/model/Player';
 import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
 import { getPlayerName } from '../../services/players/playerName';
 import { PointsInput, SelectInput } from './Elements';
+import { OppositionRoles, PlayerRoles } from './PlayerRoles';
+import { getPointsEarned } from './pointsEarned';
 
 interface Props {
   recentPlayers?: Player[];
@@ -15,22 +17,6 @@ interface Props {
   submitText: string;
   onSubmit: (newGame: Game) => void;
 }
-
-const PlayerRoles: {[key: string]: string} = {
-  BIDDER: 'Bidder',
-  PARTNER: 'Partner',
-  PLAYER1: 'Player 1',
-  PLAYER2: 'Player 2',
-  PLAYER3: 'Player 3',
-  PLAYER4: 'Player 4',
-}
-
-const OppositionRoles = [
-  PlayerRoles.PLAYER1,
-  PlayerRoles.PLAYER2,
-  PlayerRoles.PLAYER3,
-  PlayerRoles.PLAYER4,
-];
 
 interface State {
   numberOfPlayers: number;
@@ -239,26 +225,6 @@ export class GameForm extends React.PureComponent<Props, State> {
     );
   }
 
-  private getPointsEarned(basePoints: number, playerName: string) {
-    if (playerName === PlayerRoles.BIDDER) {
-      if (this.state.numberOfPlayers === 3) {
-        return basePoints * 2;
-      } else if (this.state.numberOfPlayers === 4) {
-        return basePoints * 3;
-      } else {
-        if (this.state.bidderCalledSelf) {
-          return basePoints * 4;
-        } else {
-          return basePoints * 2;
-        }
-      }
-    } else if (playerName === PlayerRoles.PARTNER) {
-      return basePoints;
-    } else {
-      return -basePoints;
-    }
-  }
-
   private onSubmitPress = () => {
     const playerHands: {[key: string]: PlayerHand} = {};
     const activePlayers = this.getActivePlayers();
@@ -267,9 +233,11 @@ export class GameForm extends React.PureComponent<Props, State> {
       playerHands[playerName] = {
         id: player.player!.id,
         handId: '',
-        pointsEarned: this.getPointsEarned(
+        pointsEarned: getPointsEarned(
           this.state.points!,
           playerName,
+          this.state.numberOfPlayers,
+          this.state.bidderCalledSelf,
         ),
         showedTrump: player.showed,
         oneLast: player.oneLast,

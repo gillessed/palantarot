@@ -2,6 +2,7 @@ import { TypedAction } from 'redoodle';
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
 import { EnterLobbyMessage, LobbyUpdateMessage } from '../../../server/play/LobbyMessages';
 import { ServerApi } from '../../api/serverApi';
+import { GameSettings } from '../../play/server';
 import { createSocketService, MessagePayload } from '../socket/socketService';
 import { LobbyActions } from './LobbyActions';
 import { lobbyService } from './LobbyService';
@@ -19,8 +20,9 @@ function* handleMessage(action: TypedAction<MessagePayload<void>>) {
   }
 }
 
-function* newGameSaga(api: ServerApi) {
-  yield call(api.playNewGame);
+function* newGameSaga(api: ServerApi, action: TypedAction<GameSettings>) {
+  const settings = action.payload;
+  yield call(api.playNewGame, settings);
 }
 
 export function* lobbySaga(api: ServerApi) {
