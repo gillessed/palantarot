@@ -1,9 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { GameQuerier } from '../db/GameQuerier';
-import { Player } from '../model/Player';
-import { Database } from './../db/dbConnector';
-import { NewPlayer } from './../model/Player';
 import { SearchQuery } from '../model/Search';
+import { Database } from './../db/dbConnector';
 
 export class SearchService {
   public router: Router;

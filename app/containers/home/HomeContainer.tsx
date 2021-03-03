@@ -20,6 +20,7 @@ export class HomeContainer extends React.PureComponent<{}, {}> {
           {this.renderMenuItem('Add New Player', 'add', StaticRoutes.addPlayer())}
           {this.renderMenuItem('Play Online', 'play', StaticRoutes.lobby())}
           {this.renderMenuItem('Tarothon', 'ninja', StaticRoutes.tarothons(), Intent.WARNING)}
+          {this.renderMenuItem('Bots', IconNames.CALCULATOR, StaticRoutes.bots())}
           {this.renderMenuItem('How to Play', IconNames.HELP, StaticRoutes.rules())}
       </div>
         <div className='info-overlay'>

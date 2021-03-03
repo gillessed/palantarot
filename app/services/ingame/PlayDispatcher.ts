@@ -8,12 +8,13 @@ export class PlayDispatcher {
     private readonly debug?: boolean,
   ) { }
 
-  public sendMessage(text: string, time?: number) {
+  public sendMessage(text: string, time?: number, exclude?: PlayerId[]) {
     const action: MessageAction = {
       type: 'message',
       text,
       player: this.player,
       time: time ?? Date.now(),
+      exclude,
     };
     this.inGameDispatcher.playAction(action, this.debug);
   }
@@ -84,7 +85,7 @@ export class PlayDispatcher {
       type: 'set_dog',
       dog: [...cards],
       player: this.player,
-      private_to: this.player,
+      privateTo: this.player,
       time: time ?? Date.now(),
     }
     this.inGameDispatcher.playAction(action, this.debug);

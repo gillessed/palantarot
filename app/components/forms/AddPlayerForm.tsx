@@ -1,9 +1,13 @@
+import { Button, FormGroup, Intent, Menu, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
 import React from 'react';
-import { TextInput } from './Elements';
+import { RandomBotType } from '../../../bots/RandomBot';
+import { DefaultTarotBotRegistry } from '../../../bots/TarotBot';
 import { NewPlayer } from '../../../server/model/Player';
-import { Button, Intent } from '@blueprintjs/core';
+import { TextInput } from './Elements';
 
 interface Props {
+  isBot?: boolean;
   onSubmit: (newPlayer: NewPlayer) => void;
 }
 
@@ -12,6 +16,7 @@ interface State {
   firstNameError?: string;
   lastName: string;
   lastNameError?: string;
+  botType?: string;
 }
 
 
@@ -39,10 +44,12 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
       firstNameError: ' ',
       lastName: '',
       lastNameError: ' ',
+      botType: props.isBot ? RandomBotType : undefined,
     };
   }
 
   public render() {
+    const { isBot } = this.props;
     return (
       <div className="add-player-form">
         <TextInput
@@ -59,8 +66,24 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
           validator={this.lastNameValidator}
         />
 
+        {isBot && <FormGroup
+          label='Bot Type'
+          labelFor='text-input'
+        >
+          <Popover interactionKind={PopoverInteractionKind.CLICK} position={Position.BOTTOM}>
+            <Button text={this.state.botType} rightIcon={IconNames.CARET_DOWN} fill />
+            <Menu>
+              {Object.keys(DefaultTarotBotRegistry).map((botType) => {
+                return (
+                  <MenuItem key={botType} text={botType} onClick={() => this.setState({ botType })}/>
+                );
+              })}
+            </Menu>
+          </Popover>
+        </FormGroup>}
+
         <div className="add-player-button-container">
-          <Button text='Add Player' onClick={this.onClickButton} disabled={!this.submitEnabled()} large intent={Intent.SUCCESS} icon='add'/>
+          <Button text='Add Player' onClick={this.onClickButton} disabled={!this.submitEnabled()} large intent={Intent.SUCCESS} icon='add' />
         </div>
       </div>
     );
@@ -79,14 +102,16 @@ export class AddPlayerForm extends React.PureComponent<Props, State> {
       lastNameError: error,
     });
   }
-  
+
   private submitEnabled = () => {
     return !this.state.firstNameError && !this.state.lastNameError;
   }
 
   private onClickButton = () => {
     if (this.submitEnabled()) {
-      this.props.onSubmit(this.state);
+      const { firstName, lastName, botType } = this.state;
+      const { isBot } = this.props;
+      this.props.onSubmit({ firstName, lastName, botType, isBot });
     }
   }
 }

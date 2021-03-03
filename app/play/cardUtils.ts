@@ -5,6 +5,9 @@ import { Card, errorPlayerNotInGame, PlayerId, RegSuit, RegValue, Suit, The21, T
  * This file contains game code which is useful for both client and server.
  */
 
+export const RegSuits = [RegSuit.Club, RegSuit.Diamond, RegSuit.Heart, RegSuit.Spade];
+export const AllSuits = [...RegSuits, TrumpSuit];
+
 export function createAllCards(): Card[] {
   const cards: Card[] = [];
   for (const suit of Object.keys(RegSuit)) {
@@ -25,6 +28,10 @@ export function createAllCards(): Card[] {
     cards.push([TrumpSuit, TrumpValue[value as keyof typeof TrumpValue]])
   }
   return cards
+}
+
+export function createCardsOfSuit(suit: Suit): Card[] {
+  return createAllCards().filter(([cardSuit, _]) => cardSuit === suit);
 }
 
 export function parseCard(card: string): Card {
@@ -92,13 +99,18 @@ export const getPlayerNum = function (players: PlayerId[], player: PlayerId) {
   }
 };
 
-function getLeadSuit(trick: Card[]): Suit | undefined {
+export function getLeadCard(trick: Card[]): Card | undefined {
   for (const card of trick) {
     if (card[1] !== TrumpValue.Joker) {
-      return card[0];
+      return card;
     }
   }
   return undefined;
+}
+
+export function getLeadSuit(trick: Card[]): Suit | undefined {
+  const leadCard = getLeadCard(trick);
+  return leadCard ? leadCard[0] : undefined;
 }
 
 function getLowestAllowableTrump(trick: Card[]): TrumpValue {
@@ -138,7 +150,17 @@ export const getCardsAllowedToPlay = function (hand: Card[], trick: Card[]): Car
   }
 };
 
-function getCardValueAsNumber(value: RegValue | TrumpValue): number {
+export function getCardSuitAsNumber(value: Suit): number {
+  switch(value) {
+    case TrumpSuit: return 5;
+    case RegSuit.Club: return 1;
+    case RegSuit.Diamond: return 2;
+    case RegSuit.Heart: return 3;
+    case RegSuit.Spade: return 4;
+  }
+}
+
+export function getCardValueAsNumber(value: RegValue | TrumpValue): number {
   switch (value) {
     case RegValue._1:
     case RegValue._2:
@@ -260,4 +282,19 @@ export const getWinner = function (trick: Card[], players: PlayerId[]): [Card, P
 
 export function isBout(c: Card) {
   return _.isEqual(c, TheJoker) || _.isEqual(c, TheOne) || _.isEqual(c, The21);
+}
+
+export function getArrayRandom<T>(array: T[]): T {
+  return getArrayRandoms(array, 1)[0];
+}
+
+export function getArrayRandoms<T>(array: T[], count: number): T[] {
+  const dup = [...array];
+  const picks: T[] = [];
+  while (picks.length < count) {
+    const index = Math.floor(Math.random() * dup.length);
+    picks.push(dup[index]);
+    dup.splice(index, 1);
+  }
+  return picks;
 }

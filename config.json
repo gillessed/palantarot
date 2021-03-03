@@ -21,5 +21,6 @@
     "user": "tarot_user",
     "password": "tarot1",
     "database": "tarot_data"
-  }
+  },
+  "adminPassword": "tarot1"
 }

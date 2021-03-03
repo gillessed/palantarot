@@ -10,6 +10,7 @@ import { ServerApi } from './api/serverApi';
 import './app.scss';
 import { AddPlayerContainer } from './containers/addPlayer/AddPlayerContainer';
 import { AppContainer } from './containers/app/AppContainer';
+import { BotContainer } from './containers/bot/BotContainer';
 import { EditContainer } from './containers/edit/EditContainer';
 import { EnterContainer } from './containers/enter/EnterContainer';
 import { GameContainer } from './containers/game/GameContainer';
@@ -85,6 +86,7 @@ async function init() {
         <Route path='/app/lobby' component={LobbyContainer} />
         <Route path='/app/rules' component={RulesContainer} />
         <Route path='/play/:gameId' component={PlayContainer} />
+        <Route path='/app/bots' component={BotContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
     );

@@ -97,7 +97,7 @@ export const test = () => {
 
   assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'dog_revealed');
 
-  game.playerAction({ type: 'set_dog', player: 'samira', dog: [['D', 4], ['D', 8], ['H', 4]], private_to: 'samira', time: time() });
+  game.playerAction({ type: 'set_dog', player: 'samira', dog: [['D', 4], ['D', 8], ['H', 4]], privateTo: 'samira', time: time() });
 
   assert.deepStrictEqual(game.getEvents('dxiao')[0].pop()?.type, 'game_started');
 

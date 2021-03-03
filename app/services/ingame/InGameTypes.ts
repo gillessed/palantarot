@@ -6,6 +6,7 @@ export interface InGameState {
   readonly game_id: string;
   readonly events: PlayerEvent[];
   readonly state: PlayState;
+  readonly autoplay: boolean;
 }
 
 export interface JoinGamePayload {

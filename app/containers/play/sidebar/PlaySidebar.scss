@@ -1,68 +1,68 @@
 .play-sidebar {
-  width           : 300px;
-  height          : 100%;
-  display         : flex;
-  flex-direction  : column;
-  padding         : 10px;
-  background-color: #394B59;
-  border-left     : 1px solid #394B59;
-  align-items     : center;
+  width: 300px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: #394b59;
+  border-left: 1px solid #394b59;
+  align-items: center;
 
   .sidebar-header {
-    width          : 100%;
-    position       : relative;
-    display        : flex;
+    width: 100%;
+    position: relative;
+    display: flex;
     justify-content: center;
-    align-items    : center;
+    align-items: center;
 
     .header-image {
-      width        : 180px;
-      height       : 180px;
-      object-fit   : cover;
-      overflow-y   : hidden;
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      overflow-y: hidden;
       margin-bottom: 10px;
     }
 
     .lobby-button {
       position: absolute;
-      right   : 0px;
-      top     : 0px;
+      right: 0px;
+      top: 0px;
     }
   }
 
   .toggle-button-group {
     margin-bottom: 10px;
-    width        : 200px;
+    width: 200px;
   }
 
   .list-container {
-    background-color: #202B33;
-    border-radius   : 8px;
-    padding         : 5px;
-    overflow-y      : scroll;
-    width           : 100%;
-    flex-grow       : 1;
-    border          : 1px solid #202B33;
-    color           : #F5F8FA;
-    overflow-wrap   : break-word;
+    background-color: #202b33;
+    border-radius: 8px;
+    padding: 5px;
+    overflow-y: scroll;
+    width: 100%;
+    flex-grow: 1;
+    border: 1px solid #202b33;
+    color: #f5f8fa;
+    overflow-wrap: break-word;
 
     &::-webkit-scrollbar {
       width: 10px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background   : #182026;
+      background: #182026;
       border-radius: 20px;
     }
 
     &::-webkit-scrollbar-track {
-      background   : #30404D;
+      background: #30404d;
       border-radius: 20px;
     }
 
     .player-row {
-      font-family  : dinNextBold;
-      font-size    : 16px;
+      font-family: dinNextBold;
+      font-size: 16px;
       margin-bottom: 5px;
 
       .player-name {
@@ -77,11 +77,11 @@
 
     .play-message-container {
       .message-author {
-        font-family  : dinNextBold;
-        font-size    : 16px;
+        font-family: dinNextBold;
+        font-size: 16px;
         margin-bottom: 3px;
-        display      : flex;
-        align-items  : center;
+        display: flex;
+        align-items: center;
 
         .message-author-text {
           margin-left: 10px;
@@ -89,43 +89,47 @@
       }
 
       .message-body {
-        font-family  : dinNextRegular;
-        font-size    : 16px;
-        margin-left  : 10px;
+        font-family: dinNextRegular;
+        font-size: 16px;
+        margin-left: 10px;
         margin-bottom: 3px;
       }
     }
 
     .game-event-message {
       font-family: dinNextBoldItalic;
-      font-size  : 16px;
-      color      : #BFCCD6;
+      font-size: 16px;
+      color: #bfccd6;
     }
   }
 
   .message-input-area {
-    margin-top     : 10px;
-    height         : 100px;
-    width          : 100%;
-    display        : flex;
-    flex-direction : row;
+    margin-top: 10px;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
     justify-content: center;
-    align-items    : center;
+    align-items: center;
 
     .message-input {
-      height          : 100%;
-      width           : 100%;
-      outline         : none;
-      resize          : none;
-      border          : 1px solid #202B33;
-      background-color: #202B33;
-      color           : #F5F8FA;
-      font-family     : dinNextRegular;
+      height: 100%;
+      width: 100%;
+      outline: none;
+      resize: none;
+      border: 1px solid #202b33;
+      background-color: #202b33;
+      color: #f5f8fa;
+      font-family: dinNextRegular;
     }
 
     .message-send {
-      height : 100%;
+      height: 100%;
       outline: none;
     }
+  }
+
+  .sidebar-actions {
+    margin-top: 10px;
   }
 }

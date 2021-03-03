@@ -1,7 +1,7 @@
 /*
  * This file contains definitions used for the server.
  */
-import { Action, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
+import { Action, Bid, BidAction, CallPartnerAction, Card, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, JokerExchangeState, LeaveGameAction, MessageAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./common";
 
 export enum GameplayState {
     NewGame = 'new_game',
@@ -46,23 +46,25 @@ export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevea
 export interface PartnerCallBoardState extends DealtBoardState {
     readonly name: GameplayState.PartnerCall
 
-    readonly bidding: CompletedBids
-    readonly bidder: PlayerId
+    readonly allBids: Bid[];
+    readonly bidding: CompletedBids;
+    readonly bidder: PlayerId;
 }
-export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction |  MessageAction
-export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState
+export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction |  MessageAction;
+export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
     readonly name: GameplayState.DogReveal;
 
-    readonly bidding: CompletedBids
-    readonly bidder: PlayerId
-    readonly called?: Card
-    readonly partner?: PlayerId
+    readonly allBids: Bid[];
+    readonly bidding: CompletedBids;
+    readonly bidder: PlayerId;
+    readonly called?: Card;
+    readonly partner?: PlayerId;
 }
 /** {@link SetDogAction} is for bidder only */
-export type DogRevealStateActions = SetDogAction |  DeclareSlam | ShowTrumpAction |  MessageAction
-export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
+export type DogRevealStateActions = SetDogAction |  DeclareSlam | ShowTrumpAction |  MessageAction;
+export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState;
 
 /**
  * Transitions:
@@ -71,15 +73,16 @@ export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
 export interface PlayingBoardState extends DealtBoardState {
     readonly name: GameplayState.Playing;
 
-    readonly bidding: CompletedBids
-    readonly bidder: PlayerId
-    readonly called?: Card
-    readonly partner?: PlayerId
+    readonly allBids: Bid[];
+    readonly bidding: CompletedBids;
+    readonly bidder: PlayerId;
+    readonly called?: Card;
+    readonly partner?: PlayerId;
 
-    readonly joker_state?: JokerExchangeState
+    readonly joker_state?: JokerExchangeState;
 
-    readonly current_trick: Trick
-    readonly past_tricks: CompletedTrick[]
+    readonly current_trick: Trick;
+    readonly past_tricks: CompletedTrick[];
 }
 export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction |  MessageAction
 export type PlayingStates = PlayingBoardState | CompletedBoardState
@@ -87,20 +90,21 @@ export type PlayingStates = PlayingBoardState | CompletedBoardState
 export interface CompletedBoardState extends BoardState {
     readonly name: GameplayState.Completed;
 
-    readonly bidder: PlayerId
-    readonly called?: Card
-    readonly partner?: PlayerId
-    readonly dog: Card[]
+    readonly bidder: PlayerId;
+    readonly called?: Card;
+    readonly partner?: PlayerId;
+    readonly dog: Card[];
 
-    readonly bidding: CompletedBids
+    readonly allBids: Bid[];
+    readonly bidding: CompletedBids;
     readonly shows: ShowTrumpState
-    readonly joker_state?: JokerExchangeState
-    readonly joker_exchanged?: Card
+    readonly joker_state?: JokerExchangeState;
+    readonly joker_exchanged?: Card;
 
-    readonly past_tricks: CompletedTrick[]
-    readonly end_state: CompletedGameState
+    readonly past_tricks: CompletedTrick[];
+    readonly end_state: CompletedGameState;
 }
-export type CompletedStateActions = MessageAction
+export type CompletedStateActions = MessageAction;
 
 
 

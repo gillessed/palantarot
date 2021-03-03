@@ -10,10 +10,12 @@ import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState, SidebarEvent } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
 import { CardBackUrls, getCardText } from '../svg/CardSvg';
+import { AddBotButton } from './AddBotButton';
 import { GameEventMessage } from './GameEventMessage';
 import { PlayMessage } from './PlayMessage';
 import { PlayMessageInput } from './PlayMessageInput';
 import './PlaySidebar.scss';
+import { SidebarActions } from './SidebarActions';
 
 interface Props {
   playerId: string;
@@ -84,6 +86,15 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
         <PlayMessageInput
           player={this.props.game.player}
           dispatchers={this.props.dispatchers}
+        />
+        <SidebarActions 
+          game={this.props.game}
+          dispatchers={this.props.dispatchers}
+        />
+        <AddBotButton
+          game={this.props.game}
+          dispatchers={this.props.dispatchers}
+          players={this.props.players}
         />
       </div>
     );

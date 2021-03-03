@@ -59,6 +59,31 @@ export enum TrumpValue {
   _21 = 21,
 }
 
+export const AllRs: Card[] = [
+  [RegSuit.Club, RegValue.R],
+  [RegSuit.Diamond, RegValue.R],
+  [RegSuit.Heart, RegValue.R],
+  [RegSuit.Spade, RegValue.R],
+];
+export const AllDs: Card[] = [
+  [RegSuit.Club, RegValue.D],
+  [RegSuit.Diamond, RegValue.D],
+  [RegSuit.Heart, RegValue.D],
+  [RegSuit.Spade, RegValue.D],
+];
+export const AllCs: Card[] = [
+  [RegSuit.Club, RegValue.C],
+  [RegSuit.Diamond, RegValue.C],
+  [RegSuit.Heart, RegValue.C],
+  [RegSuit.Spade, RegValue.C],
+];
+export const AllVs: Card[] = [
+  [RegSuit.Club, RegValue.V],
+  [RegSuit.Diamond, RegValue.V],
+  [RegSuit.Heart, RegValue.V],
+  [RegSuit.Spade, RegValue.V],
+];
+
 export const TheJoker: [TrumpSuit, TrumpValue.Joker] = [TrumpSuit, TrumpValue.Joker];
 export const TheOne: [TrumpSuit, TrumpValue._1] = [TrumpSuit, TrumpValue._1];
 export const The21: [TrumpSuit, TrumpValue._21] = [TrumpSuit, TrumpValue._21];
@@ -119,14 +144,14 @@ export interface Bid {
 
 export interface CurrentBids {
   /** in order of bid */
-  readonly bids: Bid[]
+  readonly bids: Bid[];
   /** remaining bidders, in order of bidding, 0-th position is next bidder */
   readonly bidders: PlayerId[]
   readonly current_high: Bid
 }
 
 export interface CompletedBids {
-  readonly winning_bid: Bid
+  readonly winningBid: Bid
   readonly calls: { [player: number]: Call[] }
 }
 
@@ -156,7 +181,9 @@ export interface CompletedGameState {
 export interface PlayerEvent {
   readonly type: ActionType | TransitionType | 'error'
   /** if contains state for only one player, which player to send to */
-  readonly private_to?: PlayerId
+  readonly privateTo?: PlayerId;
+  /** if set, will not send to any of the following players */
+  readonly exclude?: PlayerId[];
 }
 
 export enum ErrorCode {
@@ -164,10 +191,10 @@ export enum ErrorCode {
 }
 
 export interface ErrorEvent extends PlayerEvent {
-  readonly type: 'error'
-  readonly error: string
-  readonly errorCode?: ErrorCode
-  readonly private_to: undefined
+  readonly type: 'error';
+  readonly error: string;
+  readonly errorCode?: ErrorCode;
+  readonly privateTo: undefined;
 }
 
 export const AutoplayActionType = 'debug_autoplay';
@@ -190,7 +217,7 @@ export type ActionType = 'message' | 'enter_game' | 'leave_game' | 'mark_player_
   | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card';
 
 export interface PublicAction extends Action {
-  readonly private_to?: undefined;
+  readonly privateTo?: undefined;
 }
 
 export interface MessageAction extends PublicAction {
@@ -238,7 +265,7 @@ export interface DeclareSlam extends PublicAction {
 export interface SetDogAction extends Action {
   readonly type: 'set_dog'
   readonly dog: Card[]
-  readonly private_to: PlayerId
+  readonly privateTo: PlayerId
 }
 
 export interface PlayCardAction extends PublicAction {
@@ -262,42 +289,42 @@ export type TransitionType = 'players_set' | 'dealt_hand' | 'bidding_completed' 
 
 export interface EnteredChatTransition extends Transition {
   readonly type: 'entered_chat'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly player: PlayerId
 }
 
 export interface LeftChatTransition extends Transition {
   readonly type: 'left_chat'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly player: PlayerId
 }
 
 export interface PlayersSetTransition extends Transition {
   readonly type: 'players_set'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly playerOrder: PlayerId[]
 }
 
 export interface DealtHandTransition extends Transition {
   readonly type: 'dealt_hand'
-  readonly private_to: PlayerId
+  readonly privateTo: PlayerId
 
   readonly hand: Card[]
 }
 
 export interface BiddingCompletedTransition extends Transition {
   readonly type: 'bidding_completed'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly winning_bid: Bid
 }
 
 export interface DogRevealTransition extends Transition {
   readonly type: 'dog_revealed'
-  readonly private_to: undefined
+  readonly privateTo: undefined
   readonly player: PlayerId
 
   readonly dog: Card[]
@@ -305,14 +332,14 @@ export interface DogRevealTransition extends Transition {
 
 export interface GameStartTransition extends Transition {
   readonly type: 'game_started'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly first_player: PlayerId
 }
 
 export interface CompletedTrickTransition extends Transition {
   readonly type: 'completed_trick'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly winner: PlayerId
   readonly winning_card: Card
@@ -321,7 +348,7 @@ export interface CompletedTrickTransition extends Transition {
 
 export interface GameCompletedTransition extends Transition {
   readonly type: 'game_completed'
-  readonly private_to: undefined
+  readonly privateTo: undefined
 
   readonly end_state: CompletedGameState
 }
@@ -398,7 +425,7 @@ export const errorCannotSetDogIfNotBidder = function (taker: PlayerId, bidder: P
 };
 
 export const errorSetDogActionShouldBePrivate = function (action: SetDogAction) {
-  return new Error(`Setting dog should have 'private_to' attribute set to the player, instead got ${action.private_to}`)
+  return new Error(`Setting dog should have 'privateTo' attribute set to the player, instead got ${action.privateTo}`)
 };
 
 export const errorNewDogWrongSize = function (dog: Card[], expected: number) {

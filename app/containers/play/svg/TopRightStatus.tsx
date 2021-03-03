@@ -16,7 +16,7 @@ interface Props {
 export class TopRightStatus extends React.PureComponent<Props> {
   public render() {
     const { width, game, players } = this.props;
-    let text = '';
+    let text: string | JSX.Element | null = null;
     switch (game.state.state) {
       case GameplayState.Bidding:
         const bidderId = game.state.playerOrder[game.state.toBid ?? 0];
@@ -34,7 +34,7 @@ export class TopRightStatus extends React.PureComponent<Props> {
         text = `${revealName} is dropping their dog`; break;
       case GameplayState.Playing: text = this.getPlayingStatus(); break;
     }
-    if (text.length === 0) {
+    if (text === null) {
       return null;
     }
     return (
@@ -46,14 +46,22 @@ export class TopRightStatus extends React.PureComponent<Props> {
     )
   }
 
-  private getPlayingStatus(): string {
+  private getPlayingStatus(): string | JSX.Element {
     const { game, players } = this.props;
     const trickCards = InGameSelectors.getTrickCards(game.state.trick);
     const playerName = getPlayerName(players.get(game.state.toPlay ?? ""));
-    if (trickCards.length === 0 || game.state.trick.completed) {
-      return `${playerName}'s turn to lead`;
-    } else {
-      return `${playerName}'s turn to play`;
-    }
+    const playerCount = game.state.playerOrder.length;
+    const totalTrickCount = playerCount === 3 ? 24
+      : playerCount === 4 ? 18
+      : playerCount === 5 ? 15
+      : 0;
+    const innerText = (trickCards.length === 0 || game.state.trick.completed)
+      ? "turn to lead" : "turn to player";
+    return (
+      <>
+        <p>{playerName}'s {innerText}</p>
+        <p>Trick {game.state.completedTricks.length + 1}/{totalTrickCount}</p>
+      </>
+    );
   }
 }

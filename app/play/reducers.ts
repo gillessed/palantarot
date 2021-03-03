@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from './cardUtils';
 import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, PlayersSetTransition, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
-import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
+import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
   switch (action.type) {
@@ -57,23 +57,25 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
         // const playerOrder = _.shuffle(_.without(state.players, "Greg Cole"));
         // playerOrder.push("Greg Cole");
 
-        return [
-          {
-            name: 'bidding',
-            players: playerOrder,
-            hands,
-            dog,
-            bidding: {
-              bids: [],
-              bidders: playerOrder,
-              current_high: {
-                player: DummyPlayer,
-                bid: BidValue.PASS,
-                calls: []
-              },
+        const bidState: BiddingBoardState = {
+          name: GameplayState.Bidding,
+          players: playerOrder,
+          hands,
+          dog,
+          bidding: {
+            bids: [],
+            bidders: playerOrder,
+            current_high: {
+              player: DummyPlayer,
+              bid: BidValue.PASS,
+              calls: []
             },
-            shows: [],
-          } as BiddingBoardState,
+          },
+          shows: [],
+        }
+
+        return [
+          bidState,
           action,
           {
             type: 'players_set',
@@ -81,7 +83,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
           } as PlayersSetTransition,
           ..._.map(hands).map((hand: Card[], player: number) => ({
             type: 'dealt_hand',
-            private_to: playerOrder[player],
+            privateTo: playerOrder[player],
             hand,
           }) as DealtHandTransition)
         ]
@@ -218,8 +220,9 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
               ...state,
               name: 'partner_call',
               bidder: new_bid_state.current_high.player,
+              allBids: new_bid_state.bids,
               bidding: {
-                winning_bid: new_bid_state.current_high,
+                winningBid: new_bid_state.current_high,
                 calls: getAllCalls(state.players, new_bid_state),
               },
             } as PartnerCallBoardState,
@@ -236,8 +239,10 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                 ...state,
                 name: 'dog_reveal',
                 bidder: new_bid_state.current_high.player,
+                allBids: new_bid_state.bids,
                 bidding: {
-                  winning_bid: new_bid_state.current_high,
+                  allBids: new_bid_state.bids,
+                  winningBid: new_bid_state.current_high,
                   calls: getAllCalls(state.players, new_bid_state),
                 },
               } as DogRevealAndExchangeBoardState,
@@ -259,8 +264,10 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
                 ...state,
                 name: 'playing',
                 bidder,
+                allBids: new_bid_state.bids,
                 bidding: {
-                  winning_bid: new_bid_state.current_high,
+                  allBids: state.bidding.bids,
+                  winningBid: new_bid_state.current_high,
                   calls: getAllCalls(state.players, new_bid_state),
                 },
                 current_trick: getNewTrick(state.players, state.players[0], 0),
@@ -335,7 +342,7 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
           break;
         }
       }
-      if (state.bidding.winning_bid.bid > BidValue.FORTY) {
+      if (state.bidding.winningBid.bid > BidValue.FORTY) {
         return [
           {
             ...state,
@@ -384,7 +391,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
     case "set_dog":
       if (action.player !== state.bidder) {
         throw errorCannotSetDogIfNotBidder(action.player, state.bidder);
-      } else if (!_.isEqual(action.player, action.private_to)) {
+      } else if (!_.isEqual(action.player, action.privateTo)) {
         throw errorSetDogActionShouldBePrivate(action);
       } else if (action.dog.length !== state.dog.length) {
         throw errorNewDogWrongSize(action.dog, state.dog.length);
@@ -627,12 +634,12 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
           const bidding_team = _.compact([state.bidder, state.partner]);
           const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
           const outcomes = getOutcomes(state.players, bidding_team, tricks);
-          const final_score = getFinalScore(state.players, bidding_team, state.bidding.winning_bid.bid,
+          const final_score = getFinalScore(state.players, bidding_team, state.bidding.winningBid.bid,
             cards_won, state.dog, state.shows, state.bidding.calls, outcomes);
           const end_state = {
             players: state.players,
             bidder: state.bidder,
-            bid: state.bidding.winning_bid.bid,
+            bid: state.bidding.winningBid.bid,
             partner: state.partner,
             dog: state.dog,
 

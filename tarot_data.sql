@@ -20,15 +20,17 @@ CREATE TABLE players (
 );
 
 CREATE TABLE player_hand (
-    id             SERIAL,
-    timestamp      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    hand_fk_id     INT NOT NULL,
-    player_fk_id   INT NOT NULL,
-    was_bidder     BOOLEAN DEFAULT false,
-    was_partner    BOOLEAN DEFAULT false,
-    showed_trump   BOOLEAN DEFAULT false,
-    one_last       BOOLEAN DEFAULT false,
-    points_earned  INT NOT NULL,
+    id              SERIAL,
+    timestamp       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    hand_fk_id      INT NOT NULL,
+    player_fk_id    INT NOT NULL,
+    was_bidder      BOOLEAN DEFAULT false,
+    was_partner     BOOLEAN DEFAULT false,
+    showed_trump    BOOLEAN DEFAULT false,
+    one_last        BOOLEAN DEFAULT false,
+    points_earned   INT NOT NULL,
+    is_bot          BOOLEAN DEFAULT false,
+    bot_type        TEXT,
     PRIMARY KEY (id)
 );
 

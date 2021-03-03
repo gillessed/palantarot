@@ -24,6 +24,7 @@ export interface Config {
     password: string;
     database: string;
   };
+  adminPassword: string;
 }
 
 export function readConfig(): Config {

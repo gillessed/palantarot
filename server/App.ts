@@ -5,6 +5,7 @@ import express, { Request } from 'express';
 import logger from 'morgan';
 import path from 'path';
 import { DynamicRoutes, DynamicRoutesEnumerable, StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable } from '../app/routes';
+import { DefaultTarotBotRegistry } from "../bots/TarotBot";
 import { AuthService, createRequestValidator } from './api/AuthService';
 import { GameService } from './api/GameService';
 import { PlayerService } from './api/PlayerService';
@@ -15,7 +16,6 @@ import { Config } from './config';
 import { Database } from './db/dbConnector';
 import { PlayService } from "./play/PlayService";
 import { WebsocketManager } from './websocket/WebsocketManager';
-
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 const thirtyDaysMs =  oneDayMs * 30;
@@ -103,7 +103,9 @@ export class App {
   }
 
   private apiRoutes() {
-    const playerService = new PlayerService(this.db);
+    const botRegistry = DefaultTarotBotRegistry;
+
+    const playerService = new PlayerService(this.config, this.db, botRegistry);
     this.express.use('/api/v1/players', playerService.router);
 
     const gameService = new GameService(this.db, this.websocketManager);
@@ -121,7 +123,7 @@ export class App {
     const searchService = new SearchService(this.db);
     this.express.use('/api/v1/search', searchService.router);
 
-    const playService = new PlayService(this.websocketManager);
+    const playService = new PlayService(this.db, this.websocketManager, botRegistry);
     this.express.use('/api/v1/play', playService.router);
   }
  

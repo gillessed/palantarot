@@ -25,6 +25,7 @@ export interface PlayState {
   readonly partnerCard?: Card;
   readonly anyPlayerPlayedCard?: boolean;
   readonly trick: TrickCards;
+  readonly completedTricks: TrickCards[];
   readonly endState?: CompletedGameState;
   readonly shows: ShowDetails[];
   readonly showIndex: number | null;
@@ -35,7 +36,7 @@ export interface ShowDetails {
   trumpCards: TrumpCard[];
 }
 
-export const blank_state: PlayState = {
+export const BlankState: PlayState = {
   state: GameplayState.NewGame,
   hand: [],
   dog: [],
@@ -48,6 +49,7 @@ export const blank_state: PlayState = {
     cards: new Map(),
     completed: false,
   },
+  completedTricks: [],
   shows: [],
   showIndex: null,
 };
@@ -192,9 +194,11 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
   const toPlay = state.playerOrder[playerIndex % state.playerOrder.length];
   let newTrickCards;
   let newOrder;
+  let newCompletedTricks = state.completedTricks;
   if (state.trick.completed) {
     newTrickCards = new Map([[action.player, action.card]]);
     newOrder = [action.player];
+    newCompletedTricks = [...state.completedTricks, state.trick];
   } else {
     newTrickCards = new Map(state.trick.cards);
     newTrickCards.set(action.player, action.card);
@@ -215,6 +219,7 @@ function playCard(state: PlayState, action: PlayCardAction, player: PlayerId) {
     toPlay,
     playedCard: action.player === player,
     trick: newTrick,
+    completedTricks: newCompletedTricks,
     partner,
     anyPlayerPlayedCard: true,
   };

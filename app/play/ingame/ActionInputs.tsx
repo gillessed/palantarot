@@ -1,8 +1,8 @@
 import { Button, Checkbox, ControlGroup, Radio, RadioGroup } from "@blueprintjs/core";
 import React, { FormEvent, KeyboardEvent } from "react";
+import { parseCard } from "../cardUtils";
 import { Action, ActionType, BidAction, Call, CallPartnerAction, Card, MessageAction, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, TrumpSuit } from "../common";
-import { cardPattern} from "./Cards";
-import {parseCard} from "../cardUtils";
+import { cardPattern } from "./Cards";
 
 interface BaseProps {
   submitAction(action: Omit<Action, "player" | "time">): void
@@ -154,7 +154,7 @@ export class InputSetDog extends ActionInput<{player: PlayerId, cards: Card[]}, 
     return {
       type: this.type,
       dog: this.props.cards,
-      private_to: this.props.player,
+      privateTo: this.props.player,
     }
   }
 }

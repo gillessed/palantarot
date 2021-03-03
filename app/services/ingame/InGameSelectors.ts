@@ -2,7 +2,10 @@ import { defaultMemoize } from 'reselect';
 import { EventsToDisplay } from '../../containers/play/sidebar/PlaySidebar';
 import { Card, MessageAction, PlayerId, RegValue, TrumpSuit } from '../../play/common';
 import { TrickCards } from '../../play/ingame/playLogic';
+import { ReduxState } from '../rootReducer';
 import { InGameState, MessageGroup, SidebarEvent } from './InGameTypes';
+
+const getInGameState = (state: ReduxState) => state.ingame;
 
 const isParticipant = (state: InGameState) => {
   return state.state.playerOrder.indexOf(state.player) >= 0;
@@ -131,6 +134,7 @@ const getEventsForSidebar = defaultMemoize((game: InGameState) => {
 }); 
 
 export const InGameSelectors = {
+  getInGameState,
   isParticipant,
   isGameFull,
   isReady,

@@ -31,7 +31,7 @@ export interface ReduxState {
   addPlayer: AddPlayerService;
   addTarothon: AddTarothonService;
   auth: AuthService;
-  bids: BidsService,
+  bids: BidsService;
   deleteGame: DeleteGameService;
   deleteTarothon: DeleteTarothonService;
   deltas: DeltasService;

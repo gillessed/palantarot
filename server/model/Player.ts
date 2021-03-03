@@ -1,6 +1,8 @@
 export interface NewPlayer {
   firstName: string;
   lastName: string;
+  isBot?: boolean;
+  botType?: string;
 }
 
 export type Player = NewPlayer & {

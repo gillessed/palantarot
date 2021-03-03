@@ -60,8 +60,11 @@ export class Game {
     const events = [];
     let i = startAt;
     for (; i < this.log.length && events.length < limit; i++) {
-      const privacy = this.log[i].private_to;
-      if (privacy === undefined || privacy === player || player === '<debug-player>') {
+      const privacy = this.log[i].privateTo;
+      const exclude = this.log[i].exclude ?? [];
+      const isPrivate = privacy != null && privacy !== player;
+      const isExcluded = exclude.indexOf(player) >= 0;
+      if (player === '<debug-player>' || (!isPrivate && !isExcluded)) {
         events.push(this.log[i]);
       }
     }

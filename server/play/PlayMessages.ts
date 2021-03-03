@@ -32,3 +32,16 @@ export interface DebugPlayAction extends SocketMessage {
   type: 'debug_play_action';
   action: Action;
 }
+
+export const AddBotActionType = 'add_bot';
+export interface AddBotAction extends SocketMessage {
+  type: typeof AddBotActionType;
+  botId: string;
+}
+
+export const RemoveBotActionType = 'remove_bot';
+export interface RemoveBotAction extends SocketMessage {
+  type: typeof RemoveBotActionType;
+  botId: string;
+}
+

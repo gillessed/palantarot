@@ -1,8 +1,10 @@
 import { Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { mergeContexts } from '../app';
 import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
 import { DispatchContext, DispatchersContextType } from '../dispatchProvider';
+import { SagaContext, SagaContextType, SagaRegistration } from '../sagaProvider';
 import { Dispatchers } from '../services/dispatchers';
 import { DefaultArgToKey, Loader, Loaders } from '../services/loader';
 import { Loadable } from '../services/redux/loadable';
@@ -15,7 +17,9 @@ export interface LoaderOptions {
 
 interface OtherProps {
   dispatchers?: Dispatchers;
+  sagas?: SagaRegistration;
   loading?: boolean;
+  reload?: () => void;
 }
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -49,12 +53,14 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options
     type INNER_PROPS = OWN_PROPS & LOADABLES & PROP_HOLDER & { refreshCounter: number };
 
     const raw = class extends React.PureComponent<INNER_PROPS, {}> {
-      public static contextTypes = DispatchersContextType;
+      public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);;
       private dispatchers: Dispatchers;
+      private sagas: SagaRegistration;
 
-      constructor(props: INNER_PROPS, context: DispatchContext) {
+      constructor(props: INNER_PROPS, context: DispatchContext & SagaContext) {
         super(props, context);
         this.dispatchers = context.dispatchers;
+        this.sagas = context.sagaListeners;
       }
 
       public componentWillMount() {
@@ -119,12 +125,12 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options
             return (
               <div style={{ position: 'relative' }}>
                 {showSpinner && <SpinnerOverlay size={Spinner.SIZE_LARGE} />}
-                <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading} />
+                <Component {...ownProps} dispatchers={this.dispatchers} sagas={this.sagas} loading={hasLoading} reload={this.reloadAll} />
               </div>
             );
           } else {
             return (
-              <Component {...ownProps} dispatchers={this.dispatchers} loading={hasLoading} />
+              <Component {...ownProps} dispatchers={this.dispatchers} sagas={this.sagas} loading={hasLoading} reload={this.reloadAll} />
             );
           }
         }

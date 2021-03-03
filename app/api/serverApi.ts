@@ -1,6 +1,7 @@
 import { ApisauceInstance, create } from 'apisauce';
 import { DeltasRequest } from '../../server/api/StatsService';
 import { RecentGameQuery } from '../../server/db/GameQuerier';
+import { AdminPasswordKey } from '../../server/headers';
 import { BidRequest, BidStats } from '../../server/model/Bid';
 import { Deltas } from '../../server/model/Delta';
 import { Records } from '../../server/model/Records';
@@ -11,6 +12,7 @@ import { NewTarothon, Tarothon, TarothonData } from '../../server/model/Tarothon
 import { GameDescription } from '../../server/play/GameDescription';
 import { mapFromCollection } from '../../server/utils';
 import { pTimeout } from '../../server/utils/index';
+import { getAdminPassword } from '../admin';
 import history from '../history';
 import { StaticRoutes } from '../routes';
 import { AuthRequest } from '../services/auth/index';
@@ -114,7 +116,7 @@ export class ServerApi {
   }
 
   public playNewGame = (): Promise<string> => {
-    return this.wrapPost("/play/new_game", {})
+    return this.wrapPost("/play/new_game", {});
   }
 
   public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {
@@ -124,7 +126,7 @@ export class ServerApi {
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
-    return this.api.get<RESP | { error: string }>(url).then((response: any): RESP => {
+    return this.api.get<RESP | { error: string }>(url, { headers: { [AdminPasswordKey]: getAdminPassword() }}).then((response: any): RESP => {
       if (response.ok) {
         const data = response.data! as any;
         if (data.error) {
@@ -142,7 +144,7 @@ export class ServerApi {
   }
 
   public wrapPost = <RESP>(url: string, body: any) => {
-    return this.api.post<RESP | { error: string }>(url, body).then((response: any): RESP => {
+    return this.api.post<RESP | { error: string }>(url, body, { headers: { [AdminPasswordKey]: getAdminPassword() }}).then((response: any): RESP => {
       if (response.ok) {
         const data = response.data! as any;
         if (data.error) {

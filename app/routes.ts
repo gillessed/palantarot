@@ -13,6 +13,7 @@ const StaticRoutesInternal = {
   lobby: () => '/app/lobby',
   login: () => '/login',
   rules: () => '/app/rules',
+  bots: () => '/app/bots',
 }
 
 export const StaticRoutes = StaticRoutesInternal; 

@@ -2,6 +2,7 @@ import { Icon } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { parseMessageForEmojis } from '../../../components/emoji/emojiRenderer';
 import { InGameState, MessageGroup } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
 
@@ -10,6 +11,8 @@ interface Props {
   message: MessageGroup;
   players: Map<string, Player>;
 }
+
+
 
 export class PlayMessage extends React.PureComponent<Props> {
   public render() {
@@ -30,9 +33,13 @@ export class PlayMessage extends React.PureComponent<Props> {
           <div className='message-author-text'>{authorName}</div>
         </div>
         {message.messages.map((text, index) => {
-          return <div className='message-body' key={index}>{text}</div>;
+          return (
+            <div className='message-body' key={index}>
+              {parseMessageForEmojis(text)}
+            </div>
+          );
         })}
       </div>
     );
-  }  
+  }
 }

@@ -1,6 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { PlayerId } from '../../app/play/common';
 import { Game } from "../../app/play/server";
+import { TarotBotRegistry } from '../../bots/TarotBot';
+import { Database } from '../db/dbConnector';
+import { PlayerQuerier } from '../db/PlayerQuerier';
 import { WebsocketManager } from '../websocket/WebsocketManager';
 import { GameDescription, getGameDescription } from './GameDescription';
 import { LobbySocketManager } from './LobbySocketManager';
@@ -15,12 +18,14 @@ export class PlayService {
   public lobbySocketManager: LobbySocketManager;
 
   constructor(
+    db: Database,
     websocketManager: WebsocketManager,
+    botRegistry: TarotBotRegistry,
   ) {
     this.router = Router();
     this.games = new Map();
     this.players = new Map();
-    this.playSocketManager = new PlaySocketManager(websocketManager, this);
+    this.playSocketManager = new PlaySocketManager(websocketManager, this, new PlayerQuerier(db), botRegistry);
     this.lobbySocketManager = new LobbySocketManager(websocketManager, this);
     this.router.post('/new_game', this.newGame);
     this.router.get('/games', this.listGames);

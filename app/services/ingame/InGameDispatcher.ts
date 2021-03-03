@@ -30,12 +30,24 @@ export class InGameDispatcher {
     this.store.dispatch(InGameActions.exitGame());
   }
 
+  public setAutoplay(autoplay: boolean) {
+    this.store.dispatch(InGameActions.setAutoplay(autoplay));
+  }
+
   public play(player: string, debug?: boolean) {
     return new PlayDispatcher(this, player, debug);
   }
 
   public closeShowWindow() {
     this.store.dispatch(InGameActions.closeShowWindow());
+  }
+
+  public addBot(botId: string) {
+    this.store.dispatch(InGameActions.addBot(botId));
+  }
+
+  public removeBot(botId: string) {
+    this.store.dispatch(InGameActions.removeBot(botId));
   }
 
   // Debug
