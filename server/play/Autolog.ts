@@ -10,9 +10,10 @@ export function autologGame(
   game: Game | undefined,
   gameQuerier: GameQuerier,
 ) {
-  if (!game || !game.settings.autologEnabled || game.getState().name !== GameplayState.Completed) {
+  if (!game || !game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
     return;
   }
+
   const state = game.getState() as CompletedBoardState;
   const endState = state.end_state;
   
@@ -62,6 +63,7 @@ export function autologGame(
     handData,
   }
   gameQuerier.saveGame(results);
+  game.logged = true;
 }
 
 function getHandForPlayer(

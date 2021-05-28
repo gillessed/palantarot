@@ -568,15 +568,17 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
       }
     case "play_card":
       const player_num = getPlayerNum(state.players, action.player);
+      const anyPlayerPlayedCard = !(state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
+      const allowedCards = getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards, anyPlayerPlayedCard, state.called);
       if (state.current_trick.players[state.current_trick.current_player] !== action.player) {
         throw errorPlayingOutOfTurn(action.player, state.current_trick.players[state.current_trick.current_player]);
       } else if (!cardsContain(state.hands[player_num], action.card)) {
         throw errorCardNotInHand(action, state.hands[player_num]);
-      } else if (!cardsContain(getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards), action.card)) {
+      } else if (!cardsContain(allowedCards, action.card)) {
         throw errorCannotPlayCard(
           action.card,
           state.current_trick.cards,
-          getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards));
+          allowedCards);
       } else if (!isAfterFirstTurn(state, action) && player_num === 0 && state.called
         && action.card[0] === state.called[0] && action.card[1] !== state.called[1]) {
         throw errorCannotLeadCalledSuit(action.card, state.called);

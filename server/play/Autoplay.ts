@@ -12,7 +12,8 @@ export function autoplayNextCard(game: Game): PlayCardAction | undefined {
   const toPlay = state.current_trick.players[state.current_trick.current_player];
   const playerNum = getPlayerNum(state.players, toPlay);
   const toPlayHand = state.hands[playerNum];
-  const allowableCards = getCardsAllowedToPlay(toPlayHand, state.current_trick.cards);
+  const anyPlayerPlayedCard = (state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
+  const allowableCards = getCardsAllowedToPlay(toPlayHand, state.current_trick.cards, anyPlayerPlayedCard, state.called);
   const randomCard = allowableCards[Math.floor(Math.random() * allowableCards.length)];
   const action: PlayCardAction = {
     type: 'play_card',

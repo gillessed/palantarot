@@ -2,9 +2,9 @@ import { Action, GameSettingsAction, PlayerEvent, PlayerId, Transition } from ".
 import { biddingBoardReducer, completedBoardReducer, dogRevealAndExchangeBoardReducer, newGameBoardReducer, partnerCallBoardReducer, playingBoardReducer } from "./reducers";
 import { BoardReducer, BoardState, GameplayState, NewGameBoardState } from './state';
 
-type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
+export type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
 
-function createInitialState(): NewGameBoardState {
+export function createInitialState(): NewGameBoardState {
   return {
     name: GameplayState.NewGame,
     players: [],
@@ -12,7 +12,7 @@ function createInitialState(): NewGameBoardState {
   };
 }
 
-function buildReducer() {
+export function buildReducer() {
   return {
     'new_game': newGameBoardReducer,
     'bidding': biddingBoardReducer,
@@ -41,6 +41,7 @@ export class Game {
       createInitialState(),
       [],
       settings,
+      false,
     );
     const action: GameSettingsAction = {
       type: 'game_settings',
@@ -59,6 +60,7 @@ export class Game {
     private state: BoardState,
     private readonly log: PlayerEvent[],
     public readonly settings: GameSettings,
+    public logged: boolean,
   ) {}
 
   public playerAction<T extends Action>(event: T): PlayerEvent[] {

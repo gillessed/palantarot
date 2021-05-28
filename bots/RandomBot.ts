@@ -49,9 +49,9 @@ export class RandomBot implements TarotBot {
    * Will play any card that is possible.
    */
   public playCard(gameState: InGameState): Card {
-    const { hand, trick } = gameState.state;
+    const { hand, trick, anyPlayerPlayedCard, partnerCard } = gameState.state;
     const trickCards = trick.order.map((playerId) => trick.cards.get(playerId)).filter((c) => c) as Card[];
-    const cards = getCardsAllowedToPlay(hand, trickCards);
+    const cards = getCardsAllowedToPlay(hand, trickCards, !!anyPlayerPlayedCard, partnerCard);
     const finalCard = getArrayRandom(cards);
 
     return finalCard;

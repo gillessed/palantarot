@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { CardList } from '../app/play/CardList';
-import { cardsWithout, getLeadCard, getTrumps, RegSuits } from "../app/play/cardUtils";
-import { Bid, BidValue, Call, Card, RegSuit, RegValue, TrumpSuit, TrumpValue } from "../app/play/common";
+import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../app/play/cardUtils";
+import { Bid, BidValue, Call, Card, RegSuit, RegValue, The21, TheJoker, TrumpSuit, TrumpValue } from "../app/play/common";
 import { InGameState } from "../app/services/ingame/InGameTypes";
 import { dropValueSortComparator, getNonSelfCalls, getTrickCardList, lambdaMin } from "./BotUtils";
 import { RandomBot } from './RandomBot';
@@ -160,7 +160,7 @@ export class SimpleBot implements TarotBot {
       .map((voidSuit) => [voidSuit, hand.filter(([suit, _]) => suit === voidSuit).length])
       .filter(([pSuit, _]) => pSuit !== partnerSuit) as [RegSuit, number][];
     const shortestSuit = lambdaMin(([_, count]) => count, ...suitCount)[0];
-    
+
     if (shortestSuit.length > 0 && shortestSuit.length <= 3) {
       const cardsOfShortSuit = hand.filter(([suit, _]) => suit === shortestSuit);
       dogCards.push(...cardsOfShortSuit);
@@ -181,7 +181,8 @@ export class SimpleBot implements TarotBot {
   /**
    * - If has joker, and second to last trick, player joker
    * if leading
-   *   - picking emptiest non-king suit
+   *   - lead 21 is the one hasn't been seen yet
+   *   - lead lowest emptiest non-king suit
    *   - lead king of fullest king suit
    *   - lead lowest trump
    *   - lead random
@@ -212,32 +213,26 @@ export class SimpleBot implements TarotBot {
       const hasKing = handList.has([suit, RegValue.R]);
       return [suit, remaining, hasKing];
     });
-    // const emptiestNonKingSuit: [RegSuit, number, boolean] | null = suitRemaining
-    //   .filter(([suit, remaining, hasKing]) => !hasKing)
-    //   .reduce((result, next) => {
-    //     if (!result) {
-    //       return next;
-    //     }
-    //     const [resultSuit, resultRemaining] = result;
-    //     const [nextSuit, nextRemaining] = next;
-    //     if (resultRemaining < nextRemaining) {
-    //       return result;
-    //     } else {
-    //       return next;
-    //     }
-    //   }, null);
+    const nonKingSuitsRemaining = suitRemaining.filter(([_suit, _remaining, hasKing]) => !hasKing).sort(([_s1, r1], [_s2, r2]) => r1 - r2);
+    const emptiestNonKingSuit = nonKingSuitsRemaining.length === 0
+      ? null
+      : nonKingSuitsRemaining[0][0];
 
     if (completedTricks.length === 13 && hasJoker) {
-      return [TrumpSuit, TrumpValue.Joker];
+      return TheJoker;
     }
     if (leadCard) {
       // Bot to follow suit
     } else {
       // Bot to lead new suit
       if (has21 && !has1 && !stateAnalysis.onePlayed) {
-        return [TrumpSuit, TrumpValue._21];
+        return The21;
       }
-      
+
+      // Lead emptiest non-king suit
+      if (emptiestNonKingSuit) {
+        return hand.filter(([suit]) => suit === emptiestNonKingSuit).sort(([_s1, v1], [_s2, v2]) => getCardValueAsNumber(v1) - getCardValueAsNumber(v2))[0];
+      }
     }
 
     // const { hand, trick } = gameState.state;

@@ -37,7 +37,7 @@ function buildDispatcher(playerId: PlayerId, game: string, dispatcher: InGameDis
 
 function getDebugPlayers(selfId: string, allPlayers: Player[]): DebugPlayerInfo[] {
   const otherPlayers: DebugPlayerInfo[] = allPlayers
-    .filter((player) => player.id !== selfId)
+    .filter((player) => player.id !== selfId && player.isBot)
     .map((player) => ({ key: getPlayerKey(player), id: player.id }));
   const nonDebugPlayers = otherPlayers.filter((info) => DebugPlayerKeys.indexOf(info.key) < 0);
   const debugPlayers: DebugPlayerInfo[] = [];
