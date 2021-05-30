@@ -1,7 +1,7 @@
 Palantarot
 ----------
 
-A simple node backend with mysql and react/redux frontend to display and enter in French Tarot card game scores.
+A simple node backend with mysql and react/redux frontend to play the French Tarot card game and track scores.
 
 Deploying
 ---------
