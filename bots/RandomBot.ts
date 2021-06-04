@@ -13,12 +13,29 @@ export class RandomBot implements TarotBot {
   type: string = RandomBotType;
 
   /**
-   * Will pick a random bid uniformly spread across passing and bid choices. However, it will never declare a slam or bid russian.
+   * Will pick a random bid the bid is weighted towards passing and lower bids. However, it will never declare a slam or bid russian.
    */
   public bid(gameState: InGameState): Bid {
     const availableBidValues = getPossibleBidValues(gameState);
-    const bidValue = getArrayRandom(availableBidValues);
-    return { bid: bidValue, player: gameState.player, calls: [] };
+    let bid: number = 0;
+    const random = Math.random();
+    if (random > 0.95) {
+      bid = 160;
+    } else if (random > 0.87) {
+      bid = 80;
+    } else if (random > 0.75) {
+      bid = 40;
+    } else if (random > 0.6) {
+      bid = 20;
+    } else if (random > 0.4) {
+      bid = 10;
+    } else {
+      bid = 0;
+    }
+    if (availableBidValues.indexOf(bid) < 0) {
+      bid = 0;
+    }
+    return { bid, player: gameState.player, calls: [] };
   }
   
   /**

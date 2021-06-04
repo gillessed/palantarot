@@ -3,8 +3,8 @@ import { AllCs, AllDs, AllRs, AllVs, Card, RegValue, TrumpSuit } from "../app/pl
 import { TrickCards } from "../app/play/ingame/playLogic";
 import { InGameState } from "../app/services/ingame/InGameTypes";
 
-// const NonPassBids = [10, 20, 40, 80, 160];
-const NonPassBids = [10, 20, 40];
+const NonPassBids = [10, 20, 40, 80, 160];
+// const NonPassBids = [10, 20, 40];
 
 export function getPossibleBidValues(gameState: InGameState): number[] {
   const { state, player } = gameState;
