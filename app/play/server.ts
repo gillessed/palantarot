@@ -71,7 +71,7 @@ export class Game {
     if (reducer === undefined) {
       throw new Error(`Cannot find reducer for ${this.state.name}, known reducers are ${Object.keys(this.reducers)}`)
     }
-    const [newState, ...newEvents] = reducer(this.state, event);
+    const { state: newState, events: newEvents } = reducer(this.state, event); 
     this.state = newState;
     this.log.push(...newEvents);
     return newEvents;

@@ -5,6 +5,7 @@ import { ActionButton } from '../svg/ActionButton';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
+import { PlayerOverlay } from '../svg/PlayerOverlay';
 import { ShowOverlay } from '../svg/ShowOverlay';
 import { StatusOverlay } from '../svg/StatusOverlay';
 import { SuitIcons } from '../svg/SuitIcons';
@@ -30,6 +31,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     const dogSize = InGameSelectors.getDogSize(game);
     return (<g className='partnet-call-state-view'>
       <StatusOverlay {...this.props} />
+      <PlayerOverlay {...this.props} />
       {isParticipant && <BottomHandSvg
         svgWidth={width}
         svgHeight={height}

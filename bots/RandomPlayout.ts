@@ -12,7 +12,7 @@ export class RandomPlayout {
 
   public doAction(event: PlayerEvent) {
     const reducer = this.reducers[this.state.name];
-    const [newState] = reducer(this.state, event);
+    const { state: newState } = reducer(this.state, event);
     this.state = newState;
   }
 }

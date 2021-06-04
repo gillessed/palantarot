@@ -1,27 +1,29 @@
 import _ from "lodash";
 import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from './cardUtils';
 import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerEvent, PlayerId, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
-import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
+import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, BoardState, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates, ReducerResult } from "./state";
 
-export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
+function simpleResult<RESULT extends BoardState>(state: RESULT, action: PlayerEvent): ReducerResult<RESULT> {
+  return { state, events: [action] };
+}
+
+export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action): ReducerResult<NewGameStates> {
   switch (action.type) {
     case "game_settings":
-      return [state, action];
+      return simpleResult(state, action);
     case "message":
-      return [state, action];
+      return simpleResult(state, action);
     case 'enter_game':
       if (state.players.indexOf(action.player) >= 0) {
         throw errorActionAlreadyHappened(action, state.players);
       } else if (state.players.length > 5) {
         throw errorTooManyPlayers(action.player, state.players);
       } else {
-        return [
-          {
-            ...state,
-            players: [...state.players, action.player]
-          } as NewGameBoardState,
-          action
-        ]
+        const newState: NewGameBoardState = {
+          ...state,
+          players: [...state.players, action.player],
+        };
+        return simpleResult(newState, action);
       }
     case 'leave_game':
       if (state.players.indexOf(action.player) < 0) {
@@ -29,13 +31,11 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
       } else if (state.ready.indexOf(action.player) >= 0) {
         throw errorPlayerMarkedReady(action.player);
       } else {
-        return [
-          {
-            ...state,
-            players: _.without(state.players, action.player),
-          } as NewGameBoardState,
-          action,
-        ]
+        const newState: NewGameBoardState = {
+          ...state,
+          players: _.without(state.players, action.player),
+        };
+        return simpleResult(newState, action);
       }
     case 'mark_player_ready':
       if (state.ready.indexOf(action.player) >= 0) {
@@ -43,14 +43,13 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
       } else if (state.players.indexOf(action.player) < 0) {
         throw errorPlayerNotInGame(action.player, state.players);
       } else if (state.ready.length + 1 !== state.players.length || state.players.length < 3) {
-        return [
-          {
-            ...state,
-            ready: [...state.ready, action.player]
-          } as NewGameBoardState,
-          action,
-        ]
+        const newState: NewGameBoardState = {
+          ...state,
+          ready: [...state.ready, action.player],
+        };
+        return simpleResult(newState, action);
       } else {
+        const { publicHands } = state;
         const { dog, hands } = dealCards(state.players.length);
         const playerOrder = _.shuffle(state.players);
 
@@ -75,16 +74,17 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
             },
           },
           shows: [],
-        }
-        const { publicHands } = state;
+        };
 
-        const actions: any = [
-          bidState,
+        const setPlayersTransition: PlayersSetTransition = {
+          type: 'players_set',
+          playerOrder,
+          privateTo: undefined,
+        };
+
+        const events: PlayerEvent[] = [
           action,
-          {
-            type: 'players_set',
-            playerOrder,
-          } as PlayersSetTransition,
+          setPlayersTransition,
           ..._.map(hands).map((hand: Card[], player: number) => {
             const transition: DealtHandTransition = {
               type: 'dealt_hand',
@@ -106,14 +106,14 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
         ];
 
         if (publicHands) {
-          const showDogAction: ShowDogToObservers = {
+          const showDogEvent: ShowDogToObservers = {
             type: 'show_dog_to_observers',
             dog,
             exclude: state.players,
           };
-          actions.push(showDogAction);
+          events.push(showDogEvent);
         }
-        return actions;
+        return { state: bidState, events };
       }
     case 'unmark_player_ready':
       if (state.players.indexOf(action.player) < 0) {
@@ -121,13 +121,11 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
       } else if (state.ready.indexOf(action.player) < 0) {
         throw errorPlayerNotReady(action.player, state.ready);
       } else {
-        return [
-          {
-            ...state,
-            ready: _.without(state.ready, action.player),
-          } as NewGameBoardState,
-          action,
-        ]
+        const newState: NewGameBoardState = {
+          ...state,
+          ready: _.without(state.ready, action.player),
+        };
+        return simpleResult(newState, action);
       }
     default:
       throw errorInvalidActionForGameState(action, state.name);
@@ -189,7 +187,7 @@ const updateBids = function (state: CurrentBids, bid_action: BidAction): Current
   }
 };
 
-function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: ShowTrumpAction): [T, ShowTrumpAction] {
+function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: ShowTrumpAction): ReducerResult<T> {
   const player_num = getPlayerNum(state.players, action.player);
   if (state.shows.indexOf(action.player) >= 0) {
     throw errorCannotShowTwice(action.player);
@@ -200,122 +198,104 @@ function showTrumpActionReducer<T extends DealtBoardState>(state: T, action: Sho
   } else if (state.players.length < 5 && action.cards.length < 10) {
     throw errorNotEnoughTrump(action.cards.length, 10);
   } else {
-    return [
-      {
-        ...state,
-        shows: [...state.shows, action.player],
-      } as T,
-      action,
-    ]
+    const newState: T = {
+      ...state,
+      shows: [...state.shows, action.player],
+    };
+    return simpleResult(newState, action);
   }
 }
 
-export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function (state, action) {
+export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateActions, BiddingStates> = function (state, action): ReducerResult<BiddingStates> {
   switch (action.type) {
     case "message":
-      return [state, action];
+      return simpleResult(state, action);
     case "show_trump":
       return showTrumpActionReducer(state, action);
     case "bid":
       const new_bid_state = updateBids(state.bidding, action);
       if (new_bid_state.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
-        return [
-          {
-            ...state,
-            bidding: new_bid_state,
-          } as BiddingBoardState,
-          action
-        ]
+        const newState: BiddingBoardState = {
+          ...state,
+          bidding: new_bid_state,
+        };
+        return simpleResult(newState, action);
       } else { // last bid
         if (new_bid_state.current_high.bid === BidValue.PASS) { // all passes
-          return [
-            {
-              publicHands: state.publicHands,
-              name: 'new_game',
-              players: state.players,
-              ready: [],
-              events: [],
-            } as NewGameBoardState,
-            action,
-            {
-              type: 'game_aborted',
-              reason: 'Everybody passed!',
-            } as GameAbortedTransition,
-          ]
+          const newState: NewGameBoardState = {
+            publicHands: state.publicHands,
+            name: GameplayState.NewGame,
+            players: state.players,
+            ready: [],
+          };
+          const abortTransition: GameAbortedTransition = {
+            type: 'game_aborted',
+            reason: 'Everybody passed!',
+          };
+          const events = [action, abortTransition];
+          return { state: newState, events };
         } else {
-          const actions: any = [];
+          let newState: PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
+          const events: PlayerEvent[] = [];
+          const biddingCompletedTransition: BiddingCompletedTransition = {
+            type: 'bidding_completed',
+            winning_bid: new_bid_state.current_high,
+            privateTo: undefined,
+          };
           if (state.players.length === 5) {
-            actions.push(...[
-              {
+            newState = {
+              ...state,
+              name: GameplayState.PartnerCall,
+              bidder: new_bid_state.current_high.player,
+              allBids: new_bid_state.bids,
+              bidding: {
+                winningBid: new_bid_state.current_high,
+                calls: getAllCalls(state.players, new_bid_state),
+              },
+            };
+            events.push(action, biddingCompletedTransition);
+          } else { // 3 or 4 players
+            if (new_bid_state.current_high.bid <= BidValue.FORTY) {
+              newState = {
                 ...state,
-                name: 'partner_call',
+                name: GameplayState.DogReveal,
                 bidder: new_bid_state.current_high.player,
                 allBids: new_bid_state.bids,
                 bidding: {
                   winningBid: new_bid_state.current_high,
                   calls: getAllCalls(state.players, new_bid_state),
                 },
-              } as PartnerCallBoardState,
-              action,
-              {
-                type: 'bidding_completed',
-                winning_bid: new_bid_state.current_high,
-              } as BiddingCompletedTransition,
-            ]);
-          } else { // 3 or 4 players
-            if (new_bid_state.current_high.bid <= BidValue.FORTY) {
-              actions.push(...[
-                {
-                  ...state,
-                  name: 'dog_reveal',
-                  bidder: new_bid_state.current_high.player,
-                  allBids: new_bid_state.bids,
-                  bidding: {
-                    allBids: new_bid_state.bids,
-                    winningBid: new_bid_state.current_high,
-                    calls: getAllCalls(state.players, new_bid_state),
-                  },
-                } as DogRevealAndExchangeBoardState,
-                action,
-                {
-                  type: 'bidding_completed',
-                  winning_bid: new_bid_state.current_high,
-                } as BiddingCompletedTransition,
-                {
-                  type: 'dog_revealed',
-                  dog: state.dog,
-                  player: new_bid_state.current_high.player,
-                } as DogRevealTransition,
-              ]);
+              };
+              const dogRevealTransition: DogRevealTransition = {
+                type: 'dog_revealed',
+                dog: state.dog,
+                player: new_bid_state.current_high.player,
+                privateTo: undefined,
+              };
+              events.push(action, biddingCompletedTransition, dogRevealTransition);
             } else { // 80 or 160 bid
               const bidder = new_bid_state.current_high.player;
-              actions.push([
-                {
-                  ...state,
-                  name: 'playing',
-                  bidder,
-                  allBids: new_bid_state.bids,
-                  bidding: {
-                    allBids: state.bidding.bids,
-                    winningBid: new_bid_state.current_high,
-                    calls: getAllCalls(state.players, new_bid_state),
-                  },
-                  current_trick: getNewTrick(state.players, state.players[0], 0),
-                  past_tricks: [],
-                } as PlayingBoardState,
-                action,
-                {
-                  type: 'bidding_completed',
-                  winning_bid: new_bid_state.current_high,
-                } as BiddingCompletedTransition,
-                {
-                  type: 'game_started',
-                  first_player: state.players[0],
-                } as GameStartTransition,
-              ]);
+              newState = {
+                ...state,
+                name: GameplayState.Playing,
+                bidder,
+                allBids: new_bid_state.bids,
+                bidding: {
+                  winningBid: new_bid_state.current_high,
+                  calls: getAllCalls(state.players, new_bid_state),
+                },
+                current_trick: getNewTrick(state.players, state.players[0], 0),
+                past_tricks: [],
+              };
+              const gameStartedTransition: GameStartTransition = {
+                type: 'game_started',
+                first_player: state.players[0],
+                privateTo: undefined,
+              }
+              events.push(action, biddingCompletedTransition, gameStartedTransition);
             }
           }
-          return actions;
+          return { state: newState, events };
         }
       }
     default:
@@ -323,25 +303,22 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
   }
 };
 
-function declareSlamActionReducer<T extends DealtBoardState & { bidder: PlayerId, bidding: CompletedBids }>(state: T, action: DeclareSlam)
-  : [T, DeclareSlam] {
+function declareSlamActionReducer<T extends DealtBoardState & { bidder: PlayerId, bidding: CompletedBids }>(state: T, action: DeclareSlam): ReducerResult<T> {
   const player_num = getPlayerNum(state.players, action.player);
   if (action.player != state.bidder) {
     throw errorOnlyBidderCanDeclareSlam(action.player, state.bidder);
   }
-  return [
-    {
-      ...state,
-      bidding: {
-        ...state.bidding,
-        calls: {
-          ...state.bidding.calls,
-          [player_num]: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
-        },
+  const newState: T = {
+    ...state,
+    bidding: {
+      ...state.bidding,
+      calls: {
+        ...state.bidding.calls,
+        [player_num]: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
       },
-    } as T,
-    action,
-  ];
+    },
+  }
+  return simpleResult(newState, action);
 }
 
 function getNewTrick(players: PlayerId[], first_player: PlayerId, trick_num: number) {
@@ -353,10 +330,10 @@ function getNewTrick(players: PlayerId[], first_player: PlayerId, trick_num: num
   };
 }
 
-export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates> = function (state, action) {
+export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates> = function (state, action): ReducerResult<PartnerCallStates> {
   switch (action.type) {
     case "message":
-      return [state, action];
+      return simpleResult(state, action);
     case "declare_slam":
       return declareSlamActionReducer(state, action);
     case "show_trump":
@@ -375,47 +352,45 @@ export const partnerCallBoardReducer: BoardReducer<PartnerCallBoardState, Partne
         }
       }
       if (state.bidding.winningBid.bid > BidValue.FORTY) {
-        return [
-          {
-            ...state,
-            name: 'playing',
-            called: action.card,
-            partner,
+        const newState: PlayingBoardState = {
+          ...state,
+          name: GameplayState.Playing,
+          called: action.card,
+          partner,
 
-            current_trick: getNewTrick(state.players, state.players[0], 0),
-            past_tricks: [],
-          } as PlayingBoardState,
-          action,
-          {
-            type: 'game_started',
-            first_player: state.players[0],
-          } as GameStartTransition,
-        ]
+          current_trick: getNewTrick(state.players, state.players[0], 0),
+          past_tricks: [],
+        };
+        const gameStartedTransition: GameStartTransition = {
+          type: 'game_started',
+          first_player: state.players[0],
+          privateTo: undefined,
+        };
+        return { state: newState, events: [action, gameStartedTransition] };
       } else {
-        return [
-          {
-            ...state,
-            name: 'dog_reveal',
-            called: action.card,
-            partner,
-          } as DogRevealAndExchangeBoardState,
-          action,
-          {
-            type: 'dog_revealed',
-            dog: state.dog,
-            player: state.bidder,
-          } as DogRevealTransition,
-        ]
+        const newState: DogRevealAndExchangeBoardState = {
+          ...state,
+          name: GameplayState.DogReveal,
+          called: action.card,
+          partner,
+        };
+        const dogRevealTransition: DogRevealTransition = {
+          type: 'dog_revealed',
+          dog: state.dog,
+          player: state.bidder,
+          privateTo: undefined,
+        };
+        return { state: newState, events: [action, dogRevealTransition] };
       }
     default:
       throw errorInvalidActionForGameState(action, state.name);
   }
 };
 
-export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates> = function (state, action) {
+export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates> = function (state, action): ReducerResult<DogRevealStates> {
   switch (action.type) {
     case "message":
-      return [state, action];
+      return simpleResult(state, action);
     case "declare_slam":
       return declareSlamActionReducer(state, action);
     case "show_trump":
@@ -435,36 +410,35 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
         if (new_player_hand.length !== player_hand.length) {
           throw errorNewDogDoesntMatchHand(action.dog, cards);
         } else {
-          const actions: [any, ...PlayerEvent[]] = [
-            {
-              ...state,
-              name: 'playing',
-              dog: action.dog,
-              hands: {
-                ...state.hands,
-                [player_num]: new_player_hand
-              },
-              current_trick: getNewTrick(state.players, state.players[0], 0),
-              past_tricks: [],
-            } as PlayingBoardState,
-            action,
-            {
-              type: 'game_started',
-              first_player: state.players[0],
-            } as GameStartTransition,
-          ];
+          const newState: PlayingBoardState = {
+            ...state,
+            name: GameplayState.Playing,
+            dog: action.dog,
+            hands: {
+              ...state.hands,
+              [player_num]: new_player_hand
+            },
+            current_trick: getNewTrick(state.players, state.players[0], 0),
+            past_tricks: [],
+          };
+          const gameStartedTransition: GameStartTransition = {
+            type: 'game_started',
+            first_player: state.players[0],
+            privateTo: undefined,
+          };
+          const events: PlayerEvent[] = [action, gameStartedTransition];
           const { publicHands } = state;
           if (publicHands) {
-            const showDogAction: SetDogAction = {
+            const setDogForObservers: SetDogAction = {
               player: action.player,
               time: action.time,
               type: 'set_dog',
               dog: action.dog,
               exclude: state.players,
             };
-            actions.push(showDogAction);
+            events.push(setDogForObservers);
           }
-          return actions;
+          return { state: newState, events };
         }
       }
     default:
@@ -592,10 +566,10 @@ function getFinalScore(
   }
 }
 
-export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function (state, action) {
+export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateActions, PlayingStates> = function (state, action): ReducerResult<PlayingStates> {
   switch (action.type) {
     case "message":
-      return [state, action];
+      return simpleResult(state, action);
     case "declare_slam":
       if (isAfterFirstTurn(state, action)) {
         throw errorAfterFirstTurn(action);
@@ -630,18 +604,16 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
         [player_num]: cardsWithout(state.hands[player_num], action.card),
       };
       if (state.current_trick.current_player < state.current_trick.players.length - 1) {
-        return [
-          {
-            ...state,
-            hands,
-            current_trick: {
-              ...state.current_trick,
-              cards: [...state.current_trick.cards, action.card],
-              current_player: state.current_trick.current_player + 1,
-            },
-          } as PlayingBoardState,
-          action,
-        ]
+        const newState: PlayingBoardState = {
+          ...state,
+          hands,
+          current_trick: {
+            ...state.current_trick,
+            cards: [...state.current_trick.cards, action.card],
+            current_player: state.current_trick.current_player + 1,
+          },
+        };
+        return simpleResult(newState, action);
       } else { // last card in trick
         const new_cards = [...state.current_trick.cards, action.card];
         const [winning_card, winner] = getWinner(new_cards, state.current_trick.players);
@@ -659,64 +631,67 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
           };
         }
         if (hands[0].length > 0) { // next trick!
-          return [
-            {
-              ...state,
-              hands,
-              joker_state: state.joker_state || joker_state,
-              current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
-              past_tricks: [...state.past_tricks, completed_trick],
-            } as PlayingBoardState,
-            action,
-            {
-              type: 'completed_trick',
-              winner,
-              winning_card,
-              joker_state,
-            } as CompletedTrickTransition,
-          ]
+          const newState: PlayingBoardState = {
+            ...state,
+            hands,
+            joker_state: state.joker_state || joker_state,
+            current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
+            past_tricks: [...state.past_tricks, completed_trick],
+          }
+          const completedTrickTransition: CompletedTrickTransition = {
+            type: 'completed_trick',
+            winner,
+            winning_card,
+            joker_state,
+            privateTo: undefined,
+          };
+          return { state: newState, events: [action, completedTrickTransition] };
         } else { // end of game!
           const tricks = [...state.past_tricks, completed_trick];
           const bidding_team = _.compact([state.bidder, state.partner]);
           const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
           const outcomes = getOutcomes(state.players, bidding_team, tricks);
-          const final_score = getFinalScore(state.players, bidding_team, state.bidding.winningBid.bid,
-            cards_won, state.dog, state.shows, state.bidding.calls, outcomes);
-          const end_state = {
+          const final_score = getFinalScore(
+            state.players,
+            bidding_team,
+            state.bidding.winningBid.bid,
+            cards_won,
+            state.dog,
+            state.shows,
+            state.bidding.calls,
+            outcomes,
+          );
+          const endState: CompletedGameState = {
             players: state.players,
             bidder: state.bidder,
             bid: state.bidding.winningBid.bid,
             partner: state.partner,
             dog: state.dog,
-
             calls: state.bidding.calls,
             shows: state.shows,
             outcomes,
             ...final_score
-          } as CompletedGameState;
-          return [
-            {
-              ...state,
-              name: 'completed',
-              hands: undefined,
-              joker_state: state.joker_state || joker_state,
-              current_trick: undefined,
-              past_tricks: tricks,
-
-              end_state,
-            } as CompletedBoardState,
-            action,
-            {
-              type: 'completed_trick',
-              winner,
-              winning_card,
-              joker_state,
-            } as CompletedTrickTransition,
-            {
-              type: 'game_completed',
-              end_state,
-            } as GameCompletedTransition,
-          ]
+          };
+          const newBoardState: CompletedBoardState = {
+            ...state,
+            name: GameplayState.Completed,
+            joker_state: state.joker_state || joker_state,
+            past_tricks: tricks,
+            end_state: endState,
+          }
+          const completedTrickTransition: CompletedTrickTransition = {
+            type: 'completed_trick',
+            winner,
+            winning_card,
+            joker_state,
+            privateTo: undefined,
+          };
+          const completedGameTransition: GameCompletedTransition = {
+            type: 'game_completed',
+            end_state: endState,
+            privateTo: undefined,
+          };
+          return { state: newBoardState, events: [action, completedTrickTransition, completedGameTransition] };
         }
       }
     default:
@@ -724,9 +699,9 @@ export const playingBoardReducer: BoardReducer<PlayingBoardState, PlayingStateAc
   }
 };
 
-export const completedBoardReducer: BoardReducer<CompletedBoardState, CompletedStateActions, CompletedBoardState> = function (state, action) {
+export const completedBoardReducer: BoardReducer<CompletedBoardState, CompletedStateActions, CompletedBoardState> = function (state, action): ReducerResult<CompletedBoardState> {
   if (action.type === "message") {
-    return [state, action];
+    return simpleResult(state, action);
   } else {
     throw errorInvalidActionForGameState(action, state.name);
   }
