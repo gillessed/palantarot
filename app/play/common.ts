@@ -215,7 +215,7 @@ export interface Action extends PlayerEvent {
 }
 
 export type ActionType = 'game_settings' | 'message' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
-  | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card';
+  | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card' | 'show_dog_to_observers';
 
 export interface PublicAction extends Action {
   readonly privateTo?: undefined;
@@ -271,12 +271,19 @@ export interface DeclareSlam extends PublicAction {
 export interface SetDogAction extends Action {
   readonly type: 'set_dog'
   readonly dog: Card[]
-  readonly privateTo: PlayerId
+  readonly privateTo?: PlayerId;
+  readonly exclude?: PlayerId[];
 }
 
 export interface PlayCardAction extends PublicAction {
   readonly type: 'play_card'
   readonly card: Card
+}
+
+export interface ShowDogToObservers extends PlayerEvent {
+  readonly type: 'show_dog_to_observers';
+  readonly dog: Card[];
+  readonly exclude: PlayerId[];
 }
 
 /* TRANSITIONS */
@@ -316,8 +323,7 @@ export interface PlayersSetTransition extends Transition {
 
 export interface DealtHandTransition extends Transition {
   readonly type: 'dealt_hand'
-  readonly privateTo: PlayerId
-
+  readonly playerId: PlayerId;
   readonly hand: Card[]
 }
 

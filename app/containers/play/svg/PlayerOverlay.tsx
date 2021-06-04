@@ -4,41 +4,40 @@ import { PlayerId } from '../../../play/common';
 import { GameplayState } from '../../../play/state';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
-import { getTitleArrangementSpec, TitleArrangementSpec } from '../svg/TitleArrangementSpec';
-import { BottomLeftStatus } from './BottomLeftStatus';
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
 import { PlayerTitleSvg } from './PlayerTitleSvg';
-import { TopRightStatus } from './TopRightStatus';
+import { getTitleArrangementSpec, TitleArrangementSpec } from './TitleArrangementSpec';
 
 interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
   game: InGameState;
+  spectatorMode: SpectatorMode;
 }
 
-export class TitleOverlay extends React.PureComponent<Props> {
+export class PlayerOverlay extends React.PureComponent<Props> {
   public render() {
-    const { game } = this.props;
+    const { game, spectatorMode } = this.props;
     const playerOrder = InGameSelectors.getRotatedPlayerOrder(game);
-    const spec = getTitleArrangementSpec(playerOrder.length);
+    const spec = getTitleArrangementSpec(playerOrder.length, spectatorMode);
     return (<g>
-      <BottomLeftStatus {...this.props} />
-      <TopRightStatus {...this.props} />
-      {this.renderOtherPlayerTitle(playerOrder, 0, spec)}
-      {this.renderOtherPlayerTitle(playerOrder, 1, spec)}
-      {this.renderOtherPlayerTitle(playerOrder, 2, spec)}
-      {this.renderOtherPlayerTitle(playerOrder, 3, spec)}
-      {this.renderOtherPlayerTitle(playerOrder, 4, spec)}
+      {this.renderPlayerTitle(playerOrder, 0, spec)}
+      {this.renderPlayerTitle(playerOrder, 1, spec)}
+      {this.renderPlayerTitle(playerOrder, 2, spec)}
+      {this.renderPlayerTitle(playerOrder, 3, spec)}
+      {this.renderPlayerTitle(playerOrder, 4, spec)}
     </g>)
   }
 
-  private renderOtherPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
-    const { width, height, game, players } = this.props;
+  private renderPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
+    const { width, height, game, players, spectatorMode } = this.props;
     if (playerOrder.length <= index) {
       return null;
     }
     const bid = game.state.state === GameplayState.Bidding ? game.state.playerBids.get(playerOrder[index]) : undefined;
     const player = players.get(playerOrder[index]);
+    const hand = isSpectatorModeObserver(spectatorMode) ? game.state.allHands.get(player?.id ?? "") : undefined;
     return (
       <PlayerTitleSvg
         player={player}
@@ -47,6 +46,9 @@ export class TitleOverlay extends React.PureComponent<Props> {
         showPerson={this.isPartner(index)}
         highlight={this.isHighlighted(index)}
         bid={bid}
+        spectatorMode={spectatorMode}
+        hand={hand}
+        playerCount={playerOrder.length}
         {...this.getReadyProps(index)}
         {...spec[index](width, height)}
       />

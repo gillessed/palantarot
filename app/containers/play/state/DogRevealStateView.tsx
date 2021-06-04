@@ -1,23 +1,16 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { isBout } from '../../../play/cardUtils';
 import { Card, RegValue, TrumpSuit } from '../../../play/common';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { ActionButton } from '../svg/ActionButton';
+import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { DogSvg } from '../svg/DogSvg';
-import { HandSvg } from '../svg/HandSvg';
 import { ShowOverlay } from '../svg/ShowOverlay';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { StatusOverlay } from '../svg/StatusOverlay';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+
+type Props = StateViewProps;
 
 interface State {
   selectedCards: Set<Card>;
@@ -33,12 +26,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
     const isBidder = game.player === game.state.winningBid?.player;
     const showBidderUi = isParticipant && isBidder;
     return (<g className='dog-reveal-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
+      <StatusOverlay {...this.props} />
       {showBidderUi && this.renderBidderUi()}
       {!showBidderUi && this.renderViewerUi()}
     </g>);
@@ -54,7 +42,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
       : `Selected ${selectedCards.size} / ${dogSize}`;
     return (
       <>
-        <HandSvg
+        <BottomHandSvg
           svgWidth={width}
           svgHeight={height}
           cards={game.state.hand}
@@ -98,7 +86,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
     const isParticipant = InGameSelectors.isParticipant(game);
     return (
       <>
-        {isParticipant && <HandSvg
+        {isParticipant && <BottomHandSvg
           svgWidth={width}
           svgHeight={height}
           cards={game.state.hand}

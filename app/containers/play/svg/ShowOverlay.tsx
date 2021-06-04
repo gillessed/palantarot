@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { compareCards } from '../../../play/cardUtils';
 import { PlayerId, TrumpCard, TrumpSuit } from '../../../play/common';
 import { ShowDetails } from '../../../play/ingame/playLogic';
 import { Dispatchers } from '../../../services/dispatchers';
@@ -50,9 +51,11 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   private renderShowWindow(showDetail: ShowDetails) {
     const { width, height, players } = this.props;
+    const shownCards = showDetail.trumpCards;
+    shownCards.sort(compareCards());
     const cardy = height / 2 - CardHeight / 2;
-    const cardOverlap = Math.min((width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) / (showDetail.trumpCards.length - 1), CardWidth + 10);
-    const showWidth = cardOverlap * (showDetail.trumpCards.length - 1) + CardWidth;
+    const cardOverlap = Math.min((width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) / (shownCards.length - 1), CardWidth + 10);
+    const showWidth = cardOverlap * (shownCards.length - 1) + CardWidth;
     const startX = width / 2 - showWidth / 2;
     const showPlayer = players.get(showDetail.player);
     const playerName = getPlayerName(showPlayer);
@@ -75,7 +78,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
         >
           {playerName} is showing their trump.
         </text>
-        {showDetail.trumpCards.map((card, index) => {
+        {shownCards.map((card, index) => {
           return (
             <CardSvg
               key={index}

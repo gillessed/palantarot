@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { cardsContain, cardsEqual, cardsWithout, dealCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getTrumps, getWinner } from './cardUtils';
-import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerId, PlayersSetTransition, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
+import { Action, Bid, BidAction, BiddingCompletedTransition, BidValue, Bout, Call, Card, CompletedBids, CompletedGameState, CompletedTrick, CompletedTrickTransition, CurrentBids, DealtHandTransition, DeclareSlam, DogRevealTransition, DummyPlayer, errorActionAlreadyHappened, errorAfterFirstTurn, errorBiddingOutOfTurn, errorBidTooLow, errorCannotCallPartnerIfNotBidder, errorCannotCallTrump, errorCannotLeadCalledSuit, errorCannotPlayCard, errorCannotSetDogIfNotBidder, errorCannotShowTwice, errorCanOnlyCallRussianOnTwenties, errorCardNotInHand, errorInvalidActionForGameState, errorInvalidTrumpShow, errorNewDogDoesntMatchHand, errorNewDogWrongSize, errorNotEnoughTrump, errorOnlyBidderCanDeclareSlam, errorPlayerMarkedReady, errorPlayerNotInGame, errorPlayerNotReady, errorPlayingOutOfTurn, errorSetDogActionShouldBePrivate, errorTooManyPlayers, GameAbortedTransition, GameCompletedTransition, GameStartTransition, JokerExchangeState, Outcome, PlayerEvent, PlayerId, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction, ShowTrumpState, TheJoker, TheOne, TrumpSuit, TrumpValue } from "./common";
 import { BiddingBoardState, BiddingStateActions, BiddingStates, BoardReducer, CompletedBoardState, CompletedStateActions, DealtBoardState, DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, PlayingStateActions, PlayingStates } from "./state";
 
 export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions, NewGameStates> = function (state, action) {
@@ -60,6 +60,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
         // playerOrder.push("Greg Cole");
 
         const bidState: BiddingBoardState = {
+          publicHands: state.publicHands,
           name: GameplayState.Bidding,
           players: playerOrder,
           hands,
@@ -75,20 +76,44 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
           },
           shows: [],
         }
+        const { publicHands } = state;
 
-        return [
+        const actions: any = [
           bidState,
           action,
           {
             type: 'players_set',
             playerOrder,
           } as PlayersSetTransition,
-          ..._.map(hands).map((hand: Card[], player: number) => ({
-            type: 'dealt_hand',
-            privateTo: playerOrder[player],
-            hand,
-          }) as DealtHandTransition)
-        ]
+          ..._.map(hands).map((hand: Card[], player: number) => {
+            const transition: DealtHandTransition = {
+              type: 'dealt_hand',
+              hand,
+              privateTo: undefined,
+              playerId: playerOrder[player],
+            };
+            if (state.publicHands) {
+              const exclude = [...playerOrder];
+              exclude.splice(player, 1);
+              return { ...transition, exclude: [] };
+            } else {
+              return {
+                ...transition,
+                privateTo: playerOrder[player],
+              };
+            }
+          }),
+        ];
+
+        if (publicHands) {
+          const showDogAction: ShowDogToObservers = {
+            type: 'show_dog_to_observers',
+            dog,
+            exclude: state.players,
+          };
+          actions.push(showDogAction);
+        }
+        return actions;
       }
     case 'unmark_player_ready':
       if (state.players.indexOf(action.player) < 0) {
@@ -205,6 +230,7 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
         if (new_bid_state.current_high.bid === BidValue.PASS) { // all passes
           return [
             {
+              publicHands: state.publicHands,
               name: 'new_game',
               players: state.players,
               ready: [],
@@ -216,76 +242,80 @@ export const biddingBoardReducer: BoardReducer<BiddingBoardState, BiddingStateAc
               reason: 'Everybody passed!',
             } as GameAbortedTransition,
           ]
-        } else if (state.players.length === 5) {
-          return [
-            {
-              ...state,
-              name: 'partner_call',
-              bidder: new_bid_state.current_high.player,
-              allBids: new_bid_state.bids,
-              bidding: {
-                winningBid: new_bid_state.current_high,
-                calls: getAllCalls(state.players, new_bid_state),
-              },
-            } as PartnerCallBoardState,
-            action,
-            {
-              type: 'bidding_completed',
-              winning_bid: new_bid_state.current_high,
-            } as BiddingCompletedTransition,
-          ]
-        } else { // 3 or 4 players
-          if (new_bid_state.current_high.bid <= BidValue.FORTY) {
-            return [
+        } else {
+          const actions: any = [];
+          if (state.players.length === 5) {
+            actions.push(...[
               {
                 ...state,
-                name: 'dog_reveal',
+                name: 'partner_call',
                 bidder: new_bid_state.current_high.player,
                 allBids: new_bid_state.bids,
                 bidding: {
+                  winningBid: new_bid_state.current_high,
+                  calls: getAllCalls(state.players, new_bid_state),
+                },
+              } as PartnerCallBoardState,
+              action,
+              {
+                type: 'bidding_completed',
+                winning_bid: new_bid_state.current_high,
+              } as BiddingCompletedTransition,
+            ]);
+          } else { // 3 or 4 players
+            if (new_bid_state.current_high.bid <= BidValue.FORTY) {
+              actions.push(...[
+                {
+                  ...state,
+                  name: 'dog_reveal',
+                  bidder: new_bid_state.current_high.player,
                   allBids: new_bid_state.bids,
-                  winningBid: new_bid_state.current_high,
-                  calls: getAllCalls(state.players, new_bid_state),
-                },
-              } as DogRevealAndExchangeBoardState,
-              action,
-              {
-                type: 'bidding_completed',
-                winning_bid: new_bid_state.current_high,
-              } as BiddingCompletedTransition,
-              {
-                type: 'dog_revealed',
-                dog: state.dog,
-                player: new_bid_state.current_high.player,
-              } as DogRevealTransition,
-            ]
-          } else { // 80 or 160 bid
-            const bidder = new_bid_state.current_high.player;
-            return [
-              {
-                ...state,
-                name: 'playing',
-                bidder,
-                allBids: new_bid_state.bids,
-                bidding: {
-                  allBids: state.bidding.bids,
-                  winningBid: new_bid_state.current_high,
-                  calls: getAllCalls(state.players, new_bid_state),
-                },
-                current_trick: getNewTrick(state.players, state.players[0], 0),
-                past_tricks: [],
-              } as PlayingBoardState,
-              action,
-              {
-                type: 'bidding_completed',
-                winning_bid: new_bid_state.current_high,
-              } as BiddingCompletedTransition,
-              {
-                type: 'game_started',
-                first_player: state.players[0],
-              } as GameStartTransition,
-            ]
+                  bidding: {
+                    allBids: new_bid_state.bids,
+                    winningBid: new_bid_state.current_high,
+                    calls: getAllCalls(state.players, new_bid_state),
+                  },
+                } as DogRevealAndExchangeBoardState,
+                action,
+                {
+                  type: 'bidding_completed',
+                  winning_bid: new_bid_state.current_high,
+                } as BiddingCompletedTransition,
+                {
+                  type: 'dog_revealed',
+                  dog: state.dog,
+                  player: new_bid_state.current_high.player,
+                } as DogRevealTransition,
+              ]);
+            } else { // 80 or 160 bid
+              const bidder = new_bid_state.current_high.player;
+              actions.push([
+                {
+                  ...state,
+                  name: 'playing',
+                  bidder,
+                  allBids: new_bid_state.bids,
+                  bidding: {
+                    allBids: state.bidding.bids,
+                    winningBid: new_bid_state.current_high,
+                    calls: getAllCalls(state.players, new_bid_state),
+                  },
+                  current_trick: getNewTrick(state.players, state.players[0], 0),
+                  past_tricks: [],
+                } as PlayingBoardState,
+                action,
+                {
+                  type: 'bidding_completed',
+                  winning_bid: new_bid_state.current_high,
+                } as BiddingCompletedTransition,
+                {
+                  type: 'game_started',
+                  first_player: state.players[0],
+                } as GameStartTransition,
+              ]);
+            }
           }
+          return actions;
         }
       }
     default:
@@ -405,7 +435,7 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
         if (new_player_hand.length !== player_hand.length) {
           throw errorNewDogDoesntMatchHand(action.dog, cards);
         } else {
-          return [
+          const actions: [any, ...PlayerEvent[]] = [
             {
               ...state,
               name: 'playing',
@@ -422,7 +452,19 @@ export const dogRevealAndExchangeBoardReducer: BoardReducer<DogRevealAndExchange
               type: 'game_started',
               first_player: state.players[0],
             } as GameStartTransition,
-          ]
+          ];
+          const { publicHands } = state;
+          if (publicHands) {
+            const showDogAction: SetDogAction = {
+              player: action.player,
+              time: action.time,
+              type: 'set_dog',
+              dog: action.dog,
+              exclude: state.players,
+            };
+            actions.push(showDogAction);
+          }
+          return actions;
         }
       }
     default:

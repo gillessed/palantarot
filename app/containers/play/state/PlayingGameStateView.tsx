@@ -1,23 +1,18 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { getCardsAllowedToPlay } from '../../../play/cardUtils';
 import { Card, RegValue } from '../../../play/common';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
-import { HandSvg } from '../svg/HandSvg';
+import { isSpectatorModeObserver } from '../SpectatorMode';
+import { BottomHandSvg } from '../svg/BottomHandSvg';
+import { PlayerOverlay } from '../svg/PlayerOverlay';
 import { ShowOverlay } from '../svg/ShowOverlay';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { SpectatorButton } from '../svg/SpectatorButton';
+import { StatusOverlay } from '../svg/StatusOverlay';
 import { TrickSvg } from '../svg/TrickSvg';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+type Props = StateViewProps;
 
 interface State {
   selectedCards: Set<Card>;
@@ -28,48 +23,37 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
     selectedCards: new Set(),
   };
   public render() {
-    const { width, height, game, players, dispatchers } = this.props;
+    const { width, height, game, spectatorMode } = this.props;
     const { selectedCards } = this.state;
     const isParticipant = InGameSelectors.isParticipant(game);
     return (<g className='playing-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
-      {isParticipant && <HandSvg
-        svgWidth={width}
-        svgHeight={height}
-        cards={game.state.hand}
-        selectableFilter={this.selectableCardFilter}
-        selectedCards={selectedCards}
-        onClick={this.handleCardSelect}
-      />}
-      <TrickSvg
-        svgWidth={width}
-        svgHeight={height}
-        game={game}
-      />
-      <ShowOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-        dispatchers={dispatchers}
-      />
+      <StatusOverlay {...this.props} />
+      <PlayerOverlay {...this.props} />
+      {!isSpectatorModeObserver(spectatorMode) && isParticipant &&
+        <BottomHandSvg
+          svgWidth={width}
+          svgHeight={height}
+          cards={game.state.hand}
+          selectableFilter={this.selectableCardFilter}
+          selectedCards={selectedCards}
+          onClick={this.handleCardSelect}
+        />
+      }
+      <TrickSvg {...this.props} />
+      <ShowOverlay {...this.props} />
+      <SpectatorButton {...this.props} />
     </g>);
   }
 
   private selectableCardFilter = (card: Card) => {
-    const [ suit, value ] = card;
+    const [suit, value] = card;
     const { game } = this.props;
     const toPlay = game.state.toPlay;
     if (!toPlay || toPlay !== game.player) {
       return false;
     }
     if (!game.state.anyPlayerPlayedCard && game.state.partnerCard) {
-      const [ partnerSuit ] = game.state.partnerCard;
+      const [partnerSuit] = game.state.partnerCard;
       if (suit !== partnerSuit || value === RegValue.R) {
         return true;
       }

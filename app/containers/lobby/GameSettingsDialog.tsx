@@ -37,6 +37,12 @@ export class GameSettingsDialog extends React.PureComponent<Props, State> {
             label='Baker-Bengtson Variant'
             onChange={this.handleBakerBengtsonChange}
           />
+          <Checkbox
+            id='public-hands-checkbox'
+            checked={this.state.publicHands}
+            label='Reveal All Hands to Observers'
+            onChange={this.handlePublicHandsChange}
+          />
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
@@ -58,6 +64,10 @@ export class GameSettingsDialog extends React.PureComponent<Props, State> {
 
   private handleBakerBengtsonChange = () => {
     this.setState({ bakerBengtsonVariant: !this.state.bakerBengtsonVariant });
+  }
+
+  private handlePublicHandsChange = () => {
+    this.setState({ publicHands: !this.state.publicHands });
   }
 
   private handleSubmit = () => {

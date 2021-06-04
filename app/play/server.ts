@@ -4,11 +4,12 @@ import { BoardReducer, BoardState, GameplayState, NewGameBoardState } from './st
 
 export type ReducerMap = { [state: string]: BoardReducer<any, any, any> }
 
-export function createInitialState(): NewGameBoardState {
+export function createInitialState(publicHands: boolean): NewGameBoardState {
   return {
     name: GameplayState.NewGame,
     players: [],
     ready: [],
+    publicHands,
   };
 }
 
@@ -26,10 +27,12 @@ export function buildReducer() {
 export interface GameSettings {
   autologEnabled: boolean;
   bakerBengtsonVariant: boolean;
+  publicHands: boolean;
 }
 export const DefaultGameSettings: GameSettings = {
   autologEnabled: true,
   bakerBengtsonVariant: false,
+  publicHands: false,
 }
 
 export class Game {
@@ -38,7 +41,7 @@ export class Game {
       `${Date.now()}`,
       new Date(),
       buildReducer(),
-      createInitialState(),
+      createInitialState(settings.publicHands),
       [],
       settings,
       false,

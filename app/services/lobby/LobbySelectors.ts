@@ -6,7 +6,7 @@ import { GameplayState } from '../../play/state';
 const gameComparator = (g1: GameDescription, g2: GameDescription) => {
   const c1 = moment(g1.dateCreated);
   const c2 = moment(g2.dateCreated);
-  return c1.isAfter(c2) ? 1 : -1;
+  return c1.isAfter(c2) ? -1 : 1;
 }
 
 export const getOpenGames = defaultMemoize((lobby: Map<string, GameDescription>) => {

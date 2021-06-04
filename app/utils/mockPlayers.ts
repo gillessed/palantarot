@@ -1,8 +1,6 @@
 import { Player } from '../../server/model/Player';
 import { PlayerId } from '../play/common';
-import { GameplayState } from '../play/state';
 import { InGameDispatcher } from '../services/ingame/InGameDispatcher';
-import { InGameState } from '../services/ingame/InGameTypes';
 import { PlayDispatcher } from '../services/ingame/PlayDispatcher';
 import { getWindowRedux } from './consoleStore';
 
@@ -23,7 +21,6 @@ type DebugPlayerInfo = {
   key: string;
   id: string;
 }
-const DebugPlayerKeys = ['playertwo', 'playerthree', 'playerfour', 'playerfive'];
 
 function getPlayerKey(player: Player) {
   return `${player.firstName.toLocaleLowerCase()}${player.lastName.toLocaleLowerCase()}`;
@@ -36,18 +33,17 @@ function buildDispatcher(playerId: PlayerId, game: string, dispatcher: InGameDis
 }
 
 function getDebugPlayers(selfId: string, allPlayers: Player[]): DebugPlayerInfo[] {
-  const otherPlayers: DebugPlayerInfo[] = allPlayers
+  const botPlayers: DebugPlayerInfo[] = allPlayers
     .filter((player) => player.id !== selfId && player.isBot)
     .map((player) => ({ key: getPlayerKey(player), id: player.id }));
-  const nonDebugPlayers = otherPlayers.filter((info) => DebugPlayerKeys.indexOf(info.key) < 0);
+  const nonBotPlayers: DebugPlayerInfo[] = allPlayers
+      .filter((player) => player.id !== selfId && !player.isBot)
+      .map((player) => ({ key: getPlayerKey(player), id: player.id }));
   const debugPlayers: DebugPlayerInfo[] = [];
-  for (const debugPlayerKey of DebugPlayerKeys) {
-    const info = otherPlayers.find((playerInfo) => playerInfo.key === debugPlayerKey);
-    if (info) {
-      debugPlayers.push(info);
-    }
+  for (const nonDebugPlayer of botPlayers) {
+    debugPlayers.push(nonDebugPlayer);
   }
-  for (const nonDebugPlayer of nonDebugPlayers) {
+  for (const nonDebugPlayer of nonBotPlayers) {
     debugPlayers.push(nonDebugPlayer);
   }
   return debugPlayers;
@@ -80,14 +76,6 @@ function getStartGame(groupActions: DebugGroupActions) {
     groupActions.numEnterGame(count);
     groupActions.numReady(count);
   }
-}
-
-function autopass(game: InGameState | null, dispatcher: InGameDispatcher) {
-  if (game == null || game.state.state !== GameplayState.Bidding || game.state.toBid == null) {
-    return;
-  }
-  const player = game.state.playerOrder[game.state.toBid];
-  dispatcher.play(player).pass();
 }
 
 export function registerDebugPlayers(player: string, gameId: string, dispatcher: InGameDispatcher) {

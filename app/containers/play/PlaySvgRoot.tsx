@@ -3,6 +3,7 @@ import { Player } from '../../../server/model/Player';
 import { GameplayState } from '../../play/state';
 import { Dispatchers } from '../../services/dispatchers';
 import { InGameState } from '../../services/ingame/InGameTypes';
+import { SpectatorMode, SpectatorModeNone } from './SpectatorMode';
 import { BiddingGameStateView } from './state/BiddingGameStateView';
 import { CompletedStateView } from './state/CompletedGameStateView';
 import { DogRevealStateView } from './state/DogRevealStateView';
@@ -19,10 +20,17 @@ interface Props {
   dispatchers: Dispatchers;
 }
 
-export class PlaySvgRoot extends React.Component<Props> {
+interface State {
+  spectatorMode: SpectatorMode;
+}
+
+export class PlaySvgRoot extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    this.state = {
+      spectatorMode: SpectatorModeNone,
+    };
   }
 
   public render() {
@@ -40,25 +48,34 @@ export class PlaySvgRoot extends React.Component<Props> {
     );
   }
 
+  private setSpectatorMode = (mode: SpectatorMode) => {
+    this.setState({ spectatorMode: mode });
+  }
+
   private renderStateView(): JSX.Element | null {
+    const stateViewProps = {
+      ...this.props,
+      spectatorMode: this.state.spectatorMode,
+      setSpectatorMode: this.setSpectatorMode,
+    };
     switch (this.props.game.state.state) {
       case GameplayState.NewGame: return (
-        <NewGameStateView {...this.props} />
+        <NewGameStateView {...stateViewProps} />
       );
       case GameplayState.Bidding: return (
-        <BiddingGameStateView {...this.props} />
+        <BiddingGameStateView {...stateViewProps} />
       );
       case GameplayState.PartnerCall: return (
-        <PartnerCallStateView {...this.props} />
+        <PartnerCallStateView {...stateViewProps} />
       );
       case GameplayState.DogReveal: return (
-        <DogRevealStateView {...this.props} />
+        <DogRevealStateView {...stateViewProps} />
       );
       case GameplayState.Playing: return (
-        <PlayingStateView {...this.props} />
+        <PlayingStateView {...stateViewProps} />
       );
       case GameplayState.Completed: return (
-        <CompletedStateView {...this.props} />
+        <CompletedStateView {...stateViewProps} />
       );
       default: return null;
     }

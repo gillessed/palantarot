@@ -16,6 +16,7 @@ interface Props {
   dog?: boolean;
   color?: 'black' | 'blue' | 'green' | 'red';
   onClick?: (card: Card) => void;
+  clipHeight?: number;
 }
 
 export const SuitMap = {
@@ -71,7 +72,7 @@ export class CardSvg extends React.PureComponent<Props> {
   };
 
   public render() {
-    const { card, x, y, width, height, selectable, selected, color, dog } = this.props;
+    const { card, x, y, width, height, selectable, selected, color, dog, clipHeight } = this.props;
     const { hover } = this.state;
     let link = '';
     if (card) {
@@ -104,8 +105,20 @@ export class CardSvg extends React.PureComponent<Props> {
       ow: w * outlineRadioX,
       oh: h * outlineRadioY
     };
+    const clipPathId = `card-clip-path-[${x}]-[${y}]`;
+    const outlineHeight = clipHeight ?? h * outlineRadioY;
     return (
       <g>
+        {clipHeight != null && <defs>
+          <clipPath id={clipPathId}>
+            <rect
+              x={centerx - w * outlineRadioX / 2}
+              y={centery - h * outlineRadioY / 2}
+              width={w * outlineRadioX}
+              height={clipHeight}
+            />
+          </clipPath>
+        </defs>}
         <image
           className={cardClasses}
           width={w}
@@ -116,6 +129,7 @@ export class CardSvg extends React.PureComponent<Props> {
           onClick={this.onClick}
           onMouseEnter={this.handleMouseOver}
           onMouseLeave={this.handleMouseExit}
+          clipPath={`url(#${clipPathId})`}
         />
         {dog && this.renderOutline('dog-card-outline', L)}
         {selectable && hover && <rect
@@ -125,7 +139,7 @@ export class CardSvg extends React.PureComponent<Props> {
           y={centery - h * outlineRadioY / 2}
           rx={8}
           width={w * outlineRadioX}
-          height={h * outlineRadioY}
+          height={outlineHeight}
         />}
         {selected && <rect
           pointerEvents='none'
@@ -134,7 +148,7 @@ export class CardSvg extends React.PureComponent<Props> {
           y={centery - h * outlineRadioY / 2}
           rx={8}
           width={w * outlineRadioX}
-          height={h * outlineRadioY}
+          height={outlineHeight}
         />}
       </g>
     );

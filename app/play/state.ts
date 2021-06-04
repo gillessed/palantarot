@@ -18,7 +18,8 @@ export interface BoardReducer<STATE extends BoardState, ACTION extends Action, R
 
 export interface BoardState {
     readonly name: GameplayState;
-    readonly players: PlayerId[]
+    readonly players: PlayerId[];
+    readonly publicHands: boolean;
 }
 
 export interface DealtBoardState extends BoardState {

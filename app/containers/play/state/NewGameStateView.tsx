@@ -1,19 +1,12 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { ActionButton } from '../svg/ActionButton';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { PlayerOverlay } from '../svg/PlayerOverlay';
+import { StatusOverlay } from '../svg/StatusOverlay';
 import './NewGameStateView.scss';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+type Props = StateViewProps;
 
 export class NewGameStateView extends React.PureComponent<Props> {
   public render() {
@@ -25,12 +18,8 @@ export class NewGameStateView extends React.PureComponent<Props> {
       ? `Waiting for more players to join: ${game.state.playerOrder.length}`
       : `Waiting for players to ready: ${game.state.readiedPlayers.size} / ${game.state.playerOrder.length}`
     return (<g className='new-game-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
+      <StatusOverlay {...this.props} />
+      <PlayerOverlay {...this.props} />
       {!isParticipant && !isFull && this.renderJoinGameAction()}
       {!isParticipant && isFull && this.renderFullMessage()}
       {isParticipant && !isReady && this.renderReadyActions()}

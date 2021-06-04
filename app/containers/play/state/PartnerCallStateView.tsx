@@ -1,24 +1,16 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { RegSuit, RegValue } from '../../../play/common';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { ActionButton } from '../svg/ActionButton';
+import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
-import { HandSvg } from '../svg/HandSvg';
 import { ShowOverlay } from '../svg/ShowOverlay';
+import { StatusOverlay } from '../svg/StatusOverlay';
 import { SuitIcons } from '../svg/SuitIcons';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+type Props = StateViewProps;
 
 interface State {
   card: RegValue;
@@ -37,13 +29,8 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     const isParticipant = InGameSelectors.isParticipant(game);
     const dogSize = InGameSelectors.getDogSize(game);
     return (<g className='partnet-call-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
-      {isParticipant && <HandSvg
+      <StatusOverlay {...this.props} />
+      {isParticipant && <BottomHandSvg
         svgWidth={width}
         svgHeight={height}
         cards={game.state.hand}

@@ -2,26 +2,19 @@ import { Button, HTMLTable, Icon, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { Role } from '../../../../server/model/Result';
 import { CompletedGameState, Outcome, PlayerId } from '../../../play/common';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
 import { ActionButton } from '../svg/ActionButton';
 import { getCardUrl } from '../svg/CardSvg';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { StatusOverlay } from '../svg/StatusOverlay';
 import { TrickSvg } from '../svg/TrickSvg';
 import './CompletedGameStateView.scss';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+
+type Props = StateViewProps;
 
 interface State {
   scoreViewOpen: boolean;
@@ -38,7 +31,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
   public state: State = {
     scoreViewOpen: false,
   };
-  
+
   public render() {
     const { width, height, game, players } = this.props;
     const { endState } = game.state;
@@ -65,17 +58,8 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
       height * 0.6 + 300);
 
     return (<g className='playing-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
-      <TrickSvg
-        svgWidth={width}
-        svgHeight={height}
-        game={game}
-      />
+      <StatusOverlay {...this.props} />
+      <TrickSvg {...this.props} />
       {endState && isParticipant && <text
         className='completed-game-message'
         x={width / 2}

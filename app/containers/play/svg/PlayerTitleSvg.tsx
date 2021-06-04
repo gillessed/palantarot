@@ -3,11 +3,13 @@ import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { Bid, BidValue, Call } from '../../../play/common';
+import { Bid, BidValue, Call, Card } from '../../../play/common';
 import { getPlayerName } from '../../../services/players/playerName';
-import { CardHeight, CardWidth, HandCardPopup } from './CardSpec';
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import { CardHeight, CardWidth, getMaxHandWidth, getObserverClipHeight, HandCardPopup, PlayerTextHeight, PlayerTextMargin, TrickWidth } from './CardSpec';
 import { CardSvg } from './CardSvg';
 import { GradientIds } from './Gradients';
+import { HandSvg } from './HandSvg';
 import { IconSize } from './IconSizes';
 import './PlayerTitleSvg.scss';
 import { SvgBlueprintIcon } from './SvgBlueprintIcon';
@@ -30,6 +32,9 @@ export namespace PlayerTitleSvg {
     showPerson?: boolean;
     highlight?: boolean;
     bid?: Bid;
+    spectatorMode: SpectatorMode;
+    hand?: Card[];
+    playerCount: number;
   }
 
   export interface State {
@@ -55,10 +60,24 @@ export interface TitleLayout {
   bidAnchor: string;
 }
 
+const emptyLayout = (): TitleLayout => {
+  return {
+    cardx: 0,
+    cardy: 0,
+    textx: 0,
+    texty: 0,
+    textAnchor: 'auto',
+    iconx: 100000,
+    icony: 0,
+    iconxdelta: 0,
+    bidx: 100000,
+    bidy: 0,
+    bidAnchor: 'auto',
+  };
+}
+
 const TopCardY = -CardHeight + 70;
 const HorizontalX = CardWidth / 2;
-const TextMargin = 10;
-const TextHeight = 28;
 const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
@@ -77,22 +96,35 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
   }
 
   public render() {
-    const { player, showDealer, highlight, bid } = this.props;
+    const { svgWidth, svgHeight, player, showDealer, highlight, bid, hand, spectatorMode, playerCount } = this.props;
     const playerName = player ? `${getPlayerName(player)}` : 'Unknown Player';
-    const L = getTitleLayout({ ...this.props, ...this.state });
+    const layoutArgs: PlayerTitleSvg.ArrangementArgs = { ...this.props, ...this.state };
+    const L = isSpectatorModeObserver(spectatorMode) ?
+      getTitleLayoutForObserverMode(layoutArgs, playerCount) :
+      getTitleLayout(layoutArgs);
+    const clipHeight = getObserverClipHeight(svgWidth, svgHeight, playerCount);
     const textClasses = classNames('player-text unselectable',
       {
         'highlight': highlight,
         'plain': !highlight,
       },
     );
+    const handLeft = L.bidx + 20;
     return (
       <g>
-        <CardSvg
+        {!hand && <CardSvg
           x={L.cardx}
           y={L.cardy}
           color={showDealer ? 'blue' : 'black'}
-        />
+        />}
+        {hand && <HandSvg
+          left={L.cardx}
+          top={L.cardy}
+          right={svgWidth - PlayerTextMargin}
+          cards={hand}
+          clipHeight={clipHeight}
+          alignment='left'
+        />}
         <text
           ref={this.setTextRef}
           className={textClasses}
@@ -171,37 +203,24 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
   }
 }
 
-export function getTitleLayout({
-  svgWidth, svgHeight, side, position, text, textWidth,
-}: PlayerTitleSvg.ArrangementArgs) {
-  const L: TitleLayout = {
-    cardx: 0,
-    cardy: 0,
-    textx: 0,
-    texty: 0,
-    textAnchor: 'auto',
-    iconx: 100000,
-    icony: 0,
-    iconxdelta: 0,
-    bidx: 100000,
-    bidy: 0,
-    bidAnchor: 'auto',
-  }
+export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayout {
+  const { svgWidth, svgHeight, side, position, text, textWidth } = args;
+  const L = emptyLayout();
   if (side === 'top') {
     L.cardx = position - CardWidth / 2;
     L.cardy = TopCardY;
-    L.texty = TextHeight + TextMargin + CardHeight + TopCardY;
+    L.texty = PlayerTextHeight + PlayerTextMargin + CardHeight + TopCardY;
     L.icony = L.texty - IconSize.width / 2 - 15;
     L.bidy = L.cardy + CardHeight + 110;
     L.bidx = position;
     L.bidAnchor = 'middle';
     L.icony = L.texty - IconSize.width / 2 - IconYOffset;
     if (text === 'before') {
-      L.textx = L.cardx - TextMargin + CardWidth;
+      L.textx = L.cardx - PlayerTextMargin + CardWidth;
       L.textAnchor = 'end';
       L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
     } else {
-      L.textx = L.cardx + TextMargin;
+      L.textx = L.cardx + PlayerTextMargin;
       L.textAnchor = 'start';
       L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
     }
@@ -209,31 +228,31 @@ export function getTitleLayout({
     L.cardx = -CardWidth + HorizontalX;
     L.cardy = position;
     L.textAnchor = 'start';
-    L.textx = TextMargin;
+    L.textx = PlayerTextMargin;
     L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
     L.bidy = L.cardy + CardHeight / 2;
     L.bidx = HorizontalX + 30;
     L.bidAnchor = 'start';
     if (text === 'before') {
-      L.texty = L.cardy - TextMargin;
+      L.texty = L.cardy - PlayerTextMargin;
     } else {
-      L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
+      L.texty = L.cardy + CardHeight + PlayerTextHeight + PlayerTextMargin;
     }
     L.icony = L.texty - IconSize.width / 2 - IconYOffset;
     L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
   } else if (side === 'right') {
     L.cardx = svgWidth - HorizontalX;
     L.cardy = position;
-    L.textAnchor = 'end';
-    L.textx = svgWidth - TextMargin;
-    L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
     L.bidy = L.cardy + CardHeight / 2;
     L.bidx = L.cardx - 30;
+    L.textx = svgWidth - PlayerTextMargin;
+    L.textAnchor = 'end';
+    L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
     L.bidAnchor = 'end';
     if (text === 'before') {
-      L.texty = L.cardy - TextMargin;
+      L.texty = L.cardy - PlayerTextMargin;
     } else {
-      L.texty = L.cardy + CardHeight + TextHeight + TextMargin;
+      L.texty = L.cardy + CardHeight + PlayerTextHeight + PlayerTextMargin;
     }
     L.icony = L.texty - IconSize.width / 2 - IconYOffset;
   } else if (side === 'bottom') {
@@ -255,5 +274,33 @@ export function getTitleLayout({
   } else {
     L.iconxdelta = IconXDelta;
   }
+  return L;
+}
+
+export function getTitleLayoutForObserverMode(
+  args: PlayerTitleSvg.ArrangementArgs,
+  playerCount: number,
+): TitleLayout {
+  const { svgWidth, svgHeight, side, position, text, textWidth } = args;
+  const L = emptyLayout();
+  const maxHandWidth = getMaxHandWidth(playerCount);
+  const maximumWidth = maxHandWidth + TrickWidth;
+
+  if(maximumWidth > svgWidth) {
+    L.cardx = TrickWidth;
+  } else {
+    L.cardx = (svgWidth - maximumWidth) / 2 + TrickWidth;
+  }
+  L.cardy = position;
+  L.bidy = L.cardy + CardHeight / 2;
+  L.bidx = L.cardx - 30;
+  L.textx = L.cardx + 40;
+  L.texty = L.cardy - PlayerTextMargin;
+  L.textAnchor = 'start';
+  L.iconx = L.textx - 10 - IconSize.width;
+  L.icony = L.texty - IconSize.width / 2 - IconYOffset;
+  L.iconxdelta = -IconXDelta;
+  L.bidAnchor = 'end';
+
   return L;
 }

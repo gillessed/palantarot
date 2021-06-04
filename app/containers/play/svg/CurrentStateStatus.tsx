@@ -4,18 +4,20 @@ import { GameplayState } from '../../../play/state';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
 import { InGameState } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
-import './TopRightStatus.scss';
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import './CurrentStateStatus.scss';
 
 interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
   game: InGameState;
+  spectatorMode: SpectatorMode
 }
 
-export class TopRightStatus extends React.PureComponent<Props> {
+export class CurrentStateStatus extends React.PureComponent<Props> {
   public render() {
-    const { width, game, players } = this.props;
+    const { width, height, game, players, spectatorMode } = this.props;
     let text: string | JSX.Element | null = null;
     switch (game.state.state) {
       case GameplayState.Bidding:
@@ -37,9 +39,13 @@ export class TopRightStatus extends React.PureComponent<Props> {
     if (text === null) {
       return null;
     }
+    const statusWidth = 250;
+    const statusHeight = 120;
+    const sx = isSpectatorModeObserver(spectatorMode) ? width - statusWidth - 100 : width - statusWidth;
+    const sy = isSpectatorModeObserver(spectatorMode) ? height - statusHeight : 0;
     return (
-      <foreignObject x={width - 250} y={0} width={250} height={120}>
-        <div className='top-right-status unselectable'>
+      <foreignObject x={sx} y={sy} width={statusWidth} height={statusHeight}>
+        <div className='current-state-status unselectable'>
           {text}
         </div>
       </foreignObject>
@@ -56,7 +62,7 @@ export class TopRightStatus extends React.PureComponent<Props> {
       : playerCount === 5 ? 15
       : 0;
     const innerText = (trickCards.length === 0 || game.state.trick.completed)
-      ? "turn to lead" : "turn to player";
+      ? "turn to lead" : "turn to play";
     return (
       <>
         <p>{playerName}'s {innerText}</p>

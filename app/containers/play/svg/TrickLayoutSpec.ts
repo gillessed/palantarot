@@ -1,3 +1,5 @@
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import { BottomLeftStatusLayout } from './BottomLeftStatus';
 import { CardHeight, CardWidth } from './CardSpec';
 
 export interface TrickLayout {
@@ -150,12 +152,49 @@ export const TrickLayoutSpecs = {
   ],
 };
 
-export function getTrickLayoutSpec(count: number): TrickLayoutSpec {
-  if (count <= 3) {
-    return TrickLayoutSpecs.threePlayers;
-  } else if (count === 4) {
-    return TrickLayoutSpecs.fourPlayers;
+function generateLeftAlignedSpec(tricks: number) {
+  const spec: TrickLayoutSpec = [];
+  for (let i = 0; i < tricks; i++) {
+    spec.push((svgWidth: number, svgHeight: number) => {
+      const top = 50;
+      const left = 20;
+      const bottom = svgHeight - BottomLeftStatusLayout.Height;
+      const size = (bottom - top) / tricks;
+      const props: TrickLayout = {
+        x: 20,
+        y: top + size * i + 50,
+        tx: left + CardWidth + 10,
+        ty: top + size * i + 90,
+        textAnchor: 'start',
+      };
+      return props;
+    });
+  }
+  return spec;
+}
+
+export const ObserverModeArrangementSpecs = {
+  threePlayers: generateLeftAlignedSpec(3),
+  fourPlayers: generateLeftAlignedSpec(4),
+  fivePlayers: generateLeftAlignedSpec(5),
+};
+
+export function getTrickLayoutSpec(count: number, spectatorMode: SpectatorMode): TrickLayoutSpec {
+  if (isSpectatorModeObserver(spectatorMode)) {
+    if (count <= 3) {
+      return ObserverModeArrangementSpecs.threePlayers;
+    } else if (count === 4) {
+      return ObserverModeArrangementSpecs.fourPlayers;
+    } else {
+      return ObserverModeArrangementSpecs.fivePlayers;
+    }
   } else {
-    return TrickLayoutSpecs.fivePlayers;
+    if (count <= 3) {
+      return TrickLayoutSpecs.threePlayers;
+    } else if (count === 4) {
+      return TrickLayoutSpecs.fourPlayers;
+    } else {
+      return TrickLayoutSpecs.fivePlayers;
+    }
   }
 }

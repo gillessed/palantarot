@@ -1,54 +1,44 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { BidValue } from '../../../play/common';
-import { Dispatchers } from '../../../services/dispatchers';
 import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
+import { isSpectatorModeObserver } from '../SpectatorMode';
 import { ActionButton } from '../svg/ActionButton';
+import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
-import { HandSvg } from '../svg/HandSvg';
+import { PlayerOverlay } from '../svg/PlayerOverlay';
 import { ShowOverlay } from '../svg/ShowOverlay';
-import { TitleOverlay } from '../svg/TitleOverlay';
+import { SpectatorButton } from '../svg/SpectatorButton';
+import { StatusOverlay } from '../svg/StatusOverlay';
+import { StateViewProps } from './StateViewProps';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: InGameState;
-  dispatchers: Dispatchers;
-}
+type Props = StateViewProps;
 
 export class BiddingGameStateView extends React.PureComponent<Props> {
   public render() {
-    const { width, height, game, players, dispatchers } = this.props;
+    const { width, height, game, players, spectatorMode } = this.props;
     const isParticipant = InGameSelectors.isParticipant(game);
     const dogSize = InGameSelectors.getDogSize(game);
-    return (<g className='partner-call-state-view'>
-      <TitleOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-      />
-      {isParticipant && <HandSvg
-        svgWidth={width}
-        svgHeight={height}
-        cards={game.state.hand}
-      />}
-      <DogSvg
-        svgWidth={width}
-        svgHeight={height}
-        emptyLength={dogSize}
-      />
+    return (<g className='bidding-state-view'>
+      <StatusOverlay {...this.props} />
+      <PlayerOverlay {...this.props}/>
+      {!isSpectatorModeObserver(spectatorMode) &&
+        <>
+          {isParticipant && <BottomHandSvg
+            svgWidth={width}
+            svgHeight={height}
+            cards={game.state.hand}
+          />}
+          <DogSvg
+            svgWidth={width}
+            svgHeight={height}
+            emptyLength={dogSize}
+          />
+        </>
+      }
       {game.player === game.state.playerOrder[game.state.toBid ?? 0] && this.renderBiddingButtons()}
-      <ShowOverlay
-        width={width}
-        height={height}
-        players={players}
-        game={game}
-        dispatchers={dispatchers}
-      />
+      <ShowOverlay {...this.props} />
+      <SpectatorButton {...this.props} />
     </g>);
   }
 

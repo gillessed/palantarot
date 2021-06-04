@@ -1,13 +1,11 @@
-import { Button, Classes, HTMLTable, Intent, Tab, Tabs, Tag } from '@blueprintjs/core';
+import { Button, Classes, HTMLTable, Intent, Tab, Tabs } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
-import moment from "moment";
 import React from "react";
 import { connect } from 'react-redux';
 import { Player } from '../../../server/model/Player';
 import { GameDescription } from '../../../server/play/GameDescription';
 import { loadContainer } from "../../containers/LoadingContainer";
 import history from '../../history';
-import { GameplayState } from '../../play/state';
 import { DynamicRoutes } from "../../routes";
 import { Dispatchers } from "../../services/dispatchers";
 import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
@@ -16,10 +14,13 @@ import { lobbyLoader } from '../../services/lobby/LobbyService';
 import { playersLoader } from '../../services/players/index';
 import { getPlayerName } from '../../services/players/playerName';
 import { ReduxState } from '../../services/rootReducer';
+import { CompletedGameRow } from './CompletedGameRow';
 import { GameSettingsDialog } from './GameSettingsDialog';
+import { InProgressGameRow } from './InProgressGameRow';
 import './LobbyContainer.scss';
 import { LobbyPlayerDialog } from "./LobbyPlayerDialog";
-
+import { OpenGameRow } from './OpenGameRow';
+;
 enum LobbyTabs {
   OpenGames = 'open-games',
   InProgressGames = 'in-progress-games',
@@ -37,15 +38,6 @@ interface StoreProps {
 }
 
 type Props = OwnProps & StoreProps;
-
-const StateMap: { [key: string]: string } = {
-  [GameplayState.NewGame]: 'New Game',
-  [GameplayState.Bidding]: 'Bidding',
-  [GameplayState.PartnerCall]: 'Partner Call',
-  [GameplayState.DogReveal]: 'Dog Reveal',
-  [GameplayState.Playing]: 'Playing',
-  [GameplayState.Completed]: 'Completed',
-}
 
 interface State {
   isPlayerDialogOpen: boolean;
@@ -120,7 +112,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
 
   private renderOpenGames = () => {
-    const openGames = LobbySelectors.getOpenGames(this.props.games);
+    const { games, gamePlayer, players } = this.props;
+    const openGames = LobbySelectors.getOpenGames(games);
     if (openGames.length === 0) {
       return (
         <div className='no-games-container'>
@@ -136,22 +129,18 @@ class LobbyInternal extends React.PureComponent<Props, State> {
             <th>Created</th>
             <th>Players</th>
             <th>Join Game</th>
-            <th>Autolog</th>
-            <th>Baker-Bengtson</th>
+            <th>Settings</th>
           </tr>
         </thead>
         <tbody>
           {openGames.map((game) => (
-            <tr key={game.id}>
-              <td>{game.id}</td>
-              <td>{moment(game.dateCreated).fromNow()}</td>
-              <td>{this.renderPlayers(game.players)}</td>
-              <td>
-                <Button icon={IconNames.ADD} onClick={() => this.playGame(game.id)} disabled={this.props.gamePlayer == null}>Join</Button>
-              </td>
-              <td>{game.settings.autologEnabled ? 'Yes' : 'No'}</td>
-              <td>{game.settings.bakerBengtsonVariant ? 'Yes' : 'No'}</td>
-            </tr>
+            <OpenGameRow
+              key={game.id}
+              game={game}
+              gamePlayer={gamePlayer}
+              players={players}
+              playGame={this.playGame}
+            />
           ))}
         </tbody>
       </HTMLTable>
@@ -159,7 +148,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
 
   private renderInProgressGames = () => {
-    const inProgressGames = LobbySelectors.getInProgressGames(this.props.games);
+    const { games, gamePlayer, players } = this.props;
+    const inProgressGames = LobbySelectors.getInProgressGames(games);
     if (inProgressGames.length === 0) {
       return (
         <div className='no-games-container'>
@@ -181,16 +171,13 @@ class LobbyInternal extends React.PureComponent<Props, State> {
         </thead>
         <tbody>
           {inProgressGames.map((game) => (
-            <tr key={game.id}>
-              <td>{game.id}</td>
-              <td>{moment(game.dateCreated).fromNow()}</td>
-              <td>{StateMap[game.state]}</td>
-              <td>{this.renderPlayers(game.players)}</td>
-              <td>{moment(game.lastUpdated).fromNow()}</td>
-              <td>
-                <Button icon={IconNames.EYE_OPEN} onClick={() => this.playGame(game.id)} disabled={this.props.gamePlayer == null}>Watch</Button>
-              </td>
-            </tr>
+            <InProgressGameRow
+              key={game.id}
+              game={game}
+              gamePlayer={gamePlayer}
+              players={players}
+              playGame={this.playGame}
+            />
           ))}
         </tbody>
       </HTMLTable>
@@ -198,7 +185,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
 
   private renderCompletedGames = () => {
-    const completedGames = LobbySelectors.getCompletedGames(this.props.games);
+    const { games, gamePlayer, players } = this.props;
+    const completedGames = LobbySelectors.getCompletedGames(games);
     if (completedGames.length === 0) {
       return (
         <div className='no-games-container'>
@@ -217,40 +205,16 @@ class LobbyInternal extends React.PureComponent<Props, State> {
         </thead>
         <tbody>
           {completedGames.map((game) => (
-            <tr key={game.id}>
-              <td>{game.id}</td>
-              <td>{this.renderPlayers(game.players)}</td>
-              <td>{moment(game.lastUpdated).fromNow()}</td>
-              <td>
-                <Button icon={IconNames.EYE_OPEN} onClick={() => this.playGame(game.id)} disabled={this.props.gamePlayer == null}>Watch</Button>
-              </td>
-            </tr>
+            <CompletedGameRow
+              key={game.id}
+              game={game}
+              gamePlayer={gamePlayer}
+              players={players}
+              playGame={this.playGame}
+            />
           ))}
         </tbody>
       </HTMLTable>
-    );
-  }
-
-  private renderPlayers(playerIds: string[]) {
-    const { players, gamePlayer } = this.props;
-    return (
-      <div className='player-tags'>
-        {playerIds.map((playerId) => {
-          const player = players.get(playerId);
-          const playerName = getPlayerName(player);
-          const isGamePlayer = playerId === gamePlayer?.playerId;
-          return (
-            <Tag
-              className='player-tag'
-              key={playerId}
-              icon={IconNames.PERSON}
-              intent={isGamePlayer ? Intent.SUCCESS : Intent.PRIMARY}
-            >
-              {playerName}
-            </Tag>
-          );
-        })}
-      </div>
     );
   }
 
