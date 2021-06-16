@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { RegSuit, RegValue } from '../../../../server/play/model/Card';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
+import { isSpectatorModeObserver } from '../SpectatorMode';
 import { ActionButton } from '../svg/ActionButton';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { CardHeight } from '../svg/CardSpec';
 import { DogSvg } from '../svg/DogSvg';
 import { PlayerOverlay } from '../svg/PlayerOverlay';
 import { ShowOverlay } from '../svg/ShowOverlay';
+import { SpectatorButton } from '../svg/SpectatorButton';
 import { StatusOverlay } from '../svg/StatusOverlay';
 import { SuitIcons } from '../svg/SuitIcons';
 import { StateViewProps } from './StateViewProps';
@@ -26,7 +28,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     suit: RegSuit.Spade,
   };
   public render() {
-    const { width, height, game, players, dispatchers } = this.props;
+    const { width, height, game, players, dispatchers, spectatorMode } = this.props;
     const isParticipant = ClientGameSelectors.isParticipant(game);
     const dogSize = ClientGameSelectors.getDogSize(game);
     return (<g className='partnet-call-state-view'>
@@ -37,11 +39,11 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         svgHeight={height}
         cards={game.playState.hand}
       />}
-      <DogSvg
+      {!isSpectatorModeObserver(spectatorMode) && <DogSvg
         svgWidth={width}
         svgHeight={height}
         emptyLength={dogSize}
-      />
+      />}
       {game.playerId === game.playState.winningBid?.player && this.renderPartnerCallButtons()}
       <ShowOverlay
         width={width}
@@ -50,6 +52,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         game={game}
         dispatchers={dispatchers}
       />
+      <SpectatorButton {...this.props} />
     </g>);
   }
 

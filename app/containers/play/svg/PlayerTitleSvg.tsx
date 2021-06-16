@@ -100,10 +100,10 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
     const { svgWidth, svgHeight, player, showDealer, highlight, bid, hand, spectatorMode, playerCount } = this.props;
     const playerName = player ? `${getPlayerName(player)}` : 'Unknown Player';
     const layoutArgs: PlayerTitleSvg.ArrangementArgs = { ...this.props, ...this.state };
-    const L = isSpectatorModeObserver(spectatorMode) ?
-      getTitleLayoutForObserverMode(layoutArgs, playerCount) :
-      getTitleLayout(layoutArgs);
     const clipHeight = getObserverClipHeight(svgWidth, svgHeight, playerCount);
+    const L = isSpectatorModeObserver(spectatorMode) ?
+      getTitleLayoutForObserverMode(layoutArgs, playerCount, clipHeight ?? CardHeight) :
+      getTitleLayout(layoutArgs);
     const textClasses = classNames('player-text unselectable',
       {
         'highlight': highlight,
@@ -281,6 +281,7 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
 export function getTitleLayoutForObserverMode(
   args: PlayerTitleSvg.ArrangementArgs,
   playerCount: number,
+  clipHeight: number,
 ): TitleLayout {
   const { svgWidth, svgHeight, side, position, text, textWidth } = args;
   const L = emptyLayout();
@@ -293,7 +294,7 @@ export function getTitleLayoutForObserverMode(
     L.cardx = (svgWidth - maximumWidth) / 2 + TrickWidth;
   }
   L.cardy = position;
-  L.bidy = L.cardy + CardHeight / 2;
+  L.bidy = L.cardy + clipHeight / 2;
   L.bidx = L.cardx - 30;
   L.textx = L.cardx + 40;
   L.texty = L.cardy - PlayerTextMargin;

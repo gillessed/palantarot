@@ -2,7 +2,8 @@ import { Intent } from '@blueprintjs/core';
 import { TypedAction } from 'redoodle';
 import { all, call, delay, fork, put, select, takeEvery } from 'redux-saga/effects';
 import { ErrorCode } from '../../../server/play/model/GameEvents';
-import { GameUpdatesMessage, GameUpdatesMessageType, NewGameMessage, NewGameMessageType, RoomChatMessage, RoomChatMessageType, RoomErrorMessage, RoomErrorMessageType, RoomSocketMessage, RoomSocketMessages, RoomSocketMessageType, RoomStatusMessage, RoomStatusMessageType } from '../../../server/play/room/RoomSocketMessages';
+import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
+import { EnterRoomMessage, EnterRoomMessageType, GameUpdatesMessage, GameUpdatesMessageType, NewGameMessage, NewGameMessageType, RoomChatMessage, RoomChatMessageType, RoomErrorMessage, RoomErrorMessageType, RoomSocketMessage, RoomSocketMessages, RoomSocketMessageType, RoomStatusMessage, RoomStatusMessageType } from '../../../server/play/room/RoomSocketMessages';
 import { buildSocketConnectionMessage, SocketConnectionMessage } from '../../../server/websocket/SocketConnectionMessage';
 import { Palantoaster } from '../../components/toaster/Toaster';
 import history from '../../history';
@@ -24,6 +25,9 @@ function* handleMessage(action: TypedAction<MessagePayload<RoomSocketMessage>>) 
   if (message.type === RoomSocketMessageType) {
     const roomMessage = message as RoomSocketMessage;
     switch (roomMessage.messageType) {
+      case EnterRoomMessageType:
+        yield call(handleEnterRoomMessage, roomMessage as EnterRoomMessage);
+        break;
       case RoomStatusMessageType:
         yield call(handleRoomStatusMessage, roomMessage as RoomStatusMessage);
         break;
@@ -41,6 +45,10 @@ function* handleMessage(action: TypedAction<MessagePayload<RoomSocketMessage>>) 
         break;
     }
   }
+}
+
+export function* handleEnterRoomMessage(message: EnterRoomMessage) {
+  yield put(RoomActions.setPlayerStatus({ playerId: message.playerId, playerStatus: PlayerStatus.Online }));
 }
 
 export function* handleRoomStatusMessage(message: RoomStatusMessage) {

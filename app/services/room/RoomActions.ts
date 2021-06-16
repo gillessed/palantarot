@@ -2,7 +2,7 @@ import { TypedAction } from 'redoodle';
 import { Action } from '../../../server/play/model/GameEvents';
 import { ChatText } from '../../../server/play/room/ChatText';
 import { roomSocketService } from './RoomSagas';
-import { GameUpdatesPayload, JoinRoomPayload, NewGameInfo, RoomStatusPayload } from './RoomTypes';
+import { GameUpdatesPayload, JoinRoomPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
 const roomStatus = TypedAction.define("ROOM // STATUS")<RoomStatusPayload>();
 const gameAction = TypedAction.define("ROOM // GAME ACTION")<Action>();
@@ -16,6 +16,7 @@ const closeShowWindow = TypedAction.define("PLAY // CLOSE SHOW INWDOW")<void>();
 const setAutoplay = TypedAction.define("PLAY // SET AUTOPLAY")<boolean>();
 const newGameCreated = TypedAction.define("ROOM // NEW GAME CREATED")<NewGameInfo>();
 const moveToNewGame = TypedAction.define("ROOM // MOVE TO NEW GAME")<void>();
+const setPlayerStatus = TypedAction.define("ROOOM // SET PLAYER STATUS")<SetPlayerStatusPayload>();
 export const RoomActions = {
   roomStatus,
   gameAction,
@@ -30,6 +31,7 @@ export const RoomActions = {
   setAutoplay,
   newGameCreated,
   moveToNewGame,
+  setPlayerStatus,
 };
 
 const debugJoinGame = TypedAction.define("DEBUG PLAY // JOIN")<JoinRoomPayload>();

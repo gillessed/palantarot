@@ -7,7 +7,7 @@ import { ClientGame } from './ClientGame';
 import { BlankState, updateGameForEvent } from './ClientGameEventHandler';
 import { RoomActions } from './RoomActions';
 import { roomSocketService } from './RoomSagas';
-import { ClientRoom, GameUpdatesPayload, NewGameInfo, RoomStatusPayload } from './RoomTypes';
+import { ClientRoom, GameUpdatesPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
 const createEmptyGameState = (gameId: string, playerId: string, settings: GameSettings): ClientGame => ({
   id: gameId,
@@ -143,6 +143,19 @@ const moveToNewGameReducer = (state: ClientRoom | null): ClientRoom | null => {
   };
 }
 
+const setPlayerStatusReducer = (state: ClientRoom | null, payload: SetPlayerStatusPayload): ClientRoom | null => {
+  if (state === null) {
+    return state;
+  }
+  const { playerId, playerStatus } = payload;
+  const newPlayers = new Map(state.players);
+  newPlayers.set(playerId, playerStatus);
+  return {
+    ...state,
+    players: newPlayers,
+  };
+}
+
 export const roomReducer = TypedReducer.builder<ClientRoom | null>()
   .withDefaultHandler((state = null) => state)
   .withHandler(RoomActions.roomStatus.TYPE, roomStatusreducer)
@@ -152,5 +165,6 @@ export const roomReducer = TypedReducer.builder<ClientRoom | null>()
   .withHandler(RoomActions.setAutoplay.TYPE, setAutoplayReducer)
   .withHandler(RoomActions.newGameCreated.TYPE, newGameCreatedReducer)
   .withHandler(RoomActions.moveToNewGame.TYPE, moveToNewGameReducer)
+  .withHandler(RoomActions.setPlayerStatus.TYPE, setPlayerStatusReducer)
   .withHandler(roomSocketService.actions.close.TYPE, () => null)
   .build();

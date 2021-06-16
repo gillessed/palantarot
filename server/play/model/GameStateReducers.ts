@@ -108,7 +108,7 @@ export const newGameBoardReducer: BoardReducer<NewGameBoardState, NewGameActions
             if (state.publicHands) {
               const exclude = [...playerOrder];
               exclude.splice(player, 1);
-              return { ...transition, exclude: [] };
+              return { ...transition, exclude };
             } else {
               return {
                 ...transition,

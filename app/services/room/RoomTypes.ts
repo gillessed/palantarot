@@ -44,6 +44,11 @@ export interface GameUpdatesPayload {
   events: PlayerEvent[];
 }
 
+export interface SetPlayerStatusPayload {
+  playerId: string;
+  playerStatus: PlayerStatus;
+}
+
 export function isChatTextGroup(item: ChatMessageListItem): item is ChatTextGroup {
   return (item as ChatTextGroup).type === 'group';
 }

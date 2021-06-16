@@ -6,12 +6,12 @@ import { Game } from './game/Game';
 import { CompletedGameState, Outcome } from './model/GameEvents';
 import { CompletedBoardState, GameplayState } from './model/GameState';
 
-export function autologGame(
+export async function autologGame(
   game: Game,
   gameQuerier: GameRecordQuerier,
-) {
+): Promise<void> {
   if (!game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
-    return;
+    return Promise.resolve();
   }
 
   const state = game.getState() as CompletedBoardState;
@@ -62,7 +62,7 @@ export function autologGame(
     slam: endState.pointsResult >= 270,
     handData,
   }
-  gameQuerier.saveGame(results);
+  await gameQuerier.saveGame(results);
   game.logged = true;
 }
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { GameplayState } from '../../../server/play/model/GameState';
 import { Dispatchers } from '../../services/dispatchers';
+import { ClientGameSelectors } from '../../services/room/ClientGameSelectors';
 import { ClientRoom } from '../../services/room/RoomTypes';
 import { SpectatorMode, SpectatorModeNone } from './SpectatorMode';
 import { BiddingGameStateView } from './state/BiddingGameStateView';
@@ -53,15 +54,19 @@ export class PlaySvgRoot extends React.Component<Props, State> {
     this.setState({ spectatorMode: mode });
   }
 
+  private noop = () => {}
+
   private renderStateView(): JSX.Element | null {
+    const isParticipant = ClientGameSelectors.isParticipant(this.props.room.game);
+    const overrideSpectatorMode = isParticipant || this.props.room.game.playState.state === GameplayState.NewGame;
     const stateViewProps: StateViewProps = {
       width: this.props.width,
       height: this.props.height,
       players: this.props.players,
       dispatchers: this.props.dispatchers,
       game: this.props.room.game,
-      spectatorMode: this.state.spectatorMode,
-      setSpectatorMode: this.setSpectatorMode,
+      spectatorMode: overrideSpectatorMode ? SpectatorModeNone : this.state.spectatorMode,
+      setSpectatorMode: overrideSpectatorMode ? this.noop : this.setSpectatorMode,
     };
     switch (this.props.room.game.playState.state) {
       case GameplayState.NewGame: return (

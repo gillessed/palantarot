@@ -7,5 +7,5 @@ export interface GameSettings {
 export const DefaultGameSettings: GameSettings = {
   autologEnabled: true,
   bakerBengtsonVariant: false,
-  publicHands: false,
+  publicHands: true,
 }
