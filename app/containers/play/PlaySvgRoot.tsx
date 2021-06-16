@@ -56,7 +56,7 @@ export class PlaySvgRoot extends React.Component<Props, State> {
   private renderStateView(): JSX.Element | null {
     const stateViewProps: StateViewProps = {
       width: this.props.width,
-      height: this.props.width,
+      height: this.props.height,
       players: this.props.players,
       dispatchers: this.props.dispatchers,
       game: this.props.room.game,
