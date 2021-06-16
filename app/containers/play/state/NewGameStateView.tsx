@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';
 import { PlayerOverlay } from '../svg/PlayerOverlay';
 import { StatusOverlay } from '../svg/StatusOverlay';
@@ -11,12 +11,12 @@ type Props = StateViewProps;
 export class NewGameStateView extends React.PureComponent<Props> {
   public render() {
     const { width, height, game, players } = this.props;
-    const isParticipant = InGameSelectors.isParticipant(game);
-    const isReady = InGameSelectors.isReady(game);
-    const isFull = InGameSelectors.isGameFull(game);
-    const status = game.state.playerOrder.length < 3
-      ? `Waiting for more players to join: ${game.state.playerOrder.length}`
-      : `Waiting for players to ready: ${game.state.readiedPlayers.size} / ${game.state.playerOrder.length}`
+    const isParticipant = ClientGameSelectors.isParticipant(game);
+    const isReady = ClientGameSelectors.isReady(game);
+    const isFull = ClientGameSelectors.isGameFull(game);
+    const status = game.playState.playerOrder.length < 3
+      ? `Waiting for more players to join: ${game.playState.playerOrder.length}`
+      : `Waiting for players to ready: ${game.playState.readiedPlayers.size} / ${game.playState.playerOrder.length}`
     return (<g className='new-game-state-view'>
       <StatusOverlay {...this.props} />
       <PlayerOverlay {...this.props} />
@@ -110,22 +110,22 @@ export class NewGameStateView extends React.PureComponent<Props> {
   }
 
   private handleJoinGame = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).enterGame();
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).enterGame();
   }
 
   private handleLeaveGame = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).leaveGame();
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).leaveGame();
   }
 
   private handleMarkReady = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).markAsReady();
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).markAsReady();
   }
 
   private handleMarkUnready = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).markAsNotReady();
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).markAsNotReady();
   }
 }

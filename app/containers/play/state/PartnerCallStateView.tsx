@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { RegSuit, RegValue } from '../../../play/common';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { RegSuit, RegValue } from '../../../../server/play/model/Card';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { CardHeight } from '../svg/CardSpec';
@@ -27,22 +27,22 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
   };
   public render() {
     const { width, height, game, players, dispatchers } = this.props;
-    const isParticipant = InGameSelectors.isParticipant(game);
-    const dogSize = InGameSelectors.getDogSize(game);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
+    const dogSize = ClientGameSelectors.getDogSize(game);
     return (<g className='partnet-call-state-view'>
       <StatusOverlay {...this.props} />
       <PlayerOverlay {...this.props} />
       {isParticipant && <BottomHandSvg
         svgWidth={width}
         svgHeight={height}
-        cards={game.state.hand}
+        cards={game.playState.hand}
       />}
       <DogSvg
         svgWidth={width}
         svgHeight={height}
         emptyLength={dogSize}
       />
-      {game.player === game.state.winningBid?.player && this.renderPartnerCallButtons()}
+      {game.playerId === game.playState.winningBid?.player && this.renderPartnerCallButtons()}
       <ShowOverlay
         width={width}
         height={height}
@@ -72,7 +72,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
   private renderCardButtons() {
     const { width, height, game } = this.props;
     const y = height / 2 + CardHeight / 2 + 50;
-    const counts = InGameSelectors.getValueCounts(game);
+    const counts = ClientGameSelectors.getValueCounts(game);
     const allowAll = game.settings?.bakerBengtsonVariant;
     const canPickD = counts.get(RegValue.R) === 4 || allowAll;
     const canPickC = canPickD && counts.get(RegValue.D) === 4 || allowAll;
@@ -212,8 +212,8 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
   }
 
   private handleSelectPartner = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).callPartner([
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).callPartner([
       this.state.suit,
       this.state.card,
     ]);

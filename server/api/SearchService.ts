@@ -1,15 +1,15 @@
 import { Request, Response, Router } from 'express';
-import { GameQuerier } from '../db/GameQuerier';
+import { GameRecordQuerier } from '../db/GameRecordQuerier';
 import { SearchQuery } from '../model/Search';
 import { Database } from './../db/dbConnector';
 
 export class SearchService {
   public router: Router;
-  private gameDb: GameQuerier;
+  private gameDb: GameRecordQuerier;
 
   constructor(db: Database) {
     this.router = Router();
-    this.gameDb = new GameQuerier(db);
+    this.gameDb = new GameRecordQuerier(db);
     this.router.post('/', this.search);
   }
 

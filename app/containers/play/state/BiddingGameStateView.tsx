@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { BidValue } from '../../../play/common';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { BidValue } from '../../../../server/play/model/GameEvents';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver } from '../SpectatorMode';
 import { ActionButton } from '../svg/ActionButton';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
@@ -17,8 +17,8 @@ type Props = StateViewProps;
 export class BiddingGameStateView extends React.PureComponent<Props> {
   public render() {
     const { width, height, game, players, spectatorMode } = this.props;
-    const isParticipant = InGameSelectors.isParticipant(game);
-    const dogSize = InGameSelectors.getDogSize(game);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
+    const dogSize = ClientGameSelectors.getDogSize(game);
     return (<g className='bidding-state-view'>
       <StatusOverlay {...this.props} />
       <PlayerOverlay {...this.props}/>
@@ -27,7 +27,7 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
           {isParticipant && <BottomHandSvg
             svgWidth={width}
             svgHeight={height}
-            cards={game.state.hand}
+            cards={game.playState.hand}
           />}
           <DogSvg
             svgWidth={width}
@@ -36,7 +36,7 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
           />
         </>
       }
-      {game.player === game.state.playerOrder[game.state.toBid ?? 0] && this.renderBiddingButtons()}
+      {game.playerId === game.playState.playerOrder[game.playState.toBid ?? 0] && this.renderBiddingButtons()}
       <ShowOverlay {...this.props} />
       <SpectatorButton {...this.props} />
     </g>);
@@ -44,7 +44,7 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
 
   private renderBiddingButtons = () => {
     const { width, height, game } = this.props;
-    const highestBid = InGameSelectors.getHighestBid(game);
+    const highestBid = ClientGameSelectors.getHighestBid(game);
     return (
       <>
         <ActionButton
@@ -114,37 +114,37 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
   }
 
   private handleBid10 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.TEN);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.TEN);
   }
 
   private handleBid20 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.TWENTY);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.TWENTY);
   }
 
   private handleBidRussian20 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.TWENTY, true);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.TWENTY, true);
   }
 
   private handleBid40 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.FORTY);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.FORTY);
   }
 
   private handleBid80 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.EIGHTY);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.EIGHTY);
   }
 
   private handleBid160 = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.ONESIXTY);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.ONESIXTY);
   }
 
   private handlePass = () => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).bid(BidValue.PASS);
+    const playerId = this.props.game.playerId;
+    this.props.dispatchers.room.play(playerId).bid(BidValue.PASS);
   }
 }

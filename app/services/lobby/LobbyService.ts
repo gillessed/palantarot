@@ -8,9 +8,9 @@ import { Lobby } from './LobbyTypes';
 export const lobbyService = generatePropertyService<void, Lobby>('LOBBY',
   (api: ServerApi) => {
     return () => {
-      return api.listPlayableGames()
-        .then(games =>
-          new Map(Object.keys(games).map(game => [game, games[game]]))
+      return api.listRooms()
+        .then(rooms =>
+          new Map(Object.keys(rooms).map(roomId => [roomId, rooms[roomId]]))
         )
     }
   },

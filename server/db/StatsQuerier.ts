@@ -1,11 +1,10 @@
-import { Database } from './dbConnector';
-import { QueryBuilder, Queries } from './queryBuilder/QueryBuilder';
-import { Stat, Stats } from '../model/Stats';
-import { Delta, Deltas } from '../model/Delta';
-import { BidStats } from '../model/Bid';
 import { QueryResult } from 'pg';
+import { BidStats } from '../model/Bid';
+import { Delta, Deltas } from '../model/Delta';
+import { Stat, Stats } from '../model/Stats';
 import { Streak } from '../model/Streak';
-import { GameQuerier } from './GameQuerier';
+import { Database } from './dbConnector';
+import { Queries, QueryBuilder } from './queryBuilder/QueryBuilder';
 
 export class StatsQuerier {
   private db: Database;

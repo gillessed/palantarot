@@ -1,5 +1,5 @@
 import { TypedAction } from 'redoodle';
-import { Channel, END, eventChannel } from 'redux-saga';
+import { END, EventChannel, eventChannel } from 'redux-saga';
 import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
 import { SocketMessage } from '../../../server/websocket/SocketMessage';
 
@@ -42,13 +42,21 @@ function createSocketSaga<JoinPayload, MessageType = SocketMessage>(
   socketActions: SocketActions<JoinPayload>,
   getInitialMessage: (payload: JoinPayload) => MessageType,
 ) {
+  const socketQueue: SocketMessage[] = [];
   function* joinSaga(action: TypedAction<JoinPayload>) {
     const websocket = openSocket();
     const initialMessage = getInitialMessage(action.payload);
     websocket.onopen = () => {
+      console.log('socket opened, sending messages', initialMessage, socketQueue);
       websocket.send(JSON.stringify(initialMessage));
+      for (const message of socketQueue) {
+        websocket.send(JSON.stringify(message));
+      }
+      while (socketQueue.length > 0) {
+        socketQueue.pop();
+      }
     };
-    const channel: Channel<SocketMessage> = listen(websocket);
+    const channel: EventChannel<SocketMessage> = listen(websocket);
     yield takeEvery(socketActions.send.TYPE, sendSaga, websocket);
     yield takeEvery(socketActions.close.TYPE, closeSaga, channel);
 
@@ -69,10 +77,16 @@ function createSocketSaga<JoinPayload, MessageType = SocketMessage>(
   }
 
   function* sendSaga(websocket: WebSocket, action: TypedAction<SocketMessage>) {
-    websocket.send(JSON.stringify(action.payload));
+    if (websocket.readyState === WebSocket.OPEN) {
+      console.log('sending websocket message', action.payload);
+      websocket.send(JSON.stringify(action.payload));
+    } else if (websocket.readyState === WebSocket.CONNECTING) {
+      console.log('queueing websocket message', action.payload);
+      socketQueue.unshift(action.payload);
+    }
   }
 
-  function* closeSaga(channel: Channel<SocketMessage>) {
+  function* closeSaga(channel: EventChannel<SocketMessage>) {
     channel.close();
   }
 
@@ -81,7 +95,7 @@ function createSocketSaga<JoinPayload, MessageType = SocketMessage>(
   }
 }
 
-function listen(socket: WebSocket): Channel<SocketMessage> {
+function listen(socket: WebSocket): EventChannel<SocketMessage> {
   return eventChannel((emitter) => {
     socket.onmessage = (event) => {
       try {

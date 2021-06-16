@@ -1,5 +1,5 @@
+import { GameRecord } from './GameRecord';
 import { Month } from './Month';
-import { Game } from './Game';
 
 export interface PointFlowRequest {
   player: string;
@@ -16,7 +16,7 @@ export interface PointDelta {
   points: number;
 }
 
-export function getPointDeltas(player: string, game: Game): PointDelta[] {
+export function getPointDeltas(player: string, game: GameRecord): PointDelta[] {
   if (game.handData.bidder.id === player) {
     return game.handData.opposition.map((data) => ({
       player: data.id,

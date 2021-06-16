@@ -1,7 +1,7 @@
 import { Colors } from '@blueprintjs/core';
-import { Player } from '../../../server/model/Player';
-import { HandData, PlayerHand, Game } from '../../../server/model/Game';
 import moment from 'moment-timezone';
+import { GameRecord, HandData, PlayerHand } from '../../../server/model/GameRecord';
+import { Player } from '../../../server/model/Player';
 
 export interface ScorePoint {
   date: string;
@@ -36,9 +36,9 @@ export const Timeseries = {
       tickDistance,
     };
   },
-  createResultsFromGames: (games: Game[], playerMap: Map<string, Player>, rangeStart: string, rangeEnd: string): PlayerResult[] => {
+  createResultsFromGames: (games: GameRecord[], playerMap: Map<string, Player>, rangeStart: string, rangeEnd: string): PlayerResult[] => {
     const playerIdSet = new Set<string>();
-    games.forEach((game: Game) => {
+    games.forEach((game: GameRecord) => {
       getHandsInGame(game).map((hand) => hand.id).forEach((playerId) => playerIdSet.add(playerId));
     });
     const players = Array.from(playerIdSet).map((playerId) => playerMap.get(playerId)).filter((player) => player) as Player[];
@@ -50,7 +50,7 @@ export const Timeseries = {
     };
     players.forEach((player: Player) => resultMap.set(player, [start]));
 
-    games.forEach((game: Game) => {
+    games.forEach((game: GameRecord) => {
       const hands = getHandsInGame(game);
       hands.forEach((hand: PlayerHand) => {
         const player = playerMap.get(hand.id);
@@ -122,7 +122,7 @@ export const Timeseries = {
   ],
 }
 
-function getHandsInGame(game: Game): PlayerHand[] {
+function getHandsInGame(game: GameRecord): PlayerHand[] {
   const handData: HandData = game.handData!;
   const hands: PlayerHand[] = [
     handData.bidder,

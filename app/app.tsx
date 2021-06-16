@@ -31,11 +31,6 @@ import { TarothonFormContainer } from './containers/tarothon/TarothonFormContain
 import { TarothonsContainer } from './containers/tarothon/TarothonsContainer';
 import { DispatcherProvider } from './dispatchProvider';
 import history from './history';
-import * as playCommon from './play/common';
-import * as playReducers from './play/reducers';
-import * as playServer from './play/server';
-import * as playState from './play/state';
-import * as playTest from './play/test';
 import { SagaProvider } from './sagaProvider';
 import { dispatcherCreators } from './services/dispatchers';
 import { ReduxState, rootReducer } from './services/rootReducer';
@@ -85,7 +80,7 @@ async function init() {
         <Route path='/app/edit-tarothon/:tarothonId' component={EditTarothonContainer} />
         <Route path='/app/lobby' component={LobbyContainer} />
         <Route path='/app/rules' component={RulesContainer} />
-        <Route path='/play/:gameId' component={PlayContainer} />
+        <Route path='/play/:roomId' component={PlayContainer} />
         <Route path='/app/bots' component={BotContainer} />
         <Route path='/login' component={LoginContainer} />
       </div>
@@ -106,14 +101,6 @@ async function init() {
 }
 
 init();
-
-(window as any).play = {
-  common: playCommon,
-  state: playState,
-  reducers: playReducers,
-  server: playServer,
-  test: playTest,
-};
 
 export function mergeContexts(t1: React.ValidationMap<any>, t2: React.ValidationMap<any>): React.ValidationMap<any> {
   return {

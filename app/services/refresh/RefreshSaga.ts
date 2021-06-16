@@ -1,9 +1,9 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { RefreshMessage } from '../../../server/websocket/RefreshSocketManager';
 import { createSocketService } from '../socket/socketService';
 import { RefreshActions } from './RefreshTypes';
 
-const refreshSocketService = createSocketService<void, RefreshMessage>(
+// TODO: add refresh
+const refreshSocketService = createSocketService<void, any>(
   'REFRESH',
   () => ({ type: 'Refresh' }),
 );

@@ -1,22 +1,22 @@
+import { Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { GameForm } from '../../components/forms/GameForm';
-import { ReduxState } from '../../services/rootReducer';
-import { PlayersService } from '../../services/players';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
+import { mergeContexts } from '../../app';
+import { GameForm } from '../../components/forms/GameForm';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Game } from '../../../server/model/Game';
-import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
-import { SagaListener } from '../../services/sagaListener';
-import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import { mergeContexts } from '../../app';
+import history from '../../history';
+import { DynamicRoutes } from '../../routes';
+import { getSagaContext, SagaContextType, SagaRegistration } from '../../sagaProvider';
 import { Dispatchers } from '../../services/dispatchers';
 import { GameService } from '../../services/game';
-import { DynamicRoutes } from '../../routes';
-import history from '../../history';
-import { Spinner } from '@blueprintjs/core';
+import { PlayersService } from '../../services/players';
+import { ReduxState } from '../../services/rootReducer';
+import { SagaListener } from '../../services/sagaListener';
+import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
 
 interface OwnProps {
   match: {
@@ -120,7 +120,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     }
   }
 
-  private onSubmit = (newGame: Game) => {
+  private onSubmit = (newGame: GameRecord) => {
     // TODO: compare and block requests when there are no edits?
     this.dispatchers.saveGame.request(newGame);
   }

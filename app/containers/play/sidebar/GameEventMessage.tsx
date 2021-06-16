@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {renderCardsText} from "../../../play/ingame/Cards";
+import { ChatText } from '../../../../server/play/room/ChatText';
 
 interface Props {
-  message: string;
+  item: ChatText;
 }
 
 export class GameEventMessage extends React.PureComponent<Props> {
   public render() {
     return (
       <div className='game-event-message event-child'>
-        {renderCardsText(this.props.message)}
+        {this.props.item.text}
       </div>
     );
   }  

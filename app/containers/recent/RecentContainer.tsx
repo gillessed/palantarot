@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { RecentGameQuery } from '../../../server/db/GameQuerier';
-import { Game } from '../../../server/model/Game';
+import { RecentGameQuery } from '../../../server/db/GameRecordQuerier';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
 import { BidderWonValidator, DEFAULT_COUNT, GameTable } from '../../components/gameTable/GameTable';
 import { playersLoader } from '../../services/players/index';
@@ -9,7 +9,7 @@ import { loadContainer } from '../LoadingContainer';
 
 interface Props {
   players: Map<string, Player>;
-  recentGames: Game[];
+  recentGames: GameRecord[];
   offset: number;
   onOffsetChange: (offset: number) => void;
 }

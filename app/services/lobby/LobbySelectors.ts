@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { defaultMemoize } from 'reselect';
-import { GameDescription } from '../../../server/play/GameDescription';
-import { GameplayState } from '../../play/state';
+import { GameDescription } from '../../../server/play/game/GameDescription';
+import { GameplayState } from '../../../server/play/model/GameState';
 
 const gameComparator = (g1: GameDescription, g2: GameDescription) => {
   const c1 = moment(g1.dateCreated);

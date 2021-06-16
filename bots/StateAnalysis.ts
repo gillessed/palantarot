@@ -1,9 +1,9 @@
 import _ from "lodash";
-import { CardList } from "../app/play/CardList";
-import { AllSuits, createCardsOfSuit, getLeadCard } from "../app/play/cardUtils";
-import { Suit, TrumpSuit, TrumpValue } from "../app/play/common";
-import { InGameState } from "../app/services/ingame/InGameTypes";
+import { ClientGame } from "../app/services/room/ClientGame";
+import { Suit, TrumpSuit, TrumpValue } from "../server/play/model/Card";
+import { AllSuits, createCardsOfSuit, getLeadCard } from "../server/play/model/CardUtils";
 import { getTrickCardList } from "./BotUtils";
+import { CardList } from "./CardList";
 
 export interface StateAnalysis {
   onePlayed: boolean;
@@ -21,15 +21,15 @@ export interface SuitAnalysis {
   remainingCards: CardList;
 }
 
-export function analyseGameState(gameState: InGameState): StateAnalysis {
-  const { trick: currentTrick, completedTricks, playerOrder } = gameState.state;
+export function analyseGameState(clientGame: ClientGame): StateAnalysis {
+  const { trick: currentTrick, completedTricks, playerOrder } = clientGame.playState;
   const stateAnalysis: StateAnalysis = {
     onePlayed: false,
     hands: {},
     suits: {},
   }
   for (const player of playerOrder) {
-    if (player !== gameState.player) {
+    if (player !== clientGame.playerId) {
       stateAnalysis.hands[player] = {
         knownVoids: new Set(),
         highestTrump: null,

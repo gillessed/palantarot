@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { GameTable, GameOutcome, DEFAULT_COUNT } from '../../components/gameTable/GameTable';
+import { RecentGameQuery } from '../../../server/db/GameRecordQuerier';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
-import { Game } from '../../../server/model/Game';
+import { DEFAULT_COUNT, GameOutcome, GameTable } from '../../components/gameTable/GameTable';
+import { Dispatchers } from '../../services/dispatchers';
 import { playersLoader } from '../../services/players/index';
 import { recentGamesLoader } from '../../services/recentGames/index';
 import { loadContainer } from '../LoadingContainer';
-import { Dispatchers } from '../../services/dispatchers';
-import { RecentGameQuery } from '../../../server/db/GameQuerier';
 
 interface InternalProps {
   playerId: string;
   players: Map<string, Player>;
-  recentGames: Game[];
+  recentGames: GameRecord[];
   dispatchers: Dispatchers;
   offset: number;
   onOffsetChange: (offset: number) => void;
@@ -39,7 +39,7 @@ class PlayerRecentGamesTabInternal extends React.PureComponent<InternalProps, {}
     );
   }
 
-  private gameWinLossValidator = (game: Game): GameOutcome => {
+  private gameWinLossValidator = (game: GameRecord): GameOutcome => {
     if (!game.handData) {
       return GameOutcome.UNKNOWN;
     }

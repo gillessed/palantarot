@@ -1,13 +1,13 @@
 import { TypedAction } from 'redoodle';
-import { GameDescription } from '../../../server/play/GameDescription';
-import { GameSettings } from '../../play/server';
+import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
+import { RoomDescription } from '../../../server/play/room/RoomDescription';
 import { lobbyService } from './LobbyService';
 
-const newGame = TypedAction.define("LOBBY // NEW GAME")<GameSettings>();
-const gameUpdate = TypedAction.define("LOBBY // GAME UPDATE")<GameDescription>();
+const newRoom = TypedAction.define("LOBBY // NEW ROOM")<NewRoomArgs>();
+const roomUpdate = TypedAction.define("LOBBY // ROOM UPDATE")<RoomDescription>();
 
 export const LobbyActions = {
   ...lobbyService.actions,
-  newGame,
-  gameUpdate,
+  newRoom,
+  roomUpdate,
 };

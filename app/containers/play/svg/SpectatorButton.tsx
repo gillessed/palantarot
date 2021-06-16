@@ -2,8 +2,8 @@ import { Button, Intent, Menu, Popover, PopoverInteractionKind, Position } from 
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
+import { ClientGame } from '../../../services/room/ClientGame';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeNone, isSpectatorModeObserver, SpectatorMode, SpectatorModeNone, SpectatorModeObserver } from '../SpectatorMode';
 import { SpectatorModeMenuItem } from './SpectatorModeMenuItem';
 
@@ -11,7 +11,7 @@ interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
-  game: InGameState;
+  game: ClientGame;
   spectatorMode: SpectatorMode;
   setSpectatorMode: (mode: SpectatorMode) => void;
 }
@@ -19,7 +19,7 @@ interface Props {
 export class SpectatorButton extends React.PureComponent<Props> {
   public render() {
     const { width, height, game, spectatorMode, setSpectatorMode } = this.props;
-    const isParticipant = InGameSelectors.isParticipant(game);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
     if (!game.settings?.publicHands || isParticipant) {
       return null;
     }

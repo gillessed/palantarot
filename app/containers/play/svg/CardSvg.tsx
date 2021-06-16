@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
-import { Card, RegSuit, TrumpSuit, TrumpValue } from '../../../play/common';
+import { Card, RegSuit, TrumpSuit, TrumpValue } from '../../../../server/play/model/Card';
 import { CardHeight, CardWidth } from './CardSpec';
 import './CardSvg.scss';
 

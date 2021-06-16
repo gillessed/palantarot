@@ -1,21 +1,20 @@
-import React, { PureComponent } from 'react';
-import { IMonth } from '../../../server/model/Month';
-import { Game } from '../../../server/model/Game';
 import moment from 'moment-timezone';
-import { Timeseries, PlayerResult } from '../../components/graphs/index';
-import { ResultsGraph } from '../../components/graphs/ResultsGraph';
+import React, { PureComponent } from 'react';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { IMonth } from '../../../server/model/Month';
 import { Player } from '../../../server/model/Player';
-import { loadContainer } from '../LoadingContainer';
-import { playersLoader } from '../../services/players';
-import { monthGamesLoader } from '../../services/monthGames/index';
-import { Dispatchers } from '../../services/dispatchers';
-import { Button } from '@blueprintjs/core';
+import { PlayerResult, Timeseries } from '../../components/graphs/index';
+import { ResultsGraph } from '../../components/graphs/ResultsGraph';
 import { MonthPicker } from '../../components/monthPicker/MonthPicker';
+import { Dispatchers } from '../../services/dispatchers';
+import { monthGamesLoader } from '../../services/monthGames/index';
+import { playersLoader } from '../../services/players';
+import { loadContainer } from '../LoadingContainer';
 
 interface InternalProps {
   playerId: string;
   players: Map<string, Player>;
-  monthGames: Game[];
+  monthGames: GameRecord[];
   dispatchers: Dispatchers;
   month: IMonth;
 }

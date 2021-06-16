@@ -2,7 +2,7 @@ import { Button, Dialog, Intent, Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Game, PlayerHand } from '../../../server/model/Game';
+import { GameRecord, PlayerHand } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
 import { formatTimestamp } from '../../../server/utils/index';
 import { mergeContexts } from '../../app';
@@ -152,7 +152,7 @@ class Internal extends React.PureComponent<Props, State> {
     }
   }
 
-  private renderSlamBanner = (game: Game) => {
+  private renderSlamBanner = (game: GameRecord) => {
     if (game.slam) {
       return (
         <div className='slam-banner'>

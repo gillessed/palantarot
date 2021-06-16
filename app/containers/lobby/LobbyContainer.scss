@@ -2,7 +2,7 @@
   margin-right: 5px;
 }
 
-.new-game-button {
+.new-room-button {
   margin-left: 10px;
 }
 
@@ -10,10 +10,14 @@
   margin-top: 20px;
 }
 
-.no-games-container {
+.no-rooms-container {
   display        : flex;
   justify-content: center;
   align-items    : center;
   width          : 100%;
   height         : 200;
+}
+
+.lobby-name-input {
+  margin-bottom: 20px;
 }

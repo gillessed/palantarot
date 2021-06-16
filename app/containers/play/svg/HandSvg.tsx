@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card } from '../../../play/common';
+import { Card } from '../../../../server/play/model/Card';
 import { CardWidth, MaxHandCardSeparation } from './CardSpec';
 import { CardSvg } from './CardSvg';
 

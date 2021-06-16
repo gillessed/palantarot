@@ -1,14 +1,11 @@
-import { Database } from './../db/dbConnector';
-import { Router, Request, Response } from 'express';
-import { StatsQuerier } from '../db/StatsQuerier';
-import { Stats } from '../model/Stats';
-import { Deltas } from '../model/Delta';
-import { BidRequest, BidStats } from '../model/Bid';
+import { Request, Response, Router } from 'express';
 import { PlayerQuerier } from '../db/PlayerQuerier';
+import { StatsQuerier } from '../db/StatsQuerier';
+import { BidRequest, BidStats } from '../model/Bid';
+import { Deltas } from '../model/Delta';
+import { Stats } from '../model/Stats';
 import { Streak } from '../model/Streak';
-import { GameQuerier } from '../db/GameQuerier';
-import { PointFlowRequest, PointDelta, getPointDeltas, PointFlow } from '../model/PointFlow';
-import { IMonth } from '../model/Month';
+import { Database } from './../db/dbConnector';
 
 export class StatsService {
   public router: Router;

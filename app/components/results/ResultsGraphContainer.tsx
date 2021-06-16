@@ -1,17 +1,17 @@
-import React, { PureComponent } from 'react';
-import { IMonth, Month } from '../../../server/model/Month';
 import moment from 'moment-timezone';
-import { Timeseries, PlayerResult } from '../graphs/index';
-import { ResultsGraph } from '../graphs/ResultsGraph';
+import React, { PureComponent } from 'react';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { IMonth, Month } from '../../../server/model/Month';
 import { Player } from '../../../server/model/Player';
-import { MonthGamesService, MonthGamesDispatcher, monthGamesLoader } from '../../services/monthGames/index';
-import { Game } from '../../../server/model/Game';
 import { loadContainer } from '../../containers/LoadingContainer';
+import { monthGamesLoader } from '../../services/monthGames/index';
 import { playersLoader } from '../../services/players/index';
+import { PlayerResult, Timeseries } from '../graphs/index';
+import { ResultsGraph } from '../graphs/ResultsGraph';
 
 interface Props {
   month: Month;
-  monthGames: Game[];
+  monthGames: GameRecord[];
   players: Map<string, Player>;
 }
 
@@ -30,8 +30,8 @@ class ResultsGraphContainerInternal extends PureComponent<Props, {}> {
       );
   }
 
-  private sortGames(games: Game[]): Game[] {
-    return Array.from(games).sort((g1: Game, g2: Game) => {
+  private sortGames(games: GameRecord[]): GameRecord[] {
+    return Array.from(games).sort((g1: GameRecord, g2: GameRecord) => {
       if (moment(g1.timestamp).isBefore(moment(g2.timestamp))) {
         return -1;
       } else if (moment(g1.timestamp).isAfter(moment(g2.timestamp))) {

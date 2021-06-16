@@ -2,7 +2,7 @@ import { Alignment, Button, ButtonGroup, Checkbox, Intent } from '@blueprintjs/c
 import classNames from 'classnames';
 import React from 'react';
 import { createSelector } from 'reselect';
-import { Game, PlayerHand } from '../../../server/model/Game';
+import { GameRecord, PlayerHand } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
 import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
 import { getPlayerName } from '../../services/players/playerName';
@@ -13,9 +13,9 @@ import { getPointsEarned } from './pointsEarned';
 interface Props {
   recentPlayers?: Player[];
   players: Player[];
-  game?: Game;
+  game?: GameRecord;
   submitText: string;
-  onSubmit: (newGame: Game) => void;
+  onSubmit: (newGame: GameRecord) => void;
 }
 
 interface State {
@@ -53,7 +53,7 @@ export class GameForm extends React.PureComponent<Props, State> {
     }
   )
 
-  private getStateFromGame(game: Game): State {
+  private getStateFromGame(game: GameRecord): State {
     const numberOfPlayers: number = game.numberOfPlayers;
     const bidderCalledSelf: boolean = numberOfPlayers === 5 && !game.partnerId;
     const bidAmount: number = game.bidAmount;
@@ -256,7 +256,7 @@ export class GameForm extends React.PureComponent<Props, State> {
       partnerId = this.state.players[PlayerRoles.PARTNER].player!.id;
     }
 
-    const newGame: Game = {
+    const newGame: GameRecord = {
       id: this.props.game ? this.props.game.id : '',
       bidderId,
       partnerId,

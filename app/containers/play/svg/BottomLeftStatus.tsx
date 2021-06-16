@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { GameplayState } from '../../../play/state';
-import { InGameState } from '../../../services/ingame/InGameTypes';
+import { GameplayState } from '../../../../server/play/model/GameState';
+import { ClientGame } from '../../../services/room/ClientGame';
 import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
 import './BottomLeftStatus.scss';
 import { getCardUrl } from './CardSvg';
@@ -11,7 +11,7 @@ export namespace BottomLeftStatus {
     width: number;
     height: number;
     players: Map<string, Player>;
-    game: InGameState;
+    game: ClientGame;
     spectatorMode: SpectatorMode;
   }
 }
@@ -24,13 +24,13 @@ export const BottomLeftStatusLayout = {
 export class BottomLeftStatus extends React.PureComponent<BottomLeftStatus.Props> {
   public render() {
     const { height, game, spectatorMode } = this.props;
-    const partnerCall = game.state.partnerCard;
-    const dog = game.state.dog;
+    const partnerCall = game.playState.partnerCard;
+    const dog = game.playState.dog;
     const renderDog = dog.length > 0 && (
       isSpectatorModeObserver(spectatorMode) ||
-      game.state.state === GameplayState.DogReveal ||
-      game.state.state === GameplayState.Playing ||
-      game.state.state === GameplayState.Completed
+      game.playState.state === GameplayState.DogReveal ||
+      game.playState.state === GameplayState.Playing ||
+      game.playState.state === GameplayState.Completed
     );
     return (
       <foreignObject

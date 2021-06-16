@@ -1,24 +1,24 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
-import { getEmojiStringFromCard } from '../../../components/emoji/emojiRenderer';
-import { GameplayState } from '../../../play/state';
+import { GameplayState } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
-import { InGameState } from '../../../services/ingame/InGameTypes';
+import { ClientRoom } from '../../../services/room/RoomTypes';
 import './PlaySidebar.scss';
 
 interface Props {
-  game: InGameState;
+  room: ClientRoom;
   dispatchers: Dispatchers;
 }
 
 export class SidebarActions extends React.PureComponent<Props> {
   public render() {
-    const { autoplay, state, player } = this.props.game;
-    const playState = state.state;
-    const gamePlayers = new Set(state.playerOrder);
-    const showActions = gamePlayers.has(player);
-    const enableActions = playState !== GameplayState.NewGame && showActions;
+    const { autoplay, playerId } = this.props.room;
+    const playState = this.props.room.game.playState;
+    const currentBoardState = playState.state;
+    const gamePlayers = new Set(playState.playerOrder);
+    const showActions = gamePlayers.has(playerId);
+    const enableActions = currentBoardState !== GameplayState.NewGame && showActions;
     if (!showActions) {
       return null;
     }
@@ -46,24 +46,26 @@ export class SidebarActions extends React.PureComponent<Props> {
     return (
       <ButtonGroup className='sidebar-actions bp3-dark' fill>
         {enableActions ? <Tooltip content="Toggle Autoplay">{autoplayButton}</Tooltip> : autoplayButton}
-        {enableActions ? <Tooltip content="Share Hand in Chat">{shareButton}</Tooltip> : shareButton}
+        {enableActions ? <Tooltip content="(currently not working) Share Hand in Chat">{shareButton}</Tooltip> : shareButton}
       </ButtonGroup>
     );
   }
 
   private toggleAutoplay = () => {
-    const { autoplay } = this.props.game;
-    this.props.dispatchers.ingame.setAutoplay(!autoplay);
+    const { autoplay } = this.props.room;
+    this.props.dispatchers.room.setAutoplay(!autoplay);
   }
 
   private setShowPlayers = () => {
-    const { state, player } = this.props.game;
-    const gamePlayers = new Set(state.playerOrder);
-    gamePlayers.delete(player);
-    let text = '';
-    for (const card of state.hand) {
-      text += getEmojiStringFromCard(card);
-    }
-    this.props.dispatchers.ingame.play(player).sendMessage(text, undefined, [...gamePlayers]);
+    //TODO figure out how to do this again
+    
+    // const { playState, playerId } = this.props.room.game;
+    // const gamePlayers = new Set(playState.playerOrder);
+    // gamePlayers.delete(playerId);
+    // let text = '';
+    // for (const card of playState.hand) {
+    //   text += getEmojiStringFromCard(card);
+    // }
+    // this.props.dispatchers.room.sendChat(text, undefined, [...gamePlayers]);
   }
 }

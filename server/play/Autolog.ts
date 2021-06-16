@@ -1,16 +1,16 @@
 import { PlayerRoles } from '../../app/components/forms/PlayerRoles';
 import { getPointsEarned } from '../../app/components/forms/pointsEarned';
-import { CompletedGameState, Outcome } from '../../app/play/common';
-import { Game } from '../../app/play/server';
-import { CompletedBoardState, GameplayState } from '../../app/play/state';
-import { GameQuerier } from '../db/GameQuerier';
-import { Game as Results, HandData, PlayerHand } from '../model/Game';
+import { GameRecordQuerier } from '../db/GameRecordQuerier';
+import { GameRecord as Results, HandData, PlayerHand } from '../model/GameRecord';
+import { Game } from './game/Game';
+import { CompletedGameState, Outcome } from './model/GameEvents';
+import { CompletedBoardState, GameplayState } from './model/GameState';
 
 export function autologGame(
-  game: Game | undefined,
-  gameQuerier: GameQuerier,
+  game: Game,
+  gameQuerier: GameRecordQuerier,
 ) {
-  if (!game || !game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
+  if (!game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
     return;
   }
 

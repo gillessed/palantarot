@@ -1,23 +1,23 @@
 import { Store } from 'redux';
-import { InGameState } from '../services/ingame/InGameTypes';
+import { ClientGame } from '../services/room/ClientGame';
 import { ReduxState } from "../services/rootReducer";
 
-function getGameUpdatedFiltered(store: Store<ReduxState>): () => InGameState {
+function getGameUpdatedFiltered(store: Store<ReduxState>): () => ClientGame | null {
   return function() {
-    const game = store.getState().ingame;
-    const filteredEvents = game.events.filter((event) => {
-      return event.type !== 'entered_chat' && event.type !== 'left_chat';
-    });
+    const game = store.getState().room?.game;
+    if (!game) {
+      return null;
+    }
     return {
       ...game,
-      events: filteredEvents,
+      events: game.events,
     }
   }
 }
 
 interface ReduxDebug {
   getState(): ReduxState;
-  getGameUpdatesFiltered(): InGameState;
+  getGameUpdatesFiltered(): ClientGame;
 }
 
 export function registerConsoleStore(store: Store<ReduxState>) {

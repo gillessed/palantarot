@@ -3,9 +3,9 @@ import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import * as React from 'react';
 import { Role } from '../../../../server/model/Result';
-import { CompletedGameState, Outcome, PlayerId } from '../../../play/common';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { CompletedGameState, Outcome, PlayerId } from '../../../../server/play/model/GameEvents';
 import { getPlayerName } from '../../../services/players/playerName';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';
 import { getCardUrl } from '../svg/CardSvg';
 import { StatusOverlay } from '../svg/StatusOverlay';
@@ -33,18 +33,18 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
   };
 
   public render() {
-    const { width, height, game, players } = this.props;
-    const { endState } = game.state;
-    const { player } = game;
+    const { width, height, game } = this.props;
+    const { endState } = game.playState;
+    const { playerId } = game;
     const { scoreViewOpen } = this.state;
-    const isParticipant = InGameSelectors.isParticipant(game);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
     let text = 'The game is over. ';
     let won: boolean | null = null;
     if (endState) {
       if (endState.bidderWon) {
-        won = player === endState.bidder || player === endState.partner;
+        won = playerId === endState.bidder || playerId === endState.partner;
       } else {
-        won = !(player === endState.bidder || player === endState.partner);
+        won = !(playerId === endState.bidder || playerId === endState.partner);
       }
     }
     if (won === true) {
@@ -69,12 +69,20 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
         {text}
       </text>}
       {endState && <ActionButton
-        x={width / 2}
+        x={width / 2 - 130}
         y={buttony}
         width={240}
         height={80}
         text='Show Score'
         onClick={this.openScoreView}
+      />}
+      {endState && <ActionButton
+        x={width / 2 + 130}
+        y={buttony}
+        width={240}
+        height={80}
+        text='Go To Next Game'
+        onClick={this.goToNextGame}
       />}
       {endState && scoreViewOpen && this.renderEndState(endState)}
       {/* TODO: (gcole) render other end state: all passes. */}
@@ -269,6 +277,10 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     this.setState({
       scoreViewOpen: true,
     });
+  }
+
+  private goToNextGame = () => {
+    this.props.dispatchers.room.goToNextGame();
   }
 }
 

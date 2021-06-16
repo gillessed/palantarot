@@ -1,11 +1,10 @@
 import { Player } from '../../server/model/Player';
-import { PlayerId } from '../play/common';
-import { InGameDispatcher } from '../services/ingame/InGameDispatcher';
-import { PlayDispatcher } from '../services/ingame/PlayDispatcher';
+import { PlayerId } from '../../server/play/model/GameEvents';
+import { PlayDispatcher } from '../services/room/ClientGameDispatcher';
+import { RoomDispatcher } from '../services/room/RoomDispatcher';
 import { getWindowRedux } from './consoleStore';
 
 type DebugGroupActions = {
-  numJoinGame(playerNum: number): void;
   numEnterGame(playerNum: number): void;
   numReady(playerNum: number): void;
 }
@@ -26,9 +25,8 @@ function getPlayerKey(player: Player) {
   return `${player.firstName.toLocaleLowerCase()}${player.lastName.toLocaleLowerCase()}`;
 }
 
-function buildDispatcher(playerId: PlayerId, game: string, dispatcher: InGameDispatcher): DebugDispatcher {
-  const obj: Partial<DebugDispatcher> = dispatcher.play(playerId, true);
-  obj.joinGame = () => dispatcher.debugJoinGame(playerId, game);
+function buildDispatcher(playerId: PlayerId, game: string, dispatcher: RoomDispatcher): DebugDispatcher {
+  const obj: Partial<DebugDispatcher> = dispatcher.play(playerId);
   return obj as DebugDispatcher;
 }
 
@@ -54,7 +52,7 @@ function getGroupAction(
   selfId: PlayerId,
   gameId: string,
   players: Player[],
-  inGameDispatcher: InGameDispatcher,
+  roomDispatcher: RoomDispatcher,
 ) {
   return (count: number) => {
     const debugPlayers = getDebugPlayers(selfId, players);
@@ -64,7 +62,7 @@ function getGroupAction(
     }
     for (let i = 0; i < count; i++) {
       const info = debugPlayers[i];
-      const dispatcher =  buildDispatcher(info.id, gameId, inGameDispatcher);
+      const dispatcher =  buildDispatcher(info.id, gameId, roomDispatcher);
       (dispatcher[action] as Function)();
     }
   }
@@ -72,13 +70,12 @@ function getGroupAction(
 
 function getStartGame(groupActions: DebugGroupActions) {
   return (count: number) => {
-    groupActions.numJoinGame(count);
     groupActions.numEnterGame(count);
     groupActions.numReady(count);
   }
 }
 
-export function registerDebugPlayers(player: string, gameId: string, dispatcher: InGameDispatcher) {
+export function registerDebugPlayers(player: string, gameId: string, dispatcher: RoomDispatcher) {
   const playerMap = getWindowRedux().getState().players.value;
   if (!playerMap) {
     return;
@@ -86,7 +83,6 @@ export function registerDebugPlayers(player: string, gameId: string, dispatcher:
   const players = [...playerMap.values()];
   const debugPlayers = getDebugPlayers(player, players);
   const groupActions: DebugGroupActions = {
-    numJoinGame: getGroupAction('joinGame', player, gameId, players, dispatcher),
     numEnterGame: getGroupAction('enterGame', player, gameId, players, dispatcher),
     numReady: getGroupAction('markAsReady', player, gameId, players, dispatcher),
   }

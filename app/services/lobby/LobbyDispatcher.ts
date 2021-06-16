@@ -1,5 +1,7 @@
 import { Store } from 'redux';
-import { GameSettings } from '../../play/server';
+import { LobbyMessages } from '../../../server/play/lobby/LobbyMessages';
+import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
+import { generateId } from '../../../server/utils/randomString';
 import { PropertyCachingState } from '../redux/serviceDispatcher';
 import { ReduxState } from '../rootReducer';
 import { LobbyActions } from './LobbyActions';
@@ -18,12 +20,16 @@ export class LobbyDispatcher extends lobbyService.dispatcher {
     super(reduxStore, options);
   }
 
-  public newGame(settings: GameSettings) {
-    this.store.dispatch(LobbyActions.newGame(settings));
+  public newRoom(args: NewRoomArgs) {
+    this.store.dispatch(LobbyActions.newRoom(args));
+  }
+
+  public enterLobby(playerId: string) {
+    this.store.dispatch(lobbySocketService.actions.send(LobbyMessages.enterLobby(playerId)));
   }
 
   public socketConnect() {
-    this.store.dispatch(lobbySocketService.actions.join());
+    this.store.dispatch(lobbySocketService.actions.join(generateId()));
   }
 
   public socketClose() {

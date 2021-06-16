@@ -2,16 +2,16 @@ import { Button, ButtonGroup, Intent, Menu, Popover, PopoverInteractionKind, Pos
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../play/common';
-import { GameplayState } from '../../../play/state';
+import { PlayerId } from '../../../../server/play/model/GameEvents';
+import { GameplayState } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { PlayersSelectors } from '../../../services/players';
+import { ClientGame } from '../../../services/room/ClientGame';
 import { AddBotMenuItem } from './AddBotMenuItem';
 import './PlaySidebar.scss';
 
 interface Props {
-  game: InGameState;
+  game: ClientGame;
   players: Map<PlayerId, Player>;
   dispatchers: Dispatchers;
 }
@@ -19,13 +19,13 @@ interface Props {
 export class AddBotButton extends React.PureComponent<Props> {
   public render() {
     const { game, players, dispatchers } = this.props;
-    const { state, player } = game;
-    const playState = state.state;
-    const gamePlayers = new Set(state.playerOrder);
-    if (!gamePlayers.has(player)) {
+    const { playState, playerId } = game;
+    const currentBoardState = playState.state;
+    const gamePlayers = new Set(playState.playerOrder);
+    if (!gamePlayers.has(playerId)) {
       return null;
     }
-    const enableAction = playState === GameplayState.NewGame;
+    const enableAction = currentBoardState === GameplayState.NewGame;
     const bots = PlayersSelectors.getBots(players);
     return (
       <ButtonGroup className='sidebar-actions bp3-dark' fill>

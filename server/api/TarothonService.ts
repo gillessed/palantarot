@@ -1,20 +1,20 @@
-import { Database } from './../db/dbConnector';
-import { Router, Request, Response } from 'express';
-import { TarothonQuerier } from '../db/TarothonQuerier';
-import { Tarothon, NewTarothon, TarothonData } from '../model/Tarothon';
+import { Request, Response, Router } from 'express';
 import * as _ from 'lodash';
-import { GameQuerier } from '../db/GameQuerier';
-import { Result, RoleResult } from '../model/Result';
+import { GameRecordQuerier } from '../db/GameRecordQuerier';
+import { TarothonQuerier } from '../db/TarothonQuerier';
+import { RoleResult } from '../model/Result';
+import { NewTarothon, Tarothon, TarothonData } from '../model/Tarothon';
+import { Database } from './../db/dbConnector';
 
 export class TarothonService {
   public router: Router;
   private tarothonDb: TarothonQuerier;
-  private gameDb: GameQuerier;
+  private gameDb: GameRecordQuerier;
 
   constructor(db: Database) {
     this.router = Router();
     this.tarothonDb = new TarothonQuerier(db);
-    this.gameDb = new GameQuerier(db);
+    this.gameDb = new GameRecordQuerier(db);
     this.router.get('/data/:id', this.getTarothonData);
     this.router.get('/get', this.getTarothons);
     this.router.post('/add', this.addTarothon);

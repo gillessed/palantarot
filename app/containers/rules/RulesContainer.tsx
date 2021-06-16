@@ -1,6 +1,6 @@
 import { Classes } from '@blueprintjs/core';
 import * as React from 'react';
-import { Card, RegSuit, RegValue, TrumpSuit, TrumpValue } from '../../play/common';
+import { Card, RegSuit, RegValue, TrumpSuit, TrumpValue } from '../../../server/play/model/Card';
 import { getCardUrl } from '../play/svg/CardSvg';
 import './RulesContainer.scss';
 

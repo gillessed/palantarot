@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { compareCards } from '../../../play/cardUtils';
-import { PlayerId, TrumpCard, TrumpSuit } from '../../../play/common';
-import { ShowDetails } from '../../../play/ingame/playLogic';
+import { TrumpCard, TrumpSuit } from '../../../../server/play/model/Card';
+import { compareCards } from '../../../../server/play/model/CardUtils';
+import { PlayerId } from '../../../../server/play/model/GameEvents';
 import { Dispatchers } from '../../../services/dispatchers';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
+import { ClientGame } from '../../../services/room/ClientGame';
+import { ShowDetails } from '../../../services/room/ClientGameEventHandler';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from './ActionButton';
 import { CardHeight, CardWidth } from './CardSpec';
 import { CardSvg } from './CardSvg';
@@ -16,7 +17,7 @@ interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
-  game: InGameState;
+  game: ClientGame;
   dispatchers: Dispatchers;
 }
 
@@ -35,7 +36,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   public render() {
     const { game } = this.props;
-    const canShow = InGameSelectors.canShow(game);
+    const canShow = ClientGameSelectors.canShow(game);
     return (<g>
       {canShow && <ActionButton
         x={130}
@@ -45,7 +46,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
         text='Show Trump'
         onClick={this.handleShowTrump}
       />}
-      {game.state.showIndex !== null && this.renderShowWindow(game.state.shows[game.state.showIndex])}
+      {game.playState.showIndex !== null && this.renderShowWindow(game.playState.shows[game.playState.showIndex])}
     </g>);
   }
 
@@ -102,11 +103,11 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   private handleShowTrump = () => {
     const { game, dispatchers } = this.props;
-    const trump = game.state.hand.filter(([suit]) => suit === TrumpSuit) as TrumpCard[];
-    dispatchers.ingame.play(game.player).showTrump(trump);
+    const trump = game.playState.hand.filter(([suit]) => suit === TrumpSuit) as TrumpCard[];
+    dispatchers.room.play(game.playerId).showTrump(trump);
   }
 
   private handleCloseShowWindow = () => {
-    this.props.dispatchers.ingame.closeShowWindow();
+    this.props.dispatchers.room.closeShowWindow();
   }
 }

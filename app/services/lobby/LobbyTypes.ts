@@ -1,5 +1,5 @@
-import { GameDescription } from '../../../server/play/GameDescription';
+import { RoomDescription } from '../../../server/play/room/RoomDescription';
 import { Loadable } from '../redux/loadable';
 
-export type Lobby = Map<string, GameDescription>;
+export type Lobby = Map<string, RoomDescription>;
 export type LobbyService = Loadable<void, Lobby>;

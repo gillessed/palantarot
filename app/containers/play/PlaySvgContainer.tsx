@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
 import { Dispatchers } from '../../services/dispatchers';
-import { InGameState } from '../../services/ingame/InGameTypes';
+import { ClientRoom } from '../../services/room/RoomTypes';
 import './PlaySvgContainer.scss';
 import { PlaySvgRoot } from './PlaySvgRoot';
 
 interface Props {
   players: Map<string, Player>;
-  game: InGameState;
+  room: ClientRoom;
   dispatchers: Dispatchers;
 }
 
@@ -39,15 +39,15 @@ export class PlaySvgContainer extends React.Component<Props, State> {
   }
 
   private renderCanvasElement = () => {
-    const { players, game, dispatchers } = this.props;
+    const { players, room, dispatchers } = this.props;
     if (this.state.dimensions && this.containerDiv) {
       const { width, height } = this.state.dimensions;
       return (
-        <PlaySvgRoot 
+        <PlaySvgRoot
           width={width}
           height={height}
           players={players}
-          game={game}
+          room={room}
           dispatchers={dispatchers}
         />
       );

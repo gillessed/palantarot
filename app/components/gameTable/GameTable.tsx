@@ -1,8 +1,8 @@
+import { Button, HTMLTable } from '@blueprintjs/core';
 import * as React from 'react';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
-import { Game } from '../../../server/model/Game';
 import { GameTableRow } from './GameTableRow';
-import { HTMLTable, Button } from '@blueprintjs/core';
 
 export const DEFAULT_COUNT = 20;
 
@@ -17,7 +17,7 @@ export enum GameOutcome {
   UNKNOWN,
 }
 
-export const BidderWonValidator = (game: Game) => {
+export const BidderWonValidator = (game: GameRecord) => {
   if (game.points >= 0) {
     return GameOutcome.WIN;
   } else {
@@ -27,8 +27,8 @@ export const BidderWonValidator = (game: Game) => {
 
 interface Props {
   players: Map<string, Player>;
-  games: Game[];
-  winLossValidator?: (game: Game) => GameOutcome;
+  games: GameRecord[];
+  winLossValidator?: (game: GameRecord) => GameOutcome;
   pageState?: PageState;
 }
 
@@ -93,7 +93,7 @@ export class GameTable extends React.PureComponent<Props, {}> {
     );
   }
 
-  private renderGameTableRow = (game: Game) => {
+  private renderGameTableRow = (game: GameRecord) => {
     let outcome = GameOutcome.UNKNOWN;
     if (this.props.winLossValidator) {
       outcome = this.props.winLossValidator(game);

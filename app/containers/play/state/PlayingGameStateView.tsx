@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { getCardsAllowedToPlay } from '../../../play/cardUtils';
-import { Card, RegValue } from '../../../play/common';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { Card, RegValue } from '../../../../server/play/model/Card';
+import { getCardsAllowedToPlay } from '../../../../server/play/model/CardUtils';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver } from '../SpectatorMode';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { PlayerOverlay } from '../svg/PlayerOverlay';
@@ -25,7 +25,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
   public render() {
     const { width, height, game, spectatorMode } = this.props;
     const { selectedCards } = this.state;
-    const isParticipant = InGameSelectors.isParticipant(game);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
     return (<g className='playing-state-view'>
       <StatusOverlay {...this.props} />
       <PlayerOverlay {...this.props} />
@@ -33,7 +33,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
         <BottomHandSvg
           svgWidth={width}
           svgHeight={height}
-          cards={game.state.hand}
+          cards={game.playState.hand}
           selectableFilter={this.selectableCardFilter}
           selectedCards={selectedCards}
           onClick={this.handleCardSelect}
@@ -48,27 +48,27 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
   private selectableCardFilter = (card: Card) => {
     const [suit, value] = card;
     const { game } = this.props;
-    const toPlay = game.state.toPlay;
-    if (!toPlay || toPlay !== game.player) {
+    const toPlay = game.playState.toPlay;
+    if (!toPlay || toPlay !== game.playerId) {
       return false;
     }
-    if (!game.state.anyPlayerPlayedCard && game.state.partnerCard) {
-      const [partnerSuit] = game.state.partnerCard;
+    if (!game.playState.anyPlayerPlayedCard && game.playState.partnerCard) {
+      const [partnerSuit] = game.playState.partnerCard;
       if (suit !== partnerSuit || value === RegValue.R) {
         return true;
       }
       return false;
     }
-    if (game.state.trick.completed) {
+    if (game.playState.trick.completed) {
       return true;
     }
-    const trickCards = InGameSelectors.getTrickCards(game.state.trick);
-    const allowedCards = getCardsAllowedToPlay(game.state.hand, trickCards, !!game.state.anyPlayerPlayedCard, game.state.partnerCard);
+    const trickCards = ClientGameSelectors.getTrickCards(game.playState.trick);
+    const allowedCards = getCardsAllowedToPlay(game.playState.hand, trickCards, !!game.playState.anyPlayerPlayedCard, game.playState.partnerCard);
     return !!allowedCards.find((c) => _.isEqual(c, card));
   }
 
   private handleCardSelect = (card: Card) => {
-    const player = this.props.game.player;
-    this.props.dispatchers.ingame.play(player).playCard(card);
+    const player = this.props.game.playerId;
+    this.props.dispatchers.room.play(player).playCard(card);
   }
 }

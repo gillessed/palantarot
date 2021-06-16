@@ -2,25 +2,36 @@ import { Icon } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { ChatText } from '../../../../server/play/room/ChatText';
 import { parseMessageForEmojis } from '../../../components/emoji/emojiRenderer';
-import { InGameState, MessageGroup } from '../../../services/ingame/InGameTypes';
 import { getPlayerName } from '../../../services/players/playerName';
+import { ClientGame } from '../../../services/room/ClientGame';
+import { ChatMessageListItem, isChatTextGroup } from '../../../services/room/RoomTypes';
 
 interface Props {
-  game: InGameState;
-  message: MessageGroup;
+  game: ClientGame;
+  item: ChatMessageListItem;
   players: Map<string, Player>;
 }
 
 
 
 export class PlayMessage extends React.PureComponent<Props> {
-  public render() {
-    const { message, game, players } = this.props;
 
-    const isParticipant = game.state.playerOrder.indexOf(message.author) >= 0;
-    const isYou = game.player === message.author;
-    const player = players.get(message.author);
+  private renderTextLine(text: string, index: number) {
+    return (
+      <div className='message-body' key={index}>
+        {parseMessageForEmojis(text)}
+      </div>
+    );
+  }
+
+  public render() {
+    const { item, game, players } = this.props;
+
+    const isParticipant = game.playState.playerOrder.indexOf(item.authorId) >= 0;
+    const isYou = game.playerId === item.authorId;
+    const player = players.get(item.authorId);
     const authorName = getPlayerName(player);
 
     return (
@@ -32,13 +43,10 @@ export class PlayMessage extends React.PureComponent<Props> {
           />
           <div className='message-author-text'>{authorName}</div>
         </div>
-        {message.messages.map((text, index) => {
-          return (
-            <div className='message-body' key={index}>
-              {parseMessageForEmojis(text)}
-            </div>
-          );
+        {isChatTextGroup(item) && item.chat.map((chat: ChatText, index: number) => {
+          return this.renderTextLine(chat.text, index);
         })}
+        {!isChatTextGroup(item) && this.renderTextLine(item.text, 0)}
       </div>
     );
   }

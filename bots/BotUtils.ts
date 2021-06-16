@@ -1,20 +1,20 @@
-import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../app/play/cardUtils";
-import { AllCs, AllDs, AllRs, AllVs, Card, RegValue, TrumpSuit } from "../app/play/common";
-import { TrickCards } from "../app/play/ingame/playLogic";
-import { InGameState } from "../app/services/ingame/InGameTypes";
+import { ClientGame } from "../app/services/room/ClientGame";
+import { TrickCards } from "../app/services/room/ClientGameEventHandler";
+import { AllCs, AllDs, AllRs, AllVs, Card, RegValue, TrumpSuit } from "../server/play/model/Card";
+import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../server/play/model/CardUtils";
 
 const NonPassBids = [10, 20, 40, 80, 160];
 // const NonPassBids = [10, 20, 40];
 
-export function getPossibleBidValues(gameState: InGameState): number[] {
-  const { state, player } = gameState;
-  const maxBid = Math.max(...[...state.playerBids.values()].map((bid) => bid.bid));
+export function getPossibleBidValues(clientGame: ClientGame): number[] {
+  const { playState, playerId } = clientGame;
+  const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
   const availableBidValue: number[] = [0, ...NonPassBids.filter((value) => value > maxBid)];
   return availableBidValue;
 }
 
-export function getNonSelfCalls(gameState: InGameState): Card[] {
-  const hand = gameState.state.hand;
+export function getNonSelfCalls(clientGame: ClientGame): Card[] {
+  const hand = clientGame.playState.hand;
   const hasAllRs = hand.filter(([_, value]) => value === RegValue.R).length === 4;
   const hasAllDs = hand.filter(([_, value]) => value === RegValue.D).length === 4;
   const hasAllCs = hand.filter(([_, value]) => value === RegValue.C).length === 4;

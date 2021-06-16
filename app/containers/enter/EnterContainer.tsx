@@ -1,22 +1,22 @@
+import { Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { GameForm } from '../../components/forms/GameForm';
-import { ReduxState } from '../../services/rootReducer';
-import { PlayersService } from '../../services/players';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
+import { mergeContexts } from '../../app';
+import { GameForm } from '../../components/forms/GameForm';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Game } from '../../../server/model/Game';
-import { SagaContextType, SagaRegistration, getSagaContext } from '../../sagaProvider';
-import { SagaListener } from '../../services/sagaListener';
-import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import { mergeContexts } from '../../app';
-import { Dispatchers } from '../../services/dispatchers';
-import { StaticRoutes } from '../../routes';
-import { RecentGamesService } from '../../services/recentGames/index';
 import history from '../../history';
-import { Spinner } from '@blueprintjs/core';
+import { StaticRoutes } from '../../routes';
+import { getSagaContext, SagaContextType, SagaRegistration } from '../../sagaProvider';
+import { Dispatchers } from '../../services/dispatchers';
+import { PlayersService } from '../../services/players';
+import { RecentGamesService } from '../../services/recentGames/index';
+import { ReduxState } from '../../services/rootReducer';
+import { SagaListener } from '../../services/sagaListener';
+import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
 
 interface StateProps {
   players: PlayersService;
@@ -77,7 +77,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     });
   }
 
-  private getRecentPlayerList(players: Map<string, Player>, recentGames: Game[]): Player[] | undefined {
+  private getRecentPlayerList(players: Map<string, Player>, recentGames: GameRecord[]): Player[] | undefined {
     if (recentGames.length >= 2) {
       const playerSet = new Set<string>();
       recentGames
@@ -106,7 +106,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     }
   }
 
-  private getPlayersInGame(game: Game): string[] {
+  private getPlayersInGame(game: GameRecord): string[] {
     if (!game.handData) {
       return [];
     }
@@ -149,7 +149,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     }
   }
 
-  private renderPage(players: Map<string, Player>, recentGames: Game[]) {
+  private renderPage(players: Map<string, Player>, recentGames: GameRecord[]) {
     const recentPlayers = this.getRecentPlayerList(players, recentGames);
     let playerList = this.getPlayerList(players);
     return (
@@ -162,7 +162,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     );
   }
 
-  private onSubmit = (newGame: Game) => {
+  private onSubmit = (newGame: GameRecord) => {
     this.dispatchers.saveGame.request(newGame);
   }
 }

@@ -1,9 +1,10 @@
 import _ from 'lodash';
-import { CardList } from '../app/play/CardList';
-import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../app/play/cardUtils";
-import { Bid, BidValue, Call, Card, RegSuit, RegValue, The21, TheJoker, TrumpSuit, TrumpValue } from "../app/play/common";
-import { InGameState } from "../app/services/ingame/InGameTypes";
+import { ClientGame } from '../app/services/room/ClientGame';
+import { Card, RegSuit, RegValue, The21, TheJoker, TrumpSuit, TrumpValue } from "../server/play/model/Card";
+import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../server/play/model/CardUtils";
+import { Bid, BidValue, Call } from "../server/play/model/GameEvents";
 import { dropValueSortComparator, getNonSelfCalls, getTrickCardList, lambdaMin } from "./BotUtils";
+import { CardList } from './CardList';
 import { RandomBot } from './RandomBot';
 import { analyseGameState } from "./StateAnalysis";
 import { TarotBot } from "./TarotBot";
@@ -29,14 +30,14 @@ export class SimpleBot implements TarotBot {
    * 20 -> 40 bid, but 1 less trump each
    * 10 -> 1 bout, 6 trump; 1 bout, five trump and a king; 8 trump;
    */
-  public bid(gameState: InGameState): Bid {
-    if (gameState.state.playerOrder.length < 5) {
-      return this.randomBot.bid(gameState);
+  public bid(game: ClientGame): Bid {
+    if (game.playState.playerOrder.length < 5) {
+      return this.randomBot.bid(game);
     }
-    const { state, player } = gameState;
-    const { hand } = state;
-    const maxBid = Math.max(...[...state.playerBids.values()].map((bid) => bid.bid));
-    const russianOnTable = !![...state.playerBids.values()].find((bid) => bid.calls.indexOf(Call.RUSSIAN) >= 0);
+    const { playState, playerId } = game;
+    const { hand } = playState;
+    const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
+    const russianOnTable = !![...playState.playerBids.values()].find((bid) => bid.calls.indexOf(Call.RUSSIAN) >= 0);
 
     const hasOne = hand.find((c) => _.isEqual(c, [TrumpSuit, TrumpValue._1]));
     const hasJoker = hand.find((c) => _.isEqual(c, [TrumpSuit, TrumpValue.Joker]));
@@ -112,7 +113,7 @@ export class SimpleBot implements TarotBot {
       } else if (BidValue.FORTY > maxBid && bid40) {
         bidValue = BidValue.FORTY;
       } else if (BidValue.TWENTY > maxBid && bidRussian) {
-        return { bid: BidValue.TWENTY, player, calls: [Call.RUSSIAN] };
+        return { bid: BidValue.TWENTY, player: playerId, calls: [Call.RUSSIAN] };
       } else if (BidValue.TWENTY > maxBid) {
         bidValue = BidValue.TWENTY;
       } else if (BidValue.TEN > maxBid && bid10) {
@@ -120,15 +121,15 @@ export class SimpleBot implements TarotBot {
       }
     }
 
-    return { bid: bidValue, player, calls: [] };
+    return { bid: bidValue, player: playerId, calls: [] };
   }
 
   /**
    * Simple bot picks its longest suit as its partner suit. If there is a tie, it is randomly broken. It will never call itself on purpose.
    */
-  public pickPartner(gameState: InGameState): Card {
-    const { hand } = gameState.state;
-    const bidSet = getNonSelfCalls(gameState);
+  public pickPartner(game: ClientGame): Card {
+    const { hand } = game.playState;
+    const bidSet = getNonSelfCalls(game);
     const suitLengths: [number, RegSuit][] = bidSet.map(([callSuit, _]) => {
       const suitLength = hand.filter(([suit, _]) => suit === callSuit).length;
       return [suitLength, callSuit as RegSuit];
@@ -141,18 +142,18 @@ export class SimpleBot implements TarotBot {
   /**
    * Simple bot prioritizes dropping for a void first, then dropping its highest face cards.
    */
-  public dropDog(gameState: InGameState): Card[] {
-    if (gameState.state.playerOrder.length < 5) {
-      return this.randomBot.dropDog(gameState);
+  public dropDog(game: ClientGame): Card[] {
+    if (game.playState.playerOrder.length < 5) {
+      return this.randomBot.dropDog(game);
     }
 
-    const { state } = gameState;
-    const { hand } = state;
+    const { playState } = game;
+    const { hand } = playState;
     let unDroppedHand = [...hand];
     const dogCards: Card[] = [];
-    const partnerCard = gameState.state.partnerCard;
+    const partnerCard = game.playState.partnerCard;
     if (!partnerCard) {
-      return this.randomBot.dropDog(gameState);
+      return this.randomBot.dropDog(game);
     }
     const partnerSuit = partnerCard[0];
 
@@ -192,18 +193,18 @@ export class SimpleBot implements TarotBot {
    *   - if your team wins, feed
    *   - dump
    */
-  public playCard(gameState: InGameState): Card {
-    if (gameState.state.playerOrder.length < 5) {
-      return this.randomBot.playCard(gameState);
+  public playCard(game: ClientGame): Card {
+    if (game.playState.playerOrder.length < 5) {
+      return this.randomBot.playCard(game);
     }
-    const { state } = gameState;
-    const { hand, trick: currentTrick, completedTricks } = state;
+    const { playState } = game;
+    const { hand, trick: currentTrick, completedTricks } = playState;
 
     const handList = new CardList(...hand);
 
     const trickCardList = getTrickCardList(currentTrick);
     const leadCard = getLeadCard(trickCardList);
-    const stateAnalysis = analyseGameState(gameState);
+    const stateAnalysis = analyseGameState(game);
     const hasJoker = !!hand.find(([s, v]) => s === TrumpSuit && v === TrumpValue.Joker);
     const has1 = !!hand.find(([s, v]) => s === TrumpSuit && v === TrumpValue._1);
     const has21 = !!hand.find(([s, v]) => s === TrumpSuit && v === TrumpValue._21);
@@ -242,6 +243,6 @@ export class SimpleBot implements TarotBot {
 
     // return finalCard;
 
-    return this.randomBot.playCard(gameState);
+    return this.randomBot.playCard(game);
   }
 }

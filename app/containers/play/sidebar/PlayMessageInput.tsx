@@ -52,7 +52,7 @@ export class PlayMessageInput extends React.PureComponent<Props> {
 
   private handleSend = () => {
     if (this.state.message.trim().length > 0) {
-      this.props.dispatchers.ingame.play(this.props.player).sendMessage(this.state.message.trim());
+      this.props.dispatchers.room.sendChat(this.state.message.trim());
       this.setState({
         message: '',
       });

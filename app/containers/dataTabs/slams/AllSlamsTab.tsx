@@ -1,13 +1,13 @@
+import { HTMLTable } from '@blueprintjs/core';
 import * as React from 'react';
+import { GameRecord } from '../../../../server/model/GameRecord';
 import { Player } from '../../../../server/model/Player';
 import { Records } from '../../../../server/model/Records';
+import { integerComparator } from '../../../../server/utils/index';
+import { GameTable } from '../../../components/gameTable/GameTable';
 import { playersLoader } from '../../../services/players/index';
 import { recordsLoader } from '../../../services/records';
 import { loadContainer } from '../../LoadingContainer';
-import { Game } from '../../../../server/model/Game';
-import { integerComparator } from '../../../../server/utils/index';
-import { GameTable } from '../../../components/gameTable/GameTable';
-import { HTMLTable } from '@blueprintjs/core';
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -81,7 +81,7 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
   }
 
   // TODO: pull these out to a slams selector class when I separate month scores and slams.
-  private countSlams(slamGames: Game[]): SlamRecords {
+  private countSlams(slamGames: GameRecord[]): SlamRecords {
     const slamPlayers: string[] = [];
     const beenSlammedPlayers: string[] = [];
     slamGames.forEach((game) => {

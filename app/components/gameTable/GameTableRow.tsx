@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { Game } from '../../../server/model/Game';
-import { GameOutcome } from './GameTable';
-import { DynamicRoutes } from '../../routes';
-import { formatTimestamp } from '../../../server/utils/index';
 import classNames from 'classnames';
+import * as React from 'react';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { Player } from '../../../server/model/Player';
+import { formatTimestamp } from '../../../server/utils/index';
 import history from '../../history';
+import { DynamicRoutes } from '../../routes';
+import { GameOutcome } from './GameTable';
 
 interface Props {
   players: Map<string, Player>;
-  game: Game;
+  game: GameRecord;
   outcome: GameOutcome;
 }
 

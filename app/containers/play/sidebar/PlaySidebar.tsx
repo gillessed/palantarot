@@ -1,18 +1,15 @@
-import { Button, ButtonGroup, Icon, Intent } from '@blueprintjs/core';
+import { Button, ButtonGroup, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import history from '../../../history';
-import { ActionType, BidAction, BiddingCompletedTransition, BidValue, Call, CallPartnerAction, PlayerId, TransitionType } from '../../../play/common';
 import { StaticRoutes } from '../../../routes';
 import { Dispatchers } from '../../../services/dispatchers';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
-import { InGameState, SidebarEvent } from '../../../services/ingame/InGameTypes';
-import { getPlayerName } from '../../../services/players/playerName';
-import { CardBackUrls, getCardText } from '../svg/CardSvg';
+import { ClientRoom } from '../../../services/room/RoomTypes';
+import { CardBackUrls } from '../svg/CardSvg';
 import { AddBotButton } from './AddBotButton';
-import { GameEventMessage } from './GameEventMessage';
-import { PlayMessage } from './PlayMessage';
+import { ChatList } from './ChatList';
+import { PlayerList } from './PlayerList';
 import { PlayMessageInput } from './PlayMessageInput';
 import './PlaySidebar.scss';
 import { SidebarActions } from './SidebarActions';
@@ -20,37 +17,28 @@ import { SidebarActions } from './SidebarActions';
 interface Props {
   playerId: string;
   players: Map<string, Player>;
-  game: InGameState;
+  room: ClientRoom;
   dispatchers: Dispatchers;
 }
 
-interface State {
-  showMessages: boolean;
+export enum SidebarTab {
+  Chat,
+  Players,
+  Settings,
 }
 
-export const EventsToDisplay: Array<ActionType | TransitionType | 'error'> = [
-  'message',
-  'bid',
-  'bidding_completed',
-  'call_partner',
-];
+interface State {
+  sidebarTab: SidebarTab;
+}
 
 export class PlaySidebar extends React.PureComponent<Props, State> {
   public state: State = {
-    showMessages: true,
+    sidebarTab: SidebarTab.Chat,
   };
-  private messageDiv: HTMLDivElement;
-
-  public componentWillReceiveProps(nextProps: Props) {
-    const currentEvents = this.props.game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
-    const nextEvents = nextProps.game.events.filter((event) => EventsToDisplay.indexOf(event.type) >= 0);
-    if (this.messageDiv && currentEvents.length < nextEvents.length) {
-      this.messageDiv.scrollTop = this.messageDiv.scrollHeight;
-    }
-  }
 
   public render() {
-    const { showMessages } = this.state;
+    const { playerId, players, room } = this.props;
+    const { sidebarTab } = this.state;
     return (
       <div className='play-sidebar'>
         <div className='sidebar-header'>
@@ -69,30 +57,37 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
           <Button
             className='toggle-messages-button'
             icon={IconNames.PROPERTIES}
-            active={showMessages}
-            onClick={this.setShowMessages}
+            active={sidebarTab === SidebarTab.Chat}
+            onClick={this.setSidebarTabChat}
           />
           <Button
             className='toggle-players-button'
             icon={IconNames.PEOPLE}
-            active={!showMessages}
-            onClick={this.setShowPlayers}
+            active={sidebarTab === SidebarTab.Players}
+            onClick={this.setSidebarTabPlayers}
           />
         </ButtonGroup>
-        <div className='list-container' ref={this.setRef}>
-          {showMessages && this.renderMessages()}
-          {!showMessages && this.renderPlayers()}
-        </div>
+        {sidebarTab === SidebarTab.Chat && <ChatList
+          players={players}
+          game={room.game}
+          chat={room.chat}
+        />}
+        {sidebarTab === SidebarTab.Players && <PlayerList
+          selfId={playerId}
+          players={players}
+          gamePlayers={room.game.playState.playerOrder}
+          playerStatuses={room.players}
+        />}
         <PlayMessageInput
-          player={this.props.game.player}
+          player={this.props.room.playerId}
           dispatchers={this.props.dispatchers}
         />
-        <SidebarActions 
-          game={this.props.game}
+        <SidebarActions
+          room={this.props.room}
           dispatchers={this.props.dispatchers}
         />
         <AddBotButton
-          game={this.props.game}
+          game={this.props.room.game}
           dispatchers={this.props.dispatchers}
           players={this.props.players}
         />
@@ -100,78 +95,12 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
     );
   }
 
-  private setRef = (element: HTMLDivElement) => {
-    if (element) {
-      this.messageDiv = element;
-    }
+  private setSidebarTabChat = () => {
+    this.setState({ sidebarTab: SidebarTab.Chat });
   }
 
-  private setShowMessages = () => {
-    this.setState({ showMessages: true });
-  }
-
-  private renderMessages() {
-    const sidebarEvents = InGameSelectors.getEventsForSidebar(this.props.game);
-    return sidebarEvents.map(this.renderMessage);
-  }
-
-  private renderMessage = (event: SidebarEvent, index: number) => {
-    const { players, game } = this.props;
-    switch (event.type) {
-      case 'message_group':
-        return (
-          <PlayMessage
-            game={game}
-            message={event}
-            players={players}
-            key={index}
-          />
-        );
-      case 'bid':
-        const bidEvent = event as BidAction;
-        const bidRussian = (bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1) >= 0;
-        const bidderName = getPlayerName(players.get(bidEvent.player));
-        const bidMessage = bidEvent.bid === BidValue.PASS
-          ? `${bidderName} passed`
-          : `${bidderName} bid ${bidRussian ? 'russian 20' : bidEvent.bid}`;
-        return <GameEventMessage key={index} message={bidMessage} />;
-      case 'bidding_completed':
-        const biddingCompletedTransition = event as BiddingCompletedTransition;
-        const biddingCompletedWinner = biddingCompletedTransition.winning_bid.player;
-        const biddingCompletedPlayerName = getPlayerName(players.get(biddingCompletedWinner));
-        const biddingCompletedMessage = `${biddingCompletedPlayerName} has won the bid`;
-        return <GameEventMessage key={index} message={biddingCompletedMessage} />;
-      case 'call_partner':
-        const callEvent = event as CallPartnerAction;
-        const callPlayerName = getPlayerName(players.get(callEvent.player));
-        const callMessage = `${callPlayerName} has called ${getCardText(callEvent.card)}`
-        return <GameEventMessage key={index} message={callMessage} />;
-      default: return null;
-    }
-  }
-
-  private setShowPlayers = () => {
-    this.setState({ showMessages: false });
-  }
-
-  private renderPlayers() {
-    return this.props.game.state.inChat.map(this.renderPlayer);
-  }
-
-  private renderPlayer = (player: PlayerId) => {
-    const { game, players } = this.props;
-    const isParticipant = game.state.playerOrder.indexOf(player) >= 0;
-    const isYou = game.player === player;
-    const playerName = getPlayerName(players.get(player));
-    return (
-      <div key={player} className='player-row'>
-        <Icon
-          icon={isParticipant ? IconNames.PERSON : IconNames.EYE_OPEN}
-          color={isYou ? '#0F9960' : isParticipant ? '#137CBD' : '#F5F8FA'}
-        />
-        <span className='player-name unselectable'>{playerName} {isYou && ' (You)'}</span>
-      </div>
-    );
+  private setSidebarTabPlayers = () => {
+    this.setState({ sidebarTab: SidebarTab.Players });
   }
 
   private returnToLobby = () => {

@@ -1,10 +1,10 @@
-import { PlayerEvent } from "../app/play/common";
-import { buildReducer, ReducerMap } from "../app/play/server";
-import { BoardState, PlayingBoardState } from "../app/play/state";
 import { RandomBot } from "../bots/RandomBot";
+import { PlayerEvent } from "../server/play/model/GameEvents";
+import { BoardState, PlayingBoardState } from "../server/play/model/GameState";
+import { buildGameStateReducer, GameReducerMap } from "../server/play/model/GameStateReducers";
 
 export class RandomPlayout {
-  private reducers: ReducerMap = buildReducer();
+  private reducers: GameReducerMap = buildGameStateReducer();
   public state: BoardState;
   constructor(state: PlayingBoardState) {
     this.state = state;

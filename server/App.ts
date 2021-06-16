@@ -7,14 +7,16 @@ import path from 'path';
 import { DynamicRoutes, DynamicRoutesEnumerable, StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable } from '../app/routes';
 import { DefaultTarotBotRegistry } from "../bots/TarotBot";
 import { AuthService, createRequestValidator } from './api/AuthService';
-import { GameService } from './api/GameService';
+import { GameRecordService } from './api/GameRecordService';
 import { PlayerService } from './api/PlayerService';
+import { PlayService } from "./api/PlayService";
 import { SearchService } from './api/SearchService';
 import { StatsService } from './api/StatsService';
 import { TarothonService } from './api/TarothonService';
 import { Config } from './config';
 import { Database } from './db/dbConnector';
-import { PlayService } from "./play/PlayService";
+import { LobbySocketListener } from "./play/lobby/LobbySocketListener";
+import { RoomSocketListener } from './play/room/RoomSocketListener';
 import { WebsocketManager } from './websocket/WebsocketManager';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
@@ -108,7 +110,7 @@ export class App {
     const playerService = new PlayerService(this.config, this.db, botRegistry);
     this.express.use('/api/v1/players', playerService.router);
 
-    const gameService = new GameService(this.db, this.websocketManager);
+    const gameService = new GameRecordService(this.db, this.websocketManager);
     this.express.use('/api/v1/game', gameService.router);
     
     const statsService = new StatsService(this.db);
@@ -125,6 +127,10 @@ export class App {
 
     const playService = new PlayService(this.db, this.websocketManager, botRegistry);
     this.express.use('/api/v1/play', playService.router);
+    const lobbySocketListener = new LobbySocketListener(playService);
+    this.websocketManager.addListener(lobbySocketListener);
+    const roomSocketListener = new RoomSocketListener(playService);
+    this.websocketManager.addListener(roomSocketListener);
   }
  
   private redirectRoute() {

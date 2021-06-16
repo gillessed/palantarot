@@ -9,8 +9,6 @@ import { deltasReducer, DeltasService } from './deltas/index';
 import { gameReducer, GameService } from './game';
 import { gamePlayerReducer } from './gamePlayer/GamePlayerReducer';
 import { GamePlayer } from './gamePlayer/GamePlayerTypes';
-import { inGameReducer } from './ingame/InGameReducer';
-import { InGameState } from './ingame/InGameTypes';
 import { lobbyReducer } from './lobby/LobbyReducer';
 import { LobbyService } from './lobby/LobbyTypes';
 import { monthGamesReducer, MonthGamesService } from './monthGames/index';
@@ -20,6 +18,8 @@ import { recordsReducer, RecordsService } from './records/index';
 import { refreshReducer } from './refresh/RefreshReducer';
 import { RefreshState } from './refresh/RefreshTypes';
 import { resultsReducer, ResultsService } from './results';
+import { roomReducer } from './room/RoomReducer';
+import { ClientRoom } from './room/RoomTypes';
 import { saveGameReducer, SaveGameService } from './saveGame/index';
 import { searchReducer, SearchService } from './search/index';
 import { statsReducer, StatsService } from './stats/index';
@@ -37,7 +37,6 @@ export interface ReduxState {
   deltas: DeltasService;
   games: GameService;
   gamePlayer: GamePlayer | null;
-  ingame: InGameState;
   lobby: LobbyService;
   monthGames: MonthGamesService;
   players: PlayersService;
@@ -45,6 +44,7 @@ export interface ReduxState {
   records: RecordsService;
   refresh: RefreshState;
   results: ResultsService;
+  room: ClientRoom | null;
   saveGame: SaveGameService;
   search: SearchService;
   stats: StatsService;
@@ -63,7 +63,6 @@ export const rootReducer = combineReducers({
   deltas: deltasReducer,
   games: gameReducer,
   gamePlayer: gamePlayerReducer,
-  ingame: inGameReducer,
   lobby: lobbyReducer,
   monthGames: monthGamesReducer,
   players: playersReducer,
@@ -71,6 +70,7 @@ export const rootReducer = combineReducers({
   records: recordsReducer,
   refresh: refreshReducer,
   results: resultsReducer,
+  room: roomReducer,
   saveGame: saveGameReducer,
   search: searchReducer,
   stats: statsReducer,

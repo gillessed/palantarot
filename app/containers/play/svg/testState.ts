@@ -1,4 +1,4 @@
-import { dealCards } from '../../../play/cardUtils';
+import { dealCards } from '../../../../server/play/model/CardUtils';
 
 export const HunterHerman = "129";
 export const GregCole = "32";

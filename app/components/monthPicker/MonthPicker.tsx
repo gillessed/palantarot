@@ -1,9 +1,8 @@
-import React, { PureComponent } from 'react';
-import { IMonth } from '../../../server/model/Month';
-import { Game } from '../../../server/model/Game';
-import moment from 'moment-timezone';
 import { Button } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
+import moment from 'moment-timezone';
+import React from 'react';
+import { IMonth } from '../../../server/model/Month';
 
 interface Props {
   month: IMonth;

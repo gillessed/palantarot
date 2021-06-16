@@ -8,7 +8,6 @@ import { DeleteTarothonDispatcher } from './deleteTarothon/index';
 import { DeltasDispatcher } from './deltas/index';
 import { GameDispatcher } from './game/index';
 import { GamePlayerDispatcher } from './gamePlayer/GamePlayerDispatcher';
-import { InGameDispatcher } from './ingame/InGameDispatcher';
 import { LobbyDispatcher } from './lobby/LobbyDispatcher';
 import { MonthGamesDispatcher } from './monthGames/index';
 import { PageCacheDispatcher } from './pageCache/actions';
@@ -17,6 +16,7 @@ import { RecentGamesDispatcher } from './recentGames/index';
 import { RecordsDispatcher } from './records/index';
 import { CacheFunction } from './redux/serviceDispatcher';
 import { ResultsDispatcher } from './results/index';
+import { RoomDispatcher } from './room/RoomDispatcher';
 import { ReduxState } from './rootReducer';
 import { SaveGameDispatcher } from './saveGame/index';
 import { SearchDispatcher, searchLoader } from './search/index';
@@ -35,7 +35,6 @@ export interface Dispatchers {
   deltas: DeltasDispatcher;
   games: GameDispatcher;
   gamePlayer: GamePlayerDispatcher;
-  ingame: InGameDispatcher;
   lobby: LobbyDispatcher;
   monthGames: MonthGamesDispatcher;
   pageCache: PageCacheDispatcher;
@@ -43,6 +42,7 @@ export interface Dispatchers {
   recentGames: RecentGamesDispatcher;
   records: RecordsDispatcher;
   results: ResultsDispatcher;
+  room: RoomDispatcher;
   saveGame: SaveGameDispatcher;
   search: SearchDispatcher;
   stats: StatsDispatcher;
@@ -82,7 +82,6 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
       },
     ),
     gamePlayer: new GamePlayerDispatcher(store),
-    ingame: new InGameDispatcher(store),
     lobby: new LobbyDispatcher(store),
     monthGames: new MonthGamesDispatcher(
       store,
@@ -125,6 +124,7 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
         }
       }
     ),
+    room: new RoomDispatcher(store),
     saveGame: new SaveGameDispatcher(
       store,
     ),

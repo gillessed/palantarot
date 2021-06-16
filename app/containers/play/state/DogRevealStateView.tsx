@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { isBout } from '../../../play/cardUtils';
-import { Card, RegValue, TrumpSuit } from '../../../play/common';
-import { InGameSelectors } from '../../../services/ingame/InGameSelectors';
+import { Card, RegValue, TrumpSuit } from '../../../../server/play/model/Card';
+import { isBout } from '../../../../server/play/model/CardUtils';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';
 import { BottomHandSvg } from '../svg/BottomHandSvg';
 import { DogSvg } from '../svg/DogSvg';
@@ -21,9 +21,9 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
     selectedCards: new Set(),
   };
   public render() {
-    const { width, height, game, players } = this.props;
-    const isParticipant = InGameSelectors.isParticipant(game);
-    const isBidder = game.player === game.state.winningBid?.player;
+    const { game } = this.props;
+    const isParticipant = ClientGameSelectors.isParticipant(game);
+    const isBidder = game.playerId === game.playState.winningBid?.player;
     const showBidderUi = isParticipant && isBidder;
     return (<g className='dog-reveal-state-view'>
       <StatusOverlay {...this.props} />
@@ -35,8 +35,8 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
   private renderBidderUi() {
     const { width, height, game, players, dispatchers } = this.props;
     const { selectedCards } = this.state;
-    const dog = new Set(game.state.dog);
-    const dogSize = InGameSelectors.getDogSize(game);
+    const dog = new Set(game.playState.dog);
+    const dogSize = ClientGameSelectors.getDogSize(game);
     const status = selectedCards.size === 0
       ? 'Select the cards do drop for your dog'
       : `Selected ${selectedCards.size} / ${dogSize}`;
@@ -45,7 +45,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
         <BottomHandSvg
           svgWidth={width}
           svgHeight={height}
-          cards={game.state.hand}
+          cards={game.playState.hand}
           selectedCards={selectedCards}
           dogCards={dog}
           selectableFilter={this.selectableCardFilter}
@@ -82,14 +82,14 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
 
   private renderViewerUi() {
     const { width, height, game } = this.props;
-    const dog = new Set(game.state.dog);
-    const isParticipant = InGameSelectors.isParticipant(game);
+    const dog = new Set(game.playState.dog);
+    const isParticipant = ClientGameSelectors.isParticipant(game);
     return (
       <>
         {isParticipant && <BottomHandSvg
           svgWidth={width}
           svgHeight={height}
-          cards={game.state.hand}
+          cards={game.playState.hand}
         />}
         <DogSvg
           svgWidth={width}
@@ -102,11 +102,11 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
 
   private selectableCardFilter = (card: Card) => {
     const { game } = this.props;
-    const bidder = game.state.winningBid?.player;
-    if (bidder !== game.player) {
+    const bidder = game.playState.winningBid?.player;
+    if (bidder !== game.playerId) {
       return false;
     }
-    const canDropTrump = InGameSelectors.canDropTrump(game);
+    const canDropTrump = ClientGameSelectors.canDropTrump(game);
     const [suit, value] = card;
     if (canDropTrump) {
       return value !== RegValue.R && !isBout(card);
@@ -117,15 +117,15 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
 
   private handleDropCards = () => {
     const { game } = this.props;
-    const bidder = game.state.winningBid?.player;
-    if (bidder !== game.player) {
+    const bidder = game.playState.winningBid?.player;
+    if (bidder !== game.playerId) {
       return;
     }
-    this.props.dispatchers.ingame.play(game.player).dropDog(this.state.selectedCards);
+    this.props.dispatchers.room.play(game.playerId).dropDog(this.state.selectedCards);
   }
 
   private handleCardSelect = (card: Card) => {
-    const dogSize = InGameSelectors.getDogSize(this.props.game);
+    const dogSize = ClientGameSelectors.getDogSize(this.props.game);
     const { selectedCards } = this.state;
     if (selectedCards.has(card)) {
       const withCardRemoved = new Set(selectedCards);

@@ -9,7 +9,6 @@ import { deleteTarothonSaga } from './deleteTarothon/index';
 import { deltasSaga } from './deltas/index';
 import { gameSaga } from './game';
 import { gamePlayerSaga } from './gamePlayer/GamePlayerSagas';
-import { inGameSaga } from './ingame/InGameSagas';
 import { lobbySaga } from './lobby/LobbySaga';
 import { monthGamesSaga } from './monthGames/index';
 import { playersSaga } from './players';
@@ -17,6 +16,7 @@ import { recentGamesSaga } from './recentGames';
 import { recordsSaga } from './records/index';
 import { refreshSaga } from './refresh/RefreshSaga';
 import { resultsSaga } from './results/index';
+import { roomSaga } from './room/RoomSagas';
 import { listenerLoop, SagaListener } from './sagaListener';
 import { saveGameSaga } from './saveGame/index';
 import { searchSaga } from './search/index';
@@ -41,7 +41,6 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(authSaga, api),
     fork(deleteGameSaga, api),
     fork(gameSaga, api),
-    fork(inGameSaga),
     fork(lobbySaga, api),
     fork(monthGamesSaga, api),
     fork(playersSaga, api),
@@ -58,5 +57,6 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(tarothonDataSaga, api),
     fork(streaksSaga, api),
     fork(searchSaga, api),
+    fork(roomSaga),
   ]);
 }

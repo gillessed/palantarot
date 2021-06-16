@@ -1,23 +1,25 @@
 import { ApisauceInstance, create } from 'apisauce';
 import { DeltasRequest } from '../../server/api/StatsService';
-import { RecentGameQuery } from '../../server/db/GameQuerier';
+import { RecentGameQuery } from '../../server/db/GameRecordQuerier';
 import { AdminPasswordKey } from '../../server/headers';
 import { BidRequest, BidStats } from '../../server/model/Bid';
 import { Deltas } from '../../server/model/Delta';
+import { GameRecord } from '../../server/model/GameRecord';
 import { Records } from '../../server/model/Records';
 import { SearchQuery } from '../../server/model/Search';
 import { Stats } from '../../server/model/Stats';
 import { Streak } from '../../server/model/Streak';
 import { NewTarothon, Tarothon, TarothonData } from '../../server/model/Tarothon';
-import { GameDescription } from '../../server/play/GameDescription';
+import { GameDescription } from '../../server/play/game/GameDescription';
+import { GameSettings } from '../../server/play/model/GameSettings';
+import { NewRoomArgs } from '../../server/play/room/NewRoomArgs';
+import { RoomDescriptions } from '../../server/play/room/RoomDescription';
 import { mapFromCollection } from '../../server/utils';
 import { pTimeout } from '../../server/utils/index';
 import { getAdminPassword } from '../admin';
 import history from '../history';
-import { GameSettings } from '../play/server';
 import { StaticRoutes } from '../routes';
 import { AuthRequest } from '../services/auth/index';
-import { Game } from './../../server/model/Game';
 import { Month } from './../../server/model/Month';
 import { NewPlayer, Player } from './../../server/model/Player';
 import { Result } from './../../server/model/Result';
@@ -48,19 +50,19 @@ export class ServerApi {
     });
   }
 
-  public getRecentGames = (query: RecentGameQuery): Promise<Game[]> => {
-    return this.wrapPost<Game[]>('/game/recent', query);
+  public getRecentGames = (query: RecentGameQuery): Promise<GameRecord[]> => {
+    return this.wrapPost<GameRecord[]>('/game/recent', query);
   }
 
-  public getMonthGames = (month: Month): Promise<Game[]> => {
-    return this.wrapPost<Game[]>(`/game/month/all`, month);
+  public getMonthGames = (month: Month): Promise<GameRecord[]> => {
+    return this.wrapPost<GameRecord[]>(`/game/month/all`, month);
   }
 
-  public loadGame = (gameId: string): Promise<Game> => {
-    return this.wrapGet<Game>(`/game/${gameId}`);
+  public loadGame = (gameId: string): Promise<GameRecord> => {
+    return this.wrapGet<GameRecord>(`/game/${gameId}`);
   }
 
-  public saveGame = (newGame: Game): Promise<void> => {
+  public saveGame = (newGame: GameRecord): Promise<void> => {
     return this.wrapPost<void>(`/game/save`, newGame);
   }
 
@@ -112,7 +114,7 @@ export class ServerApi {
     return this.wrapGet('/stats/streaks');
   }
 
-  public search = (searchQuery: SearchQuery): Promise<Game[]> => {
+  public search = (searchQuery: SearchQuery): Promise<GameRecord[]> => {
     return this.wrapPost('/search', searchQuery);
   }
 
@@ -120,8 +122,16 @@ export class ServerApi {
     return this.wrapPost("/play/new_game", settings);
   }
 
+  public createNewRoom = (settings: NewRoomArgs): Promise<string> => {
+    return this.wrapPost("/play/new_room", settings);
+  }
+
   public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {
     return this.wrapGet("/play/games");
+  }
+
+  public listRooms = (): Promise<RoomDescriptions> => {
+    return this.wrapGet("/play/rooms");
   }
   
   // Helpers

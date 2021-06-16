@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Player } from '../../../server/model/Player';
-import { GameplayState } from '../../play/state';
+import { GameplayState } from '../../../server/play/model/GameState';
 import { Dispatchers } from '../../services/dispatchers';
-import { InGameState } from '../../services/ingame/InGameTypes';
+import { ClientRoom } from '../../services/room/RoomTypes';
 import { SpectatorMode, SpectatorModeNone } from './SpectatorMode';
 import { BiddingGameStateView } from './state/BiddingGameStateView';
 import { CompletedStateView } from './state/CompletedGameStateView';
@@ -10,13 +10,14 @@ import { DogRevealStateView } from './state/DogRevealStateView';
 import { NewGameStateView } from './state/NewGameStateView';
 import { PartnerCallStateView } from './state/PartnerCallStateView';
 import { PlayingStateView } from './state/PlayingGameStateView';
+import { StateViewProps } from './state/StateViewProps';
 import { Gradients } from './svg/Gradients';
 
 interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
-  game: InGameState;
+  room: ClientRoom;
   dispatchers: Dispatchers;
 }
 
@@ -53,12 +54,16 @@ export class PlaySvgRoot extends React.Component<Props, State> {
   }
 
   private renderStateView(): JSX.Element | null {
-    const stateViewProps = {
-      ...this.props,
+    const stateViewProps: StateViewProps = {
+      width: this.props.width,
+      height: this.props.width,
+      players: this.props.players,
+      dispatchers: this.props.dispatchers,
+      game: this.props.room.game,
       spectatorMode: this.state.spectatorMode,
       setSpectatorMode: this.setSpectatorMode,
     };
-    switch (this.props.game.state.state) {
+    switch (this.props.room.game.playState.state) {
       case GameplayState.NewGame: return (
         <NewGameStateView {...stateViewProps} />
       );

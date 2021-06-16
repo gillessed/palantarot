@@ -1,13 +1,13 @@
-import { Game } from './../../../server/model/Game';
-import { LoadableCache } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generateService, identityMapper } from '../redux/serviceGenerator';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
 import { wrapAsBatchCall } from '../redux/utils';
+import { ServerApi } from './../../api/serverApi';
+import { LoadableCache } from './../redux/loadable';
 
-export type GameService = LoadableCache<string, Game>;
+export type GameService = LoadableCache<string, GameRecord>;
 
-const gameService = generateService<string, Game>('GAMES',
+const gameService = generateService<string, GameRecord>('GAMES',
   (api: ServerApi) => {
     return (gameIds: string[]) => {
       return wrapAsBatchCall((gameId: string) => {

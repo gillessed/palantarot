@@ -2,16 +2,16 @@ import { Intent, Spinner } from '@blueprintjs/core';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Player } from '../../../server/model/Player';
+import { Action } from '../../../server/play/model/GameEvents';
 import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
 import { Palantoaster } from '../../components/toaster/Toaster';
 import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
 import history from '../../history';
-import { Action } from '../../play/common';
 import { StaticRoutes } from '../../routes';
 import { Dispatchers } from '../../services/dispatchers';
 import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
-import { InGameState } from '../../services/ingame/InGameTypes';
 import { playersLoader } from '../../services/players/index';
+import { ClientRoom } from '../../services/room/RoomTypes';
 import { ReduxState } from '../../services/rootReducer';
 import { registerDebugPlayers, unregisterDebugPlayers } from '../../utils/mockPlayers';
 import { loadContainer } from '../LoadingContainer';
@@ -23,13 +23,13 @@ interface OwnProps {
   players: Map<string, Player>;
   match: {
     params: {
-      gameId: string;
+      roomId: string;
     }
   }
 }
 
 interface StoreProps {
-  game: InGameState | null;
+  room: ClientRoom | null;
   gamePlayer: GamePlayer | null;
 }
 
@@ -55,21 +55,24 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
       });
       return;
     }
-    if (this.props.game == null) {
-      const { gameId } = this.props.match.params;
-      this.dispatchers.ingame.joinGame(gamePlayer.playerId, gameId);
-      registerDebugPlayers(gamePlayer.playerId, gameId, this.dispatchers.ingame);
+    if (this.props.room == null) {
+      const { roomId } = this.props.match.params;
+      this.dispatchers.room.socketConnect();
+      setTimeout(() => {
+        this.dispatchers.room.joinRoom(roomId, gamePlayer.playerId);
+      }, 10);
+      registerDebugPlayers(gamePlayer.playerId, roomId, this.dispatchers.room);
     }
   }
 
   public componentWillUnmount() {
-    this.dispatchers.ingame.exitGame();
+    this.dispatchers.room.exitGame();
     unregisterDebugPlayers();
   }
 
   public render() {
-    const { players, game, gamePlayer } = this.props;
-    if (game == null || game.events.length === 0 || gamePlayer == null) {
+    const { players, room, gamePlayer } = this.props;
+    if (room == null || gamePlayer == null) {
       return (
         <SpinnerOverlay size={Spinner.SIZE_LARGE} />
       );
@@ -78,12 +81,12 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
         <div className='play-container'>
           <PlaySvgContainer
             players={players}
-            game={game}
+            room={room}
             dispatchers={this.dispatchers}
           />
           <PlaySidebar
             players={players}
-            game={game}
+            room={room}
             playerId={gamePlayer.playerId}
             dispatchers={this.dispatchers}
           />
@@ -95,7 +98,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: ReduxState): StoreProps => {
   return {
-    game: state.ingame,
+    room: state.room,
     gamePlayer: state.gamePlayer,
   };
 }

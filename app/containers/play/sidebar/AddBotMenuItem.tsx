@@ -3,11 +3,11 @@ import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { Dispatchers } from '../../../services/dispatchers';
-import { InGameState } from '../../../services/ingame/InGameTypes';
+import { ClientGame } from '../../../services/room/ClientGame';
 import './PlaySidebar.scss';
 
 interface Props {
-  game: InGameState;
+  game: ClientGame;
   bot: Player;
   dispatchers: Dispatchers;
 }
@@ -15,8 +15,8 @@ interface Props {
 export class AddBotMenuItem extends React.PureComponent<Props> {
   public render() {
     const { game, bot } = this.props;
-    const { state } = game;
-    const gamePlayers = new Set(state.playerOrder);
+    const { playState } = game;
+    const gamePlayers = new Set(playState.playerOrder);
     const inGame = gamePlayers.has(bot.id)
     return (
       <MenuItem text={`${bot.firstName} ${bot.lastName}`} icon={inGame ? IconNames.SELECTION : IconNames.CIRCLE} onClick={this.onClick}/>
@@ -25,13 +25,13 @@ export class AddBotMenuItem extends React.PureComponent<Props> {
 
   public onClick = () => {
     const { game, bot } = this.props;
-    const { state } = game;
-    const gamePlayers = new Set(state.playerOrder);
+    const { playState } = game;
+    const gamePlayers = new Set(playState.playerOrder);
     const inGame = gamePlayers.has(bot.id);
     if (inGame) {
-      this.props.dispatchers.ingame.removeBot(bot.id);
+      this.props.dispatchers.room.removeBot(bot.id);
     } else {
-      this.props.dispatchers.ingame.addBot(bot.id);
+      this.props.dispatchers.room.addBot(bot.id);
     }
   }
 }

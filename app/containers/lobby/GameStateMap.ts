@@ -1,4 +1,4 @@
-import { GameplayState } from '../../play/state';
+import { GameplayState } from '../../../server/play/model/GameState';
 
 export const GameStateMap: { [key: string]: string } = {
   [GameplayState.NewGame]: 'New Game',

@@ -1,21 +1,21 @@
 import * as React from 'react';
-import { IMonth } from '../../../server/model/Month';
-import { loadContainer } from '../LoadingContainer';
-import { playersLoader } from '../../services/players/index';
-import { monthGamesLoader } from '../../services/monthGames/index';
-import { Game, playerInGame } from '../../../server/model/Game';
-import { Player } from '../../../server/model/Player';
 import { createSelector } from 'reselect';
-import { PointDelta, getPointDeltas, PointFlow } from '../../../server/model/PointFlow';
-import { count, Aggregator } from '../../../server/utils/count';
-import { PointFlowChart } from './PointFlowChart';
-import { MonthPicker } from '../../components/monthPicker/MonthPicker';
+import { GameRecord, playerInGame } from '../../../server/model/GameRecord';
+import { IMonth } from '../../../server/model/Month';
+import { Player } from '../../../server/model/Player';
+import { getPointDeltas, PointDelta } from '../../../server/model/PointFlow';
+import { Aggregator, count } from '../../../server/utils/count';
 import { integerComparator } from '../../../server/utils/index';
+import { MonthPicker } from '../../components/monthPicker/MonthPicker';
+import { monthGamesLoader } from '../../services/monthGames/index';
+import { playersLoader } from '../../services/players/index';
+import { loadContainer } from '../LoadingContainer';
+import { PointFlowChart } from './PointFlowChart';
 
 interface InternalProps {
   playerId: string;
   players: Map<string, Player>;
-  monthGames: Game[];
+  monthGames: GameRecord[];
   month: IMonth;
 }
 
@@ -30,7 +30,7 @@ class PointFlowLoaderInternal extends React.PureComponent<InternalProps> {
   private getPointFlow = createSelector(
     (props: InternalProps) => props.playerId,
     (props: InternalProps) => props.monthGames,
-    (playerId: string, monthGames: Game[]) => {
+    (playerId: string, monthGames: GameRecord[]) => {
       const filteredGames = monthGames.filter((game) => playerInGame(playerId, game));
       const allPointDeltas: PointDelta[] = [];
       for (const game of filteredGames) {

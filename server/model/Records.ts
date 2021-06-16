@@ -1,8 +1,8 @@
-import { Game } from './Game';
+import { GameRecord } from './GameRecord';
 
 export interface Records {
   scores: MonthlyScore[];
-  slamGames: Game[];
+  slamGames: GameRecord[];
 }
 
 export interface MonthlyScore {

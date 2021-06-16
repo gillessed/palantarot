@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Game } from '../../../server/model/Game';
+import { GameRecord } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
 import { SearchQuery } from '../../../server/model/Search';
 import { BidderWonValidator, DEFAULT_COUNT, GameTable } from '../../components/gameTable/GameTable';
@@ -9,7 +9,7 @@ import { loadContainer } from '../LoadingContainer';
 
 interface Props {
   players: Map<string, Player>;
-  search: Game[];
+  search: GameRecord[];
 }
 
 interface State {

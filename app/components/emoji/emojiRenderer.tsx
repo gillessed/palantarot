@@ -1,7 +1,7 @@
 import { PopoverInteractionKind, Position, Tooltip } from '@blueprintjs/core';
 import * as React from 'react';
+import { Card, RegSuit, RegValue, Suit, TrumpSuit, TrumpValue } from "../../../server/play/model/Card";
 import { getCardUrl } from "../../containers/play/svg/CardSvg";
-import { Card, RegSuit, RegValue, Suit, TrumpSuit, TrumpValue } from "../../play/common";
 
 interface Emoji {
   def: string;
