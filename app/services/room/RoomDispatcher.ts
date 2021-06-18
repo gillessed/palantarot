@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import { Action } from '../../../server/play/model/GameEvents';
-import { RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
+import { RoomSockets } from '../../../server/play/room/RoomSocketMessages';
 import { generateId } from '../../../server/utils/randomString';
 import { ReduxState } from '../rootReducer';
 import { PlayDispatcher } from './ClientGameDispatcher';
@@ -19,28 +19,28 @@ export class RoomDispatcher {
   }
 
   public joinRoom(roomId: string, playerId: string) {
-    this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.enterRoom(roomId, playerId)));
+    this.store.dispatch(roomSocketService.actions.send(RoomSockets.enterRoom(roomId, playerId)));
   }
 
   public gameAction(action: Action) {
     const roomId = this.store.getState().room?.id;
     const playerId = this.store.getState().room?.playerId;
     if (roomId && playerId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.gameAction(roomId, playerId, action)));
+      this.store.dispatch(roomSocketService.actions.send(RoomSockets.gameAction(roomId, playerId, action)));
     } 
   }
 
   public addBot(botId: string) {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.addBot(roomId, botId)));
+      this.store.dispatch(roomSocketService.actions.send(RoomSockets.addBot(roomId, botId)));
     }
   }
 
   public removeBot(botId: string) {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.removeBot(roomId, botId)));
+      this.store.dispatch(roomSocketService.actions.send(RoomSockets.removeBot(roomId, botId)));
     }
   }
 
@@ -61,14 +61,14 @@ export class RoomDispatcher {
     const playerId = this.store.getState().room?.playerId;
     if (roomId && playerId) {
       //TODO someday move message id generation to the server
-      this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.chatMessage(roomId, generateId(), text, playerId)));
+      this.store.dispatch(roomSocketService.actions.send(RoomSockets.chatMessage(roomId, generateId(), text, playerId)));
     }
   }
 
   public autoplay() {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSocketMessages.autoplay(roomId)));
+      this.store.dispatch(roomSocketService.actions.send(RoomSockets.autoplay(roomId)));
     }
   }
 

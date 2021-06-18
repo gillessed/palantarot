@@ -1,7 +1,7 @@
-import { Action, GameSettingsAction, PlayerEvent, PlayerId, Transition } from "../model/GameEvents";
+import { Action, PlayerEvent, PlayerId, Transition } from "../model/GameEvents";
 import { DefaultGameSettings, GameSettings } from "../model/GameSettings";
 import { BoardState, GameplayState, NewGameBoardState } from '../model/GameState';
-import { buildGameStateReducer, GameReducerMap } from '../model/GameStateReducers';
+import { buildGameStateReducer, GameReducerMap } from '../model/reducers/GameStateReducers';
 
 export function createInitialState(publicHands: boolean): NewGameBoardState {
   return {
@@ -23,13 +23,6 @@ export class Game {
       settings,
       false,
     );
-    const action: GameSettingsAction = {
-      type: 'game_settings',
-      settings,
-      player: 'god',
-      time: Date.now(),
-    };
-    game.playerAction(action);
     return game;
   };
 

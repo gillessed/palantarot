@@ -1,7 +1,7 @@
 import { RandomBot } from "../bots/RandomBot";
 import { PlayerEvent } from "../server/play/model/GameEvents";
 import { BoardState, PlayingBoardState } from "../server/play/model/GameState";
-import { buildGameStateReducer, GameReducerMap } from "../server/play/model/GameStateReducers";
+import { buildGameStateReducer, GameReducerMap } from "../server/play/model/reducers/GameStateReducers";
 
 export class RandomPlayout {
   private reducers: GameReducerMap = buildGameStateReducer();

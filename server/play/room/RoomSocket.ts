@@ -1,5 +1,5 @@
 import { JsonSocket } from '../../websocket/JsonSocket';
-import { RoomSocketMessage } from './RoomSocketMessages';
+import { RoomSockets } from './RoomSocketMessages';
 
 export class RoomSocket {
   constructor(
@@ -16,7 +16,7 @@ export class RoomSocket {
     this.socket.close();
   }
 
-  public send(object: RoomSocketMessage) {
+  public send(object: RoomSockets.Message) {
     this.socket.send(object);
   }
 

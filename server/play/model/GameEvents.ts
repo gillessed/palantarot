@@ -1,4 +1,3 @@
-import { SocketMessage } from '../../websocket/SocketMessage';
 import { Bout, Card, TrumpCard } from './Card';
 import { GameSettings } from './GameSettings';
 
@@ -82,9 +81,9 @@ export interface CompletedGameState {
   readonly pointsResult: number
 }
 
-export interface PlayerEvent extends SocketMessage {
+export interface PlayerEvent {
   readonly type: ActionType | TransitionType | 'error';
-  /** if contains state for only one player, which player to send to */
+  /** if contains state for only one player, which player to send to. */
   readonly privateTo?: PlayerId;
   /** if set, will not send to any of the following players */
   readonly exclude?: PlayerId[];
@@ -121,11 +120,6 @@ export interface GameSettingsAction extends Action {
   readonly type: 'game_settings';
   readonly settings: GameSettings;
 }
-
-// export interface MessageAction extends Action {
-//   readonly type: 'message'
-//   readonly text: string
-// }
 
 export interface EnterGameAction extends Action {
   readonly type: 'enter_game'
@@ -195,20 +189,6 @@ export interface Transition extends PlayerEvent {
 
 export type TransitionType = 'players_set' | 'dealt_hand' | 'bidding_completed' | 'dog_revealed' | 'game_started'
   | 'completed_trick' | 'game_completed' | 'game_aborted';
-
-// export interface EnteredChatTransition extends Transition {
-//   readonly type: 'entered_chat'
-//   readonly privateTo: undefined
-
-//   readonly player: PlayerId
-// }
-
-// export interface LeftChatTransition extends Transition {
-//   readonly type: 'left_chat'
-//   readonly privateTo: undefined
-
-//   readonly player: PlayerId
-// }
 
 export interface PlayersSetTransition extends Transition {
   readonly type: 'players_set'

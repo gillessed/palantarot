@@ -2,22 +2,22 @@ import { PlayService } from '../../api/PlayService';
 import { JsonSocket } from '../../websocket/JsonSocket';
 import { SocketListener } from '../../websocket/SocketListener';
 import { ErrorCode } from '../model/GameEvents';
-import { RoomSocketMessage, RoomSocketMessages, RoomSocketMessageType } from './RoomSocketMessages';
+import { RoomSockets } from './RoomSocketMessages';
 
-export class RoomSocketListener implements SocketListener<RoomSocketMessage> {
-  public messageType: string = RoomSocketMessageType;
+export class RoomSocketListener implements SocketListener<RoomSockets.Message> {
+  public messageType: string = RoomSockets.MessageType;
 
   constructor(
     private playService: PlayService,
   ) { }
 
-  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSocketMessage) {
+  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSockets.Message) {
     const { roomId } = message;
     const room = this.playService.rooms.get(roomId);
     if (room != null) {
       room.handleMessage(socketId, socket, message);
     } else {
-      socket.send(RoomSocketMessages.error(message.roomId, "Room does not exist", ErrorCode.DOES_NOT_EXIST)); 
+      socket.send(RoomSockets.error(message.roomId, "Room does not exist", ErrorCode.DOES_NOT_EXIST)); 
       console.log('Room not found for message ', roomId, message);
     }
   }

@@ -5,107 +5,84 @@ import { ChatText } from './ChatText';
 import { PlayerStatus } from './PlayerStatus';
 import { RoomStatus } from './RoomStatus';
 
-export const RoomSocketMessageType = 'room';
-export interface RoomSocketMessage extends SocketMessage {
-  type: typeof RoomSocketMessageType;
-  messageType: string;
-  roomId: string;
-}
+export namespace RoomSockets {
 
-export const EnterRoomMessageType = 'enter_room';
-export interface EnterRoomMessage extends RoomSocketMessage {
-  messageType: typeof EnterRoomMessageType;
-  playerId: string;
-}
+  export const MessageType = 'room';
+  export type MessageType = typeof MessageType;
+  interface MessageDef {
+    readonly type: typeof MessageType;
+    readonly messageType: string;
+    roomId: string;
+  }
+  
+  export type Message =
+  | EnterRoomMessage
+  | RoomStatusMessage
+  | PlayerStatusUpdatedMessage
+  | RoomChatMessage
+  | GameActionMessage
+  | GameUpdatesMessage
+  | RoomErrorMessage
+  | NewGameMessage
+  | AddBotMessage
+  | RemoveBotMessage
+  | AutoplayMessage;
 
-export const RoomStatusMessageType = 'room_status';
-export interface RoomStatusMessage extends RoomSocketMessage {
-  messageType: typeof RoomStatusMessageType;
-  room: RoomStatus;
-}
+  export function isRoomSocketMessage(message: SocketMessage): message is Message {
+    return message.type === MessageType;
+  }
 
-export const PlayerStatusUpdatedMessageType = 'player_status_update';
-export interface PlayerStatusUpdatedMessage extends RoomSocketMessage {
-  messageType: typeof PlayerStatusUpdatedMessageType;
-  playerId: string;
-  playerStatus: PlayerStatus;
-  time: number;
-}
-
-export const RoomChatMessageType = 'room_chat';
-export interface RoomChatMessage extends RoomSocketMessage {
-  messageType: typeof RoomChatMessageType;
-  chat: ChatText;
-}
-
-export const GameActionMessageType = 'game_action';
-export interface GameActionMessage extends RoomSocketMessage {
-  messageType: typeof GameActionMessageType;
-  playerId: string;
-  action: Action;
-}
-
-export const GameUpdatesMessageType = 'game_updates';
-export interface GameUpdatesMessage extends RoomSocketMessage {
-  messageType: typeof GameUpdatesMessageType;
-  gameId: string;
-  events: PlayerEvent[];
-}
-
-export const RoomErrorMessageType = 'room_error';
-export interface RoomErrorMessage extends RoomSocketMessage {
-  messageType: typeof RoomErrorMessageType;
-  error: string;
-  errorCode?: ErrorCode;
-}
-
-export const NewGameMessageType = 'new_game';
-export interface NewGameMessage extends RoomSocketMessage {
-  messageType: typeof NewGameMessageType;
-  settings: GameSettings;
-  gameId: string;
-}
-
-export const AddBotMessageType = 'add_bot';
-export interface AddBotMessage extends RoomSocketMessage {
-  messageType: typeof AddBotMessageType;
-  botId: string;
-}
-
-export const RemoveBotMessageType = 'remove_bot';
-export interface RemoveBotMessage extends RoomSocketMessage {
-  messageType: typeof RemoveBotMessageType;
-  botId: string;
-}
-
-export const AutoplayMessageType = 'autoplay';
-export interface AutoplayMessage extends RoomSocketMessage {
-  messageType: typeof AutoplayMessageType;
-}
-
-export const RoomSocketMessages = {
-  enterRoom: (roomId: string, playerId: string): EnterRoomMessage => ({
-    type: RoomSocketMessageType,
+  export const EnterRoomMessageType = 'enter_room';
+  export type EnterRoomMessageType = typeof EnterRoomMessageType;
+  export interface EnterRoomMessage extends MessageDef {
+    readonly messageType: EnterRoomMessageType;
+    playerId: string;
+  }
+  export const enterRoom = (roomId: string, playerId: string): EnterRoomMessage => ({
+    type: MessageType,
     messageType: EnterRoomMessageType,
     roomId,
     playerId,
-  }),
-  roomStatus: (roomId: string, room: RoomStatus): RoomStatusMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const RoomStatusMessageType = 'room_status';
+  export type RoomStatusMessageType = typeof RoomStatusMessageType;
+  export interface RoomStatusMessage extends MessageDef {
+    messageType: RoomStatusMessageType;
+    room: RoomStatus;
+  }
+  export const roomStatus = (roomId: string, room: RoomStatus): RoomStatusMessage => ({
+    type: MessageType,
     messageType: RoomStatusMessageType,
     roomId,
     room,
-  }),
-  playerStatusUpdated: (roomId: string, playerId: string, playerStatus: PlayerStatus): PlayerStatusUpdatedMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const PlayerStatusUpdatedMessageType = 'player_status_update';
+  export type PlayerStatusUpdatedMessageType = typeof PlayerStatusUpdatedMessageType;
+  export interface PlayerStatusUpdatedMessage extends MessageDef {
+    messageType: PlayerStatusUpdatedMessageType;
+    playerId: string;
+    playerStatus: PlayerStatus;
+    time: number;
+  }
+  export const playerStatusUpdated = (roomId: string, playerId: string, playerStatus: PlayerStatus): PlayerStatusUpdatedMessage => ({
+    type: MessageType,
     messageType: PlayerStatusUpdatedMessageType,
     roomId,
     playerId,
     playerStatus,
     time: Date.now(),
-  }),
-  chatMessage: (roomId: string, id: string, text: string, authorId: string): RoomChatMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const RoomChatMessageType = 'room_chat';
+  export type RoomChatMessageType = typeof RoomChatMessageType;
+  export interface RoomChatMessage extends MessageDef {
+    messageType: typeof RoomChatMessageType;
+    chat: ChatText;
+  }
+  export const chatMessage = (roomId: string, id: string, text: string, authorId: string): RoomChatMessage => ({
+    type: MessageType,
     messageType: RoomChatMessageType,
     roomId,
     chat: {
@@ -114,50 +91,130 @@ export const RoomSocketMessages = {
       authorId,
       time: Date.now(),
     },
-  }),
-  gameAction: (roomId: string, playerId: string, action: Action): GameActionMessage=> ({
-    type: RoomSocketMessageType,
+  });
+
+  export const GameActionMessageType = 'game_action';
+  export type GameActionMessageType = typeof GameActionMessageType;
+  export interface GameActionMessage extends MessageDef {
+    messageType: GameActionMessageType;
+    playerId: string;
+    action: Action;
+  }
+  export const gameAction = (roomId: string, playerId: string, action: Action): GameActionMessage => ({
+    type: MessageType,
     messageType: GameActionMessageType,
     roomId,
     playerId,
     action,
-  }),
-  gameUpdates: (roomId: string, gameId: string, events: PlayerEvent[]): GameUpdatesMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const GameUpdatesMessageType = 'game_updates';
+  export type GameUpdatesMessageType = typeof GameUpdatesMessageType;
+  export interface GameUpdatesMessage extends MessageDef {
+    messageType: GameUpdatesMessageType;
+    gameId: string;
+    events: PlayerEvent[];
+  }
+  export const gameUpdates = (roomId: string, gameId: string, events: PlayerEvent[]): GameUpdatesMessage => ({
+    type: MessageType,
     messageType: GameUpdatesMessageType,
     roomId,
     gameId,
     events,
-  }),
-  error: (roomId: string, error: string, errorCode?: ErrorCode): RoomErrorMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const RoomErrorMessageType = 'room_error';
+  export type RoomErrorMessageType = typeof RoomErrorMessageType;
+  export interface RoomErrorMessage extends MessageDef {
+    messageType: RoomErrorMessageType;
+    error: string;
+    errorCode?: ErrorCode;
+  }
+  export const error = (roomId: string, error: string, errorCode?: ErrorCode): RoomErrorMessage => ({
+    type: MessageType,
     messageType: RoomErrorMessageType,
     roomId,
     error,
     errorCode,
-  }),
-  newGame: (roomId: string, gameId: string, settings: GameSettings): NewGameMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const NewGameMessageType = 'new_game';
+  export type NewGameMessageType = typeof NewGameMessageType;
+  export interface NewGameMessage extends MessageDef {
+    messageType: NewGameMessageType;
+    settings: GameSettings;
+    gameId: string;
+  }
+  export const newGame = (roomId: string, gameId: string, settings: GameSettings): NewGameMessage => ({
+    type: MessageType,
     messageType: NewGameMessageType,
     roomId,
     gameId,
     settings,
-  }),
-  addBot: (roomId: string, botId: string): AddBotMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const AddBotMessageType = 'add_bot';
+  export type AddBotMessageType = typeof AddBotMessageType;
+  export interface AddBotMessage extends MessageDef {
+    messageType: AddBotMessageType;
+    botId: string;
+  }
+  export const addBot = (roomId: string, botId: string): AddBotMessage => ({
+    type: MessageType,
     messageType: AddBotMessageType,
     roomId,
     botId,
-  }),
-  removeBot: (roomId: string, botId: string): RemoveBotMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const RemoveBotMessageType = 'remove_bot';
+  export type RemoveBotMessageType = typeof RemoveBotMessageType;
+  export interface RemoveBotMessage extends MessageDef {
+    messageType: RemoveBotMessageType;
+    botId: string;
+  }
+  export const removeBot = (roomId: string, botId: string): RemoveBotMessage => ({
+    type: MessageType,
     messageType: RemoveBotMessageType,
     roomId,
     botId,
-  }),
-  autoplay: (roomId: string): AutoplayMessage => ({
-    type: RoomSocketMessageType,
+  });
+
+  export const AutoplayMessageType = 'autoplay';
+  export type AutoplayMessageType = typeof AutoplayMessageType;
+  export interface AutoplayMessage extends MessageDef {
+    messageType: typeof AutoplayMessageType;
+  }
+  export const autoplay = (roomId: string): AutoplayMessage => ({
+    type: MessageType,
     messageType: AutoplayMessageType,
     roomId,
-  }),
+  });
 };
+
+
+
+
+
+export const test = () => {
+  interface Foo {
+    type: string;
+  }
+
+  interface Foo1 extends Foo {
+    type: 'foo1';
+    f1: number;
+  }
+
+  interface Foo2 extends Foo {
+    type: 'foo2';
+    f2: number;
+  }
+
+  const take = (foo: Foo) => {
+    switch (foo.type) {
+      case 'foo1':
+        foo.type
+        break;
+    }
+  }
+}

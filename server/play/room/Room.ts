@@ -14,7 +14,7 @@ import { CompletedBoardState, GameplayState } from "../model/GameState";
 import { PlayerStatus } from "../room/PlayerStatus";
 import { ChatText } from "./ChatText";
 import { NewRoomArgs } from './NewRoomArgs';
-import { AddBotMessage, AddBotMessageType, AutoplayMessage, AutoplayMessageType, EnterRoomMessage, EnterRoomMessageType, GameActionMessage, GameActionMessageType, RemoveBotMessage, RemoveBotMessageType, RoomChatMessage, RoomChatMessageType, RoomSocketMessage, RoomSocketMessages } from './RoomSocketMessages';
+import { RoomSockets } from "./RoomSocketMessages";
 import { RoomStatus } from "./RoomStatus";
   
 export class Room {
@@ -46,47 +46,47 @@ export class Room {
 
   /* Socket Handlers */
 
-  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSocketMessage) {
+  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSockets.Message) {
     try {
       switch (message.messageType) {
-        case EnterRoomMessageType:
-          this.handlePlayerJoinedMessage(socketId, message as EnterRoomMessage);
+        case RoomSockets.EnterRoomMessageType:
+          this.handlePlayerJoinedMessage(socketId, message);
           break;
-        case RoomChatMessageType:
-          this.handlePlayerChatMessage(message as RoomChatMessage);
+        case RoomSockets.RoomChatMessageType:
+          this.handlePlayerChatMessage(message);
           break;
-        case GameActionMessageType:
-          this.handleGameActionMessage(message as GameActionMessage);
+        case RoomSockets.GameActionMessageType:
+          this.handleGameActionMessage(message);
           break;
-        case AddBotMessageType:
-          this.handleAddBotMessage(message as AddBotMessage);
+        case RoomSockets.AddBotMessageType:
+          this.handleAddBotMessage(message);
           break;
-        case RemoveBotMessageType:
-          this.handleRemoveBotMessage(message as RemoveBotMessage);
+        case RoomSockets.RemoveBotMessageType:
+          this.handleRemoveBotMessage(message);
           break;
-        case AutoplayMessageType:
-          this.handleAutoplayMessage(message as AutoplayMessage);
+        case RoomSockets.AutoplayMessageType:
+          this.handleAutoplayMessage(message);
           break;
       }
     } catch (e) {
       console.error("Cannot process socket message", this.id, message, e);
-      socket.send(RoomSocketMessages.error(this.id, "Cannot process socket message " + e));
+      socket.send(RoomSockets.error(this.id, "Cannot process socket message " + e));
     }
   }
 
   public handleClose(playerId: string) {
     if (this.players.has(playerId)) {
       this.players.set(playerId, PlayerStatus.Offline);
-      this.broadcastMessage(RoomSocketMessages.playerStatusUpdated(this.id, playerId, PlayerStatus.Offline));
+      this.broadcastMessage(RoomSockets.playerStatusUpdated(this.id, playerId, PlayerStatus.Offline));
     }
   }
 
-  public handlePlayerChatMessage(message: RoomChatMessage) {
+  public handlePlayerChatMessage(message: RoomSockets.RoomChatMessage) {
     this.chat.push(message.chat);
     this.broadcastMessage(message);
   }
 
-  public handlePlayerJoinedMessage(socketId: string, message: EnterRoomMessage) {
+  public handlePlayerJoinedMessage(socketId: string, message: RoomSockets.EnterRoomMessage) {
     this.broadcastMessage(message);
     this.playService.setPlayerSocketId(socketId, message.playerId);
     this.players.set(message.playerId, PlayerStatus.Online);
@@ -94,13 +94,13 @@ export class Room {
     this.sendRoomStatus(message.playerId);
   }
 
-  public handleGameActionMessage({ action }: GameActionMessage) {
+  public handleGameActionMessage({ action }: RoomSockets.GameActionMessage) {
     this.processGameActions([action]);
     this.handleBotPlayers();
     this.handleNewGame();
   }
 
-  public handleAddBotMessage(message: AddBotMessage) {
+  public handleAddBotMessage(message: RoomSockets.AddBotMessage) {
     const { botId } = message;
     this.players.set(botId, PlayerStatus.Online);
     this.playService.addPlayerToRoom(this.id, botId);
@@ -117,7 +117,7 @@ export class Room {
     this.processGameActions([joinGame, ready]);
   }
 
-  public handleRemoveBotMessage(message: RemoveBotMessage) {
+  public handleRemoveBotMessage(message: RoomSockets.RemoveBotMessage) {
     const { botId } = message;
     this.players.set(botId, PlayerStatus.Online);
     this.playService.addPlayerToRoom(this.id, botId);
@@ -134,7 +134,7 @@ export class Room {
     this.processGameActions([unready, leaveGame]);
   }
 
-  public handleAutoplayMessage(_message: AutoplayMessage) {
+  public handleAutoplayMessage(_message: RoomSockets.AutoplayMessage) {
     const action = autoplayNextCard(this.game);
     if (action) {
       this.processGameActions([action]);
@@ -157,7 +157,7 @@ export class Room {
   private sendRoomStatus(playerId: string) {
     const socket = this.playService.getSocketForPlayer(playerId);
     if (socket) {
-      socket.send(RoomSocketMessages.roomStatus(this.id, this.getRoomStatus(playerId)));
+      socket.send(RoomSockets.roomStatus(this.id, this.getRoomStatus(playerId)));
     }
   }
 
@@ -171,12 +171,12 @@ export class Room {
           const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
           return (!isPrivate && !isExcluded);
         });
-        socket.send(RoomSocketMessages.gameUpdates(this.id, this.game.id, filteredEvents));
+        socket.send(RoomSockets.gameUpdates(this.id, this.game.id, filteredEvents));
       }
     }
   }
 
-  private broadcastMessage(message: RoomSocketMessage) {
+  private broadcastMessage(message: RoomSockets.Message) {
     for (const playerId of this.players.keys()) {
       const socket = this.playService.getSocketForPlayer(playerId);
       if (socket != null) {
@@ -233,7 +233,7 @@ export class Room {
     const completedState = this.game.getState() as CompletedBoardState;
     this.pastGames.push(completedState.end_state);
     this.game = Game.createNew(this.settings);
-    this.broadcastMessage(RoomSocketMessages.newGame(
+    this.broadcastMessage(RoomSockets.newGame(
       this.id,
       this.game.id,
       this.game.settings,

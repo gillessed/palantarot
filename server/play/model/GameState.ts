@@ -1,6 +1,3 @@
-/*
- * This file contains definitions used for the server.
- */
 import { Card } from "./Card";
 import { Action, Bid, BidAction, CallPartnerAction, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, GameSettingsAction, JokerExchangeState, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./GameEvents";
 
@@ -16,6 +13,7 @@ export enum GameplayState {
 export interface ReducerResult<RESULT extends BoardState> {
   state: RESULT;
   events: PlayerEvent[];
+  serverMessages?: string[];
 }
 
 export interface BoardReducer<STATE extends BoardState, ACTION extends Action, RESULT extends BoardState> {

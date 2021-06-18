@@ -3,7 +3,7 @@ import { TypedAction } from 'redoodle';
 import { all, call, delay, fork, put, select, takeEvery } from 'redux-saga/effects';
 import { ErrorCode } from '../../../server/play/model/GameEvents';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
-import { EnterRoomMessage, EnterRoomMessageType, GameUpdatesMessage, GameUpdatesMessageType, NewGameMessage, NewGameMessageType, RoomChatMessage, RoomChatMessageType, RoomErrorMessage, RoomErrorMessageType, RoomSocketMessage, RoomSocketMessages, RoomSocketMessageType, RoomStatusMessage, RoomStatusMessageType } from '../../../server/play/room/RoomSocketMessages';
+import { RoomSockets } from '../../../server/play/room/RoomSocketMessages';
 import { buildSocketConnectionMessage, SocketConnectionMessage } from '../../../server/websocket/SocketConnectionMessage';
 import { Palantoaster } from '../../components/toaster/Toaster';
 import history from '../../history';
@@ -19,39 +19,39 @@ export const roomSocketService = createSocketService<string, SocketConnectionMes
   (socketId: string) => buildSocketConnectionMessage(socketId),
 );
 
-function* handleMessage(action: TypedAction<MessagePayload<RoomSocketMessage>>) {
+function* handleMessage(action: TypedAction<MessagePayload<RoomSockets.Message>>) {
   const { message } = action.payload;
   console.log('Received message from server', message);
-  if (message.type === RoomSocketMessageType) {
-    const roomMessage = message as RoomSocketMessage;
+  if (message.type === RoomSockets.MessageType) {
+    const roomMessage = message as RoomSockets.Message;
     switch (roomMessage.messageType) {
-      case EnterRoomMessageType:
-        yield call(handleEnterRoomMessage, roomMessage as EnterRoomMessage);
+      case RoomSockets.EnterRoomMessageType:
+        yield call(handleEnterRoomMessage, roomMessage);
         break;
-      case RoomStatusMessageType:
-        yield call(handleRoomStatusMessage, roomMessage as RoomStatusMessage);
+      case RoomSockets.RoomStatusMessageType:
+        yield call(handleRoomStatusMessage, roomMessage as RoomSockets.RoomStatusMessage);
         break;
-      case RoomChatMessageType:
-        yield call(handleRoomChatMessage, roomMessage as RoomChatMessage);
+      case RoomSockets.RoomChatMessageType:
+        yield call(handleRoomChatMessage, roomMessage as RoomSockets.RoomChatMessage);
         break;
-      case GameUpdatesMessageType:
-        yield call(handleGameUpdatesMessage, roomMessage as GameUpdatesMessage);
+      case RoomSockets.GameUpdatesMessageType:
+        yield call(handleGameUpdatesMessage, roomMessage as RoomSockets.GameUpdatesMessage);
         break;
-      case NewGameMessageType:
-        yield call(handleNewGameMessage, roomMessage as NewGameMessage);
+      case RoomSockets.NewGameMessageType:
+        yield call(handleNewGameMessage, roomMessage as RoomSockets.NewGameMessage);
         break;
-      case RoomErrorMessageType:
-        yield call(handleRoomErrorMessage, roomMessage as RoomErrorMessage);
+      case RoomSockets.RoomErrorMessageType:
+        yield call(handleRoomErrorMessage, roomMessage as RoomSockets.RoomErrorMessage);
         break;
     }
   }
 }
 
-export function* handleEnterRoomMessage(message: EnterRoomMessage) {
+export function* handleEnterRoomMessage(message: RoomSockets.EnterRoomMessage) {
   yield put(RoomActions.setPlayerStatus({ playerId: message.playerId, playerStatus: PlayerStatus.Online }));
 }
 
-export function* handleRoomStatusMessage(message: RoomStatusMessage) {
+export function* handleRoomStatusMessage(message: RoomSockets.RoomStatusMessage) {
   const gamePlayer: ReturnType<typeof getGamePlayer> = yield select(getGamePlayer);
   if (gamePlayer != null) {
     yield put(RoomActions.roomStatus({
@@ -61,23 +61,23 @@ export function* handleRoomStatusMessage(message: RoomStatusMessage) {
   }
 }
 
-export function* handleRoomChatMessage(message: RoomChatMessage) {
+export function* handleRoomChatMessage(message: RoomSockets.RoomChatMessage) {
   yield put(RoomActions.chatReceived(message.chat));
 }
 
-export function* handleGameUpdatesMessage(message: GameUpdatesMessage) {
+export function* handleGameUpdatesMessage(message: RoomSockets.GameUpdatesMessage) {
   yield put(RoomActions.gameUpdate({ gameId: message.gameId, events: message.events }));
   yield call(autoplaySaga);
 }
 
-export function* handleNewGameMessage(message: NewGameMessage) {
+export function* handleNewGameMessage(message: RoomSockets.NewGameMessage) {
   yield put(RoomActions.newGameCreated({
     gameSettings: message.settings,
     gameId: message.gameId,
   }));
 }
 
-export function* handleRoomErrorMessage(message: RoomErrorMessage) {
+export function* handleRoomErrorMessage(message: RoomSockets.RoomErrorMessage) {
   if (message.errorCode === ErrorCode.DOES_NOT_EXIST) {
     console.log('room does not exist');
     history.push(StaticRoutes.lobby());
@@ -114,7 +114,7 @@ function* autoplaySaga() {
   const autoplay: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutoplay);
   if (roomId && game && gamePlayer === game.playState.toPlay && gamePlayer != null && autoplay) {
     yield delay(1000);
-    yield put(roomSocketService.actions.send(RoomSocketMessages.autoplay(roomId)));
+    yield put(roomSocketService.actions.send(RoomSockets.autoplay(roomId)));
   }
 }
 
