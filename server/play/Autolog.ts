@@ -3,8 +3,7 @@ import { getPointsEarned } from '../../app/components/forms/pointsEarned';
 import { GameRecordQuerier } from '../db/GameRecordQuerier';
 import { GameRecord as Results, HandData, PlayerHand } from '../model/GameRecord';
 import { Game } from './game/Game';
-import { CompletedGameState, Outcome } from './model/GameEvents';
-import { CompletedBoardState, GameplayState } from './model/GameState';
+import { CompletedBoardState, CompletedGameState, GameplayState, Outcome } from './model/GameState';
 
 export async function autologGame(
   game: Game,
@@ -64,6 +63,7 @@ export async function autologGame(
   }
   await gameQuerier.saveGame(results);
   game.logged = true;
+  return Promise.resolve();
 }
 
 function getHandForPlayer(

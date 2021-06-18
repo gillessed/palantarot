@@ -1,4 +1,4 @@
-import { PlayerId } from '../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../server/play/model/GameState';
 import { addNewPlayerActions } from '../addPlayer/index';
 import { Dispatchers } from '../dispatchers';
 import { Loader } from '../loader';

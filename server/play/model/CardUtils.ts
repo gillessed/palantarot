@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Card, RegSuit, RegValue, Suit, The21, TheJoker, TheOne, TrumpCard, TrumpSuit, TrumpValue } from "./Card";
 import { GameErrors } from "./GameErrors";
-import { PlayerId } from "./GameEvents";
+import { PlayerId } from "./GameState";
 
 /*
  * This file contains game code which is useful for both client and server.

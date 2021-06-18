@@ -2,8 +2,8 @@ import _ from "lodash";
 import { Card } from "../Card";
 import { dealCards } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
-import { BidValue, DealtHandTransition, DummyPlayer, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
-import { BiddingBoardState, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";
+import { DealtHandTransition, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
+import { BiddingBoardState, BidValue, DummyPlayer, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";
 import { simpleResult } from './CommonReducers';
 
 const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction): ReducerResult<NewGameStates> => {
@@ -31,7 +31,7 @@ const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction
     ...state,
     players: _.without(state.players, action.player),
   };
-  return simpleResult(newState, action);
+  return simpleResult(newState, action); 
 }
 
 const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerReadyAction): ReducerResult<NewGameStates> => {

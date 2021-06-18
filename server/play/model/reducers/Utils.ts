@@ -1,4 +1,4 @@
-import { PlayerId } from "../GameEvents";
+import { PlayerId } from "../GameState";
 
 export const getTrickPlayerOrder = (players: PlayerId[], firstPlayer: PlayerId) => {
   const trickOrder = [...players];

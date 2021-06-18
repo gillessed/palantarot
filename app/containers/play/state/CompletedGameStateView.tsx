@@ -3,7 +3,7 @@ import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import * as React from 'react';
 import { Role } from '../../../../server/model/Result';
-import { CompletedGameState, Outcome, PlayerId } from '../../../../server/play/model/GameEvents';
+import { CompletedGameState, Outcome, PlayerId } from '../../../../server/play/model/GameState';
 import { getPlayerName } from '../../../services/players/playerName';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';

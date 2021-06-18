@@ -2,7 +2,7 @@ import { Icon } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../../server/play/model/GameState';
 import { PlayerStatus } from '../../../../server/play/room/PlayerStatus';
 import { getPlayerName } from '../../../services/players/playerName';
 import './PlaySidebar.scss';

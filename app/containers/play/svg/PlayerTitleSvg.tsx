@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { Card } from '../../../../server/play/model/Card';
-import { Bid, BidValue, Call } from '../../../../server/play/model/GameEvents';
+import { Bid, BidValue, Call } from '../../../../server/play/model/GameState';
 import { getPlayerName } from '../../../services/players/playerName';
 import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
 import { CardHeight, CardWidth, getMaxHandWidth, getObserverClipHeight, HandCardPopup, PlayerTextHeight, PlayerTextMargin, TrickWidth } from './CardSpec';

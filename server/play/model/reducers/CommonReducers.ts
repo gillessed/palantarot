@@ -1,7 +1,7 @@
 import { cardsEqual, getPlayerNum, getTrumps } from "../CardUtils";
 import { GameErrors } from "../GameErrors";
-import { Call, CompletedBids, DeclareSlam, PlayerEvent, PlayerId, ShowTrumpAction } from "../GameEvents";
-import { BoardState, DealtBoardState, ReducerResult } from "../GameState";
+import { DeclareSlam, PlayerEvent, ShowTrumpAction } from "../GameEvents";
+import { BoardState, Call, CompletedBids, DealtBoardState, PlayerId, ReducerResult } from "../GameState";
 
 export const simpleResult = <RESULT extends BoardState>(state: RESULT, action: PlayerEvent): ReducerResult<RESULT> => ({
   state,

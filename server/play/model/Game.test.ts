@@ -3,8 +3,8 @@ import _ from "lodash";
 import { Game, testingGetState } from "../game/Game";
 import { Card, TheOne } from "./Card";
 import { cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler } from "./CardUtils";
-import { BidValue, Call, GameCompletedTransition } from "./GameEvents";
-import { PlayingBoardState } from "./GameState";
+import { GameCompletedTransition } from "./GameEvents";
+import { BidValue, Call, PlayingBoardState } from "./GameState";
 
 const createTimer = () => {
   let logical_clock = 0;

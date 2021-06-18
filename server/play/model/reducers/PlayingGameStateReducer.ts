@@ -3,8 +3,8 @@ import _ from "lodash";
 import { Bout, Card, TheJoker, TheOne, TrumpSuit, TrumpValue } from "../Card";
 import { cardsContain, cardsWithout, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getWinner } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
-import { Action, BidValue, Call, CompletedGameState, CompletedTrick, CompletedTrickTransition, GameCompletedTransition, JokerExchangeState, Outcome, PlayCardAction, PlayerId, ShowTrumpState } from "../GameEvents";
-import { CompletedBoardState, GameplayState, PlayingBoardState, PlayingStateActions, PlayingStates, ReducerResult } from "../GameState";
+import { Action, CompletedTrickTransition, GameCompletedTransition, PlayCardAction } from "../GameEvents";
+import { BidValue, Call, CompletedBoardState, CompletedGameState, CompletedTrick, GameplayState, JokerExchangeState, Outcome, PlayerId, PlayingBoardState, PlayingStateActions, PlayingStates, ReducerResult, ShowTrumpState } from "../GameState";
 import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from './CommonReducers';
 import { getNewTrick } from "./Utils";
 

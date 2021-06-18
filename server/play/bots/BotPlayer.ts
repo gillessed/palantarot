@@ -3,8 +3,8 @@ import { BlankState, PlayState, ShowDetails, TrickCards } from "../../../app/ser
 import { TarotBot } from "../../../bots/TarotBot";
 import { Game } from "../game/Game";
 import { Card } from "../model/Card";
-import { Action, Bid, BidAction, CallPartnerAction, CompletedTrick, PlayCardAction, PlayerId, SetDogAction, ShowTrumpAction, Trick } from "../model/GameEvents";
-import { BiddingBoardState, DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PlayingBoardState } from "../model/GameState";
+import { Action, BidAction, CallPartnerAction, PlayCardAction, SetDogAction, ShowTrumpAction } from "../model/GameEvents";
+import { Bid, BiddingBoardState, CompletedTrick, DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PlayerId, PlayingBoardState, Trick } from "../model/GameState";
 
 export function getNextPlayer(game: Game): PlayerId | null {
   const state = game.getState();

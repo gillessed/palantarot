@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../../server/play/model/GameEvents';
-import { GameplayState } from '../../../../server/play/model/GameState';
+import { GameplayState, PlayerId } from '../../../../server/play/model/GameState';
 import { ClientGame } from '../../../services/room/ClientGame';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';

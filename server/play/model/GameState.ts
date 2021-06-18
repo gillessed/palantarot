@@ -1,5 +1,6 @@
-import { Card } from "./Card";
-import { Action, Bid, BidAction, CallPartnerAction, CompletedBids, CompletedGameState, CompletedTrick, CurrentBids, DeclareSlam, EnterGameAction, GameSettingsAction, JokerExchangeState, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction, ShowTrumpState, Trick } from "./GameEvents";
+import { Bout, Card } from "./Card";
+import { Action, BidAction, CallPartnerAction, DeclareSlam, EnterGameAction, GameSettingsAction, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from "./GameEvents";
+
 
 export enum GameplayState {
   NewGame = 'new_game',
@@ -8,6 +9,86 @@ export enum GameplayState {
   DogReveal = 'dog_reveal',
   Playing = 'playing',
   Completed = 'completed',
+}
+
+export enum BidValue {
+  PASS = 0,
+  TEN = 10,
+  TWENTY = 20,
+  FORTY = 40,
+  EIGHTY = 80,
+  ONESIXTY = 160,
+}
+
+export enum Call {
+  RUSSIAN = 'russian',
+  DECLARED_SLAM = 'declared_slam',
+}
+
+export enum Outcome {
+  SLAMMED = 'slammed',
+  ONE_LAST = 'one_last',
+}
+
+export type PlayerId = string;
+
+export const DummyPlayer: PlayerId = '[dummy null player]';
+
+export interface Trick {
+  readonly trick_num: number
+  /** n-th card was played by n-th player */
+  readonly cards: Card[]
+  readonly players: PlayerId[]
+  readonly current_player: number
+}
+
+export interface CompletedTrick {
+  readonly trick_num: number
+  readonly cards: Card[]
+  readonly players: PlayerId[]
+  readonly winner: PlayerId
+}
+
+export interface Bid {
+  readonly player: PlayerId
+  readonly bid: BidValue
+  readonly calls: Call[]
+}
+
+export interface CurrentBids {
+  /** in order of bid */
+  readonly bids: Bid[];
+  /** remaining bidders, in order of bidding, 0-th position is next bidder */
+  readonly bidders: PlayerId[]
+  readonly current_high: Bid
+}
+
+export interface CompletedBids {
+  readonly winningBid: Bid
+  readonly calls: { [player: number]: Call[] }
+}
+
+export type ShowTrumpState = PlayerId[];
+
+export interface JokerExchangeState {
+  readonly player: PlayerId
+  readonly owed_to: PlayerId
+}
+
+export interface CompletedGameState {
+  readonly players: PlayerId[]
+  readonly bidder: PlayerId
+  readonly bid: BidValue
+  readonly partner?: PlayerId
+  readonly dog: Card[]
+
+  readonly calls: { [player: number]: Call[] }
+  readonly outcomes: { [player: number]: Outcome[] }
+  readonly shows: PlayerId[]
+  readonly pointsEarned: number
+  readonly bouts: Bout[]
+  readonly bidderWon: boolean
+  readonly pointsResult: number
 }
 
 export interface ReducerResult<RESULT extends BoardState> {

@@ -1,5 +1,5 @@
 import { Player } from '../../server/model/Player';
-import { PlayerId } from '../../server/play/model/GameEvents';
+import { PlayerId } from '../../server/play/model/GameState';
 import { PlayDispatcher } from '../services/room/ClientGameDispatcher';
 import { RoomDispatcher } from '../services/room/RoomDispatcher';
 import { getWindowRedux } from './consoleStore';

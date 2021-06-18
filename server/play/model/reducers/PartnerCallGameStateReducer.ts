@@ -1,8 +1,8 @@
 import { TrumpSuit } from '../Card';
 import { cardsContain } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
-import { BidValue, CallPartnerAction, DogRevealTransition, GameStartTransition } from '../GameEvents';
-import { DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, ReducerResult } from "../GameState";
+import { CallPartnerAction, DogRevealTransition, GameStartTransition } from '../GameEvents';
+import { BidValue, DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PartnerCallStateActions, PartnerCallStates, PlayingBoardState, ReducerResult } from "../GameState";
 import { declareSlamActionReducer, showTrumpActionReducer } from './CommonReducers';
 import { getNewTrick } from './Utils';
 

@@ -1,6 +1,7 @@
 import { TypedReducer } from 'redoodle';
-import { PlayerEvent, PlayerId } from '../../../server/play/model/GameEvents';
+import { PlayerEvent } from '../../../server/play/model/GameEvents';
 import { GameSettings } from '../../../server/play/model/GameSettings';
+import { PlayerId } from '../../../server/play/model/GameState';
 import { ChatText } from '../../../server/play/room/ChatText';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
 import { ClientGame } from './ClientGame';

@@ -1,6 +1,6 @@
 import { defaultMemoize } from 'reselect';
 import { Card, RegValue, TrumpSuit } from '../../../server/play/model/Card';
-import { PlayerId } from '../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../server/play/model/GameState';
 import { ChatText, ServerChatAuthorId } from '../../../server/play/room/ChatText';
 import { ReduxState } from '../rootReducer';
 import { ClientGame } from './ClientGame';

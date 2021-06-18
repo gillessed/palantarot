@@ -1,7 +1,7 @@
 import { ClientGame } from "../app/services/room/ClientGame";
 import { Card, RegValue, TrumpSuit } from "../server/play/model/Card";
 import { getArrayRandom, getArrayRandoms, getCardsAllowedToPlay, isBout } from "../server/play/model/CardUtils";
-import { Bid } from "../server/play/model/GameEvents";
+import { Bid } from "../server/play/model/GameState";
 import { getNonSelfCalls, getPossibleBidValues } from './BotUtils';
 import { TarotBot } from "./TarotBot";
 

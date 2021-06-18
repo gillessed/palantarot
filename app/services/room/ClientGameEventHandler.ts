@@ -1,8 +1,8 @@
 import _ from "lodash";
 import { Card, TrumpCard } from "../../../server/play/model/Card";
 import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils";
-import { Bid, BidAction, BiddingCompletedTransition, BidValue, CallPartnerAction, CompletedGameState, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerId, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
-import { GameplayState } from "../../../server/play/model/GameState";
+import { BidAction, BiddingCompletedTransition, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
+import { Bid, BidValue, CompletedGameState, GameplayState, PlayerId } from "../../../server/play/model/GameState";
 
 export interface TrickCards {
   order: string[];

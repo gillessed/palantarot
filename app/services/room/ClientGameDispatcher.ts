@@ -1,5 +1,6 @@
 import { Card, TrumpCard } from '../../../server/play/model/Card';
-import { BidAction, BidValue, Call, CallPartnerAction, EnterGameAction, LeaveGameAction, PlayCardAction, PlayerId, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../../../server/play/model/GameEvents';
+import { BidAction, CallPartnerAction, EnterGameAction, LeaveGameAction, PlayCardAction, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../../../server/play/model/GameEvents';
+import { BidValue, Call, PlayerId } from '../../../server/play/model/GameState';
 import { RoomDispatcher } from './RoomDispatcher';
 
 export class PlayDispatcher {

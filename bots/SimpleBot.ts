@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { ClientGame } from '../app/services/room/ClientGame';
 import { Card, RegSuit, RegValue, The21, TheJoker, TrumpSuit, TrumpValue } from "../server/play/model/Card";
 import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../server/play/model/CardUtils";
-import { Bid, BidValue, Call } from "../server/play/model/GameEvents";
+import { Bid, BidValue, Call } from '../server/play/model/GameState';
 import { dropValueSortComparator, getNonSelfCalls, getTrickCardList, lambdaMin } from "./BotUtils";
 import { CardList } from './CardList';
 import { RandomBot } from './RandomBot';

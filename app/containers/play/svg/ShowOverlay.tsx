@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { TrumpCard, TrumpSuit } from '../../../../server/play/model/Card';
 import { compareCards } from '../../../../server/play/model/CardUtils';
-import { PlayerId } from '../../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
 import { getPlayerName } from '../../../services/players/playerName';
 import { ClientGame } from '../../../services/room/ClientGame';

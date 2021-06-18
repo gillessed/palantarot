@@ -1,6 +1,6 @@
-import { Action, PlayerEvent, PlayerId, Transition } from "../model/GameEvents";
+import { Action, PlayerEvent, Transition } from "../model/GameEvents";
 import { DefaultGameSettings, GameSettings } from "../model/GameSettings";
-import { BoardState, GameplayState, NewGameBoardState } from '../model/GameState';
+import { BoardState, GameplayState, NewGameBoardState, PlayerId } from '../model/GameState';
 import { buildGameStateReducer, GameReducerMap } from '../model/reducers/GameStateReducers';
 
 export function createInitialState(publicHands: boolean): NewGameBoardState {

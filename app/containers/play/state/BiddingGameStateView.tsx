@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BidValue } from '../../../../server/play/model/GameEvents';
+import { BidValue } from '../../../../server/play/model/GameState';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver } from '../SpectatorMode';
 import { ActionButton } from '../svg/ActionButton';

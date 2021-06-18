@@ -1,7 +1,7 @@
 import { getPlayerNum } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
-import { Bid, BidAction, BiddingCompletedTransition, BidValue, Call, CurrentBids, DogRevealTransition, GameAbortedTransition, GameStartTransition, PlayerEvent, PlayerId } from "../GameEvents";
-import { BiddingBoardState, BiddingStateActions, BiddingStates, DogRevealAndExchangeBoardState, GameplayState, NewGameBoardState, PartnerCallBoardState, PlayingBoardState, ReducerResult } from "../GameState";
+import { BidAction, BiddingCompletedTransition, DogRevealTransition, GameAbortedTransition, GameStartTransition, PlayerEvent } from "../GameEvents";
+import { Bid, BiddingBoardState, BiddingStateActions, BiddingStates, BidValue, Call, CurrentBids, DogRevealAndExchangeBoardState, GameplayState, NewGameBoardState, PartnerCallBoardState, PlayerId, PlayingBoardState, ReducerResult } from "../GameState";
 import { showTrumpActionReducer, simpleResult } from './CommonReducers';
 import { getNewTrick } from './Utils';
 
@@ -146,7 +146,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
 export const BiddingGameStateReducer = (state: BiddingBoardState, action: BiddingStateActions): ReducerResult<BiddingStates> => {
   switch (action.type) {
     case "show_trump": return showTrumpActionReducer(state, action);
-    case "bid": handleBidAction(state, action);
+    case "bid": return handleBidAction(state, action);
     default: throw GameErrors.invalidActionForGameState(action, state.name);
   }
 };

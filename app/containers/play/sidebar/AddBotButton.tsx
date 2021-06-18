@@ -2,8 +2,7 @@ import { Button, ButtonGroup, Intent, Menu, Popover, PopoverInteractionKind, Pos
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../../server/play/model/GameEvents';
-import { GameplayState } from '../../../../server/play/model/GameState';
+import { GameplayState, PlayerId } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
 import { PlayersSelectors } from '../../../services/players';
 import { ClientGame } from '../../../services/room/ClientGame';

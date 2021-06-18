@@ -1,6 +1,6 @@
 import { ClientGame } from "../app/services/room/ClientGame";
 import { Card } from "../server/play/model/Card";
-import { Bid } from "../server/play/model/GameEvents";
+import { Bid } from "../server/play/model/GameState";
 import { RandomBot, RandomBotType } from "./RandomBot";
 import { SimpleBot, SimpleBotType } from "./SimpleBot";
 

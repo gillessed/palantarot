@@ -2,7 +2,7 @@ import { Button, Dialog } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { NewPlayer, Player } from '../../../server/model/Player';
-import { PlayerId } from '../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../server/play/model/GameState';
 import { getAdminPassword } from '../../admin';
 import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
 import { Palantoaster, TIntent } from '../../components/toaster/Toaster';

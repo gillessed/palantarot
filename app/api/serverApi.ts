@@ -10,7 +10,6 @@ import { SearchQuery } from '../../server/model/Search';
 import { Stats } from '../../server/model/Stats';
 import { Streak } from '../../server/model/Streak';
 import { NewTarothon, Tarothon, TarothonData } from '../../server/model/Tarothon';
-import { GameDescription } from '../../server/play/game/GameDescription';
 import { GameSettings } from '../../server/play/model/GameSettings';
 import { NewRoomArgs } from '../../server/play/room/NewRoomArgs';
 import { RoomDescriptions } from '../../server/play/room/RoomDescription';
@@ -124,10 +123,6 @@ export class ServerApi {
 
   public createNewRoom = (settings: NewRoomArgs): Promise<string> => {
     return this.wrapPost("/play/new_room", settings);
-  }
-
-  public listPlayableGames = (): Promise<{ [id: string]: GameDescription }> => {
-    return this.wrapGet("/play/games");
   }
 
   public listRooms = (): Promise<RoomDescriptions> => {

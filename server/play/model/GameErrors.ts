@@ -1,5 +1,6 @@
 import { Card, toCardString, TrumpCard } from "./Card";
-import { Action, Bid, BidValue, PlayerId, SetDogAction, ShowTrumpAction } from "./GameEvents";
+import { Action, SetDogAction, ShowTrumpAction } from "./GameEvents";
+import { Bid, BidValue, PlayerId } from "./GameState";
 
 export const GameErrors = {
   invalidActionForGameState: (action: Action, state: string) => {
