@@ -15,9 +15,7 @@ const client = new Client(config);
 inject();
 
 async function inject() {
-    console.log('foo');
     await client.connect();
-    console.log('bar');
 
     try {
         const playerColumns: [keyof Player, string][] = [

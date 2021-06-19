@@ -242,7 +242,8 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         end_state: endState,
         privateTo: undefined,
       };
-      return { state: newBoardState, events: [action, completedTrickTransition, completedGameTransition] };
+      const completedGameMessage = 'The game is over';
+      return { state: newBoardState, events: [action, completedTrickTransition, completedGameTransition], serverMessages: [completedGameMessage] };
     }
   }
 }

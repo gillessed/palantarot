@@ -3,7 +3,7 @@ import { SocketMessage } from './SocketMessage';
 
 export class JsonSocket {
   public handleClose?: () => void;
-  public handleMessage?: (message: SocketMessage) => void;
+  public handleMessage?: (message: SocketMessage<any>) => void;
   public handleError?: (error: Error) => void;
 
   constructor(
@@ -13,7 +13,7 @@ export class JsonSocket {
     webSocket.onclose = this.handleWebSocketClose;
   }
 
-  public send(message: SocketMessage) {
+  public send(message: SocketMessage<any>) {
     try {
       this.webSocket.send(JSON.stringify(message));
     } catch (error) {
@@ -29,7 +29,7 @@ export class JsonSocket {
 
   private handleWebSocketMessage = (event: WebSocket.MessageEvent) => {
     try {
-      const data: SocketMessage = JSON.parse(event.data as string);
+      const data: SocketMessage<any> = JSON.parse(event.data as string);
       if (this.handleMessage) {
         this.handleMessage(data);
       }

@@ -57,7 +57,6 @@ export class TarothonService {
       this.tarothonDb.insertTarothon(data).then((id: string) => {
         res.send({ id });
       }).catch((error: any) => {
-        console.log(error);
         res.send({ error: 'Error inserting tarothon: ' + error });
       });
     }

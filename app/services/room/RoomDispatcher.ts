@@ -1,11 +1,12 @@
 import { Store } from 'redux';
 import { Action } from '../../../server/play/model/GameEvents';
-import { RoomSockets } from '../../../server/play/room/RoomSocketMessages';
+import { ChatText } from '../../../server/play/room/ChatText';
+import { RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
 import { generateId } from '../../../server/utils/randomString';
 import { ReduxState } from '../rootReducer';
+import { SocketActions } from '../socket/socketService';
 import { PlayDispatcher } from './ClientGameDispatcher';
 import { RoomActions } from './RoomActions';
-import { roomSocketService } from './RoomSagas';
 
 export class RoomDispatcher {
   constructor(
@@ -14,33 +15,32 @@ export class RoomDispatcher {
 
   // Rooms Actions
 
-  public socketConnect() {
-    this.store.dispatch(roomSocketService.actions.join(generateId()));
-  }
-
-  public joinRoom(roomId: string, playerId: string) {
-    this.store.dispatch(roomSocketService.actions.send(RoomSockets.enterRoom(roomId, playerId)));
+  public socketConnect(roomId: string, playerId: string) {
+    this.store.dispatch(SocketActions.connect({
+      id: generateId(),
+      initialMessages: [RoomSocketMessages.enterRoom({ roomId, playerId })],
+    }));
   }
 
   public gameAction(action: Action) {
     const roomId = this.store.getState().room?.id;
     const playerId = this.store.getState().room?.playerId;
     if (roomId && playerId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSockets.gameAction(roomId, playerId, action)));
+      this.store.dispatch(SocketActions.send(RoomSocketMessages.gameAction({ roomId, playerId, action })));
     } 
   }
 
   public addBot(botId: string) {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSockets.addBot(roomId, botId)));
+      this.store.dispatch(SocketActions.send(RoomSocketMessages.addBot({ roomId, botId })));
     }
   }
 
   public removeBot(botId: string) {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSockets.removeBot(roomId, botId)));
+      this.store.dispatch(SocketActions.send(RoomSocketMessages.removeBot({ roomId, botId })));
     }
   }
 
@@ -53,7 +53,7 @@ export class RoomDispatcher {
   }
 
   public exitGame() {
-    this.store.dispatch(roomSocketService.actions.close());
+    this.store.dispatch(SocketActions.close());
   }
 
   public sendChat(text: string) {
@@ -61,14 +61,20 @@ export class RoomDispatcher {
     const playerId = this.store.getState().room?.playerId;
     if (roomId && playerId) {
       //TODO someday move message id generation to the server
-      this.store.dispatch(roomSocketService.actions.send(RoomSockets.chatMessage(roomId, generateId(), text, playerId)));
+      const chat: ChatText = {
+        id: generateId(),
+        text,
+        authorId: playerId,
+        time: Date.now(),
+      }
+      this.store.dispatch(SocketActions.send(RoomSocketMessages.roomChat({ roomId, chat })));
     }
   }
 
   public autoplay() {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
-      this.store.dispatch(roomSocketService.actions.send(RoomSockets.autoplay(roomId)));
+      this.store.dispatch(SocketActions.send(RoomSocketMessages.autoplay({ roomId })));
     }
   }
 

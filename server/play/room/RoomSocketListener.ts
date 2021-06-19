@@ -1,33 +1,34 @@
 import { PlayService } from '../../api/PlayService';
 import { JsonSocket } from '../../websocket/JsonSocket';
-import { SocketListener } from '../../websocket/SocketListener';
+import { SocketMessageListener } from '../../websocket/SocketListener';
+import { SocketMessage } from '../../websocket/SocketMessage';
 import { ErrorCode } from '../model/GameEvents';
-import { RoomSockets } from './RoomSocketMessages';
+import { RoomSocketMessages } from './RoomSocketMessages';
 
-export class RoomSocketListener implements SocketListener<RoomSockets.Message> {
-  public messageType: string = RoomSockets.MessageType;
+export function isRoomMessage(message: SocketMessage): message is SocketMessage<{ roomId: string }> {
+  return message.type.startsWith('room') && (message as any).roomId != null;
+}
 
+export class RoomSocketListener implements SocketMessageListener {
   constructor(
     private playService: PlayService,
   ) { }
 
-  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSockets.Message) {
-    const { roomId } = message;
-    const room = this.playService.rooms.get(roomId);
+  public handleMessage(socketId: string, socket: JsonSocket, message: SocketMessage) {
+    if (!isRoomMessage(message)) {
+      return;
+    }
+    const { roomId } = message.payload;
+    const room = this.playService.getRoom(roomId);
     if (room != null) {
       room.handleMessage(socketId, socket, message);
     } else {
-      socket.send(RoomSockets.error(message.roomId, "Room does not exist", ErrorCode.DOES_NOT_EXIST)); 
-      console.log('Room not found for message ', roomId, message);
-    }
-  }
-
-  public handleClose(socketId: string) {
-    const playerId = this.playService.getPlayerIdForSocket(socketId);
-    if (playerId) {
-      for (const room of this.playService.rooms.values()) {
-        room.handleClose(playerId);
-      }
+      socket.send(RoomSocketMessages.error({
+        roomId,
+        error: "Room does not exist",
+        errorCode: ErrorCode.DOES_NOT_EXIST,
+      }));
+      console.error('Room not found for message ', roomId, message);
     }
   }
 }

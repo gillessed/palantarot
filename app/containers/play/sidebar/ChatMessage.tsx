@@ -14,10 +14,7 @@ interface Props {
   players: Map<string, Player>;
 }
 
-
-
-export class PlayMessage extends React.PureComponent<Props> {
-
+export class ChatMessage extends React.PureComponent<Props> {
   private renderTextLine(text: string, index: number) {
     return (
       <div className='message-body' key={index}>

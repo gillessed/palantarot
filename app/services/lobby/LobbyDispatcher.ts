@@ -1,11 +1,11 @@
 import { Store } from 'redux';
-import { LobbyMessages } from '../../../server/play/lobby/LobbyMessages';
+import { LobbySocketMessages } from '../../../server/play/lobby/LobbySocketMessages';
 import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
 import { generateId } from '../../../server/utils/randomString';
 import { PropertyCachingState } from '../redux/serviceDispatcher';
 import { ReduxState } from '../rootReducer';
+import { SocketActions } from '../socket/socketService';
 import { LobbyActions } from './LobbyActions';
-import { lobbySocketService } from './LobbySaga';
 import { lobbyService } from './LobbyService';
 import { Lobby } from './LobbyTypes';
 
@@ -24,15 +24,14 @@ export class LobbyDispatcher extends lobbyService.dispatcher {
     this.store.dispatch(LobbyActions.newRoom(args));
   }
 
-  public enterLobby(playerId: string) {
-    this.store.dispatch(lobbySocketService.actions.send(LobbyMessages.enterLobby(playerId)));
-  }
-
-  public socketConnect() {
-    this.store.dispatch(lobbySocketService.actions.join(generateId()));
+  public socketConnect(playerId: string) {
+    this.store.dispatch(SocketActions.connect({
+      id: generateId(),
+      initialMessages: [LobbySocketMessages.enterLobby({ playerId })],
+    }));
   }
 
   public socketClose() {
-    this.store.dispatch(lobbySocketService.actions.close());
+    this.store.dispatch(SocketActions.close());
   }
 }

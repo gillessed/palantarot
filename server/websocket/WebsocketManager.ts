@@ -2,18 +2,19 @@ import http from 'http';
 import https from 'https';
 import WebSocket, { MessageEvent } from 'ws';
 import { JsonSocket } from './JsonSocket';
-import { isSocketConnectionMessage, SocketConnectionMessage } from './SocketConnectionMessage';
-import { SocketListener } from './SocketListener';
-import { SocketMessage } from './SocketMessage';
+import { SocketCloseListener, SocketMessageListener } from './SocketListener';
+import { isSocketConnectionMessage, SocketMessage } from './SocketMessage';
 
 export class WebsocketManager {
   private server: WebSocket.Server;
   private socketMap: Map<string, JsonSocket>;
-  private socketListeners: Set<SocketListener<any>>;
+  private socketMessageListeners: Set<SocketMessageListener>;
+  private socketCloseListeners: Set<SocketCloseListener>;
 
   constructor() {
     this.socketMap = new Map();
-    this.socketListeners = new Set();
+    this.socketMessageListeners = new Set();
+    this.socketCloseListeners = new Set();
   }
 
   public start(server: http.Server | https.Server) {
@@ -21,10 +22,11 @@ export class WebsocketManager {
     this.server.on('connection', (socket) => {
       socket.onmessage = (event: MessageEvent) => {
         try {
-          const data: SocketMessage = JSON.parse(event.data as string);
+          const data: SocketMessage<any> = JSON.parse(event.data as string);
           if (isSocketConnectionMessage(data)) {
-            console.log(`socket ${data.socketId} connected`);
-            this.addNewSocket(socket, data);
+            const socketId = data.payload;
+            console.debug(`socket ${socketId} connected`);
+            this.addNewSocket(socket, socketId);
           } else {
             socket.close();
           }
@@ -35,26 +37,21 @@ export class WebsocketManager {
     });
   }
 
-  private addNewSocket = (socket: WebSocket, { socketId }: SocketConnectionMessage) => {
+  private addNewSocket = (socket: WebSocket, socketId: string) => {
     if (this.socketMap.has(socketId)) {
       socket.close();
       return;
     }
     const jsonSocket = new JsonSocket(socket);
-    jsonSocket.handleMessage = (message: SocketMessage) => {
-      console.log('received socket message ', message);
-      for (const listener of this.socketListeners) {
-        if (listener.messageType === message.type && listener.handleMessage) {
-          listener.handleMessage(socketId, jsonSocket, message);
-        }
+    jsonSocket.handleMessage = (message: SocketMessage<any>) => {
+      for (const listener of this.socketMessageListeners) {
+        listener.handleMessage(socketId, jsonSocket, message);
       }
     }
     jsonSocket.handleClose = () => {
-      console.log(`socket ${socketId} disconnected`);
-      for (const listener of this.socketListeners) {
-        if (listener.handleClose) {
-          listener?.handleClose(socketId);
-        }
+      console.debug(`socket ${socketId} disconnected`);
+      for (const listener of this.socketCloseListeners) {
+          listener.handleClose(socketId);
       }
       this.socketMap.delete(socketId);
     }
@@ -65,11 +62,11 @@ export class WebsocketManager {
     return this.socketMap.get(userId);
   }
 
-  public addListener(socketListener: SocketListener<any>) {
-    this.socketListeners.add(socketListener);
+  public addMessageListener(listener: SocketMessageListener) {
+    this.socketMessageListeners.add(listener);
   }
 
-  public removeListener(socketListener: SocketListener<any>) {
-    this.socketListeners.delete(socketListener);
+  public addCloseListener(listener: SocketCloseListener) {
+    this.socketCloseListeners.add(listener);
   }
 }

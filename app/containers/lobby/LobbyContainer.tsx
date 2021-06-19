@@ -46,11 +46,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
   }
   public componentWillMount() {
     const { gamePlayer, dispatchers } = this.props;
-    dispatchers.lobby.socketConnect();
     if (gamePlayer != null) {
-      setTimeout(() => {
-        dispatchers.lobby.enterLobby(gamePlayer.playerId);
-      }, 10);
+      dispatchers.lobby.socketConnect(gamePlayer?.playerId);
     }
   }
 
@@ -115,6 +112,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
             <th>Name</th>
             <th>Join Room</th>
             <th>Players</th>
+            <th>State</th>
             <th>Settings</th>
           </tr>
         </thead>
@@ -145,6 +143,8 @@ class LobbyInternal extends React.PureComponent<Props, State> {
     const validPlayerId = this.props.players.has(playerId);
     if (validPlayerId) {
       this.props.dispatchers.gamePlayer.set({ playerId });
+      //TODO: disconnect old socket if there is one
+      this.props.dispatchers.lobby.socketConnect(playerId);
       this.setState({
         isPlayerDialogOpen: false,
       });

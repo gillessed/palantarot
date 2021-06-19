@@ -2,7 +2,7 @@ import { Button, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import * as React from 'react';
 import { Dispatchers } from '../../../services/dispatchers';
-import './PlaySidebar.scss';
+import './ChatInput.scss';
 
 interface Props {
   player: string;
@@ -13,7 +13,7 @@ interface State {
   message: string;
 }
 
-export class PlayMessageInput extends React.PureComponent<Props> {
+export class ChatInput extends React.PureComponent<Props> {
   public state: State = {
     message: '',
   };
@@ -25,7 +25,7 @@ export class PlayMessageInput extends React.PureComponent<Props> {
           className='message-input'
           value={this.state.message}
           onChange={this.handleChange}
-          onKeyUp={this.handleKeyUp}
+          onKeyDown={this.handleKeyDown}
         />
         <Button
           className='message-send'
@@ -43,8 +43,8 @@ export class PlayMessageInput extends React.PureComponent<Props> {
     });
   }
 
-  private handleKeyUp: React.KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
-    if (event.key === 'Enter') {
+  private handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.handleSend();
     }

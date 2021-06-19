@@ -8,9 +8,9 @@ import { Dispatchers } from '../../../services/dispatchers';
 import { ClientRoom } from '../../../services/room/RoomTypes';
 import { CardBackUrls } from '../svg/CardSvg';
 import { AddBotButton } from './AddBotButton';
+import { ChatInput } from './ChatInput';
 import { ChatList } from './ChatList';
 import { PlayerList } from './PlayerList';
-import { PlayMessageInput } from './PlayMessageInput';
 import './PlaySidebar.scss';
 import { SidebarActions } from './SidebarActions';
 
@@ -78,7 +78,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
           gamePlayers={room.game.playState.playerOrder}
           playerStatuses={room.players}
         />}
-        <PlayMessageInput
+        <ChatInput
           player={this.props.room.playerId}
           dispatchers={this.props.dispatchers}
         />

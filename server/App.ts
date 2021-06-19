@@ -127,10 +127,11 @@ export class App {
 
     const playService = new PlayService(this.db, this.websocketManager, botRegistry);
     this.express.use('/api/v1/play', playService.router);
+
     const lobbySocketListener = new LobbySocketListener(playService);
-    this.websocketManager.addListener(lobbySocketListener);
+    this.websocketManager.addMessageListener(lobbySocketListener);
     const roomSocketListener = new RoomSocketListener(playService);
-    this.websocketManager.addListener(roomSocketListener);
+    this.websocketManager.addMessageListener(roomSocketListener);
   }
  
   private redirectRoute() {

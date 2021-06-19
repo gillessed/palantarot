@@ -1,4 +1,5 @@
 import { GameSettings } from "../model/GameSettings";
+import { GameplayState } from "../model/GameState";
 import { PlayerStatus } from "./PlayerStatus";
 import { Room } from "./Room";
 
@@ -9,13 +10,14 @@ export interface RoomDescription {
   name: string;
   players: { [key: string]: PlayerStatus };
   settings: GameSettings;
+  gameState: GameplayState;
 }
 
 export function getRoomDescription(room: Room): RoomDescription {
   const players: { [key: string]: PlayerStatus } = {};
   for (const playerId of room.players.keys()) {
     const status = room.players.get(playerId);
-    if (status) {
+    if (status != null) {
       players[playerId] = status;
     }
   }
@@ -24,5 +26,17 @@ export function getRoomDescription(room: Room): RoomDescription {
     name: room.name,
     players,
     settings: room.settings,
+    gameState: room.game.getState().name,
   };
+}
+
+export function getOnlinePlayersInRoom(room: RoomDescription): string[] {
+  const playerIds: string[] = [];
+  for (const playerId of Object.keys(room.players)) {
+    const status = room.players[playerId];
+    if (status === PlayerStatus.Online) {
+      playerIds.push(playerId);
+    }
+  }
+  return playerIds;
 }

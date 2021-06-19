@@ -1,7 +1,6 @@
 import { TypedAction } from 'redoodle';
 import { Action } from '../../../server/play/model/GameEvents';
 import { ChatText } from '../../../server/play/room/ChatText';
-import { roomSocketService } from './RoomSagas';
 import { GameUpdatesPayload, JoinRoomPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
 const roomStatus = TypedAction.define("ROOM // STATUS")<RoomStatusPayload>();
@@ -24,7 +23,6 @@ export const RoomActions = {
   gameUpdate,
   chatReceived,
   sendChat,
-  exit: roomSocketService.actions.close,
   addBot,
   removeBot,
   closeShowWindow,

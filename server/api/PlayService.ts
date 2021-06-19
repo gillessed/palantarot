@@ -3,7 +3,7 @@ import { TarotBotRegistry } from '../../bots/TarotBot';
 import { Database } from '../db/dbConnector';
 import { GameRecordQuerier } from '../db/GameRecordQuerier';
 import { PlayerQuerier } from '../db/PlayerQuerier';
-import { LobbyMessages } from '../play/lobby/LobbyMessages';
+import { LobbySocketMessages } from '../play/lobby/LobbySocketMessages';
 import { PlayerId } from '../play/model/GameState';
 import { NewRoomArgs } from '../play/room/NewRoomArgs';
 import { Room } from '../play/room/Room';
@@ -17,9 +17,9 @@ export class PlayService {
   public websocketManager: WebsocketManager;
   public readonly gameQuerier: GameRecordQuerier;
   public readonly playerQuerier: PlayerQuerier;
-  public rooms: Map<string, Room>;
-  public playersInRooms: Map<PlayerId, Set<string>>;
-  public lobbyPlayers: Set<string>;
+  private rooms: Map<string, Room>;
+  private playersInRooms: Map<PlayerId, Set<string>>;
+  private lobbyPlayers: Set<string>;
   private playerIdToSocketId: Map<PlayerId, string>;
   private socketIdToPlayerId: Map<string, PlayerId>;
 
@@ -40,41 +40,15 @@ export class PlayService {
     this.websocketManager = websocketManager;
     this.router.post('/new_room', this.newRoom);
     this.router.get('/rooms', this.listRooms);
-    
-    // this.router.get('/debug/:id', this.debugView);
   }
 
-  // public debugView = async (req: Request, res: Response) => {
-  //   const id = req.params['id'];
-  //   const game = this.games.get(id);
-  //   if (game == undefined) {
-  //     res.send(404, "unable to locate game " + id);
-  //   } else {
-  //     const reply = {
-  //       state: game.getState(),
-  //       events: game.getEvents('<debugplayer>', 0, 100000),
-  //     };
-  //     res.send(reply);
-  //   }
-  // };
-
-  public gameUpdated(gameId: string) {
-    // this.lobbySocketManager.sendUpdateMessage(gameId);
-  }
 
   public newRoom = async (req: Request, res: Response) => {
     const args: NewRoomArgs = req.body;
     const room = Room.empty(this, args);
     this.playersInRooms.set(room.id, new Set());
     this.rooms.set(room.id, room);
-    const roomDescription = getRoomDescription(room);
-    for (const playerId of this.lobbyPlayers) {
-      const socketId = this.getSocketIdForPlayer(playerId);
-      const socket = this.websocketManager.getSocket(socketId ?? "");
-      if (socket != null) {
-        socket.send(LobbyMessages.roomUpdated(roomDescription));
-      }
-    }
+    this.roomUpdated(room);
   };
 
   public listRooms = async (_: Request, res: Response) => {
@@ -87,20 +61,16 @@ export class PlayService {
 
   /* Helpers */
 
-  public addPlayerToRoom(roomId: string, playerId: string) {
-    this.playersInRooms.get(roomId)?.add(playerId);
-  }
-
-  public getPlayersInRoom(roomId: string): PlayerId[] {
-    return [...(this.playersInRooms.get(roomId) ?? [])];
+  public getRoom(roomId: string): Room | undefined {
+    return this.rooms.get(roomId);
   }
 
   public getSocketIdForPlayer(playerId: string): string | undefined {
     return this.playerIdToSocketId.get(playerId);
   }
 
-  public getPlayerIdForSocket(playerId: string): string | undefined {
-    return this.playerIdToSocketId.get(playerId);
+  public getPlayerIdForSocketId(socketId: string): string | undefined {
+    return this.socketIdToPlayerId.get(socketId);
   }
 
   public getSocketForPlayer(playerId: string): JsonSocket | undefined {
@@ -109,16 +79,41 @@ export class PlayService {
     return socket;
   }
 
+  public playerEnteredLobby(socketId: string, playerId: string) {
+    const oldPlayer = this.getPlayerIdForSocketId(socketId);
+    if (oldPlayer) {
+      this.lobbyPlayers.delete(oldPlayer);
+      this.removeSocketById(socketId);
+    }
+    this.lobbyPlayers.add(playerId);
+    this.setPlayerSocketId(socketId, playerId);
+  }
+
+  /* Helper */
+
   public setPlayerSocketId(socketId: string, playerId: string) {
+    console.log('**** setting socketid to playerid ', socketId, playerId);
     this.playerIdToSocketId.set(playerId, socketId);
     this.socketIdToPlayerId.set(socketId, playerId);
   }
 
   public removeSocketById(socketId: string) {
+    console.log('**** clearing socket ', socketId);
     const playerId = this.socketIdToPlayerId.get(socketId);
     this.socketIdToPlayerId.delete(socketId);
     if (playerId) {
       this.playerIdToSocketId.delete(playerId);
+    }
+  }
+
+  public roomUpdated(room: Room) {
+    const roomDescription = getRoomDescription(room);
+    for (const playerId of this.lobbyPlayers) {
+      const socketId = this.getSocketIdForPlayer(playerId);
+      const socket = this.websocketManager.getSocket(socketId ?? "");
+      if (socket != null) {
+        socket.send(LobbySocketMessages.roomUpdated(roomDescription));
+      }
     }
   }
 }

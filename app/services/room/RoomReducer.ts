@@ -4,10 +4,10 @@ import { GameSettings } from '../../../server/play/model/GameSettings';
 import { PlayerId } from '../../../server/play/model/GameState';
 import { ChatText } from '../../../server/play/room/ChatText';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
+import { SocketActions } from '../socket/socketService';
 import { ClientGame } from './ClientGame';
 import { BlankState, updateGameForEvent } from './ClientGameEventHandler';
 import { RoomActions } from './RoomActions';
-import { roomSocketService } from './RoomSagas';
 import { ClientRoom, GameUpdatesPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
 const createEmptyGameState = (gameId: string, playerId: string, settings: GameSettings): ClientGame => ({
@@ -167,5 +167,5 @@ export const roomReducer = TypedReducer.builder<ClientRoom | null>()
   .withHandler(RoomActions.newGameCreated.TYPE, newGameCreatedReducer)
   .withHandler(RoomActions.moveToNewGame.TYPE, moveToNewGameReducer)
   .withHandler(RoomActions.setPlayerStatus.TYPE, setPlayerStatusReducer)
-  .withHandler(roomSocketService.actions.close.TYPE, () => null)
+  .withHandler(SocketActions.close.TYPE, () => null)
   .build();

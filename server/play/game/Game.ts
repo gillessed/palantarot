@@ -1,6 +1,6 @@
 import { Action, PlayerEvent, Transition } from "../model/GameEvents";
 import { DefaultGameSettings, GameSettings } from "../model/GameSettings";
-import { BoardState, GameplayState, NewGameBoardState, PlayerId } from '../model/GameState';
+import { BoardState, GameplayState, NewGameBoardState, PlayerId, ReducerResult } from '../model/GameState';
 import { buildGameStateReducer, GameReducerMap } from '../model/reducers/GameStateReducers';
 
 export function createInitialState(publicHands: boolean): NewGameBoardState {
@@ -36,15 +36,15 @@ export class Game {
     public logged: boolean,
   ) { }
 
-  public playerAction<T extends Action>(event: T): PlayerEvent[] {
+  public playerAction<T extends Action>(event: T): ReducerResult<any> {
     const reducer = this.reducers[this.state.name];
     if (reducer === undefined) {
       throw new Error(`Cannot find reducer for ${this.state.name}, known reducers are ${Object.keys(this.reducers)}`)
     }
-    const { state: newState, events: newEvents } = reducer(this.state, event);
-    this.state = newState;
-    this.log.push(...newEvents);
-    return newEvents;
+    const reducerResult = reducer(this.state, event);
+    this.state = reducerResult.state;
+    this.log.push(...reducerResult.events);
+    return reducerResult;
   }
 
   public appendTransition<T extends Transition>(event: T) {

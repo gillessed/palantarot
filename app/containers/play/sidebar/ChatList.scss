@@ -1,0 +1,46 @@
+.sidebar-chat-list {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.player-row {
+  font-family: dinNextBold;
+  font-size: 16px;
+  margin-bottom: 5px;
+
+  .player-name {
+    margin-left: 10px;
+    font-family: dinNextRegular;
+  }
+}
+
+.event-child:not(:first-child) {
+  margin-bottom: 10px;
+}
+
+.play-message-container {
+  .message-author {
+    font-family: dinNextBold;
+    font-size: 16px;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+
+    .message-author-text {
+      margin-left: 10px;
+    }
+  }
+
+  .message-body {
+    font-family: dinNextRegular;
+    font-size: 16px;
+    margin-left: 10px;
+    margin-bottom: 3px;
+  }
+}
+
+.game-event-message {
+  font-family: dinNextBoldItalic;
+  font-size: 16px;
+  color: #bfccd6;
+}

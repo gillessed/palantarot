@@ -1,32 +1,25 @@
 import { TypedAction } from 'redoodle';
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-import { LobbySocketMessage, LobbySocketMessageType, RoomUpdatedMessage, RoomUpdatedMessageType } from '../../../server/play/lobby/LobbyMessages';
+import { LobbySocketMessages } from '../../../server/play/lobby/LobbySocketMessages';
 import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
-import { buildSocketConnectionMessage, SocketConnectionMessage } from '../../../server/websocket/SocketConnectionMessage';
+import { RoomDescription } from '../../../server/play/room/RoomDescription';
+import { SocketMessage } from '../../../server/websocket/SocketMessage';
 import { ServerApi } from '../../api/serverApi';
-import { createSocketService, MessagePayload } from '../socket/socketService';
+import { SocketActions } from '../socket/socketService';
 import { LobbyActions } from './LobbyActions';
 import { lobbyService } from './LobbyService';
 
-export const lobbySocketService = createSocketService<string, SocketConnectionMessage>(
-  'LOBBY',
-  (socketId: string) => buildSocketConnectionMessage(socketId),
-);
-
-function* handleMessage(action: TypedAction<MessagePayload<void>>) {
-  const { message } = action.payload;
-  if (message.type === LobbySocketMessageType) {
-    const lobbyMessage = message as LobbySocketMessage;
-    switch (lobbyMessage.messageType) {
-      case RoomUpdatedMessageType:
-        yield call(handleRoomUpdated, message as RoomUpdatedMessage);
-        break;
-    }
+function* handleMessage(action: TypedAction<SocketMessage>) {
+  const message = action.payload;
+  switch (message.type) {
+    case LobbySocketMessages.roomUpdated.type:
+      yield call(handleRoomUpdated, message.payload);
+      break;
   }
 }
 
-function* handleRoomUpdated(message: RoomUpdatedMessage) {
-  yield put(LobbyActions.roomUpdate(message.room));
+function* handleRoomUpdated(payload: RoomDescription) {
+  yield put(LobbyActions.roomUpdate(payload));
 }
 
 function* newRoomSaga(api: ServerApi, action: TypedAction<NewRoomArgs>) {
@@ -37,8 +30,7 @@ function* newRoomSaga(api: ServerApi, action: TypedAction<NewRoomArgs>) {
 export function* lobbySaga(api: ServerApi) {
   yield all([
     takeEvery(LobbyActions.newRoom.TYPE, newRoomSaga, api),
-    takeEvery(lobbySocketService.actions.message.TYPE, handleMessage),
-    fork(lobbySocketService.saga),
+    takeEvery(SocketActions.message.TYPE, handleMessage),
     fork(lobbyService.saga, api),
   ]);
 }

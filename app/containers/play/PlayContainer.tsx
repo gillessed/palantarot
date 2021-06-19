@@ -57,10 +57,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
     }
     if (this.props.room == null) {
       const { roomId } = this.props.match.params;
-      this.dispatchers.room.socketConnect();
-      setTimeout(() => {
-        this.dispatchers.room.joinRoom(roomId, gamePlayer.playerId);
-      }, 10);
+      this.dispatchers.room.socketConnect(roomId, gamePlayer.playerId);
       registerDebugPlayers(gamePlayer.playerId, roomId, this.dispatchers.room);
     }
   }

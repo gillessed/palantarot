@@ -45,7 +45,7 @@ async function init() {
   ];
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Initializing redux logger for debug...');
+    console.debug('Initializing redux logger for debug...');
     middleware.push(logger as any);
   }
 

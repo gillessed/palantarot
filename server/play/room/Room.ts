@@ -4,6 +4,7 @@ import { Player } from "../../model/Player";
 import { promiseDelay } from "../../utils/promiseDelay";
 import { generateId } from "../../utils/randomString";
 import { JsonSocket } from "../../websocket/JsonSocket";
+import { SocketMessage } from "../../websocket/SocketMessage";
 import { autologGame } from "../Autolog";
 import { autoplayNextCard } from "../bots/Autoplay";
 import { getNextPlayer, playForBot } from "../bots/BotPlayer";
@@ -12,11 +13,11 @@ import { Action, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAc
 import { GameSettings } from "../model/GameSettings";
 import { CompletedBoardState, CompletedGameState, GameplayState, PlayerId } from "../model/GameState";
 import { PlayerStatus } from "../room/PlayerStatus";
-import { ChatText } from "./ChatText";
+import { ChatText, ServerChatAuthorId } from "./ChatText";
 import { NewRoomArgs } from './NewRoomArgs';
-import { RoomSockets } from "./RoomSocketMessages";
+import { BotMessagePayload, EnterRoomMessagePayload, GameActionMessagePayload, RoomChatMessagePayload, RoomSocketMessages } from "./RoomSocketMessages";
 import { RoomStatus } from "./RoomStatus";
-  
+
 export class Room {
   public static empty = (
     playService: PlayService,
@@ -46,64 +47,54 @@ export class Room {
 
   /* Socket Handlers */
 
-  public handleMessage(socketId: string, socket: JsonSocket, message: RoomSockets.Message) {
+  public handleMessage(socketId: string, socket: JsonSocket, untypedMessage: SocketMessage<any>) {
     try {
-      switch (message.messageType) {
-        case RoomSockets.EnterRoomMessageType:
-          this.handlePlayerJoinedMessage(socketId, message);
-          break;
-        case RoomSockets.RoomChatMessageType:
-          this.handlePlayerChatMessage(message);
-          break;
-        case RoomSockets.GameActionMessageType:
-          this.handleGameActionMessage(message);
-          break;
-        case RoomSockets.AddBotMessageType:
-          this.handleAddBotMessage(message);
-          break;
-        case RoomSockets.RemoveBotMessageType:
-          this.handleRemoveBotMessage(message);
-          break;
-        case RoomSockets.AutoplayMessageType:
-          this.handleAutoplayMessage(message);
-          break;
-      }
+      RoomSocketMessages.enterRoom.handleMessage(untypedMessage, (message) => {
+        this.handleEnterRoomMessage(socketId, message)
+      });
+      RoomSocketMessages.roomChat.handleMessage(untypedMessage, this.handlePlayerChatMessage);
+      RoomSocketMessages.gameAction.handle(untypedMessage, this.handleGameActionMessage);
+      RoomSocketMessages.addBot.handle(untypedMessage, this.handleAddBotMessage);
+      RoomSocketMessages.removeBot.handle(untypedMessage, this.handleRemoveBotMessage);
+      RoomSocketMessages.autoplay.handle(untypedMessage, this.handleAutoplayMessage);
     } catch (e) {
-      console.error("Cannot process socket message", this.id, message, e);
-      socket.send(RoomSockets.error(this.id, "Cannot process socket message " + e));
+      console.error("Cannot process socket message", this.id, untypedMessage, e);
+      socket.send(RoomSocketMessages.error({ roomId: this.id, error: "Cannot process socket message " + e }));
     }
   }
 
   public handleClose(playerId: string) {
+    console.log('**** Room socket closed', this.players.has(playerId));
     if (this.players.has(playerId)) {
       this.players.set(playerId, PlayerStatus.Offline);
-      this.broadcastMessage(RoomSockets.playerStatusUpdated(this.id, playerId, PlayerStatus.Offline));
+      this.broadcastMessage(RoomSocketMessages.playerStatusUpdated({ roomId: this.id, playerId, playerStatus: PlayerStatus.Offline, time: Date.now() }));
+      this.playService.roomUpdated(this);
     }
   }
 
-  public handlePlayerChatMessage(message: RoomSockets.RoomChatMessage) {
-    this.chat.push(message.chat);
+  public handleEnterRoomMessage(socketId: string, message: SocketMessage<EnterRoomMessagePayload>) {
+    const { playerId } = message.payload;
+    this.broadcastMessage(message);
+    this.playService.setPlayerSocketId(socketId, playerId);
+    this.players.set(playerId, PlayerStatus.Online);
+    this.sendRoomStatus(playerId);
+    this.playService.roomUpdated(this);
+  }
+
+  public handlePlayerChatMessage(message: SocketMessage<RoomChatMessagePayload>) {
+    this.chat.push(message.payload.chat);
     this.broadcastMessage(message);
   }
 
-  public handlePlayerJoinedMessage(socketId: string, message: RoomSockets.EnterRoomMessage) {
-    this.broadcastMessage(message);
-    this.playService.setPlayerSocketId(socketId, message.playerId);
-    this.players.set(message.playerId, PlayerStatus.Online);
-    this.playService.addPlayerToRoom(this.id, message.playerId);
-    this.sendRoomStatus(message.playerId);
-  }
-
-  public handleGameActionMessage({ action }: RoomSockets.GameActionMessage) {
+  public handleGameActionMessage({ action }: GameActionMessagePayload) {
     this.processGameActions([action]);
     this.handleBotPlayers();
     this.handleNewGame();
   }
 
-  public handleAddBotMessage(message: RoomSockets.AddBotMessage) {
-    const { botId } = message;
+  public handleAddBotMessage(payload: BotMessagePayload) {
+    const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
-    this.playService.addPlayerToRoom(this.id, botId);
     const joinGame: EnterGameAction = {
       type: 'enter_game',
       player: botId,
@@ -117,10 +108,9 @@ export class Room {
     this.processGameActions([joinGame, ready]);
   }
 
-  public handleRemoveBotMessage(message: RoomSockets.RemoveBotMessage) {
-    const { botId } = message;
+  public handleRemoveBotMessage(payload: BotMessagePayload) {
+    const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
-    this.playService.addPlayerToRoom(this.id, botId);
     const unready: PlayerNotReadyAction = {
       type: 'unmark_player_ready',
       player: botId,
@@ -134,7 +124,7 @@ export class Room {
     this.processGameActions([unready, leaveGame]);
   }
 
-  public handleAutoplayMessage(_message: RoomSockets.AutoplayMessage) {
+  public handleAutoplayMessage() {
     const action = autoplayNextCard(this.game);
     if (action) {
       this.processGameActions([action]);
@@ -146,18 +136,30 @@ export class Room {
 
   private processGameActions(actions: Action[]) {
     for (const action of actions) {
-      const gameEvents = this.game.playerAction(action);
-      if (gameEvents) {
-        this.broadcastGameEvents(gameEvents);
+      const { events, serverMessages } = this.game.playerAction(action);
+      if (events) {
+        this.broadcastGameEvents(events);
+      }
+      if (serverMessages) {
+        for (const message of serverMessages) {
+          const chat: ChatText = {
+            id: generateId(),
+            text: message,
+            time: Date.now(),
+            authorId: ServerChatAuthorId,
+          }
+          this.chat.push(chat);
+          this.broadcastMessage(RoomSocketMessages.roomChat({ roomId: this.id, chat }));
+        }
       }
     }
-    //TODO this.playService.gameUpdated(gameId);
+    this.playService.roomUpdated(this);
   }
 
   private sendRoomStatus(playerId: string) {
     const socket = this.playService.getSocketForPlayer(playerId);
     if (socket) {
-      socket.send(RoomSockets.roomStatus(this.id, this.getRoomStatus(playerId)));
+      socket.send(RoomSocketMessages.roomStatus({ roomId: this.id, room: this.getRoomStatus(playerId) }));
     }
   }
 
@@ -171,12 +173,12 @@ export class Room {
           const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
           return (!isPrivate && !isExcluded);
         });
-        socket.send(RoomSockets.gameUpdates(this.id, this.game.id, filteredEvents));
+        socket.send(RoomSocketMessages.gameUpdates({ roomId: this.id, gameId: this.game.id, events: filteredEvents }));
       }
     }
   }
 
-  private broadcastMessage(message: RoomSockets.Message) {
+  private broadcastMessage(message: SocketMessage) {
     for (const playerId of this.players.keys()) {
       const socket = this.playService.getSocketForPlayer(playerId);
       if (socket != null) {
@@ -208,7 +210,7 @@ export class Room {
     }
 
     let nextPlayerId = getNextPlayer(this.game);
-    while(nextPlayerId && players.get(nextPlayerId)?.isBot) {
+    while (nextPlayerId && players.get(nextPlayerId)?.isBot) {
       const nextPlayer = players.get(nextPlayerId);
       const botType = nextPlayer?.botType ?? RandomBotType;
       const bot = this.playService.botRegistry[botType]();
@@ -233,10 +235,11 @@ export class Room {
     const completedState = this.game.getState() as CompletedBoardState;
     this.pastGames.push(completedState.end_state);
     this.game = Game.createNew(this.settings);
-    this.broadcastMessage(RoomSockets.newGame(
-      this.id,
-      this.game.id,
-      this.game.settings,
-    ));
+    this.broadcastMessage(RoomSocketMessages.newGame({
+      roomId: this.id,
+      gameId: this.game.id,
+      settings: this.game.settings,
+    }));
+    this.playService.roomUpdated(this);
   }
 }

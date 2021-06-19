@@ -114,7 +114,7 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
       };
       events.push(showDogEvent);
     }
-    return { state: bidState, events };
+    return { state: bidState, events, serverMessages: ['A new game has begun'] };
   }
 }
 

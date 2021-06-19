@@ -199,7 +199,6 @@ function setDog(state: PlayState, action: SetDogAction): PlayState {
     const globalHand = state.allHands.get(action.player);
     const newAllHands = new Map(state.allHands);
     if (globalHand != null) {
-      console.log('replacing hand', globalHand, action.dog);
       const handWithDog = [...globalHand, ...state.dog];
       const droppedHand = cardsWithout(handWithDog, ...action.dog);
       droppedHand.sort(compareCards());

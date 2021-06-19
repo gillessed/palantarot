@@ -131,7 +131,7 @@ const getGroupedChatText = defaultMemoize((chat: ChatText[]) => {
       }
     }
   }
-  return items;
+  return items.reverse();
 }); 
 
 export const ClientGameSelectors = {

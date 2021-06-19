@@ -3,9 +3,10 @@ import { GameErrors } from "../GameErrors";
 import { DeclareSlam, PlayerEvent, ShowTrumpAction } from "../GameEvents";
 import { BoardState, Call, CompletedBids, DealtBoardState, PlayerId, ReducerResult } from "../GameState";
 
-export const simpleResult = <RESULT extends BoardState>(state: RESULT, action: PlayerEvent): ReducerResult<RESULT> => ({
+export const simpleResult = <RESULT extends BoardState>(state: RESULT, action: PlayerEvent, serverMessages?: string[]): ReducerResult<RESULT> => ({
   state,
   events: [action],
+  serverMessages,
 });
 
 export const showTrumpActionReducer = <T extends DealtBoardState>(state: T, action: ShowTrumpAction): ReducerResult<T> => {

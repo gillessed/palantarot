@@ -2,7 +2,8 @@ import { Button } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import React from "react";
 import { Player } from '../../../server/model/Player';
-import { RoomDescription } from '../../../server/play/room/RoomDescription';
+import { GameplayState } from '../../../server/play/model/GameState';
+import { getOnlinePlayersInRoom, RoomDescription } from '../../../server/play/room/RoomDescription';
 import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
 import { GamePlayers } from './GamePlayers';
 
@@ -30,14 +31,26 @@ export class RoomRow extends React.PureComponent<Props> {
         </td>
         <td>
           <GamePlayers
-            playerIds={Object.keys(room.players)  }
+            playerIds={getOnlinePlayersInRoom(room)}
             players={players}
             gamePlayer={gamePlayer}
           />
         </td>
-        <td>{this.renderSettings()}</td>
+        <td> {this.renderGameState()} </td>
+        <td> {this.renderSettings()} </td>
       </tr>
     );
+  }
+
+  private renderGameState() {
+    const { gameState } = this.props.room;
+    if (gameState === GameplayState.NewGame || gameState === GameplayState.Completed) {
+      return 'Waiting for players';
+    } else if (gameState === GameplayState.Playing) {
+      return 'Playing';
+    } else {
+      return 'Bidding';
+    }
   }
 
   private renderSettings() {

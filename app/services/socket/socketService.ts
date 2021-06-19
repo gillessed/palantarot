@@ -3,103 +3,73 @@ import { END, EventChannel, eventChannel } from 'redux-saga';
 import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
 import { SocketMessage } from '../../../server/websocket/SocketMessage';
 
-export type MessagePayload<JoinPayload> = {
-  metadata: JoinPayload;
-  message: SocketMessage;
+export interface SocketConnectPayload {
+  id: string;
+  initialMessages: SocketMessage[];
 }
 
-export interface SocketActions<JoinPayload> {
-  join: TypedAction.Definition<string, JoinPayload>,
-  message: TypedAction.Definition<string, MessagePayload<JoinPayload>>,
-  send: TypedAction.Definition<string, SocketMessage>,
-  error: TypedAction.Definition<string, Error>,
-  close: TypedAction.Definition<string, void>,
+const name = (method: string) => `socketService::${method}`;
+
+export const SocketActions = {
+  connect: TypedAction.define(name('connect'))<SocketConnectPayload>(),
+  message: TypedAction.define(name('message'))<SocketMessage<any>>(),
+  send: TypedAction.define(name('send'))<SocketMessage<any>>(),
+  error: TypedAction.define(name('error'))<Error>(),
+  close: TypedAction.define(name('close'))<void>(),
 }
 
-export function createSocketService<JoinPayload, MessageType = SocketMessage>(
-  prefix: string,
-  getInitialMessage: (payload: JoinPayload) => MessageType,
-) {
-  const socketActions = createSocketActions<JoinPayload>(prefix);
-  const saga = createSocketSaga<JoinPayload, MessageType>(socketActions, getInitialMessage);
-  return {
-    actions: socketActions,
-    saga,
+export function* socketSaga() {
+  yield takeEvery(SocketActions.connect.TYPE, connectSaga);
+}
+
+const socketQueue: SocketMessage<any>[] = [];
+
+function* connectSaga(action: TypedAction<SocketConnectPayload>) {
+  const websocket = openSocket();
+  websocket.onopen = () => {
+    for (const message of action.payload.initialMessages) {
+      websocket.send(JSON.stringify(message));
+    }
+    for (const message of socketQueue) {
+      websocket.send(JSON.stringify(message));
+    }
+    while (socketQueue.length > 0) {
+      socketQueue.pop();
+    }
   };
-}
+  const channel: EventChannel<SocketMessage<any>> = listen(websocket);
+  yield takeEvery(SocketActions.send.TYPE, sendSaga, websocket);
+  yield takeEvery(SocketActions.close.TYPE, closeSaga, channel);
 
-function createSocketActions<JoinPayload>(prefix: string): SocketActions<JoinPayload> {
-  return {
-    join: TypedAction.define(`${prefix} SOCKET // JOIN`)<JoinPayload>(),
-    message: TypedAction.define(`${prefix} SOCKET // MESSAGE`)<MessagePayload<JoinPayload>>(),
-    send: TypedAction.define(`${prefix} SOCKET // SEND`)<SocketMessage>(),
-    error: TypedAction.define(`${prefix} SOCKET // ERROR`)<Error>(),
-    close: TypedAction.define(`${prefix} SOCKET // CLOSE`)<void>(),
-  }
-}
-
-function createSocketSaga<JoinPayload, MessageType = SocketMessage>(
-  socketActions: SocketActions<JoinPayload>,
-  getInitialMessage: (payload: JoinPayload) => MessageType,
-) {
-  const socketQueue: SocketMessage[] = [];
-  function* joinSaga(action: TypedAction<JoinPayload>) {
-    const websocket = openSocket();
-    const initialMessage = getInitialMessage(action.payload);
-    websocket.onopen = () => {
-      console.log('socket opened, sending messages', initialMessage, socketQueue);
-      websocket.send(JSON.stringify(initialMessage));
-      for (const message of socketQueue) {
-        websocket.send(JSON.stringify(message));
-      }
-      while (socketQueue.length > 0) {
-        socketQueue.pop();
-      }
-    };
-    const channel: EventChannel<SocketMessage> = listen(websocket);
-    yield takeEvery(socketActions.send.TYPE, sendSaga, websocket);
-    yield takeEvery(socketActions.close.TYPE, closeSaga, channel);
-
-    try {
-      while (true) {
-        const socketMessage: SocketMessage = yield take(channel);
-        const payload = {
-          metadata: action.payload,
-          message: socketMessage,
-        };
-        yield put(socketActions.message(payload));
-      }
-    } finally {
-      if (yield cancelled()) {
-        channel.close();
-      }
+  try {
+    while (true) {
+      const socketMessage: SocketMessage<any> = yield take(channel);
+      yield put(SocketActions.message(socketMessage));
+    }
+  } finally {
+    if (yield cancelled()) {
+      channel.close();
     }
   }
+}
 
-  function* sendSaga(websocket: WebSocket, action: TypedAction<SocketMessage>) {
-    if (websocket.readyState === WebSocket.OPEN) {
-      console.log('sending websocket message', action.payload);
-      websocket.send(JSON.stringify(action.payload));
-    } else if (websocket.readyState === WebSocket.CONNECTING) {
-      console.log('queueing websocket message', action.payload);
-      socketQueue.unshift(action.payload);
-    }
-  }
-
-  function* closeSaga(channel: EventChannel<SocketMessage>) {
-    channel.close();
-  }
-
-  return function* () {
-    yield takeEvery(socketActions.join.TYPE, joinSaga);
+function* sendSaga(websocket: WebSocket, action: TypedAction<SocketMessage<any>>) {
+  if (websocket.readyState === WebSocket.OPEN) {
+    websocket.send(JSON.stringify(action.payload));
+  } else if (websocket.readyState === WebSocket.CONNECTING) {
+    socketQueue.unshift(action.payload);
   }
 }
 
-function listen(socket: WebSocket): EventChannel<SocketMessage> {
+function* closeSaga(channel: EventChannel<SocketMessage<any>>) {
+  channel.close();
+}
+
+function listen(socket: WebSocket): EventChannel<SocketMessage<any>> {
   return eventChannel((emitter) => {
     socket.onmessage = (event) => {
       try {
-        const data: SocketMessage = JSON.parse(event.data);
+        const data: SocketMessage<any> = JSON.parse(event.data);
         emitter(data);
       } catch (error) {
         // TODO: emit error
