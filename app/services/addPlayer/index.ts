@@ -1,6 +1,7 @@
 import { TypedAction, TypedReducer } from 'redoodle';
 import { Store } from 'redux';
 import { all, put, takeLatest } from 'redux-saga/effects';
+import { actionName } from '../redux/actionName';
 import { ReduxState } from '../rootReducer';
 import { NewPlayer, Player } from './../../../server/model/Player';
 import { curry } from './../../../server/utils';
@@ -12,12 +13,14 @@ export interface AddNewPlayerPayload {
   source?: any,
 }
 
+const name = actionName('addPlayer');
+
 export const addNewPlayerActions = {
-  request: TypedAction.define('ADD_NEW_PLAYER // REQUEST')<AddNewPlayerPayload>(),
-  error: TypedAction.define('ADD_NEW_PLAYER // ERROR')<Error>(),
-  loading: TypedAction.define('ADD_NEW_PLAYER // LOADING')<void>(),
-  success: TypedAction.define('ADD_NEW_PLAYER // SUCCESS')<Player>(),
-  clear: TypedAction.define('ADD_NEW_PLAYER // CLEAR')<void>(),
+  request: TypedAction.define(name('request'))<AddNewPlayerPayload>(),
+  error: TypedAction.define(name('error'))<Error>(),
+  loading: TypedAction.define(name('loading'))<void>(),
+  success: TypedAction.define(name('success'))<Player>(),
+  clear: TypedAction.define(name('clear'))<void>(),
 };
 
 export class AddNewPlayerDispatcher {

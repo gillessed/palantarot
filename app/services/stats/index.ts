@@ -1,21 +1,20 @@
-import { Loadable } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
-import {
-  Stats,
-  AggregatedStats,
-  AggregatedStat,
-  RoleStats,
-} from '../../../server/model/Stats';
 import { IMonth } from '../../../server/model/Month';
-import { Loader } from '../loader';
-import { ReduxState } from '../rootReducer';
+import {
+  AggregatedStat, AggregatedStats,
+
+  RoleStats, Stats
+} from '../../../server/model/Stats';
 import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type StatsService = Loadable<void, AggregatedStats>;
 
-const statsService = generatePropertyService<void, AggregatedStats>('STATS',
+const statsService = generatePropertyService<void, AggregatedStats>('stats',
   (api: ServerApi) => {
     return () => {
       return api.getStats().then((stats: Stats) => {

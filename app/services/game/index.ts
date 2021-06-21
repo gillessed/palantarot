@@ -7,7 +7,7 @@ import { LoadableCache } from './../redux/loadable';
 
 export type GameService = LoadableCache<string, GameRecord>;
 
-const gameService = generateService<string, GameRecord>('GAMES',
+const gameService = generateService<string, GameRecord>('games',
   (api: ServerApi) => {
     return (gameIds: string[]) => {
       return wrapAsBatchCall((gameId: string) => {

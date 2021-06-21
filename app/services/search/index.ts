@@ -10,15 +10,17 @@ import { ServerApi } from './../../api/serverApi';
 
 export type SearchService = LoadableCache<string, GameRecord[]>;
 
+const searchOperation = (api: ServerApi) => {
+  return (queries: SearchQuery[]) => {
+    return api.search(queries[0]).then((result: GameRecord[]) => {
+      return new Map<SearchQuery, GameRecord[]>([[queries[0], result]]);
+    });
+  }
+};
+
 const searchService = generateService<SearchQuery, GameRecord[], string>(
-  'SEARCH',
-  (api: ServerApi) => {
-    return (queries: SearchQuery[]) => {
-      return api.search(queries[0]).then((result: GameRecord[]) => {
-        return new Map<SearchQuery, GameRecord[]>([[queries[0], result]]);
-      });
-    }
-  },
+  'search',
+  searchOperation,
   (query: SearchQuery) => query.id,
 );
 

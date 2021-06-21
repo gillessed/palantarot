@@ -1,16 +1,16 @@
-import { LoadableCache } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generateService, identityMapper } from '../redux/serviceGenerator';
-import { ServiceDispatcher } from '../redux/serviceDispatcher';
-import { ReduxState } from '../rootReducer';
-import { Loader } from '../loader';
-import { Dispatchers } from '../dispatchers';
 import { TarothonData } from '../../../server/model/Tarothon';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
 import { wrapAsBatchCall } from '../redux/utils';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { LoadableCache } from './../redux/loadable';
 
 export type TarothonDataService = LoadableCache<string, TarothonData>;
 
-const tarothonDataService = generateService<string, TarothonData>('TAROTHON DATA',
+const tarothonDataService = generateService<string, TarothonData>('tarothonData',
   (api: ServerApi) => {
     return (tarothonIds: string[]) => {
       return wrapAsBatchCall((tarothonId: string) => {

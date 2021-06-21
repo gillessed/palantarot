@@ -1,15 +1,15 @@
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
-import { Loadable } from '../redux/loadable';
-import { ReduxState } from '../rootReducer';
+import { Streak } from '../../../server/model/Streak';
 import { Dispatchers } from '../dispatchers';
 import { Loader } from '../loader';
-import { Streak } from '../../../server/model/Streak';
+import { Loadable } from '../redux/loadable';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
 
 export type StreaksService = Loadable<void, Streak[]>;
 
-const streaksService = generatePropertyService<void, Streak[]>('STREAKS',
+const streaksService = generatePropertyService<void, Streak[]>('streaks',
   (api: ServerApi) => {
     return () => {
       return api.getStreaks();

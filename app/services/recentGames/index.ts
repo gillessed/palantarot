@@ -10,7 +10,7 @@ import { Loadable } from './../redux/loadable';
 
 export type RecentGamesService = Loadable<RecentGameQuery, GameRecord[]>;
 
-const recentGamesService = generatePropertyService<RecentGameQuery, GameRecord[]>('RECENT_GAMES',
+const recentGamesService = generatePropertyService<RecentGameQuery, GameRecord[]>('recentGames',
   (api: ServerApi) => {
     return (query: RecentGameQuery) => {
       return api.getRecentGames(query);

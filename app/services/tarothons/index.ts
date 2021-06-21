@@ -1,16 +1,15 @@
-import { Loadable } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { Player } from './../../../server/model/Player';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
-import { ReduxState } from '../rootReducer';
-import { Loader } from '../loader';
-import { Dispatchers } from '../dispatchers';
 import { Tarothon } from '../../../server/model/Tarothon';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type TarothonsService = Loadable<void, Tarothon[]>;
 
-const tarothonsService = generatePropertyService<void, Tarothon[]>('TAROTHON',
+const tarothonsService = generatePropertyService<void, Tarothon[]>('tarothon',
   (api: ServerApi) => {
     return () => {
       return api.getTarothons();

@@ -11,7 +11,7 @@ import { ServerApi } from './../../api/serverApi';
 
 export type MonthGamesService = LoadableCache<Month, GameRecord[]>;
 
-const monthGamesService = generateService<Month, GameRecord[]>('MONTH_GAMES',
+const monthGamesService = generateService<Month, GameRecord[]>('monthGames',
   (api: ServerApi) => {
     return (months: Month[]) => {
       return wrapAsBatchCall((month: Month) => {

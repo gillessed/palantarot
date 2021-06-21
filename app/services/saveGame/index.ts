@@ -14,7 +14,7 @@ const saveGameOperation = (api: ServerApi) => {
   }
 };
 
-const saveGameService = generatePropertyService<GameRecord, void>('SAVE_GAME', saveGameOperation);
+const saveGameService = generatePropertyService<GameRecord, void>('saveGame', saveGameOperation);
 
 export const saveGameActions = saveGameService.actions;
 export const SaveGameDispatcher = saveGameService.dispatcher;

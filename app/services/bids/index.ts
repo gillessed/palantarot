@@ -1,15 +1,15 @@
-import { Loadable } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { BidRequest, BidStats } from '../../../server/model/Bid';
-import { ReduxState } from '../rootReducer';
-import { Loader } from '../loader';
 import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type BidsService = Loadable<BidRequest, BidStats>;
 
-const bidsService = generatePropertyService<BidRequest, BidStats>('BIDS',
+const bidsService = generatePropertyService<BidRequest, BidStats>('bids',
   (api: ServerApi) => {
     return (request: BidRequest) => {
       return api.getBids(request);

@@ -1,7 +1,7 @@
-import { Loadable } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
 import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export interface AuthRequest {
   secret: string;
@@ -9,7 +9,7 @@ export interface AuthRequest {
 
 export type AuthService = Loadable<AuthRequest, void>;
 
-const authService = generatePropertyService<AuthRequest, void>('AUTH',
+const authService = generatePropertyService<AuthRequest, void>('auth',
   (api: ServerApi) => {
     return (request: AuthRequest) => {
       return api.login(request);

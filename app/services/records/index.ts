@@ -1,15 +1,15 @@
-import { Loadable } from './../redux/loadable';
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
 import { Records } from '../../../server/model/Records';
-import { ReduxState } from '../rootReducer';
-import { Loader } from '../loader';
 import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type RecordsService = Loadable<void, Records>;
 
-const recordsService = generatePropertyService<void, Records>('RECORDS',
+const recordsService = generatePropertyService<void, Records>('records',
   (api: ServerApi) => {
     return () => {
       return api.getRecords();
