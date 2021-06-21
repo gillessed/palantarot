@@ -44,7 +44,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
       isGameSettingsDialogOpen: false,
     };
   }
-  public componentWillMount() {
+  public componentDidMount() {
     const { gamePlayer, dispatchers } = this.props;
     if (gamePlayer != null) {
       dispatchers.lobby.socketConnect(gamePlayer?.playerId);

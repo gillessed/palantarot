@@ -56,7 +56,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
         <ButtonGroup className='toggle-button-group bp3-dark' fill>
           <Button
             className='toggle-messages-button'
-            icon={IconNames.PROPERTIES}
+            icon={IconNames.CHAT}
             active={sidebarTab === SidebarTab.Chat}
             onClick={this.setSidebarTabChat}
           />

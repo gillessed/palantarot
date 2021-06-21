@@ -3,17 +3,6 @@
   flex-direction: column-reverse;
 }
 
-.player-row {
-  font-family: dinNextBold;
-  font-size: 16px;
-  margin-bottom: 5px;
-
-  .player-name {
-    margin-left: 10px;
-    font-family: dinNextRegular;
-  }
-}
-
 .event-child:not(:first-child) {
   margin-bottom: 10px;
 }

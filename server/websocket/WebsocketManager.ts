@@ -44,6 +44,7 @@ export class WebsocketManager {
     }
     const jsonSocket = new JsonSocket(socket);
     jsonSocket.handleMessage = (message: SocketMessage<any>) => {
+      // console.debug('received message', JSON.stringify(message, null, 2));
       for (const listener of this.socketMessageListeners) {
         listener.handleMessage(socketId, jsonSocket, message);
       }

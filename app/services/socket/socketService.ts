@@ -1,14 +1,16 @@
 import { TypedAction } from 'redoodle';
 import { END, EventChannel, eventChannel } from 'redux-saga';
 import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
-import { SocketMessage } from '../../../server/websocket/SocketMessage';
+import { generateId } from '../../../server/utils/randomString';
+import { socketConnectionMessage, SocketMessage } from '../../../server/websocket/SocketMessage';
+import { actionName } from '../redux/actionName';
 
 export interface SocketConnectPayload {
   id: string;
   initialMessages: SocketMessage[];
 }
 
-const name = (method: string) => `socketService::${method}`;
+const name = actionName('socketService');
 
 export const SocketActions = {
   connect: TypedAction.define(name('connect'))<SocketConnectPayload>(),
@@ -25,8 +27,10 @@ export function* socketSaga() {
 const socketQueue: SocketMessage<any>[] = [];
 
 function* connectSaga(action: TypedAction<SocketConnectPayload>) {
+  const socketId = generateId();
   const websocket = openSocket();
   websocket.onopen = () => {
+    websocket.send(JSON.stringify(socketConnectionMessage(socketId)));
     for (const message of action.payload.initialMessages) {
       websocket.send(JSON.stringify(message));
     }

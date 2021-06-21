@@ -3,8 +3,7 @@ import { TypedAction } from 'redoodle';
 import { all, call, delay, put, select, takeEvery } from 'redux-saga/effects';
 import { ErrorCode } from '../../../server/play/model/GameEvents';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
-import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
-import { RoomStatus } from '../../../server/play/room/RoomStatus';
+import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, PlayerStatusUpdatedMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
 import { SocketMessage } from '../../../server/websocket/SocketMessage';
 import { Palantoaster } from '../../components/toaster/Toaster';
 import history from '../../history';
@@ -12,14 +11,18 @@ import { StaticRoutes } from '../../routes';
 import { getGamePlayer } from '../gamePlayer/GamePlayerSelectors';
 import { SocketActions } from '../socket/socketService';
 import { ClientGameSelectors } from './ClientGameSelectors';
-import { DebugRoomActions, RoomActions } from './RoomActions';
+import { RoomActions } from './RoomActions';
 import { RoomSelectors } from './RoomSelectors';
+import { RoomStatusPayload } from './RoomTypes';
 
 function* handleMessage(action: TypedAction<SocketMessage>) {
   const message = action.payload;
   switch (message.type) {
     case RoomSocketMessages.enterRoom.type:
       yield call(handleEnterRoomMessage, message.payload);
+      break;
+    case RoomSocketMessages.playerStatusUpdated.type:
+      yield call(handlePlayerStatusUpdated, message.payload);
       break;
     case RoomSocketMessages.roomStatus.type:
       yield call(handleRoomStatusMessage, message.payload);
@@ -43,12 +46,16 @@ export function* handleEnterRoomMessage(payload: EnterRoomMessagePayload) {
   yield put(RoomActions.setPlayerStatus({ playerId: payload.playerId, playerStatus: PlayerStatus.Online }));
 }
 
-export function* handleRoomStatusMessage(payload: RoomStatus) {
+export function* handlePlayerStatusUpdated(payload: PlayerStatusUpdatedMessagePayload) {
+  yield put(RoomActions.setPlayerStatus({ playerId: payload.playerId, playerStatus: payload.playerStatus }));
+}
+
+export function* handleRoomStatusMessage(payload: RoomStatusPayload) {
   const gamePlayer: ReturnType<typeof getGamePlayer> = yield select(getGamePlayer);
   if (gamePlayer != null) {
     yield put(RoomActions.roomStatus({
       playerId: gamePlayer.playerId,
-      room: payload,
+      room: payload.room,
     }));
   }
 }
@@ -84,7 +91,7 @@ export function* handleRoomErrorMessage(payload: RoomErrorMessagePayload) {
 export function* roomSaga() {
   yield all([
     takeEvery(SocketActions.message.TYPE, handleMessage),
-    takeEvery(DebugRoomActions.autoplay.TYPE, autoplaySaga),
+    takeEvery(RoomActions.autoplay.TYPE, autoplaySaga),
     takeEvery(RoomActions.setAutoplay.TYPE, setAutoplaySaga),
   ]);
 }

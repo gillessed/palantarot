@@ -45,7 +45,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
     this.dispatchers = context.dispatchers;
   }
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { gamePlayer } = this.props;
     if (gamePlayer == null) {
       history.push(StaticRoutes.lobby());

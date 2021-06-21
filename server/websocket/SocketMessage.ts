@@ -1,3 +1,5 @@
+import { actionName } from "../../app/services/redux/actionName";
+
 export interface SocketMessage<Payload = any> { 
   type: string;
   payload: Payload;
@@ -29,7 +31,7 @@ export const defineSocketMessage = <Payload>(type: string): SocketMessageDefinit
   return definition;
 }
 
-const connectionMessageName = 'websocket::socketConnectionMessage';
+const connectionMessageName = actionName('websocket')('socketConnectionMessage');
 export const socketConnectionMessage = defineSocketMessage<string>(connectionMessageName);
 
 export const isSocketConnectionMessage = (data: any): data is SocketMessage<string> => {

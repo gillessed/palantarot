@@ -1,21 +1,25 @@
 import { TypedAction } from 'redoodle';
 import { Action } from '../../../server/play/model/GameEvents';
 import { ChatText } from '../../../server/play/room/ChatText';
-import { GameUpdatesPayload, JoinRoomPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
+import { actionName } from '../redux/actionName';
+import { GameUpdatesPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
-const roomStatus = TypedAction.define("ROOM // STATUS")<RoomStatusPayload>();
-const gameAction = TypedAction.define("ROOM // GAME ACTION")<Action>();
-const error = TypedAction.define("ROOM // ERROR")<Action>();
-const gameUpdate = TypedAction.define("ROOM // GAME UPDATE")<GameUpdatesPayload>();
-const addBot = TypedAction.define("ROOM // ADD BOT")<string>();
-const removeBot = TypedAction.define("ROOM // REMOVE BOT")<string>();
-const chatReceived = TypedAction.define("ROOM //CHAT RECEIVED")<ChatText>();
-const sendChat = TypedAction.define("ROOM // SEND CHAT")<string>();
-const closeShowWindow = TypedAction.define("PLAY // CLOSE SHOW INWDOW")<void>();
-const setAutoplay = TypedAction.define("PLAY // SET AUTOPLAY")<boolean>();
-const newGameCreated = TypedAction.define("ROOM // NEW GAME CREATED")<NewGameInfo>();
-const moveToNewGame = TypedAction.define("ROOM // MOVE TO NEW GAME")<void>();
-const setPlayerStatus = TypedAction.define("ROOOM // SET PLAYER STATUS")<SetPlayerStatusPayload>();
+const name = actionName('room');
+
+const roomStatus = TypedAction.define(name('roomStatus'))<RoomStatusPayload>();
+const gameAction = TypedAction.define(name('gameAction'))<Action>();
+const error = TypedAction.define(name('error'))<Action>();
+const gameUpdate = TypedAction.define(name('gameUpdate'))<GameUpdatesPayload>();
+const addBot = TypedAction.define(name('addBot'))<string>();
+const removeBot = TypedAction.define(name('removeBot'))<string>();
+const chatReceived = TypedAction.define(name('chatReceived'))<ChatText>();
+const sendChat = TypedAction.define(name('sendChat'))<string>();
+const closeShowWindow = TypedAction.define(name('closeShowWindow'))<void>();
+const setAutoplay = TypedAction.define(name('setAutoplay'))<boolean>();
+const newGameCreated = TypedAction.define(name('newGameCreated'))<NewGameInfo>();
+const moveToNewGame = TypedAction.define(name('moveToNewGame'))<void>();
+const setPlayerStatus = TypedAction.define(name('setPlayerStatus'))<SetPlayerStatusPayload>();
+const autoplay = TypedAction.define(name('autoplay'))<SetPlayerStatusPayload>();
 export const RoomActions = {
   roomStatus,
   gameAction,
@@ -30,13 +34,5 @@ export const RoomActions = {
   newGameCreated,
   moveToNewGame,
   setPlayerStatus,
-};
-
-const debugJoinGame = TypedAction.define("DEBUG PLAY // JOIN")<JoinRoomPayload>();
-const debugPlayAction = TypedAction.define("DEBUG PLAY // ACTION")<Action>();
-const autoplay = TypedAction.define("DEBUG PLAY // AUTOPLAY")<void>();
-export const DebugRoomActions = {
-  debugJoinGame,
-  debugPlayAction,
   autoplay,
 };

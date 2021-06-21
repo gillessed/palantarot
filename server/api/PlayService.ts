@@ -8,6 +8,7 @@ import { PlayerId } from '../play/model/GameState';
 import { NewRoomArgs } from '../play/room/NewRoomArgs';
 import { Room } from '../play/room/Room';
 import { getRoomDescription, RoomDescriptions } from '../play/room/RoomDescription';
+import { Multimap } from '../utils/multimap';
 import { JsonSocket } from '../websocket/JsonSocket';
 import { WebsocketManager } from '../websocket/WebsocketManager';
 
@@ -18,9 +19,9 @@ export class PlayService {
   public readonly gameQuerier: GameRecordQuerier;
   public readonly playerQuerier: PlayerQuerier;
   private rooms: Map<string, Room>;
-  private playersInRooms: Map<PlayerId, Set<string>>;
+  private playerIdToRoomId: Multimap<string>;
   private lobbyPlayers: Set<string>;
-  private playerIdToSocketId: Map<PlayerId, string>;
+  private playerIdToSocketId: Multimap<string>;
   private socketIdToPlayerId: Map<string, PlayerId>;
 
   constructor(
@@ -32,9 +33,9 @@ export class PlayService {
     this.gameQuerier = new GameRecordQuerier(db);
     this.playerQuerier = new PlayerQuerier(db);
     this.rooms = new Map();
-    this.playersInRooms = new Map();
+    this.playerIdToRoomId = new Multimap();
     this.lobbyPlayers = new Set();
-    this.playerIdToSocketId = new Map();
+    this.playerIdToSocketId = new Multimap();
     this.socketIdToPlayerId = new Map();
 
     this.websocketManager = websocketManager;
@@ -46,7 +47,6 @@ export class PlayService {
   public newRoom = async (req: Request, res: Response) => {
     const args: NewRoomArgs = req.body;
     const room = Room.empty(this, args);
-    this.playersInRooms.set(room.id, new Set());
     this.rooms.set(room.id, room);
     this.roomUpdated(room);
   };
@@ -65,7 +65,7 @@ export class PlayService {
     return this.rooms.get(roomId);
   }
 
-  public getSocketIdForPlayer(playerId: string): string | undefined {
+  public getSocketIdsForPlayer(playerId: string): Set<string> {
     return this.playerIdToSocketId.get(playerId);
   }
 
@@ -73,10 +73,16 @@ export class PlayService {
     return this.socketIdToPlayerId.get(socketId);
   }
 
-  public getSocketForPlayer(playerId: string): JsonSocket | undefined {
-    const socketId = this.playerIdToSocketId.get(playerId);
-    const socket = this.websocketManager.getSocket(socketId ?? "");
-    return socket;
+  public getSocketsForPlayer(playerId: string): Set<JsonSocket> {
+    const socketIds = this.playerIdToSocketId.get(playerId);
+    const sockets = new Set<JsonSocket>();
+    for (const socketId of socketIds) {
+      const socket = this.websocketManager.getSocket(socketId ?? "");
+      if (socket != null) {
+        sockets.add(socket);
+      }
+    }
+    return sockets;
   }
 
   public playerEnteredLobby(socketId: string, playerId: string) {
@@ -91,28 +97,47 @@ export class PlayService {
 
   /* Helper */
 
+  public socketClosed(socketId: string) {
+    const playerId = this.removeSocketById(socketId);
+    if (playerId) {
+      this.lobbyPlayers.delete(playerId);
+      const roomIds = this.playerIdToRoomId.get(playerId);
+      for (const roomId of roomIds) {
+        this.rooms.get(roomId)?.socketClosed(playerId);
+      }
+    }
+  }
+
   public setPlayerSocketId(socketId: string, playerId: string) {
-    console.log('**** setting socketid to playerid ', socketId, playerId);
     this.playerIdToSocketId.set(playerId, socketId);
     this.socketIdToPlayerId.set(socketId, playerId);
   }
 
-  public removeSocketById(socketId: string) {
-    console.log('**** clearing socket ', socketId);
+  public removeSocketById(socketId: string): string | undefined {
     const playerId = this.socketIdToPlayerId.get(socketId);
     this.socketIdToPlayerId.delete(socketId);
     if (playerId) {
-      this.playerIdToSocketId.delete(playerId);
+      this.playerIdToSocketId.delete(playerId, socketId);
     }
+    return playerId;
+  }
+
+  public addPlayerToRoom(roomId: string, playerId: string) {
+    this.playerIdToRoomId.set(playerId, roomId);
+  }
+
+  public removePlayerFromRoom(roomId: string, playerId: string) {
+    this.playerIdToRoomId.delete(playerId, roomId);
   }
 
   public roomUpdated(room: Room) {
     const roomDescription = getRoomDescription(room);
     for (const playerId of this.lobbyPlayers) {
-      const socketId = this.getSocketIdForPlayer(playerId);
-      const socket = this.websocketManager.getSocket(socketId ?? "");
-      if (socket != null) {
-        socket.send(LobbySocketMessages.roomUpdated(roomDescription));
+      const sockets = this.getSocketsForPlayer(playerId);
+      for (const socket of sockets) {
+        if (socket != null) {
+          socket.send(LobbySocketMessages.roomUpdated(roomDescription));
+        }
       }
     }
   }

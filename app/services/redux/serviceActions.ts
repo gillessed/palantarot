@@ -1,4 +1,5 @@
 import { TypedAction } from 'redoodle';
+import { actionName } from './actionName';
 
 // Service
 
@@ -12,13 +13,14 @@ export interface ServiceActions<REQUEST, RESULT> {
 }
 
 export function generateServiceActions<REQUEST, RESULT>(prefix: string): ServiceActions<REQUEST, RESULT> {
+  const name = actionName(prefix);
   return {
-    request: TypedAction.define(prefix + ' // REQUEST')<REQUEST[]>(),
-    loading: TypedAction.define(prefix + ' // LOADING')<REQUEST[]>(),
-    success: TypedAction.define(prefix + ' // SUCCESS')<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>(),
-    error: TypedAction.define(prefix + ' // ERROR')<{ arg: REQUEST[], error: Error }>(),
-    clear: TypedAction.define(prefix + ' // CLEAR')<REQUEST[]>(),
-    clearAll: TypedAction.define(prefix + ' // CLEAR ALL')<void>(),
+    request: TypedAction.define(name('request'))<REQUEST[]>(),
+    loading: TypedAction.define(name('loading'))<REQUEST[]>(),
+    success: TypedAction.define(name('success'))<{ arg: REQUEST[], result: Map<REQUEST, RESULT> }>(),
+    error: TypedAction.define(name('error'))<{ arg: REQUEST[], error: Error }>(),
+    clear: TypedAction.define(name('clear'))<REQUEST[]>(),
+    clearAll: TypedAction.define(name('clearAll'))<void>(),
   };
 }
 
@@ -33,11 +35,12 @@ export interface PropertyActions<REQUEST, RESULT> {
 }
 
 export function generatePropertyActions<REQUEST, RESULT>(prefix: string): PropertyActions<REQUEST, RESULT> {
+  const name = actionName(prefix);
   return {
-    request: TypedAction.define(prefix + ' // REQUEST')<REQUEST>(),
-    loading: TypedAction.define(prefix + ' // LOADING')<void>(),
-    success: TypedAction.define(prefix + ' // SUCCESS')<{ arg: REQUEST, result: RESULT }>(),
-    error: TypedAction.define(prefix + ' // ERROR')<{ error: Error }>(),
-    clear: TypedAction.define(prefix + ' // CLEAR')<void>(),
+    request: TypedAction.define(name('request'))<REQUEST>(),
+    loading: TypedAction.define(name('loading'))<void>(),
+    success: TypedAction.define(name('success'))<{ arg: REQUEST, result: RESULT }>(),
+    error: TypedAction.define(name('error'))<{ error: Error }>(),
+    clear: TypedAction.define(name('clear'))<void>(),
   };
 }

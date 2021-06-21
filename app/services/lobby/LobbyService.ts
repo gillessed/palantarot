@@ -5,7 +5,7 @@ import { generatePropertyService } from "../../services/redux/serviceGenerator";
 import { ReduxState } from "../../services/rootReducer";
 import { Lobby } from './LobbyTypes';
 
-export const lobbyService = generatePropertyService<void, Lobby>('LOBBY',
+export const lobbyService = generatePropertyService<void, Lobby>('lobby',
   (api: ServerApi) => {
     return () => {
       return api.listRooms()

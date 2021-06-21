@@ -6,7 +6,7 @@ import { ErrorCode } from '../model/GameEvents';
 import { RoomSocketMessages } from './RoomSocketMessages';
 
 export function isRoomMessage(message: SocketMessage): message is SocketMessage<{ roomId: string }> {
-  return message.type.startsWith('room') && (message as any).roomId != null;
+  return message.type.startsWith('room') && message.payload.roomId != null;
 }
 
 export class RoomSocketListener implements SocketMessageListener {

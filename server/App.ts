@@ -10,6 +10,7 @@ import { AuthService, createRequestValidator } from './api/AuthService';
 import { GameRecordService } from './api/GameRecordService';
 import { PlayerService } from './api/PlayerService';
 import { PlayService } from "./api/PlayService";
+import { PlaySocketCloseListener } from './api/PlaySocketCloseListener';
 import { SearchService } from './api/SearchService';
 import { StatsService } from './api/StatsService';
 import { TarothonService } from './api/TarothonService';
@@ -132,6 +133,8 @@ export class App {
     this.websocketManager.addMessageListener(lobbySocketListener);
     const roomSocketListener = new RoomSocketListener(playService);
     this.websocketManager.addMessageListener(roomSocketListener);
+    const playSocketCloseListener = new PlaySocketCloseListener(playService);
+    this.websocketManager.addCloseListener(playSocketCloseListener);
   }
  
   private redirectRoute() {

@@ -11,7 +11,7 @@ import { Loadable } from './../redux/loadable';
 
 export type PlayersService = Loadable<void, Map<PlayerId, Player>>;
 
-const playersService = generatePropertyService<void, Map<PlayerId, Player>>('PLAYERS',
+const playersService = generatePropertyService<void, Map<PlayerId, Player>>('players',
   (api: ServerApi) => {
     return () => {
       return api.getPlayers();

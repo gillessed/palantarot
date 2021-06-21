@@ -1,0 +1,22 @@
+.sidebar-player-list-title {
+  font-family: dinNextBold;
+  margin-bottom: 10px;
+
+  &.offline {
+    margin-top: 20px;
+  }
+}
+
+.player-row {
+  font-family: dinNextBold;
+  font-size: 16px;
+  margin-bottom: 5px;
+
+  *:not(:last-child) {
+    margin-right: 10px;
+  }
+  
+  .player-name {
+    font-family: dinNextRegular;
+  }
+}

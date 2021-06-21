@@ -20,6 +20,7 @@ import { roomSaga } from './room/RoomSagas';
 import { listenerLoop, SagaListener } from './sagaListener';
 import { saveGameSaga } from './saveGame/index';
 import { searchSaga } from './search/index';
+import { socketSaga } from './socket/socketService';
 import { statsSaga } from './stats/index';
 import { streaksSaga } from './streaks/index';
 import { tarothonDataSaga } from './tarothonData';
@@ -58,5 +59,6 @@ export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
     fork(streaksSaga, api),
     fork(searchSaga, api),
     fork(roomSaga),
+    fork(socketSaga),
   ]);
 }

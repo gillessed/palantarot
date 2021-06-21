@@ -63,8 +63,7 @@ export class Room {
     }
   }
 
-  public handleClose(playerId: string) {
-    console.log('**** Room socket closed', this.players.has(playerId));
+  public socketClosed(playerId: string) {
     if (this.players.has(playerId)) {
       this.players.set(playerId, PlayerStatus.Offline);
       this.broadcastMessage(RoomSocketMessages.playerStatusUpdated({ roomId: this.id, playerId, playerStatus: PlayerStatus.Offline, time: Date.now() }));
@@ -72,27 +71,28 @@ export class Room {
     }
   }
 
-  public handleEnterRoomMessage(socketId: string, message: SocketMessage<EnterRoomMessagePayload>) {
+  public handleEnterRoomMessage = (socketId: string, message: SocketMessage<EnterRoomMessagePayload>) => {
     const { playerId } = message.payload;
     this.broadcastMessage(message);
     this.playService.setPlayerSocketId(socketId, playerId);
+    this.playService.addPlayerToRoom(this.id, playerId);
     this.players.set(playerId, PlayerStatus.Online);
     this.sendRoomStatus(playerId);
     this.playService.roomUpdated(this);
   }
 
-  public handlePlayerChatMessage(message: SocketMessage<RoomChatMessagePayload>) {
+  public handlePlayerChatMessage = (message: SocketMessage<RoomChatMessagePayload>) => {
     this.chat.push(message.payload.chat);
     this.broadcastMessage(message);
   }
 
-  public handleGameActionMessage({ action }: GameActionMessagePayload) {
+  public handleGameActionMessage = ({ action }: GameActionMessagePayload) => {
     this.processGameActions([action]);
     this.handleBotPlayers();
     this.handleNewGame();
   }
 
-  public handleAddBotMessage(payload: BotMessagePayload) {
+  public handleAddBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
     const joinGame: EnterGameAction = {
@@ -108,7 +108,7 @@ export class Room {
     this.processGameActions([joinGame, ready]);
   }
 
-  public handleRemoveBotMessage(payload: BotMessagePayload) {
+  public handleRemoveBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
     const unready: PlayerNotReadyAction = {
@@ -124,7 +124,7 @@ export class Room {
     this.processGameActions([unready, leaveGame]);
   }
 
-  public handleAutoplayMessage() {
+  public handleAutoplayMessage = () => {
     const action = autoplayNextCard(this.game);
     if (action) {
       this.processGameActions([action]);
@@ -134,7 +134,7 @@ export class Room {
 
   /* Helpers */
 
-  private processGameActions(actions: Action[]) {
+  private processGameActions = (actions: Action[]) => {
     for (const action of actions) {
       const { events, serverMessages } = this.game.playerAction(action);
       if (events) {
@@ -156,38 +156,38 @@ export class Room {
     this.playService.roomUpdated(this);
   }
 
-  private sendRoomStatus(playerId: string) {
-    const socket = this.playService.getSocketForPlayer(playerId);
-    if (socket) {
+  private sendRoomStatus = (playerId: string) => {
+    const sockets = this.playService.getSocketsForPlayer(playerId);
+    for (const socket of sockets) {
       socket.send(RoomSocketMessages.roomStatus({ roomId: this.id, room: this.getRoomStatus(playerId) }));
     }
   }
 
-  private broadcastGameEvents(gameEvents: PlayerEvent[]) {
+  private broadcastGameEvents = (gameEvents: PlayerEvent[]) => {
     for (const playerId of this.players.keys()) {
-      const socket = this.playService.getSocketForPlayer(playerId);
-      if (socket != null) {
+      const sockets = this.playService.getSocketsForPlayer(playerId);
 
-        const filteredEvents = gameEvents.filter((gameEvent) => {
-          const isPrivate = gameEvent.privateTo != null && gameEvent.privateTo !== playerId;
-          const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
-          return (!isPrivate && !isExcluded);
-        });
+      const filteredEvents = gameEvents.filter((gameEvent) => {
+        const isPrivate = gameEvent.privateTo != null && gameEvent.privateTo !== playerId;
+        const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
+        return (!isPrivate && !isExcluded);
+      });
+      for (const socket of sockets) {
         socket.send(RoomSocketMessages.gameUpdates({ roomId: this.id, gameId: this.game.id, events: filteredEvents }));
       }
     }
   }
 
-  private broadcastMessage(message: SocketMessage) {
+  private broadcastMessage = (message: SocketMessage) => {
     for (const playerId of this.players.keys()) {
-      const socket = this.playService.getSocketForPlayer(playerId);
-      if (socket != null) {
+      const sockets = this.playService.getSocketsForPlayer(playerId);
+      for (const socket of sockets) {
         socket.send(message);
       }
     }
   }
 
-  private getRoomStatus(playerId: string): RoomStatus {
+  private getRoomStatus = (playerId: string): RoomStatus => {
     const players: { [key: string]: PlayerStatus } = {};
     for (const [playerId, status] of this.players) {
       players[playerId] = status;
@@ -202,7 +202,7 @@ export class Room {
     };
   }
 
-  private async handleBotPlayers() {
+  private handleBotPlayers = async () => {
     const playerList = await this.playService.playerQuerier.queryAllPlayers();
     const players = new Map<PlayerId, Player>();
     for (const player of playerList) {
@@ -227,7 +227,7 @@ export class Room {
     await this.handleNewGame();
   }
 
-  private async handleNewGame() {
+  private handleNewGame = () => {
     if (this.game.getState().name !== GameplayState.Completed) {
       return;
     }
