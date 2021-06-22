@@ -15,10 +15,11 @@ const removeBot = TypedAction.define(name('removeBot'))<string>();
 const chatReceived = TypedAction.define(name('chatReceived'))<ChatText>();
 const sendChat = TypedAction.define(name('sendChat'))<string>();
 const closeShowWindow = TypedAction.define(name('closeShowWindow'))<void>();
-const setAutoplay = TypedAction.define(name('setAutoplay'))<boolean>();
 const newGameCreated = TypedAction.define(name('newGameCreated'))<NewGameInfo>();
 const moveToNewGame = TypedAction.define(name('moveToNewGame'))<void>();
 const setPlayerStatus = TypedAction.define(name('setPlayerStatus'))<SetPlayerStatusPayload>();
+const setAutopass = TypedAction.define(name('setAutopass'))<boolean>();
+const setAutoplay = TypedAction.define(name('setAutoplay'))<boolean>();
 const autoplay = TypedAction.define(name('autoplay'))<SetPlayerStatusPayload>();
 export const RoomActions = {
   roomStatus,
@@ -30,9 +31,10 @@ export const RoomActions = {
   addBot,
   removeBot,
   closeShowWindow,
-  setAutoplay,
   newGameCreated,
   moveToNewGame,
   setPlayerStatus,
+  setAutopass,
+  setAutoplay,
   autoplay,
 };

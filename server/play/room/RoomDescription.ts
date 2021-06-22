@@ -1,3 +1,4 @@
+import { Player } from "../../model/Player";
 import { GameSettings } from "../model/GameSettings";
 import { GameplayState } from "../model/GameState";
 import { PlayerStatus } from "./PlayerStatus";
@@ -30,11 +31,11 @@ export function getRoomDescription(room: Room): RoomDescription {
   };
 }
 
-export function getOnlinePlayersInRoom(room: RoomDescription): string[] {
+export function getOnlinePlayersInRoom(room: RoomDescription, players: Map<string, Player>): string[] {
   const playerIds: string[] = [];
   for (const playerId of Object.keys(room.players)) {
     const status = room.players[playerId];
-    if (status === PlayerStatus.Online) {
+    if (status === PlayerStatus.Online && !players.get(playerId)?.isBot) {
       playerIds.push(playerId);
     }
   }

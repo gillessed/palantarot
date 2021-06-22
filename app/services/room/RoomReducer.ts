@@ -18,7 +18,7 @@ const createEmptyGameState = (gameId: string, playerId: string, settings: GameSe
   settings,
 });
 
-const roomStatusreducer = (state: ClientRoom | null, payload: RoomStatusPayload): ClientRoom | null => {
+const roomStatusReducer = (state: ClientRoom | null, payload: RoomStatusPayload): ClientRoom | null => {
   const { room, playerId } = payload;
   const players = new Map<PlayerId, PlayerStatus>();
   for (const playerId of Object.keys(room.players)) {
@@ -33,6 +33,7 @@ const roomStatusreducer = (state: ClientRoom | null, payload: RoomStatusPayload)
     players,
     settings: room.settings,
     autoplay: false,
+    autopass: false,
     chat: room.chat,
     game: emptyGameState,
   };
@@ -92,6 +93,13 @@ const gameUpdateReducer = (state: ClientRoom | null, payload: GameUpdatesPayload
   }
 }
 
+const setAutopassReducer = (state: ClientRoom | null, autopass: boolean): ClientRoom | null => {
+  if (state == null) {
+    return null;
+  }
+  return { ...state, autopass };
+}
+
 const setAutoplayReducer = (state: ClientRoom | null, autoplay: boolean): ClientRoom | null => {
   if (state == null) {
     return null;
@@ -138,6 +146,7 @@ const moveToNewGameReducer = (state: ClientRoom | null): ClientRoom | null => {
     players: state.players,
     settings: state.settings,
     autoplay: false,
+    autopass: false,
     chat: state.chat,
     game: nextGame,
     nextGame: undefined,
@@ -159,10 +168,11 @@ const setPlayerStatusReducer = (state: ClientRoom | null, payload: SetPlayerStat
 
 export const roomReducer = TypedReducer.builder<ClientRoom | null>()
   .withDefaultHandler((state = null) => state)
-  .withHandler(RoomActions.roomStatus.TYPE, roomStatusreducer)
+  .withHandler(RoomActions.roomStatus.TYPE, roomStatusReducer)
   .withHandler(RoomActions.chatReceived.TYPE, chatReceivedReducer)
   .withHandler(RoomActions.gameUpdate.TYPE, gameUpdateReducer)
   .withHandler(RoomActions.closeShowWindow.TYPE, closeShowWindowReducer)
+  .withHandler(RoomActions.setAutopass.TYPE, setAutopassReducer)
   .withHandler(RoomActions.setAutoplay.TYPE, setAutoplayReducer)
   .withHandler(RoomActions.newGameCreated.TYPE, newGameCreatedReducer)
   .withHandler(RoomActions.moveToNewGame.TYPE, moveToNewGameReducer)

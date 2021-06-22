@@ -94,6 +94,10 @@ export class Room {
 
   public handleAddBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
+    const alreadyIn = this.game.getState().players.indexOf(botId) >= 0;
+    if (alreadyIn) {
+      return;
+    }
     this.players.set(botId, PlayerStatus.Online);
     const joinGame: EnterGameAction = {
       type: 'enter_game',

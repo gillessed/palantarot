@@ -11,6 +11,10 @@ export enum GameplayState {
   Completed = 'completed',
 }
 
+export const isGamePlayState = (state: GameplayState, targetStates: GameplayState[]) => {
+  return targetStates.indexOf(state) >= 0;
+}
+
 export enum BidValue {
   PASS = 0,
   TEN = 10,

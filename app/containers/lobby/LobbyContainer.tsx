@@ -111,7 +111,7 @@ class LobbyInternal extends React.PureComponent<Props, State> {
           <tr>
             <th>Name</th>
             <th>Join Room</th>
-            <th>Players</th>
+            <th>Players Online</th>
             <th>State</th>
             <th>Settings</th>
           </tr>

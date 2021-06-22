@@ -1,7 +1,7 @@
 import { Intent } from '@blueprintjs/core';
 import { TypedAction } from 'redoodle';
 import { all, call, delay, put, select, takeEvery } from 'redux-saga/effects';
-import { ErrorCode } from '../../../server/play/model/GameEvents';
+import { BidAction, ErrorCode } from '../../../server/play/model/GameEvents';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
 import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, PlayerStatusUpdatedMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
 import { SocketMessage } from '../../../server/websocket/SocketMessage';
@@ -10,7 +10,6 @@ import history from '../../history';
 import { StaticRoutes } from '../../routes';
 import { getGamePlayer } from '../gamePlayer/GamePlayerSelectors';
 import { SocketActions } from '../socket/socketService';
-import { ClientGameSelectors } from './ClientGameSelectors';
 import { RoomActions } from './RoomActions';
 import { RoomSelectors } from './RoomSelectors';
 import { RoomStatusPayload } from './RoomTypes';
@@ -66,7 +65,7 @@ export function* handleRoomChatMessage(payload: RoomChatMessagePayload) {
 
 export function* handleGameUpdatesMessage(payload: GameUpdatesMessagePayload) {
   yield put(RoomActions.gameUpdate({ gameId: payload.gameId, events: payload.events }));
-  yield call(autoplaySaga);
+  yield call(autoSaga);
 }
 
 export function* handleNewGameMessage(payload: NewGameMessagePayload) {
@@ -91,34 +90,36 @@ export function* handleRoomErrorMessage(payload: RoomErrorMessagePayload) {
 export function* roomSaga() {
   yield all([
     takeEvery(SocketActions.message.TYPE, handleMessage),
-    takeEvery(RoomActions.autoplay.TYPE, autoplaySaga),
-    takeEvery(RoomActions.setAutoplay.TYPE, setAutoplaySaga),
+    takeEvery(RoomActions.setAutoplay.TYPE, autoSaga),
+    takeEvery(RoomActions.setAutopass.TYPE, autoSaga),
   ]);
 }
 
 
-function* autoplaySaga() {
+function* autoSaga() {
   const room: ReturnType<typeof RoomSelectors.getRoom> = yield select(RoomSelectors.getRoom);
   const roomId = room?.id;
   const game = room?.game;
   const gamePlayer = room?.playerId;
+  const playState = game?.playState;
+  const nextPlayerToPlay = game?.playState.toPlay;
+
   const autoplay: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutoplay);
-  if (roomId && game && gamePlayer === game.playState.toPlay && gamePlayer != null && autoplay) {
+  if (roomId && game && gamePlayer === nextPlayerToPlay && gamePlayer != null && autoplay) {
     yield delay(1000);
     yield put(SocketActions.send(RoomSocketMessages.autoplay({ roomId })));
   }
-}
 
-function* setAutoplaySaga() {
-  const gameState: ReturnType<typeof ClientGameSelectors.getClientGame> = yield select(ClientGameSelectors.getClientGame);
-  const autoplay: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutoplay);
-  if (!gameState) {
-    return;
-  }
-  const { playerId, playState } = gameState;
-  const { toPlay } = playState;
-  const isOwnTurn = toPlay != null && toPlay === playerId;
-  if (isOwnTurn && autoplay) {
-    yield call(autoplaySaga);
+  const nextPlayerToBid = playState?.toBid ? playState.playerOrder[playState?.toBid] : undefined;
+  const autopass: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutopass);
+  if (roomId && game && gamePlayer === nextPlayerToBid && gamePlayer != null && autopass) {
+    yield delay(1000);
+    const action: BidAction = {
+      type: 'bid',
+      bid: 0,
+      player: gamePlayer,
+      time: Date.now(),
+    };
+    yield put(SocketActions.send(RoomSocketMessages.gameAction({ roomId, playerId: gamePlayer, action, })));
   }
 }

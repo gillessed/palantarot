@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Card, TrumpCard } from "../../../server/play/model/Card";
 import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils";
-import { BidAction, BiddingCompletedTransition, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
+import { BidAction, BiddingCompletedTransition, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
 import { Bid, BidValue, CompletedGameState, GameplayState, PlayerId } from "../../../server/play/model/GameState";
 
 export interface TrickCards {
@@ -281,6 +281,13 @@ function gameComplete(state: PlayState, action: GameCompletedTransition): PlaySt
   };
 }
 
+function gameAborted(state: PlayState, event: GameAbortedTransition): PlayState {
+  return {
+    ...BlankState,
+    playerOrder: state.playerOrder,
+  };
+}
+
 export function updateGameForEvent(state: PlayState, event: PlayerEvent, playerId: PlayerId): PlayState {
   switch (event.type) {
     case 'mark_player_ready':
@@ -318,10 +325,7 @@ export function updateGameForEvent(state: PlayState, event: PlayerEvent, playerI
     case 'game_completed':
       return gameComplete(state, event as GameCompletedTransition);
     case 'game_aborted':
-      return {
-        ...state,
-        state: GameplayState.Completed,
-      };
+      return gameAborted(state, event as GameAbortedTransition);
     default:
       return state;
   }

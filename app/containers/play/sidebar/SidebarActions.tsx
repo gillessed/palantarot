@@ -1,54 +1,60 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
+import { Checkbox, Tooltip } from '@blueprintjs/core';
 import * as React from 'react';
-import { GameplayState } from '../../../../server/play/model/GameState';
+import { GameplayState, isGamePlayState } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
 import { ClientRoom } from '../../../services/room/RoomTypes';
-import './PlaySidebar.scss';
+import './SidebarActions.scss';
 
 interface Props {
   room: ClientRoom;
   dispatchers: Dispatchers;
 }
 
+const AutopassTooltip = "The client will automatically pass for you when it it your turn to bid"
+const AutoplayTooltip = "The client will play a card at random when it is your turn to play";
+
 export class SidebarActions extends React.PureComponent<Props> {
   public render() {
-    const { autoplay, playerId } = this.props.room;
+    const { autoplay, autopass, playerId } = this.props.room;
     const playState = this.props.room.game.playState;
     const currentBoardState = playState.state;
     const gamePlayers = new Set(playState.playerOrder);
     const showActions = gamePlayers.has(playerId);
-    const enableActions = currentBoardState !== GameplayState.NewGame && showActions;
+    const enableAutopass = isGamePlayState(currentBoardState, [
+      GameplayState.NewGame,
+      GameplayState.Bidding,
+    ]);
     if (!showActions) {
       return null;
     }
-    const autoplayButton = (
-      <Button
-        className='toggle-autoplay-button'
-        icon={IconNames.REFRESH}
-        active={autoplay}
-        onClick={this.toggleAutoplay}
-        text={autoplay ? "Turn Off" : "Turn On"}
-        intent={autoplay ? Intent.WARNING : Intent.PRIMARY}
-        disabled={!enableActions}
+    const autopassButton = (
+      <Checkbox
+        className='autopass-checkbox'
+        checked={autopass}
+        onClick={this.toggleAutopass}
+        label='Enable autopass'
+        disabled={!enableAutopass}
       />
     );
-    const shareButton = (
-      <Button
-        className='share-hand-button'
-        icon={IconNames.SHARE}
-        onClick={this.setShowPlayers}
-        intent={Intent.PRIMARY}
-        text="Share"
-        disabled={!enableActions}
+    const autoplayButton = (
+      <Checkbox
+        className='autoplay-checkbox'
+        checked={autoplay}
+        onClick={this.toggleAutoplay}
+        label='Enable autoplay'
       />
     );
     return (
-      <ButtonGroup className='sidebar-actions bp3-dark' fill>
-        {enableActions ? <Tooltip content="Toggle Autoplay">{autoplayButton}</Tooltip> : autoplayButton}
-        {enableActions ? <Tooltip content="(currently not working) Share Hand in Chat">{shareButton}</Tooltip> : shareButton}
-      </ButtonGroup>
+      <div className='sidebar-actions bp3-dark'>
+        {showActions && <Tooltip content={AutopassTooltip}>{autopassButton}</Tooltip>}
+        {showActions && <Tooltip content={AutoplayTooltip}>{autoplayButton}</Tooltip>}
+      </div>
     );
+  }
+
+  private toggleAutopass = () => {
+    const { autopass } = this.props.room;
+    this.props.dispatchers.room.setAutopass(!autopass);
   }
 
   private toggleAutoplay = () => {
@@ -56,16 +62,4 @@ export class SidebarActions extends React.PureComponent<Props> {
     this.props.dispatchers.room.setAutoplay(!autoplay);
   }
 
-  private setShowPlayers = () => {
-    //TODO figure out how to do this again
-    
-    // const { playState, playerId } = this.props.room.game;
-    // const gamePlayers = new Set(playState.playerOrder);
-    // gamePlayers.delete(playerId);
-    // let text = '';
-    // for (const card of playState.hand) {
-    //   text += getEmojiStringFromCard(card);
-    // }
-    // this.props.dispatchers.room.sendChat(text, undefined, [...gamePlayers]);
-  }
 }

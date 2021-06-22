@@ -7,14 +7,18 @@ import { RoomStatus } from '../../../server/play/room/RoomStatus';
 import { ClientGame } from './ClientGame';
 
 export interface ClientRoom {
+  // Server state
   id: string;
   playerId: PlayerId;
   players: Map<string, PlayerStatus>;
-  autoplay: boolean;
   settings: GameSettings;
   game: ClientGame;
   chat: ChatText[];
   nextGame?: ClientGame;
+
+  // Client state
+  autoplay: boolean;
+  autopass: boolean;
 }
 
 export interface RoomStatusPayload {

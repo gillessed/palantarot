@@ -7,10 +7,9 @@ import { StaticRoutes } from '../../../routes';
 import { Dispatchers } from '../../../services/dispatchers';
 import { ClientRoom } from '../../../services/room/RoomTypes';
 import { CardBackUrls } from '../svg/CardSvg';
-import { AddBotButton } from './AddBotButton';
 import { ChatInput } from './ChatInput';
 import { ChatList } from './ChatList';
-import { PlayerList } from './PlayerList';
+import { PlayerList } from './playerList/PlayerList';
 import './PlaySidebar.scss';
 import { SidebarActions } from './SidebarActions';
 
@@ -37,7 +36,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
   };
 
   public render() {
-    const { playerId, players, room } = this.props;
+    const { playerId, players, room, dispatchers } = this.props;
     const { sidebarTab } = this.state;
     return (
       <div className='play-sidebar'>
@@ -77,6 +76,7 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
           players={players}
           gamePlayers={room.game.playState.playerOrder}
           playerStatuses={room.players}
+          dispatchers={dispatchers}
         />}
         <ChatInput
           player={this.props.room.playerId}
@@ -85,11 +85,6 @@ export class PlaySidebar extends React.PureComponent<Props, State> {
         <SidebarActions
           room={this.props.room}
           dispatchers={this.props.dispatchers}
-        />
-        <AddBotButton
-          game={this.props.room.game}
-          dispatchers={this.props.dispatchers}
-          players={this.props.players}
         />
       </div>
     );

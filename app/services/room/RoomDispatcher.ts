@@ -44,6 +44,10 @@ export class RoomDispatcher {
     }
   }
 
+  public setAutopass(autopass: boolean) {
+    this.store.dispatch(RoomActions.setAutopass(autopass));
+  }
+
   public setAutoplay(autoplay: boolean) {
     this.store.dispatch(RoomActions.setAutoplay(autoplay));
   }

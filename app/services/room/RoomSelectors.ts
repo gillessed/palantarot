@@ -9,7 +9,12 @@ const getAutoplay = (state: ReduxState) => {
   return getRoom(state)?.autoplay;
 }
 
+const getAutopass = (state: ReduxState) => {
+  return getRoom(state)?.autopass;
+}
+
 export const RoomSelectors = {
   getRoom,
   getAutoplay,
+  getAutopass,
 }

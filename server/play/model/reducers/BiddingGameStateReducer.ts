@@ -60,7 +60,7 @@ const handleAllPasses = (state: BiddingBoardState, action: BidAction): ReducerRe
     reason: 'Everybody passed!',
   };
   const events = [action, abortTransition];
-  return { state: newState, events };
+  return { state: newState, events, serverMessages: ['Everyone passed'] };
 }
 
 const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerResult<BiddingStates> => {

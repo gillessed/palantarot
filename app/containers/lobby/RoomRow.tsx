@@ -5,7 +5,6 @@ import { Player } from '../../../server/model/Player';
 import { GameplayState } from '../../../server/play/model/GameState';
 import { getOnlinePlayersInRoom, RoomDescription } from '../../../server/play/room/RoomDescription';
 import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
-import { GamePlayers } from './GamePlayers';
 
 interface Props {
   room: RoomDescription;
@@ -29,13 +28,7 @@ export class RoomRow extends React.PureComponent<Props> {
         <td>
           <Button icon={IconNames.ADD} onClick={this.onClick} disabled={gamePlayer == null}>Join</Button>
         </td>
-        <td>
-          <GamePlayers
-            playerIds={getOnlinePlayersInRoom(room)}
-            players={players}
-            gamePlayer={gamePlayer}
-          />
-        </td>
+        <td> {getOnlinePlayersInRoom(room, players).length }</td>
         <td> {this.renderGameState()} </td>
         <td> {this.renderSettings()} </td>
       </tr>

@@ -9,13 +9,12 @@ type DebugGroupActions = {
   numReady(playerNum: number): void;
 }
 type DebugDispatchers = {
-  [key: string]: DebugDispatcher;
+  [key: string]: PlayDispatcher;
 }
 type DebugPlayers = {
   startGame(playerNumber: number): void;
   autoplay(): void;
 } & DebugGroupActions & DebugDispatchers;
-type DebugDispatcher = PlayDispatcher & { joinGame: () => void };
 type DebugPlayerInfo = {
   key: string;
   id: string;
@@ -25,9 +24,8 @@ function getPlayerKey(player: Player) {
   return `${player.firstName.toLocaleLowerCase()}${player.lastName.toLocaleLowerCase()}`;
 }
 
-function buildDispatcher(playerId: PlayerId, game: string, dispatcher: RoomDispatcher): DebugDispatcher {
-  const obj: Partial<DebugDispatcher> = dispatcher.play(playerId);
-  return obj as DebugDispatcher;
+function buildDispatcher(playerId: PlayerId, roomId: string, dispatcher: RoomDispatcher): PlayDispatcher {
+  return dispatcher.play(playerId);
 }
 
 function getDebugPlayers(selfId: string, allPlayers: Player[]): DebugPlayerInfo[] {
@@ -48,7 +46,7 @@ function getDebugPlayers(selfId: string, allPlayers: Player[]): DebugPlayerInfo[
 }
 
 function getGroupAction(
-  action: keyof DebugDispatcher,
+  action: keyof PlayDispatcher,
   selfId: PlayerId,
   gameId: string,
   players: Player[],
@@ -75,7 +73,7 @@ function getStartGame(groupActions: DebugGroupActions) {
   }
 }
 
-export function registerDebugPlayers(player: string, gameId: string, dispatcher: RoomDispatcher) {
+export function registerDebugPlayers(player: string, roomId: string, dispatcher: RoomDispatcher) {
   const playerMap = getWindowRedux().getState().players.value;
   if (!playerMap) {
     return;
@@ -83,8 +81,8 @@ export function registerDebugPlayers(player: string, gameId: string, dispatcher:
   const players = [...playerMap.values()];
   const debugPlayers = getDebugPlayers(player, players);
   const groupActions: DebugGroupActions = {
-    numEnterGame: getGroupAction('enterGame', player, gameId, players, dispatcher),
-    numReady: getGroupAction('markAsReady', player, gameId, players, dispatcher),
+    numEnterGame: getGroupAction('enterGame', player, roomId, players, dispatcher),
+    numReady: getGroupAction('markAsReady', player, roomId, players, dispatcher),
   }
   const d = {
     ...groupActions,
@@ -92,8 +90,7 @@ export function registerDebugPlayers(player: string, gameId: string, dispatcher:
     autoplay: () => dispatcher.autoplay(),
   } as DebugPlayers;
   for (const debugPlayer of debugPlayers) {
-    const playDispatcher = buildDispatcher(debugPlayer.id, gameId, dispatcher);
-    d[debugPlayer.key] = playDispatcher;
+    d[debugPlayer.key] = buildDispatcher(debugPlayer.id, roomId, dispatcher);
   }
   (window as any).d = d;
 }
