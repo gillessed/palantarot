@@ -4,11 +4,9 @@ import { Database } from '../db/dbConnector';
 import { GameRecordQuerier } from '../db/GameRecordQuerier';
 import { PlayerQuerier } from '../db/PlayerQuerier';
 import { LobbySocketMessages } from '../play/lobby/LobbySocketMessages';
-import { PlayerId } from '../play/model/GameState';
 import { NewRoomArgs } from '../play/room/NewRoomArgs';
 import { Room } from '../play/room/Room';
 import { getRoomDescription, RoomDescriptions } from '../play/room/RoomDescription';
-import { Multimap } from '../utils/multimap';
 import { JsonSocket } from '../websocket/JsonSocket';
 import { WebsocketManager } from '../websocket/WebsocketManager';
 
@@ -19,10 +17,8 @@ export class PlayService {
   public readonly gameQuerier: GameRecordQuerier;
   public readonly playerQuerier: PlayerQuerier;
   private rooms: Map<string, Room>;
-  private playerIdToRoomId: Multimap<string>;
-  private lobbyPlayers: Set<string>;
-  private playerIdToSocketId: Multimap<string>;
-  private socketIdToPlayerId: Map<string, PlayerId>;
+  private socketIdToRoomId: Map<string, string>;
+  private lobbySocketIds: Set<string>;
 
   constructor(
     db: Database,
@@ -33,10 +29,8 @@ export class PlayService {
     this.gameQuerier = new GameRecordQuerier(db);
     this.playerQuerier = new PlayerQuerier(db);
     this.rooms = new Map();
-    this.playerIdToRoomId = new Multimap();
-    this.lobbyPlayers = new Set();
-    this.playerIdToSocketId = new Multimap();
-    this.socketIdToPlayerId = new Map();
+    this.socketIdToRoomId = new Map();
+    this.lobbySocketIds = new Set();
 
     this.websocketManager = websocketManager;
     this.router.post('/new_room', this.newRoom);
@@ -65,79 +59,35 @@ export class PlayService {
     return this.rooms.get(roomId);
   }
 
-  public getSocketIdsForPlayer(playerId: string): Set<string> {
-    return this.playerIdToSocketId.get(playerId);
+  public getSocketForSocketId(socketId: string): JsonSocket | undefined {
+    return this.websocketManager.getSocket(socketId ?? "");
   }
 
-  public getPlayerIdForSocketId(socketId: string): string | undefined {
-    return this.socketIdToPlayerId.get(socketId);
-  }
-
-  public getSocketsForPlayer(playerId: string): Set<JsonSocket> {
-    const socketIds = this.playerIdToSocketId.get(playerId);
-    const sockets = new Set<JsonSocket>();
-    for (const socketId of socketIds) {
-      const socket = this.websocketManager.getSocket(socketId ?? "");
-      if (socket != null) {
-        sockets.add(socket);
-      }
-    }
-    return sockets;
-  }
-
-  public playerEnteredLobby(socketId: string, playerId: string) {
-    const oldPlayer = this.getPlayerIdForSocketId(socketId);
-    if (oldPlayer) {
-      this.lobbyPlayers.delete(oldPlayer);
-      this.removeSocketById(socketId);
-    }
-    this.lobbyPlayers.add(playerId);
-    this.setPlayerSocketId(socketId, playerId);
+  public playerEnteredLobby(socketId: string) {
+    this.lobbySocketIds.add(socketId);
   }
 
   /* Helper */
 
   public socketClosed(socketId: string) {
-    const playerId = this.removeSocketById(socketId);
-    if (playerId) {
-      this.lobbyPlayers.delete(playerId);
-      const roomIds = this.playerIdToRoomId.get(playerId);
-      for (const roomId of roomIds) {
-        this.rooms.get(roomId)?.socketClosed(playerId);
-      }
-    }
+    this.lobbySocketIds.delete(socketId);
+    const roomId = this.socketIdToRoomId.get(socketId);
+    console.log('socket closing in room ', socketId, roomId);
+    this.rooms.get(roomId ?? '')?.socketClosed(socketId);
+    this.socketIdToRoomId.delete(socketId);
   }
 
-  public setPlayerSocketId(socketId: string, playerId: string) {
-    this.playerIdToSocketId.set(playerId, socketId);
-    this.socketIdToPlayerId.set(socketId, playerId);
-  }
-
-  public removeSocketById(socketId: string): string | undefined {
-    const playerId = this.socketIdToPlayerId.get(socketId);
-    this.socketIdToPlayerId.delete(socketId);
-    if (playerId) {
-      this.playerIdToSocketId.delete(playerId, socketId);
-    }
-    return playerId;
-  }
-
-  public addPlayerToRoom(roomId: string, playerId: string) {
-    this.playerIdToRoomId.set(playerId, roomId);
-  }
-
-  public removePlayerFromRoom(roomId: string, playerId: string) {
-    this.playerIdToRoomId.delete(playerId, roomId);
+  public addSocketToRoom(roomId: string, socketId: string) {
+    console.log('adding socket to room', socketId, roomId);
+    this.socketIdToRoomId.set(socketId, roomId);
   }
 
   public roomUpdated(room: Room) {
     const roomDescription = getRoomDescription(room);
-    for (const playerId of this.lobbyPlayers) {
-      const sockets = this.getSocketsForPlayer(playerId);
-      for (const socket of sockets) {
-        if (socket != null) {
-          socket.send(LobbySocketMessages.roomUpdated(roomDescription));
-        }
+    for (const socketId of this.lobbySocketIds) {
+      const socket = this.getSocketForSocketId(socketId);
+      if (socket != null) {
+        socket.send(LobbySocketMessages.roomUpdated(roomDescription));
       }
     }
   }

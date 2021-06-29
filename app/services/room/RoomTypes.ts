@@ -9,6 +9,8 @@ import { ClientGame } from './ClientGame';
 export interface ClientRoom {
   // Server state
   id: string;
+  name: string;
+  color: string;
   playerId: PlayerId;
   players: Map<string, PlayerStatus>;
   settings: GameSettings;

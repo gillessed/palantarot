@@ -1,5 +1,5 @@
 import { defaultMemoize } from 'reselect';
-import { Card, RegValue, TrumpSuit } from '../../../server/play/model/Card';
+import { Card, RegValue, Suit } from '../../../server/play/model/Card';
 import { PlayerId } from '../../../server/play/model/GameState';
 import { ChatText, ServerChatAuthorId } from '../../../server/play/room/ChatText';
 import { ReduxState } from '../rootReducer';
@@ -68,11 +68,7 @@ const getValueCounts = defaultMemoize((game: ClientGame) => {
   for (const card of game.playState.hand) {
     const [ _, valueEnum ] = card;
     const value = `${valueEnum}`;
-    if (!counts.has(value)) {
-      counts.set(value, 1);
-    } else {
-      counts.set(value, counts.get(value) ?? 0 + 1);
-    }
+    counts.set(value, (counts.get(value) ?? 0) + 1);
   }
   return counts;
 });
@@ -92,7 +88,7 @@ const canDropTrump = defaultMemoize((game: ClientGame) => {
   const suitCounts = getSuitCounts(game);
   const handSize = getHandSize(game);
   const dogSize = getDogSize(game);
-  return (valueCounts.get(RegValue.R) ?? 0) + (suitCounts.get(TrumpSuit) ?? 0) > handSize - dogSize;
+  return (valueCounts.get(RegValue.R) ?? 0) + (suitCounts.get(Suit.Trump) ?? 0) > handSize - dogSize;
 });
 
 const getTrickCards = (trick?: TrickCards): Card[] => {
@@ -106,7 +102,7 @@ const canShow = defaultMemoize((game: ClientGame) => {
   const hasNotShown = !game.playState.shows.find((show) => show.player === game.playerId);
   const showLimit = game.playState.playerOrder.length === 5 ? 8 : 10;
   const suitCount = getSuitCounts(game);
-  const enoughTrump = (suitCount.get(TrumpSuit) ?? 0) >= showLimit;
+  const enoughTrump = (suitCount.get(Suit.Trump) ?? 0) >= showLimit;
   return hasNotShown && !game.playState.anyPlayerPlayedCard && enoughTrump;
 });
 

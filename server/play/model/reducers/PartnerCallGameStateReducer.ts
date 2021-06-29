@@ -1,4 +1,4 @@
-import { TrumpSuit } from '../Card';
+import { Suit } from '../Card';
 import { cardsContain } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
 import { CallPartnerAction, DogRevealTransition, GameStartTransition } from '../GameEvents';
@@ -10,7 +10,7 @@ const handleCallPartnerAction = (state: PartnerCallBoardState, action: CallPartn
   if (action.player !== state.bidder) {
     throw GameErrors.cannotCallPartnerIfNotBidder(action.player, state.bidder);
   } 
-  if (action.card[0] === TrumpSuit) {
+  if (action.card[0] === Suit.Trump) {
     throw GameErrors.cannotCallTrump(action.card);
   }
 

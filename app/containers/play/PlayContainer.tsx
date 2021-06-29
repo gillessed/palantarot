@@ -37,6 +37,7 @@ type Props = OwnProps & StoreProps;
 export type PlayActionDispatcher = (action: Omit<Action, 'time' | 'player'>) => void;
 
 export class PlayContainerInternal extends React.PureComponent<Props> {
+  private previousTitle: string;
   public static contextTypes = DispatchersContextType;
   private dispatchers: Dispatchers;
 
@@ -59,12 +60,25 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
       const { roomId } = this.props.match.params;
       this.dispatchers.room.socketConnect(roomId, gamePlayer.playerId);
       registerDebugPlayers(gamePlayer.playerId, roomId, this.dispatchers.room);
+    } else {
+      this.previousTitle = document.title;
+      document.title = this.props.room.name;
+    }
+  }
+
+  public componentWillReceiveProps(nextProps: Props) {
+    if (this.previousTitle == null && nextProps.room != null) {
+      this.previousTitle = document.title;
+      document.title = nextProps.room.name;
     }
   }
 
   public componentWillUnmount() {
     this.dispatchers.room.exitGame();
     unregisterDebugPlayers();
+    if (this.previousTitle != null) {
+      document.title = this.previousTitle;
+    }
   }
 
   public render() {

@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { Card, RegValue } from '../../../../server/play/model/Card';
+import { Card } from '../../../../server/play/model/Card';
 import { getCardsAllowedToPlay } from '../../../../server/play/model/CardUtils';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver } from '../SpectatorMode';
@@ -46,17 +46,9 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
   }
 
   private selectableCardFilter = (card: Card) => {
-    const [suit, value] = card;
     const { game } = this.props;
     const toPlay = game.playState.toPlay;
     if (!toPlay || toPlay !== game.playerId) {
-      return false;
-    }
-    if (!game.playState.anyPlayerPlayedCard && game.playState.partnerCard) {
-      const [partnerSuit] = game.playState.partnerCard;
-      if (suit !== partnerSuit || value === RegValue.R) {
-        return true;
-      }
       return false;
     }
     if (game.playState.trick.completed) {

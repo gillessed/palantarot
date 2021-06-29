@@ -1,6 +1,6 @@
 import { PopoverInteractionKind, Position, Tooltip } from '@blueprintjs/core';
 import * as React from 'react';
-import { Card, RegSuit, RegValue, Suit, TrumpSuit, TrumpValue } from "../../../server/play/model/Card";
+import { Card, RegValue, Suit, TrumpValue } from "../../../server/play/model/Card";
 import { getCardUrl } from "../../containers/play/svg/CardSvg";
 
 interface Emoji {
@@ -16,12 +16,12 @@ function getRender(value: RegValue | TrumpValue, suit: Suit) {
     const url = getCardUrl(card);
     return (
       <Tooltip
-        key={key} 
+        key={key}
         interactionKind={PopoverInteractionKind.HOVER}
-        content={<img src={url} width={110} height={150}/>}
+        content={<img src={url} width={110} height={150} />}
         position={Position.LEFT}
       >
-        <img src={url} width={22} height={30}/>
+        <img src={url} width={22} height={30} />
       </Tooltip>
     );
   };
@@ -32,32 +32,32 @@ function generateCardEmojis() {
   for (const num of numbers) {
     const club: Emoji = {
       def: `c_${num}`.toLocaleLowerCase(),
-      render: getRender(num, RegSuit.Club),
+      render: getRender(num, Suit.Club),
     };
     const diamond: Emoji = {
       def: `d_${num}`.toLocaleLowerCase(),
-      render: getRender(num, RegSuit.Diamond),
+      render: getRender(num, Suit.Diamond),
     };
     const heart: Emoji = {
       def: `h_${num}`.toLocaleLowerCase(),
-      render: getRender(num, RegSuit.Heart),
+      render: getRender(num, Suit.Heart),
     };
     const spade: Emoji = {
       def: `s_${num}`.toLocaleLowerCase(),
-      render: getRender(num, RegSuit.Spade),
+      render: getRender(num, Suit.Spade),
     };
     Emojis.push(club, diamond, heart, spade);
   }
   for (let num = 1; num <= 21; num++) {
     const trump: Emoji = {
       def: `t_${num}`,
-      render: getRender(num, TrumpSuit),
+      render: getRender(num, Suit.Trump),
     };
     Emojis.push(trump);
   }
   const joker: Emoji = {
     def: `t_j`,
-    render: getRender(TrumpValue.Joker, TrumpSuit),
+    render: getRender(TrumpValue.Joker, Suit.Trump),
   };
   Emojis.push(joker);
 }
@@ -98,14 +98,14 @@ export function getEmojiStringFromCard(card: Card): string {
   const [suit, value] = card;
   let suitString = '';
   switch (suit) {
-    case RegSuit.Club: suitString = 'c'; break; 
-    case RegSuit.Diamond: suitString = 'd'; break; 
-    case RegSuit.Heart: suitString = 'h'; break; 
-    case RegSuit.Spade: suitString = 's'; break; 
-    case TrumpSuit: suitString = 't'; break; 
+    case Suit.Club: suitString = 'c'; break;
+    case Suit.Diamond: suitString = 'd'; break;
+    case Suit.Heart: suitString = 'h'; break;
+    case Suit.Spade: suitString = 's'; break;
+    case Suit.Trump: suitString = 't'; break;
   }
   let valueString = '';
-  if (suit === TrumpSuit) {
+  if (suit === Suit.Trump) {
     if (value === TrumpValue.Joker) {
       valueString = 'j';
     } else {

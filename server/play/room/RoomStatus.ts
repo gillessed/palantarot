@@ -5,6 +5,8 @@ import { PlayerStatus } from './PlayerStatus';
 
 export interface RoomStatus {
   id: string;
+  color: string;
+  name: string;
   players: { [key: string]: PlayerStatus };
   settings: GameSettings;
   gameId: string;

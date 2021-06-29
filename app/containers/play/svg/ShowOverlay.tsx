@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
-import { TrumpCard, TrumpSuit } from '../../../../server/play/model/Card';
+import { Suit, TrumpCard } from '../../../../server/play/model/Card';
 import { compareCards } from '../../../../server/play/model/CardUtils';
 import { PlayerId } from '../../../../server/play/model/GameState';
 import { Dispatchers } from '../../../services/dispatchers';
@@ -103,7 +103,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   private handleShowTrump = () => {
     const { game, dispatchers } = this.props;
-    const trump = game.playState.hand.filter(([suit]) => suit === TrumpSuit) as TrumpCard[];
+    const trump = game.playState.hand.filter(([suit]) => suit === Suit.Trump) as TrumpCard[];
     dispatchers.room.play(game.playerId).showTrump(trump);
   }
 

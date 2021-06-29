@@ -1,5 +1,5 @@
 import { ClientGame } from "../app/services/room/ClientGame";
-import { Card, RegValue, TrumpSuit } from "../server/play/model/Card";
+import { Card, RegValue, Suit } from "../server/play/model/Card";
 import { getArrayRandom, getArrayRandoms, getCardsAllowedToPlay, isBout } from "../server/play/model/CardUtils";
 import { Bid } from "../server/play/model/GameState";
 import { getNonSelfCalls, getPossibleBidValues } from './BotUtils';
@@ -53,7 +53,7 @@ export class RandomBot implements TarotBot {
    */
   public dropDog(game: ClientGame): Card[] {
     const hand = game.playState.hand;
-    const nonTrumpNonKing = hand.filter(([suit, value]) => suit !== TrumpSuit && value !== RegValue.R);
+    const nonTrumpNonKing = hand.filter(([suit, value]) => suit !== Suit.Trump && value !== RegValue.R);
     const dogCount = game.playState.playerOrder.length === 5 ? 3 : 6;
     if (nonTrumpNonKing.length === 0) {
       const nonBoutNonKing = hand.filter((c) => !isBout(c) && c[1] !== RegValue.R);

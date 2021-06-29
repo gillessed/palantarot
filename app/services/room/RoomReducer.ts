@@ -29,6 +29,8 @@ const roomStatusReducer = (state: ClientRoom | null, payload: RoomStatusPayload)
 
   const emptyRoomState: ClientRoom = {
     id: room.id,
+    name: room.name,
+    color: room.color,
     playerId,
     players,
     settings: room.settings,
@@ -142,6 +144,8 @@ const moveToNewGameReducer = (state: ClientRoom | null): ClientRoom | null => {
 
   return {
     id: state.id,
+    name: state.name,
+    color: state.color,
     playerId: state.playerId,
     players: state.players,
     settings: state.settings,

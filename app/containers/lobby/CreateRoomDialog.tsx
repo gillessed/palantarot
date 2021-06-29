@@ -2,9 +2,13 @@ import { Button, Checkbox, Classes, Dialog, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import * as React from 'react';
+import { ColorResult, CompactPicker } from 'react-color';
 import { DefaultGameSettings } from '../../../server/play/model/GameSettings';
 import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
 import { Dispatchers } from '../../services/dispatchers';
+import './CreateRoomDialog.scss';
+
+const DefaultRoomColor = '#0F9960';
 
 interface Props {
   isOpen: boolean;
@@ -16,6 +20,7 @@ type State = NewRoomArgs;
 
 export class RoomCreationDialog extends React.PureComponent<Props, State> {
   public state: State = {
+    color: DefaultRoomColor,
     name: '',
     gameSettings: { ...DefaultGameSettings },
   };
@@ -30,6 +35,7 @@ export class RoomCreationDialog extends React.PureComponent<Props, State> {
         onClose={this.props.onClose}
       >
         <div className={contentClasses}>
+          <div className='room-dialog-section-title'>Room Name</div>
           <input
             className={inputClasses}
             type='text'
@@ -37,6 +43,14 @@ export class RoomCreationDialog extends React.PureComponent<Props, State> {
             onChange={this.handleChangeName}
             placeholder='Room name...'
           />
+          <div className='room-dialog-section-title'>Room Background Color</div>
+          <div className='room-color-picker'>
+            <CompactPicker
+              color={this.state.color}
+              onChangeComplete={this.handleChangeColor}
+            />
+          </div>
+          <div className='room-dialog-section-title'>Game Settings</div>
           <Checkbox
             id='autolog-checkbox'
             checked={this.state.gameSettings.autologEnabled}
@@ -93,5 +107,9 @@ export class RoomCreationDialog extends React.PureComponent<Props, State> {
   private handleSubmit = () => {
     this.props.onClose();
     this.props.dispatchers.lobby.newRoom({ ...this.state });
+  }
+
+  private handleChangeColor = (result: ColorResult) => {
+    this.setState({ color: result.hex });
   }
 }

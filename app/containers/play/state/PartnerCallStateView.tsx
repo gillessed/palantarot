@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RegSuit, RegValue } from '../../../../server/play/model/Card';
+import { RegSuit, RegValue, Suit } from '../../../../server/play/model/Card';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver } from '../SpectatorMode';
 import { ActionButton } from '../svg/ActionButton';
@@ -25,7 +25,7 @@ const ButtonLeft = -240;
 export class PartnerCallStateView extends React.PureComponent<Props, State> {
   public state: State = {
     card: RegValue.R,
-    suit: RegSuit.Spade,
+    suit: Suit.Spade,
   };
   public render() {
     const { width, height, game, players, dispatchers, spectatorMode } = this.props;
@@ -134,7 +134,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         y={y}
         text=''
         onClick={this.handleSelectSpades}
-        selected={this.state.suit === RegSuit.Spade}
+        selected={this.state.suit === Suit.Spade}
         color='white'
       />
       <g transform={`translate(${width / 2 + ButtonLeft}, ${y}) scale(0.1, 0.1) translate(-1150, 320) scale(0.1, -0.1)`} pointerEvents='none'>
@@ -147,7 +147,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         y={y}
         text=''
         onClick={this.handleSelectHearts}
-        selected={this.state.suit === RegSuit.Heart}
+        selected={this.state.suit === Suit.Heart}
         color='white'
       />
       <g transform={`translate(${width / 2 + ButtonLeft + 120}, ${y}) scale(0.1, 0.1) translate(-140, 320) scale(0.1, -0.1)`} fill='#DB3737' pointerEvents='none'>
@@ -160,7 +160,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         y={y}
         text=''
         onClick={this.handleSelectDiamonds}
-        selected={this.state.suit === RegSuit.Diamond}
+        selected={this.state.suit === Suit.Diamond}
         color='white'
       />
       <g transform={`translate(${width / 2 + ButtonLeft + 240}, ${y}) scale(0.1, 0.1) translate(-780, 320) scale(0.1, -0.1)`} fill='#137CBD' pointerEvents='none'>
@@ -173,7 +173,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
         y={y}
         text=''
         onClick={this.handleSelectClubs}
-        selected={this.state.suit === RegSuit.Club}
+        selected={this.state.suit === Suit.Club}
         color='white'
       />
       <g transform={`translate(${width / 2 + ButtonLeft + 360}, ${y}) scale(0.1, 0.1) translate(-450, 320) scale(0.1, -0.1)`} fill='#0F9960' pointerEvents='none'>
@@ -199,19 +199,19 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
   }
 
   private handleSelectSpades = () => {
-    this.setState({ suit: RegSuit.Spade });
+    this.setState({ suit: Suit.Spade });
   }
 
   private handleSelectHearts = () => {
-    this.setState({ suit: RegSuit.Heart });
+    this.setState({ suit: Suit.Heart });
   }
 
   private handleSelectDiamonds = () => {
-    this.setState({ suit: RegSuit.Diamond });
+    this.setState({ suit: Suit.Diamond });
   }
 
   private handleSelectClubs = () => {
-    this.setState({ suit: RegSuit.Club });
+    this.setState({ suit: Suit.Club });
   }
 
   private handleSelectPartner = () => {

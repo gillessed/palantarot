@@ -1,14 +1,12 @@
-
-export enum RegSuit {
+export enum Suit {
   Spade = 'S',
   Heart = 'H',
   Diamond = 'D',
   Club = 'C',
+  Trump = 'T',
 }
-export type TrumpSuit = 'T'
-export const TrumpSuit: TrumpSuit = 'T';
 
-export type Suit = RegSuit.Spade | RegSuit.Heart | RegSuit.Club | RegSuit.Diamond | TrumpSuit
+export type RegSuit = Suit.Spade | Suit.Heart | Suit.Club | Suit.Diamond;
 
 export enum RegValue {
   _1 = 1,
@@ -53,39 +51,39 @@ export enum TrumpValue {
 }
 
 export const AllRs: Card[] = [
-  [RegSuit.Club, RegValue.R],
-  [RegSuit.Diamond, RegValue.R],
-  [RegSuit.Heart, RegValue.R],
-  [RegSuit.Spade, RegValue.R],
+  [Suit.Club, RegValue.R],
+  [Suit.Diamond, RegValue.R],
+  [Suit.Heart, RegValue.R],
+  [Suit.Spade, RegValue.R],
 ];
 export const AllDs: Card[] = [
-  [RegSuit.Club, RegValue.D],
-  [RegSuit.Diamond, RegValue.D],
-  [RegSuit.Heart, RegValue.D],
-  [RegSuit.Spade, RegValue.D],
+  [Suit.Club, RegValue.D],
+  [Suit.Diamond, RegValue.D],
+  [Suit.Heart, RegValue.D],
+  [Suit.Spade, RegValue.D],
 ];
 export const AllCs: Card[] = [
-  [RegSuit.Club, RegValue.C],
-  [RegSuit.Diamond, RegValue.C],
-  [RegSuit.Heart, RegValue.C],
-  [RegSuit.Spade, RegValue.C],
+  [Suit.Club, RegValue.C],
+  [Suit.Diamond, RegValue.C],
+  [Suit.Heart, RegValue.C],
+  [Suit.Spade, RegValue.C],
 ];
 export const AllVs: Card[] = [
-  [RegSuit.Club, RegValue.V],
-  [RegSuit.Diamond, RegValue.V],
-  [RegSuit.Heart, RegValue.V],
-  [RegSuit.Spade, RegValue.V],
+  [Suit.Club, RegValue.V],
+  [Suit.Diamond, RegValue.V],
+  [Suit.Heart, RegValue.V],
+  [Suit.Spade, RegValue.V],
 ];
 
-export const TheJoker: [TrumpSuit, TrumpValue.Joker] = [TrumpSuit, TrumpValue.Joker];
-export const TheOne: [TrumpSuit, TrumpValue._1] = [TrumpSuit, TrumpValue._1];
-export const The21: [TrumpSuit, TrumpValue._21] = [TrumpSuit, TrumpValue._21];
+export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [Suit.Trump, TrumpValue.Joker];
+export const TheOne: [Suit.Trump, TrumpValue._1] = [Suit.Trump, TrumpValue._1];
+export const The21: [Suit.Trump, TrumpValue._21] = [Suit.Trump, TrumpValue._21];
 
 export type RegCard = [RegSuit, RegValue];
 
-export type TrumpCard = [TrumpSuit, TrumpValue];
+export type TrumpCard = [Suit.Trump, TrumpValue];
 
-export type Card = RegCard | TrumpCard
+export type Card = RegCard | TrumpCard;
 
 export type Bout = typeof TheJoker | typeof TheOne | typeof The21;
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, RegValue, TrumpSuit } from '../../../../server/play/model/Card';
+import { Card, RegValue, Suit } from '../../../../server/play/model/Card';
 import { isBout } from '../../../../server/play/model/CardUtils';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { ActionButton } from '../svg/ActionButton';
@@ -111,7 +111,7 @@ export class DogRevealStateView extends React.PureComponent<Props, State> {
     if (canDropTrump) {
       return value !== RegValue.R && !isBout(card);
     } else {
-      return suit !== TrumpSuit && value !== RegValue.R;
+      return suit !== Suit.Trump && value !== RegValue.R;
     }
   }
 

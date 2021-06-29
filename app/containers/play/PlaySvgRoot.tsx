@@ -36,7 +36,8 @@ export class PlaySvgRoot extends React.Component<Props, State> {
   }
 
   public render() {
-    const { width, height } = this.props;
+    const { room, width, height } = this.props;
+    console.log(room.color);
     return (
       <svg
         className='play-svg'
@@ -44,7 +45,7 @@ export class PlaySvgRoot extends React.Component<Props, State> {
         height={height}
       >
         <Gradients />
-        <rect x={0} y={0} width={width} height={height} fill='#0F9960' />
+        <rect x={0} y={0} width={width} height={height} fill={room.color} />
         {this.renderStateView()}
       </svg>
     );

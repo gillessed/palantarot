@@ -1,6 +1,6 @@
 
 import _ from "lodash";
-import { Bout, Card, TheJoker, TheOne, TrumpSuit, TrumpValue } from "../Card";
+import { Bout, Card, Suit, TheJoker, TheOne, TrumpValue } from "../Card";
 import { cardsContain, cardsWithout, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getWinner } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
 import { Action, CompletedTrickTransition, GameCompletedTransition, PlayCardAction } from "../GameEvents";
@@ -85,7 +85,7 @@ const getFinalScore = (
   outcomes: { [player: number]: Outcome[] },
 ): { pointsEarned: number, bouts: Bout[], bidderWon: boolean, pointsResult: number } => {
   const bouts = _.filter(cardsWon, (card): card is Bout =>
-    card[0] === TrumpSuit && (
+    card[0] === Suit.Trump && (
       card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
   const trickPoints = cardsWon.map(getCardPoint).reduce((a, b) => a + b, 0);
   const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);

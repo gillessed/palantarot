@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Card } from "../Card";
-import { dealCards } from '../CardUtils';
+import { dealCards } from "../CardUtils";
 import { GameErrors } from '../GameErrors';
 import { DealtHandTransition, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
 import { BiddingBoardState, BidValue, DummyPlayer, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";

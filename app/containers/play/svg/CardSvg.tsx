@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
-import { Card, RegSuit, TrumpSuit, TrumpValue } from '../../../../server/play/model/Card';
+import { Card, Suit, TrumpValue } from '../../../../server/play/model/Card';
 import { CardHeight, CardWidth } from './CardSpec';
 import './CardSvg.scss';
 
@@ -20,11 +20,11 @@ interface Props {
 }
 
 export const SuitMap = {
-  [TrumpSuit]: 'Trump',
-  [RegSuit.Club]: 'Club',
-  [RegSuit.Diamond]: 'Diamond',
-  [RegSuit.Heart]: 'Heart',
-  [RegSuit.Spade]: 'Spade',
+  [Suit.Trump]: 'Trump',
+  [Suit.Club]: 'Club',
+  [Suit.Diamond]: 'Diamond',
+  [Suit.Heart]: 'Heart',
+  [Suit.Spade]: 'Spade',
 }
 
 interface State {
@@ -45,11 +45,11 @@ export function getCardText(card: Card) {
     return 'the joker';
   }
   switch (suit) {
-    case RegSuit.Club: suitText = 'clubs'; break;
-    case RegSuit.Diamond: suitText = 'diamonds'; break;
-    case RegSuit.Heart: suitText = 'hearts'; break;
-    case RegSuit.Spade: suitText = 'spades'; break;
-    case TrumpSuit: suitText = 'trump'; break;
+    case Suit.Club: suitText = 'clubs'; break;
+    case Suit.Diamond: suitText = 'diamonds'; break;
+    case Suit.Heart: suitText = 'hearts'; break;
+    case Suit.Spade: suitText = 'spades'; break;
+    case Suit.Trump: suitText = 'trump'; break;
   }
   return `the ${value} of ${suitText}`;
 }

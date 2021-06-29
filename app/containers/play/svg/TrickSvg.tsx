@@ -28,6 +28,7 @@ export class TrickSvg extends React.PureComponent<Props> {
     const clipHeight = isSpectatorModeObserver(spectatorMode)
       ? getObserverClipHeight(width, height, playerCount)
       : undefined;
+    console.log(playerCount, playerOrder);
     for (let i = 0; i < playerCount; i++) {
       const cardSpec = spec[i](width, height);
       const winningCard = game.playState.trick.winner === playerOrder[i];
@@ -85,11 +86,11 @@ function getTrickCardXOverride(
   if (!isSpectatorModeObserver(spectatorMode)) {
     return undefined;
   }
-  
+
   const maxHandWidth = getMaxHandWidth(playerCount);
   const maximumWidth = maxHandWidth + TrickWidth;
 
-  if(maximumWidth > svgWidth) {
+  if (maximumWidth > svgWidth) {
     return TrickMargin;
   } else {
     return (svgWidth - maximumWidth) / 2 + TrickMargin;

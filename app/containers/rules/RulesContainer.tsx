@@ -1,6 +1,6 @@
 import { Classes } from '@blueprintjs/core';
 import * as React from 'react';
-import { Card, RegSuit, RegValue, TrumpSuit, TrumpValue } from '../../../server/play/model/Card';
+import { Card, RegSuit, RegValue, Suit, TrumpValue } from '../../../server/play/model/Card';
 import { getCardUrl } from '../play/svg/CardSvg';
 import './RulesContainer.scss';
 
@@ -19,17 +19,17 @@ function buildSuit(suit: RegSuit) {
 function buildTrump() {
   const trump: Card[] = [];
   for (let i = 1; i <= 21; i++) {
-    trump.push([TrumpSuit, i]);
+    trump.push([Suit.Trump, i]);
   }
   return trump;
 }
 
-const Clubs: Card[] = buildSuit(RegSuit.Club);
-const Diamonds: Card[] = buildSuit(RegSuit.Diamond);
-const Hearts: Card[] = buildSuit(RegSuit.Heart);
-const Spades: Card[] = buildSuit(RegSuit.Spade);
+const Clubs: Card[] = buildSuit(Suit.Club);
+const Diamonds: Card[] = buildSuit(Suit.Diamond);
+const Hearts: Card[] = buildSuit(Suit.Heart);
+const Spades: Card[] = buildSuit(Suit.Spade);
 const Trump: Card[] = buildTrump();
-const Joker: Card = [TrumpSuit, TrumpValue.Joker];
+const Joker: Card = [Suit.Trump, TrumpValue.Joker];
 
 export class RulesContainer extends React.PureComponent {
   public render() {

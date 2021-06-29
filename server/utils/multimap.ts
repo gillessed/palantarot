@@ -19,6 +19,10 @@ export class Multimap<T> {
     return this.map.get(key) ?? new Set();
   }
 
+  public count(key: string): number {
+    return this.map.get(key)?.size ?? 0;
+  }
+
   public deleteAll(key: string): void {
     this.map.delete(key);
   }

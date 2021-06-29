@@ -12,7 +12,7 @@ export class LobbySocketListener implements SocketMessageListener {
 
   public handleMessage(socketId: string, socket: JsonSocket, message: SocketMessage<any>) {
     LobbySocketMessages.enterLobby.handle(message, (payload) => {
-      this.playService.playerEnteredLobby(socketId, payload.playerId);
+      this.playService.playerEnteredLobby(socketId);
     });
   }
 }

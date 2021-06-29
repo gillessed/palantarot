@@ -1,6 +1,7 @@
 import { RandomBotType } from "../../../bots/RandomBot";
 import { PlayService } from "../../api/PlayService";
 import { Player } from "../../model/Player";
+import { Multimap } from "../../utils/multimap";
 import { promiseDelay } from "../../utils/promiseDelay";
 import { generateId } from "../../utils/randomString";
 import { JsonSocket } from "../../websocket/JsonSocket";
@@ -27,6 +28,7 @@ export class Room {
       playService,
       generateId(),
       args.name,
+      args.color,
       args.gameSettings,
       Game.createNew(args.gameSettings),
       [],
@@ -34,16 +36,24 @@ export class Room {
       [],
     );
   }
+
+  private playerIdToSocketId: Multimap<string>;
+  private socketIdToPlayerId: Map<string, PlayerId>;
+
   constructor(
     private readonly playService: PlayService,
     public readonly id: string,
     public name: string,
+    public color: string,
     public settings: GameSettings,
     public game: Game,
     public pastGames: CompletedGameState[],
     public players: Map<PlayerId, PlayerStatus>,
     public chat: ChatText[],
-  ) { }
+  ) {
+    this.playerIdToSocketId = new Multimap();
+    this.socketIdToPlayerId = new Map();
+  }
 
   /* Socket Handlers */
 
@@ -63,19 +73,25 @@ export class Room {
     }
   }
 
-  public socketClosed(playerId: string) {
-    if (this.players.has(playerId)) {
-      this.players.set(playerId, PlayerStatus.Offline);
-      this.broadcastMessage(RoomSocketMessages.playerStatusUpdated({ roomId: this.id, playerId, playerStatus: PlayerStatus.Offline, time: Date.now() }));
-      this.playService.roomUpdated(this);
+  public socketClosed(socketId: string) {
+    const playerId = this.socketIdToPlayerId.get(socketId);
+    if (playerId != null && this.players.has(playerId)) {
+      this.playerIdToSocketId.delete(playerId, socketId);
+      this.socketIdToPlayerId.delete(socketId);
+      if (this.playerIdToSocketId.count(playerId) === 0) {
+        this.players.set(playerId, PlayerStatus.Offline);
+        this.broadcastMessage(RoomSocketMessages.playerStatusUpdated({ roomId: this.id, playerId, playerStatus: PlayerStatus.Offline, time: Date.now() }));
+        this.playService.roomUpdated(this);
+      }
     }
   }
 
   public handleEnterRoomMessage = (socketId: string, message: SocketMessage<EnterRoomMessagePayload>) => {
     const { playerId } = message.payload;
     this.broadcastMessage(message);
-    this.playService.setPlayerSocketId(socketId, playerId);
-    this.playService.addPlayerToRoom(this.id, playerId);
+    this.playerIdToSocketId.set(playerId, socketId);
+    this.socketIdToPlayerId.set(socketId, playerId);
+    this.playService.addSocketToRoom(this.id, socketId);
     this.players.set(playerId, PlayerStatus.Online);
     this.sendRoomStatus(playerId);
     this.playService.roomUpdated(this);
@@ -89,7 +105,6 @@ export class Room {
   public handleGameActionMessage = ({ action }: GameActionMessagePayload) => {
     this.processGameActions([action]);
     this.handleBotPlayers();
-    this.handleNewGame();
   }
 
   public handleAddBotMessage = (payload: BotMessagePayload) => {
@@ -138,6 +153,28 @@ export class Room {
 
   /* Helpers */
 
+  private getRoomSockets = (): JsonSocket[] => {
+    const sockets: JsonSocket[] = [];
+    for (const socketId of this.socketIdToPlayerId.keys()) {
+      const socket = this.playService.getSocketForSocketId(socketId);
+      if (socket != null) {
+        sockets.push(socket);
+      }
+    }
+    return sockets;
+  }
+
+  private getSocketsForPlayerId = (playerId: string): JsonSocket[] => {
+    const sockets: JsonSocket[] = [];
+    for (const socketId of this.playerIdToSocketId.get(playerId)) {
+      const socket = this.playService.getSocketForSocketId(socketId);
+      if (socket != null) {
+        sockets.push(socket);
+      }
+    }
+    return sockets;
+  }
+
   private processGameActions = (actions: Action[]) => {
     for (const action of actions) {
       const { events, serverMessages } = this.game.playerAction(action);
@@ -161,7 +198,7 @@ export class Room {
   }
 
   private sendRoomStatus = (playerId: string) => {
-    const sockets = this.playService.getSocketsForPlayer(playerId);
+    const sockets = this.getRoomSockets();
     for (const socket of sockets) {
       socket.send(RoomSocketMessages.roomStatus({ roomId: this.id, room: this.getRoomStatus(playerId) }));
     }
@@ -169,8 +206,7 @@ export class Room {
 
   private broadcastGameEvents = (gameEvents: PlayerEvent[]) => {
     for (const playerId of this.players.keys()) {
-      const sockets = this.playService.getSocketsForPlayer(playerId);
-
+      const sockets = this.getSocketsForPlayerId(playerId);
       const filteredEvents = gameEvents.filter((gameEvent) => {
         const isPrivate = gameEvent.privateTo != null && gameEvent.privateTo !== playerId;
         const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
@@ -184,7 +220,7 @@ export class Room {
 
   private broadcastMessage = (message: SocketMessage) => {
     for (const playerId of this.players.keys()) {
-      const sockets = this.playService.getSocketsForPlayer(playerId);
+      const sockets = this.getSocketsForPlayerId(playerId);
       for (const socket of sockets) {
         socket.send(message);
       }
@@ -198,6 +234,8 @@ export class Room {
     }
     return {
       id: this.id,
+      name: this.name,
+      color: this.color,
       players,
       settings: this.settings,
       gameId: this.game.id,
@@ -231,7 +269,7 @@ export class Room {
     await this.handleNewGame();
   }
 
-  private handleNewGame = () => {
+  private handleNewGame = async () => {
     if (this.game.getState().name !== GameplayState.Completed) {
       return;
     }
