@@ -198,7 +198,7 @@ export class Room {
   }
 
   private sendRoomStatus = (playerId: string) => {
-    const sockets = this.getRoomSockets();
+    const sockets = this.getSocketsForPlayerId(playerId);
     for (const socket of sockets) {
       socket.send(RoomSocketMessages.roomStatus({ roomId: this.id, room: this.getRoomStatus(playerId) }));
     }

@@ -44,10 +44,10 @@ async function init() {
     sagaMiddleware,
   ];
 
-  if (process.env.NODE_ENV === 'development') {
-    console.debug('Initializing redux logger for debug...');
-    middleware.push(logger as any);
-  }
+  // if (`process.env.NODE_ENV === 'development') {
+  // }`
+  console.debug('Initializing redux logger for debug...');
+  middleware.push(logger as any);
 
   const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
   const store: Store<ReduxState> = createStoreWithMiddleware(rootReducer) as any;

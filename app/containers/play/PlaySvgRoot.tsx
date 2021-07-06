@@ -37,7 +37,6 @@ export class PlaySvgRoot extends React.Component<Props, State> {
 
   public render() {
     const { room, width, height } = this.props;
-    console.log(room.color);
     return (
       <svg
         className='play-svg'
