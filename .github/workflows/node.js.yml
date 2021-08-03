@@ -26,8 +26,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
-    - run: yarn add --dev jest typescript
-    - run: yarn add --dev ts-jest @types/jest
     - run: yarn install
     - run: yarn dist:app
     - run: yarn dist:server
