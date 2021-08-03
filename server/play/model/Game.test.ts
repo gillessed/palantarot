@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import _ from "lodash";
+import { concat, find, isEqual } from "lodash";
 import { Game, testingGetState } from "../game/Game";
 import { Card, TheOne } from "./Card";
 import { cardsContain, getCardsAllowedToPlay, getPlayerNum, testingSetShuffler } from "./CardUtils";
@@ -61,15 +61,15 @@ function autoplayTrick(game: Game, time: () => number) {
     const anyPlayerPlayedCard = (state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
     const cards = getCardsAllowedToPlay(state.hands[getPlayerNum(state.players, player)], state.current_trick.cards, anyPlayerPlayedCard, state.called);
     // Play first available card, otherwise try to play one last. (Not smartest play, but good for testing)
-    const card = _.find(cards, (card) => !_.isEqual(card, TheOne)) || cardsContain(cards, TheOne);
+    const card = find(cards, (card) => !isEqual(card, TheOne)) || cardsContain(cards, TheOne);
     game.playerAction({ type: 'play_card', player, card, time: time() });
   }
 }
 
-export const test = () => {
+test('5 player game', () => {
   const game = Game.createNew();
   const time = createTimer();
-  testingSetShuffler((_cards: Card[]) => [..._.concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
+  testingSetShuffler((_cards: Card[]) => [...concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
 
   game.playerAction({ type: 'enter_game', player: 'dxiao', time: time() });
   game.playerAction({ type: 'enter_game', player: 'ericb', time: time() });
@@ -146,4 +146,4 @@ export const test = () => {
   assert.deepStrictEqual(end_state.pointsResult, 80);
 
   return game;
-};
+});
