@@ -1,7 +1,7 @@
 
 import { compact, filter, findIndex, isEqual, remove, sortBy } from "lodash";
 import { Bout, Card, Suit, TheJoker, TheOne, TrumpValue } from "../Card";
-import { cardsContain, cardsWithout, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getWinner } from '../CardUtils';
+import { cardsContain, cardsWithout, compareCards, getCardPoint, getCardsAllowedToPlay, getPlayerNum, getWinner } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
 import { Action, CompletedTrickTransition, GameCompletedTransition, PlayCardAction } from "../GameEvents";
 import { BidValue, Call, CompletedBoardState, CompletedGameState, CompletedTrick, GameplayState, JokerExchangeState, Outcome, PlayerId, PlayingBoardState, PlayingStateActions, PlayingStates, ReducerResult, ShowTrumpState } from "../GameState";
@@ -12,34 +12,51 @@ const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
 }
 
-const getCardsWon = (bidding_team: PlayerId[], tricks: CompletedTrick[], joker_state?: JokerExchangeState): Card[] => {
-  const cardswon = [];
+const getPointsEarned = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid: BidValue, dog: Card[], joker_state?: JokerExchangeState): number => {
+  let pointsCollected = 0;
+  const cardsWon = [];
+  // we only track cards lost for joker exchange
   const cardsLost = [];
   for (const trick of tricks) {
-    if (bidding_team.indexOf(trick.winner) > -1) { // bidding team won
-      cardswon.push(...trick.cards);
+    if (biddingTeam.indexOf(trick.winner) > -1) { // bidding team won
+      cardsWon.push(...trick.cards);
     } else {
       cardsLost.push(...trick.cards);
     }
   }
 
-  if (joker_state) {
-    if ((bidding_team.indexOf(joker_state.player) > -1) !== (bidding_team.indexOf(joker_state.owed_to) > -1)) {
-      if (bidding_team.indexOf(joker_state.player) > -1) { // joker played by bidder/partner, need to swap it back
-        if (cardswon.length > 0) {
-          cardsLost.push(sortBy(cardswon, getCardPoint)[0]);
-          cardswon.push(...remove(cardsLost, (card) => isEqual(card, TheJoker)));
+  if (jokerState) {
+    if ((biddingTeam.indexOf(jokerState.player) > -1) !== (biddingTeam.indexOf(jokerState.owed_to) > -1)) {
+      if (biddingTeam.indexOf(jokerState.player) > -1) { // joker played by bidder/partner, need to swap it back
+        if (cardsWon.length > 0) {
+          cardsWon.push(TheJoker);
+          // trade half point card for 4.5 point card
+          pointsCollected += 4;
         }
-      } else { // joker played by team, need to swap it back
+      } else { // joker played by opposition, need to swap it back
         if (cardsLost.length > 0) {
-          cardswon.push(sortBy(cardsLost, getCardPoint)[0]);
-          cardsLost.push(...remove(cardswon, (card) => isEqual(card, TheJoker)));
+          remove(cardsWon, (card) => isEqual(card, TheJoker));
+          // trade 4.5 point card for half point card
+          pointsCollected -= 4;
         }
       }
     }
   }
-  return cardswon
+  const bouts = filter(cardsWon, (card): card is Bout =>
+    card[0] === Suit.Trump && (
+      card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
+  const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
+  return pointsCollected + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : 0));
+
+const getBaseScore = (bid: BidValue, pointsEarned: number): number => {
+  const neededToWin = [56, 51, 41, 36][bouts.length];
+  let baseScore = bid;
+  baseScore += Math.ceil(Math.abs(pointsEarned - neededToWin) / 10) * 10;
+  const bidderWon = pointsEarned >= neededToWin;
+  baseScore *= bidderWon ? 1 : -1;
+  return baseScore;
 }
+
 
 const getOutcomes = (
   players: PlayerId[],
@@ -74,31 +91,27 @@ const getOutcomes = (
   return outcomes;
 }
 
+interface FinalScore {
+  pointsEarned: number;
+  bouts: Bout[];
+  bidderWon: boolean;
+  pointsResult: number;
+}
+
 const getFinalScore = (
   players: PlayerId[],
   biddingTeam: PlayerId[],
   bid: BidValue,
-  cardsWon: Card[],
-  dog: Card[],
+  pointsEarned: number,
+  baseScore: number,
   shows: ShowTrumpState,
   calls: { [player: number]: Call[] },
   outcomes: { [player: number]: Outcome[] },
-): { pointsEarned: number, bouts: Bout[], bidderWon: boolean, pointsResult: number } => {
-  const bouts = filter(cardsWon, (card): card is Bout =>
-    card[0] === Suit.Trump && (
-      card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
-  const trickPoints = cardsWon.map(getCardPoint).reduce((a, b) => a + b, 0);
-  const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
-  const pointsEarned = trickPoints + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : 0));
-  const neededToWin = [56, 51, 41, 36][bouts.length];
-  const bidderWon = pointsEarned >= neededToWin;
-
-  let pointsResult = bid;
-  pointsResult += Math.ceil(Math.abs(pointsEarned - neededToWin) / 10) * 10;
+): FinalScore => {
+  let pointsResult = baseScore;
   for (const player of shows) {
     pointsResult += 10;
   }
-  pointsResult *= bidderWon ? 1 : -1;
 
   for (const playerNum in calls) {
     if (calls[playerNum].indexOf(Call.DECLARED_SLAM) > -1) {
@@ -199,15 +212,16 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       return { state: newState, events: [action, completedTrickTransition] };
     } else { // end of game!
       const tricks = [...state.past_tricks, completed_trick];
-      const bidding_team = compact([state.bidder, state.partner]);
-      const cards_won = getCardsWon(bidding_team, tricks, state.joker_state);
-      const outcomes = getOutcomes(state.players, bidding_team, tricks);
-      const final_score = getFinalScore(
+      const biddingTeam = compact([state.bidder, state.partner]);
+      const pointsEarned = getPointsEarned(biddingTeam, tricks, state.bidding.winningBid.bid, state.dog, state.joker_state);
+      const baseScore = getBaseScore(state.bidding.winningBid.bid, pointsEarned);
+      const outcomes = getOutcomes(state.players, biddingTeam, tricks);
+      const finalScore = getFinalScore(
         state.players,
-        bidding_team,
+        biddingTeam,
         state.bidding.winningBid.bid,
-        cards_won,
-        state.dog,
+        pointsEarned,
+        baseScore,
         state.shows,
         state.bidding.calls,
         outcomes,
@@ -221,7 +235,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         calls: state.bidding.calls,
         shows: state.shows,
         outcomes,
-        ...final_score
+        ...finalScore
       };
       const newBoardState: CompletedBoardState = {
         ...state,
