@@ -58,8 +58,8 @@ function autoplayTrick(game: Game, time: () => number) {
   const order = (testingGetState(game) as PlayingBoardState).current_trick.players;
   for (const player of order) {
     const state = testingGetState(game) as PlayingBoardState;
-    const isFirstTrick = (state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
-    const cards = getCardsAllowedToPlay(state.hands[getPlayerNum(state.players, player)], state.current_trick.cards, !isFirstTrick, state.called);
+    const isFirstPlay = (state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
+    const cards = getCardsAllowedToPlay(state.hands[getPlayerNum(state.players, player)], state.current_trick.cards, !isFirstPlay, state.called);
     // Play first available card, otherwise try to play one last. (Not smartest play, but good for testing)
     const card = find(cards, (card) => !isEqual(card, TheOne)) || cardsContain(cards, TheOne);
     game.playerAction({ type: 'play_card', player, card, time: time() });
