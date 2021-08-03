@@ -3,6 +3,9 @@
 
 name: Node.js CI
 
+cache:
+  yarn: false
+
 on:
   push:
     branches: [ master ]
@@ -10,7 +13,13 @@ on:
     branches: [ master ]
 
 jobs:
+  cache:
+    yarn: false
+
   build:
+    cache:
+      yarn: false
+
 
     runs-on: ubuntu-latest
 
@@ -25,7 +34,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: false
+        cache: 'yarn'
     - run: yarn tsversion
     - run: yarn install
     - run: yarn dist:app
