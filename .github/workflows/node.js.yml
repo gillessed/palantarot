@@ -26,6 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
+    - run: yarn tsversion
     - run: yarn install
     - run: yarn dist:app
     - run: yarn dist:server

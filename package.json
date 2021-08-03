@@ -6,7 +6,6 @@
   "author": "gcole <gtc.cole@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "foo": "tsc -v",
     "build:app": "webpack --config webpack-app.config.js --mode development",
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
     "watch:simulator": "webpack -w --config webpack-simulator.config.js --mode development",
@@ -14,7 +13,8 @@
     "watch:app": "webpack-dev-server -w --config webpack-app.config.js --mode development",
     "dist:app": "NODE_OPTIONS=--max-old-space-size=4096 webpack --config webpack-app.config.js --mode production",
     "dist:server": "webpack --config webpack-server.config.js --mode production",
-    "dist:migration": "webpack --config webpack-migration.config.js --mode production"
+    "dist:migration": "webpack --config webpack-migration.config.js --mode production",
+    "tsversion": "tsc -v"
   },
   "dependencies": {
     "@blueprintjs/core": "3.14.1",
