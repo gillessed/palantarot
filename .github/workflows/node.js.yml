@@ -13,14 +13,7 @@ on:
     branches: [ master ]
 
 jobs:
-  cache:
-    yarn: false
-
   build:
-    cache:
-      yarn: false
-
-
     runs-on: ubuntu-latest
 
     strategy:
