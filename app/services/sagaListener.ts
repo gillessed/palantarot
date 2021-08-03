@@ -14,7 +14,7 @@ export const listenerLoop = function*(listeners: Set<SagaListener<any>>) {
     listeners.forEach((listener) => {
       const handler = function*() {
         while (true) {
-          const action: any = yield take(listener.actionType.TYPE);
+          const action = yield take(listener.actionType.TYPE);
           yield call(listener.callback, action.payload);
         }
       };
