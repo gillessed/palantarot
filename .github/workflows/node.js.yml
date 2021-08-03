@@ -3,9 +3,6 @@
 
 name: Node.js CI
 
-cache:
-  yarn: false
-
 on:
   push:
     branches: [ master ]
@@ -14,6 +11,9 @@ on:
 
 jobs:
   build:
+    cache:
+      yarn: false
+
     runs-on: ubuntu-latest
 
     strategy:
