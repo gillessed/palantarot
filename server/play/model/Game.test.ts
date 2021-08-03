@@ -142,13 +142,7 @@ test('5 player game', () => {
   assert.deepStrictEqual(end_state.bidderWon, true);
   assert.deepStrictEqual(end_state.outcomes[4], ['one_last']);
   assert.deepStrictEqual(end_state.bouts.length, 3);
-  for (const trick of (game.getState() as CompletedBoardState).past_tricks) {
-    console.log(trick);
-  }
-  console.log(game.getState());
   assert.deepStrictEqual(end_state.pointsEarned, 53);
-  assert.deepStrictEqual(end_state.shows[4], []);
+  assert.deepStrictEqual(end_state.shows, ['samira']);
   assert.deepStrictEqual(end_state.pointsResult, 80);
-
-  return game;
 });

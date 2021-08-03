@@ -12,8 +12,12 @@ const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
 }
 
-const getPointsEarned = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid: BidValue, dog: Card[], joker_state?: JokerExchangeState): number => {
-  let pointsCollected = 0;
+interface Earnings {
+  pointsEarned: number;
+  bouts: Bout[];
+}
+
+const getEarnings = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid: BidValue, dog: Card[], jokerState?: JokerExchangeState): Earnings => {
   const cardsWon = [];
   // we only track cards lost for joker exchange
   const cardsLost = [];
@@ -24,6 +28,8 @@ const getPointsEarned = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid:
       cardsLost.push(...trick.cards);
     }
   }
+
+  let pointsCollected = cardsWon.map(getCardPoint).reduce((a, b) => a + b, 0);
 
   if (jokerState) {
     if ((biddingTeam.indexOf(jokerState.player) > -1) !== (biddingTeam.indexOf(jokerState.owed_to) > -1)) {
@@ -46,13 +52,18 @@ const getPointsEarned = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid:
     card[0] === Suit.Trump && (
       card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21));
   const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
-  return pointsCollected + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : 0));
+  const pointsEarned = pointsCollected + (dogPoints * (bid !== BidValue.ONESIXTY ? 1 : 0));
+  return {
+    pointsEarned,
+    bouts,
+  }
+}
 
-const getBaseScore = (bid: BidValue, pointsEarned: number): number => {
-  const neededToWin = [56, 51, 41, 36][bouts.length];
+const getBaseScore = (bid: BidValue, earnings: Earnings): number => {
+  const neededToWin = [56, 51, 41, 36][earnings.bouts.length];
   let baseScore = bid;
-  baseScore += Math.ceil(Math.abs(pointsEarned - neededToWin) / 10) * 10;
-  const bidderWon = pointsEarned >= neededToWin;
+  baseScore += Math.ceil(Math.abs(earnings.pointsEarned - neededToWin) / 10) * 10;
+  const bidderWon = earnings.pointsEarned >= neededToWin;
   baseScore *= bidderWon ? 1 : -1;
   return baseScore;
 }
@@ -102,12 +113,13 @@ const getFinalScore = (
   players: PlayerId[],
   biddingTeam: PlayerId[],
   bid: BidValue,
-  pointsEarned: number,
+  earnings: Earnings,
   baseScore: number,
   shows: ShowTrumpState,
   calls: { [player: number]: Call[] },
   outcomes: { [player: number]: Outcome[] },
 ): FinalScore => {
+  let bidderWon = Math.sign(baseScore) > 0;
   let pointsResult = baseScore;
   for (const player of shows) {
     pointsResult += 10;
@@ -137,9 +149,9 @@ const getFinalScore = (
   }
 
   return {
-    pointsEarned,
-    bouts,
-    bidderWon: bidderWon,
+    pointsEarned: earnings.pointsEarned,
+    bouts: earnings.bouts,
+    bidderWon,
     pointsResult,
   }
 }
@@ -187,9 +199,9 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       players: state.current_trick.players,
       winner,
     };
-    let joker_state;
+    let jokerState;
     if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
-      joker_state = {
+      jokerState = {
         player: completed_trick.players[findIndex(completed_trick.cards, (card) => isEqual(card, TheJoker))],
         owed_to: winner,
       };
@@ -198,7 +210,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       const newState: PlayingBoardState = {
         ...state,
         hands,
-        joker_state: state.joker_state || joker_state,
+        jokerState: state.jokerState || jokerState,
         current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
         past_tricks: [...state.past_tricks, completed_trick],
       }
@@ -206,21 +218,21 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         type: 'completed_trick',
         winner,
         winning_card,
-        joker_state,
+        jokerState,
         privateTo: undefined,
       };
       return { state: newState, events: [action, completedTrickTransition] };
     } else { // end of game!
       const tricks = [...state.past_tricks, completed_trick];
       const biddingTeam = compact([state.bidder, state.partner]);
-      const pointsEarned = getPointsEarned(biddingTeam, tricks, state.bidding.winningBid.bid, state.dog, state.joker_state);
-      const baseScore = getBaseScore(state.bidding.winningBid.bid, pointsEarned);
+      const earnings = getEarnings(biddingTeam, tricks, state.bidding.winningBid.bid, state.dog, state.jokerState);
+      const baseScore = getBaseScore(state.bidding.winningBid.bid, earnings);
       const outcomes = getOutcomes(state.players, biddingTeam, tricks);
       const finalScore = getFinalScore(
         state.players,
         biddingTeam,
         state.bidding.winningBid.bid,
-        pointsEarned,
+        earnings,
         baseScore,
         state.shows,
         state.bidding.calls,
@@ -240,7 +252,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       const newBoardState: CompletedBoardState = {
         ...state,
         name: GameplayState.Completed,
-        joker_state: state.joker_state || joker_state,
+        jokerState: state.jokerState || jokerState,
         past_tricks: tricks,
         end_state: endState,
       }
@@ -248,7 +260,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         type: 'completed_trick',
         winner,
         winning_card,
-        joker_state,
+        jokerState,
         privateTo: undefined,
       };
       const completedGameTransition: GameCompletedTransition = {

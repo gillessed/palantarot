@@ -169,7 +169,7 @@ export interface PlayingBoardState extends DealtBoardState {
   readonly called?: Card;
   readonly partner?: PlayerId;
 
-  readonly joker_state?: JokerExchangeState;
+  readonly jokerState?: JokerExchangeState;
 
   readonly current_trick: Trick;
   readonly past_tricks: CompletedTrick[];
@@ -188,7 +188,7 @@ export interface CompletedBoardState extends BoardState {
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
   readonly shows: ShowTrumpState
-  readonly joker_state?: JokerExchangeState;
+  readonly jokerState?: JokerExchangeState;
   readonly joker_exchanged?: Card;
 
   readonly past_tricks: CompletedTrick[];

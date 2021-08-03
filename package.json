@@ -6,6 +6,8 @@
   "author": "gcole <gtc.cole@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "foo": "tsc -v",
+    "build:app": "webpack --config webpack-app.config.js --mode development",
     "watch:server": "webpack -w --config webpack-server.config.js --mode development",
     "watch:simulator": "webpack -w --config webpack-simulator.config.js --mode development",
     "watch:migration": "webpack -w --config webpack-migration.config.js --mode development",
@@ -79,7 +81,7 @@
     "reselect": "^3.0.1",
     "sass-loader": "^8.0.2",
     "style-loader": "^0.14.1",
-    "typescript": "^4.3.5",
+    "typescript": "^3.8.0",
     "webpack": "^4.29.0",
     "ws": "^7.4.6",
     "yargs": "^16.2.0"

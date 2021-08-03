@@ -8,7 +8,7 @@ import { PropertyActions, ServiceActions } from './serviceActions';
 
 export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
-    private debounceTime: number;
+    private debounceTime: number = 0;
     private caching?: ServiceCachingState<KEY, RESULT>;
     private argToKey: (arg: ARG) => KEY;
     constructor(
@@ -21,7 +21,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounce || 0;
+        this.debounceTime = options.debounceTime || 0;
         this.caching = options.caching;
         this.argToKey = options.argToKey ?? DefaultArgToKey;
       }
@@ -71,7 +71,7 @@ export interface ServiceDispatcher<ARG> {
 
 export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: PropertyActions<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
-    protected debounceTime: number;
+    protected debounceTime: number = 0;
     protected caching?: PropertyCachingState<ARG, RESULT>;
     constructor(
       protected readonly store: Store<ReduxState>,
@@ -82,7 +82,7 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounce || 0;
+        this.debounceTime = options.debounceTime || 0;
         this.caching = options.caching;
       }
     }

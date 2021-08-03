@@ -1,5 +1,5 @@
-import isEqual from 'lodash';
 import * as React from 'react';
+import { isEqual } from 'lodash';
 import { Card } from '../../../../server/play/model/Card';
 import { getCardsAllowedToPlay } from '../../../../server/play/model/CardUtils';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';

@@ -142,7 +142,7 @@ export interface CompletedTrickTransition extends Transition {
   readonly type: 'completed_trick';
   readonly winner: PlayerId;
   readonly winning_card: Card;
-  readonly joker_state?: JokerExchangeState;
+  readonly jokerState?: JokerExchangeState;
 }
 
 export interface GameCompletedTransition extends Transition {
