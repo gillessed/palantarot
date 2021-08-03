@@ -56,22 +56,29 @@ function invalidDeal(hands: Card[][]): boolean {
   return false;
 }
 
-export const testingSetShuffler = (new_shuffler: (cards: Card[]) => Card[] = shuffle) => {
-  shuffler = new_shuffler
+export const cardTestingSetShuffler = (new_shuffler: (cards: Card[]) => Card[] = shuffle) => {
+  cardShuffler = new_shuffler
 };
-let shuffler: (cards: Card[]) => Card[] = shuffle;
+let cardShuffler: (cards: Card[]) => Card[] = shuffle;
+
+export const playerTestingSetShuffler = (new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle) => {
+  playerShuffler = new_shuffler
+};
+let playerShuffler: (players: PlayerId[]) => PlayerId[] = shuffle;
+
 
 interface DealtCards {
   dog: Card[];
   hands: { [player: number]: Card[] };
 }
 
-export const shuffledDeck = (): Card[] => shuffler(createAllCards());
+export const shuffleDeck = (): Card[] => cardShuffler(createAllCards());
+export const shufflePlayers = (players: PlayerId[]): PlayerId[] => playerShuffler(players);
 
 export const dealCards = (players: number): DealtCards => {
   const comparer = compareCards(undefined);
   while (true) {
-    const cards = shuffler(createAllCards());
+    const cards = cardShuffler(createAllCards());
     const dogSize = players > 4 ? 3 : 6;
     const chunkSize = (cards.length - dogSize) / players;
     const deal = chunk<Card>(cards, chunkSize);
@@ -102,7 +109,7 @@ export const dealRemainingCards = ({
   }
   const hands: Card[][] = [...currentHands];
   while (true) {
-    const cardsToDeal = remainingCards ?? cardsWithout(shuffledDeck(), ...currentCards);
+    const cardsToDeal = remainingCards ?? cardsWithout(shuffleDeck(), ...currentCards);
     const chunkSize = Math.ceil(cardsToDeal.length / numRemainingHands);
     const deal = chunk<Card>(cardsToDeal, chunkSize);
     hands.push(...deal.slice(0, numRemainingHands).map((hand) => hand.sort(comparer)));

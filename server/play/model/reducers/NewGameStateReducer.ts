@@ -1,6 +1,6 @@
 import { map, shuffle, without } from "lodash"; 
 import { Card } from "../Card";
-import { dealCards } from "../CardUtils";
+import { dealCards, shufflePlayers } from "../CardUtils";
 import { GameErrors } from '../GameErrors';
 import { DealtHandTransition, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
 import { BiddingBoardState, BidValue, DummyPlayer, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";
@@ -50,7 +50,7 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
   } else {
     const { publicHands } = state;
     const { dog, hands } = dealCards(state.players.length);
-    const playerOrder = shuffle(state.players);
+    const playerOrder = shufflePlayers(state.players);
 
     // For debugging shows - give player Greg Cole a hand that can show.
     // const { dog, hands } = SampleDeal;

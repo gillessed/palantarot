@@ -144,7 +144,7 @@ export class Room {
   }
 
   public handleAutoplayMessage = () => {
-    const action = autoplayNextCard(this.game);
+    const action = autoplayNextCard(this.game, Date.now());
     if (action) {
       this.processGameActions([action]);
       this.handleBotPlayers();

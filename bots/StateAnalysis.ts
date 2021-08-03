@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { ClientGame } from "../app/services/room/ClientGame";
 import { Suit, TrumpValue } from "../server/play/model/Card";
 import { AllSuits, createCardsOfSuit, getLeadCard } from "../server/play/model/CardUtils";
@@ -60,7 +60,7 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
       if (cardSuit === Suit.Trump && !isJoker) {
         highestTrump = +cardValue;
       }
-      if (leadCard && !_.isEqual(card, leadCard)) {
+      if (leadCard && !isEqual(card, leadCard)) {
         if (card[0] !== leadCard[0] && !isJoker) {
           stateAnalysis.hands[playerList[i]].knownVoids.add(leadCard[0]);
           if (card[0] !== Suit.Trump) {

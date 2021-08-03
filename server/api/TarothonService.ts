@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import * as _ from 'lodash';
+import { has } from 'lodash';
 import { GameRecordQuerier } from '../db/GameRecordQuerier';
 import { TarothonQuerier } from '../db/TarothonQuerier';
 import { RoleResult } from '../model/Result';
@@ -45,7 +45,7 @@ export class TarothonService {
   }
 
   public addTarothon = (req: Request, res: Response) => {
-    if (_.has(req.body, 'id')) {
+    if (has(req.body, 'id')) {
       const data = req.body as Tarothon;
       this.tarothonDb.editTarothon(data).then(() => {
         res.send({ id: data.id });
