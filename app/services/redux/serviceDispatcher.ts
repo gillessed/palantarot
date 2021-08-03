@@ -21,7 +21,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounceTime || 0;
+        this.debounceTime = options.debounceTime;
         this.caching = options.caching;
         this.argToKey = options.argToKey ?? DefaultArgToKey;
       }
@@ -42,7 +42,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
       }
     }
 
-    private requestDebounced = debounce(this.requestInternal, this.debounceTime || 0);
+    private requestDebounced = debounce(this.requestInternal, this.debounceTime);
 
     private requestInternal(arg: ARG[]) {
       this.store.dispatch(actionCreators.request(arg));
@@ -82,7 +82,7 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounceTime || 0;
+        this.debounceTime = options.debounceTime;
         this.caching = options.caching;
       }
     }
@@ -97,7 +97,7 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
       this.debounceTime ? this.requestDebounced(arg) : this.requestInternal(arg);
     }
 
-    private requestDebounced = debounce(this.requestInternal, this.debounceTime || 0);
+    private requestDebounced = debounce(this.requestInternal, this.debounceTime);
 
     private requestInternal(arg: ARG) {
       this.store.dispatch(actionCreators.request(arg));
