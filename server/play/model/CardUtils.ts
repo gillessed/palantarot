@@ -140,7 +140,7 @@ export const dealRemainingCards = ({
     dealtCards.dog.push(nextCard);
   }
 
-  if (allowInvalid && invalidDeal(dealtCards.hands)) {
+  if (!allowInvalid && invalidDeal(dealtCards.hands)) {
     return dealRemainingCards({ fixedDeal, players, allowInvalid });
   }
   return dealtCards;
