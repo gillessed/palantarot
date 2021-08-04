@@ -100,7 +100,7 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
           accessor: (state: ReduxState) => state.players,
           isCached: CacheFunction.and(CacheFunction.loading(), CacheFunction.pageCache()),
         },
-        debounce: 500,
+        debounceTime: 500,
       },
     ),
     recentGames: new RecentGamesDispatcher(

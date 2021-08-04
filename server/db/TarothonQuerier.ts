@@ -2,7 +2,6 @@ import { Database } from './dbConnector';
 import { QueryBuilder } from './queryBuilder/QueryBuilder';
 import { QueryResult } from 'pg';
 import { Tarothon, NewTarothon } from '../model/Tarothon';
-import * as _ from 'lodash';
 
 export class TarothonQuerier {
   private db: Database;

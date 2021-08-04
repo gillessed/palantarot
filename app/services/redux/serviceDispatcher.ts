@@ -1,5 +1,4 @@
-import * as _ from 'lodash';
-import { debounce } from 'plottable/build/src/utils/windowUtils';
+import { debounce, isEqual } from 'lodash';
 import { Store } from 'redux';
 import { IMonth, Month } from '../../../server/model/Month';
 import { DefaultArgToKey } from '../loader';
@@ -9,20 +8,20 @@ import { PropertyActions, ServiceActions } from './serviceActions';
 
 export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators: ServiceActions<ARG, RESULT>) {
   return class implements ServiceDispatcher<ARG> {
-    private debounce: number;
+    private debounceTime: number = 0;
     private caching?: ServiceCachingState<KEY, RESULT>;
     private argToKey: (arg: ARG) => KEY;
     constructor(
       private readonly store: Store<ReduxState>,
       options?: {
         caching?: ServiceCachingState<KEY, RESULT>,
-        debounce?: number,
+        debounceTime?: number,
         argToKey?: (arg: ARG) => KEY,
       }
     ) {
-      this.debounce = 0;
+      this.debounceTime = 0;
       if (options) {
-        this.debounce = options.debounce || 0;
+        this.debounceTime = options.debounceTime ?? 0;
         this.caching = options.caching;
         this.argToKey = options.argToKey ?? DefaultArgToKey;
       }
@@ -39,11 +38,11 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
         });
       }
       if (uncachedArgs.length >= 1) {
-        debounce ? this.requestDebounced(uncachedArgs) : this.requestInternal(uncachedArgs);
+        this.debounceTime ? this.requestDebounced(uncachedArgs) : this.requestInternal(uncachedArgs);
       }
     }
 
-    private requestDebounced = _.debounce(this.requestInternal, this.debounce || 0);
+    private requestDebounced = debounce(this.requestInternal, this.debounceTime);
 
     private requestInternal(arg: ARG[]) {
       this.store.dispatch(actionCreators.request(arg));
@@ -72,18 +71,18 @@ export interface ServiceDispatcher<ARG> {
 
 export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: PropertyActions<ARG, RESULT>) {
   return class implements PropertyDispatcher<ARG> {
-    protected debounce: number;
+    protected debounceTime: number = 0;
     protected caching?: PropertyCachingState<ARG, RESULT>;
     constructor(
       protected readonly store: Store<ReduxState>,
       options?: {
         caching?: PropertyCachingState<ARG, RESULT>,
-        debounce?: number,
+        debounceTime?: number,
       }
     ) {
-      this.debounce = 0;
+      this.debounceTime = 0;
       if (options) {
-        this.debounce = options.debounce || 0;
+        this.debounceTime = options.debounceTime ?? 0;
         this.caching = options.caching;
       }
     }
@@ -95,10 +94,10 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
           return;
         }
       }
-      debounce ? this.requestDebounced(arg) : this.requestInternal(arg);
+      this.debounceTime ? this.requestDebounced(arg) : this.requestInternal(arg);
     }
 
-    private requestDebounced = _.debounce(this.requestInternal, this.debounce || 0);
+    private requestDebounced = debounce(this.requestInternal, this.debounceTime);
 
     private requestInternal(arg: ARG) {
       this.store.dispatch(actionCreators.request(arg));
@@ -137,7 +136,7 @@ export namespace CacheFunction {
       if (!loadable || !loadable.cached) {
         return false;
       }
-      return _.isEqual(key, loadable.key) && loadable.value !== undefined;
+      return isEqual(key, loadable.key) && loadable.value !== undefined;
     };
   }
 

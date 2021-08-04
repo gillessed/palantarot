@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { Card, Suit, TrumpValue } from "../server/play/model/Card";
 import { getCardValueAsNumber } from "../server/play/model/CardUtils";
 
@@ -13,7 +13,7 @@ export class CardList {
   }
 
   private removeInternal = (card: Card) => {
-    const index = this.list.findIndex((c) => _.isEqual(c, card));
+    const index = this.list.findIndex((c) => isEqual(c, card));
     this.list.splice(index, 1);
   }
 
@@ -22,7 +22,7 @@ export class CardList {
   }
 
   public has = (card: Card): boolean => {
-    return !!this.list.find((c) => _.isEqual(c, card));
+    return !!this.list.find((c) => isEqual(c, card));
   }
 
   public get = (index: number): Card => {

@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 import * as React from 'react';
+import { isEqual } from 'lodash';
 import { Card } from '../../../../server/play/model/Card';
 import { getCardsAllowedToPlay } from '../../../../server/play/model/CardUtils';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
@@ -56,7 +56,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
     }
     const trickCards = ClientGameSelectors.getTrickCards(game.playState.trick);
     const allowedCards = getCardsAllowedToPlay(game.playState.hand, trickCards, !!game.playState.anyPlayerPlayedCard, game.playState.partnerCard);
-    return !!allowedCards.find((c) => _.isEqual(c, card));
+    return !!allowedCards.find((c) => isEqual(c, card));
   }
 
   private handleCardSelect = (card: Card) => {

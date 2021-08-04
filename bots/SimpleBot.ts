@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import { ClientGame } from '../app/services/room/ClientGame';
 import { Card, RegValue, Suit, The21, TheJoker, TrumpValue } from "../server/play/model/Card";
 import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../server/play/model/CardUtils";
@@ -39,9 +39,9 @@ export class SimpleBot implements TarotBot {
     const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
     const russianOnTable = !![...playState.playerBids.values()].find((bid) => bid.calls.indexOf(Call.RUSSIAN) >= 0);
 
-    const hasOne = hand.find((c) => _.isEqual(c, [Suit.Trump, TrumpValue._1]));
-    const hasJoker = hand.find((c) => _.isEqual(c, [Suit.Trump, TrumpValue.Joker]));
-    const hasTwentyOne = hand.find((c) => _.isEqual(c, [Suit.Trump, TrumpValue._21]));
+    const hasOne = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue._1]));
+    const hasJoker = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue.Joker]));
+    const hasTwentyOne = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue._21]));
     const kingCount = hand.filter(([_, value]) => value === RegValue.R).length;
     const boutCount = [hasOne, hasJoker, hasTwentyOne].reduce((acc, b) => b ? acc : acc + 1, 0);
     const voidCount = [Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade]

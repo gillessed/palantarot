@@ -1,6 +1,6 @@
-import _ from "lodash";
+import { map, shuffle, without } from "lodash"; 
 import { Card } from "../Card";
-import { dealCards } from "../CardUtils";
+import { dealCards, shufflePlayers } from "../CardUtils";
 import { GameErrors } from '../GameErrors';
 import { DealtHandTransition, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
 import { BiddingBoardState, BidValue, DummyPlayer, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";
@@ -29,7 +29,7 @@ const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction
   }
   const newState: NewGameBoardState = {
     ...state,
-    players: _.without(state.players, action.player),
+    players: without(state.players, action.player),
   };
   return simpleResult(newState, action); 
 }
@@ -50,11 +50,11 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
   } else {
     const { publicHands } = state;
     const { dog, hands } = dealCards(state.players.length);
-    const playerOrder = _.shuffle(state.players);
+    const playerOrder = shufflePlayers(state.players);
 
     // For debugging shows - give player Greg Cole a hand that can show.
     // const { dog, hands } = SampleDeal;
-    // const playerOrder = _.shuffle(_.without(state.players, "Greg Cole"));
+    // const playerOrder = shuffle(without(state.players, "Greg Cole"));
     // playerOrder.push("Greg Cole");
 
     const bidState: BiddingBoardState = {
@@ -81,7 +81,7 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
       privateTo: undefined,
     };
 
-    const dealTransitions: DealtHandTransition[] = _.map(hands).map((hand: Card[], player: number) => {
+    const dealTransitions: DealtHandTransition[] = map(hands).map((hand: Card[], player: number) => {
       const transition: DealtHandTransition = {
         type: 'dealt_hand',
         hand,
@@ -127,7 +127,7 @@ export const handleUnmarkPlayerReadyAction = (state: NewGameBoardState, action: 
   } 
   const newState: NewGameBoardState = {
     ...state,
-    ready: _.without(state.ready, action.player),
+    ready: without(state.ready, action.player),
   };
   return simpleResult(newState, action);
 }

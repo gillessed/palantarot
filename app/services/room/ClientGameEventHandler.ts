@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isEqual, without } from "lodash";
 import { Card, TrumpCard } from "../../../server/play/model/Card";
 import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils";
 import { BidAction, BiddingCompletedTransition, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
@@ -81,7 +81,7 @@ function enterGame(state: PlayState, action: EnterGameAction): PlayState {
 function leaveGame(state: PlayState, action: LeaveGameAction): PlayState {
   return {
     ...state,
-    playerOrder: _.without(state.playerOrder, action.player),
+    playerOrder: without(state.playerOrder, action.player),
   };
 }
 
@@ -168,7 +168,7 @@ function callPartner(state: PlayState, action: CallPartnerAction): PlayState {
 }
 
 function dogRevealed(state: PlayState, action: DogRevealTransition, player: PlayerId): PlayState {
-  const selfCall = !!action.dog.find((card) => _.isEqual(card, state.partnerCard));
+  const selfCall = !!action.dog.find((card) => isEqual(card, state.partnerCard));
   if (action.player === player) {
     return {
       ...state,
@@ -245,7 +245,7 @@ function playCard(state: PlayState, action: PlayCardAction, playerId: PlayerId):
     completed: false,
   };
   let partner = state.partner;
-  if (!partner && _.isEqual(state.partnerCard, action.card)) {
+  if (!partner && isEqual(state.partnerCard, action.card)) {
     partner = action.player;
   }
   const globalHand = state.allHands.get(action.player);

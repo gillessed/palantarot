@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { cardsWithout, getPlayerNum } from '../CardUtils';
 import { GameErrors } from '../GameErrors';
 import { GameStartTransition, PlayerEvent, SetDogAction } from "../GameEvents";
@@ -10,7 +10,7 @@ const handleSetDogAction = (state: DogRevealAndExchangeBoardState, action: SetDo
   if (action.player !== state.bidder) {
     throw GameErrors.cannotSetDogIfNotBidder(action.player, state.bidder);
   }
-  if (!_.isEqual(action.player, action.privateTo)) {
+  if (!isEqual(action.player, action.privateTo)) {
     throw GameErrors.setDogActionShouldBePrivate(action);
   }
   if (action.dog.length !== state.dog.length) {
