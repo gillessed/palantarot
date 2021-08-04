@@ -16,7 +16,7 @@ test('Can only call kings with less than 4 kings', () => {
   expect(canPickV).toBe(false);
 });
 
-test('Can call kinds and queens with 4 kings', () => {
+test('Can call kings and queens with 4 kings', () => {
   const hand: Card[] = [
     [Suit.Club, 4], [Suit.Club, 5], [Suit.Club, 6], [Suit.Club, RegValue.R],
     [Suit.Diamond, 1], [Suit.Diamond, 2], [Suit.Diamond, RegValue.R], 
