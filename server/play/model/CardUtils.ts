@@ -135,7 +135,7 @@ export const dealRemainingCards = ({
   while (dealtCards.dog.length < dogSize) {
     const nextCard = cardsToDeal.pop();
     if (!nextCard) {
-      throw Error('Dealing the dog is screwed up.');
+      throw Error('Ran out of cards while dealing to the dog.');
     }
     dealtCards.dog.push(nextCard);
   }
