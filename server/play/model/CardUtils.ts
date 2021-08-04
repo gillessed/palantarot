@@ -67,9 +67,9 @@ export const playerTestingSetShuffler = (new_shuffler: (players: PlayerId[]) => 
 let playerShuffler: (players: PlayerId[]) => PlayerId[] = shuffle;
 
 
-interface DealtCards {
+export interface DealtCards {
   dog: Card[];
-  hands: { [player: number]: Card[] };
+  hands: Card[][];
 }
 
 export const shuffleDeck = (): Card[] => cardShuffler(createAllCards());
@@ -92,33 +92,58 @@ export const dealCards = (players: number): DealtCards => {
 };
 
 export const dealRemainingCards = ({
-  currentHands,
-  numRemainingHands,
-  remainingCards,
-  ignoreInvalid,
+  fixedDeal,
+  players,
+  allowInvalid,
 }: {
-  currentHands: Card[][],
-  numRemainingHands: number,
-  remainingCards?: Card[],
-  ignoreInvalid?: boolean,
+  fixedDeal: DealtCards,
+  players: number,
+  allowInvalid?: boolean,
 }): DealtCards => {
   const comparer = compareCards(undefined);
+  const dealtCards: DealtCards = {
+    hands: [],
+    dog: [],
+  }
   const currentCards: Card[] = [];
-  for (const hand of currentHands) {
-    currentCards.push(...hand);
-  }
-  const hands: Card[][] = [...currentHands];
-  while (true) {
-    const cardsToDeal = remainingCards ?? cardsWithout(shuffleDeck(), ...currentCards);
-    const chunkSize = Math.ceil(cardsToDeal.length / numRemainingHands);
-    const deal = chunk<Card>(cardsToDeal, chunkSize);
-    hands.push(...deal.slice(0, numRemainingHands).map((hand) => hand.sort(comparer)));
-    if (!ignoreInvalid && invalidDeal(hands)) {
-      continue;
+  for (let i = 0; i < players; i++) {
+    dealtCards.hands.push([]);
+    if (fixedDeal.hands[i]) {
+      dealtCards.hands[i].push(...fixedDeal.hands[i]);
     }
-    const dog = deal[numRemainingHands];
-    return { hands, dog };
+    currentCards.push(...dealtCards.hands[i]);
   }
+
+  dealtCards.dog.push(...fixedDeal.dog);
+  currentCards.push(...dealtCards.dog);
+  const deck = shuffleDeck();
+  const cardsToDeal = cardsWithout(deck, ...currentCards);
+  const dogSize = players > 4 ? 3 : 6;
+  const handSize = (deck.length - dogSize) / players;
+  for (let i = 0; i < players; i++) {
+    const hand = dealtCards.hands[i];
+    while (hand.length < handSize) {
+      const nextCard = cardsToDeal.pop();
+      if (!nextCard) {
+        throw Error('Ran out of cards while dealing to players.');
+      }
+      hand.push(nextCard);
+    }
+    hand.sort(comparer);
+  }
+
+  while (dealtCards.dog.length < dogSize) {
+    const nextCard = cardsToDeal.pop();
+    if (!nextCard) {
+      throw Error('Ran out of cards while dealing to the dog.');
+    }
+    dealtCards.dog.push(nextCard);
+  }
+
+  if (!allowInvalid && invalidDeal(dealtCards.hands)) {
+    return dealRemainingCards({ fixedDeal, players, allowInvalid });
+  }
+  return dealtCards;
 }
 
 export const getTrumps = function (cards?: Card[]): TrumpCard[] {

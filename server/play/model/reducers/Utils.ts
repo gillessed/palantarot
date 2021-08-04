@@ -8,7 +8,6 @@ export const getTrickPlayerOrder = (players: PlayerId[], firstPlayer: PlayerId) 
   return trickOrder;
 };
 
-
 export const getNewTrick = (players: PlayerId[], first_player: PlayerId, trick_num: number) => ({
   trick_num,
   cards: [],

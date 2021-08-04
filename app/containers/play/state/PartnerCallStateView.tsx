@@ -11,6 +11,7 @@ import { ShowOverlay } from '../svg/ShowOverlay';
 import { SpectatorButton } from '../svg/SpectatorButton';
 import { StatusOverlay } from '../svg/StatusOverlay';
 import { SuitIcons } from '../svg/SuitIcons';
+import { getAllowedPartnerCalls } from './AllowedPartnerCalls';
 import { StateViewProps } from './StateViewProps';
 
 type Props = StateViewProps;
@@ -21,7 +22,6 @@ interface State {
 }
 
 const ButtonLeft = -240;
-
 export class PartnerCallStateView extends React.PureComponent<Props, State> {
   public state: State = {
     card: RegValue.R,
@@ -75,11 +75,7 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
   private renderCardButtons() {
     const { width, height, game } = this.props;
     const y = height / 2 + CardHeight / 2 + 50;
-    const counts = ClientGameSelectors.getValueCounts(game);
-    const allowAll = game.settings?.bakerBengtsonVariant;
-    const canPickD = counts.get(RegValue.R) === 4 || allowAll;
-    const canPickC = canPickD && counts.get(RegValue.D) === 4 || allowAll;
-    const canPickV = canPickC && counts.get(RegValue.C) === 4 || allowAll;
+    const { canPickD, canPickC, canPickV } = getAllowedPartnerCalls(game);
     return (<>
       <ActionButton
         width={100}

@@ -1,4 +1,4 @@
-import { map, shuffle, without } from "lodash"; 
+import { map, without } from "lodash";
 import { Card } from "../Card";
 import { dealCards, shufflePlayers } from "../CardUtils";
 import { GameErrors } from '../GameErrors';
@@ -31,7 +31,7 @@ const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction
     ...state,
     players: without(state.players, action.player),
   };
-  return simpleResult(newState, action); 
+  return simpleResult(newState, action);
 }
 
 const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerReadyAction): ReducerResult<NewGameStates> => {
@@ -52,10 +52,10 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
     const { dog, hands } = dealCards(state.players.length);
     const playerOrder = shufflePlayers(state.players);
 
-    // For debugging shows - give player Greg Cole a hand that can show.
-    // const { dog, hands } = SampleDeal;
-    // const playerOrder = shuffle(without(state.players, "Greg Cole"));
-    // playerOrder.push("Greg Cole");
+    // Give greg cole a hand with four kings
+    // const { dog, hands } = dealRemainingCards({ fixedDeal: PartialDeals.FourKings, players: 5 });
+    // const playerOrder = shuffle(without(state.players, "32"));
+    // playerOrder.unshift("32");
 
     const bidState: BiddingBoardState = {
       publicHands: state.publicHands,
