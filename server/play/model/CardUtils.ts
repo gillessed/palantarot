@@ -125,7 +125,7 @@ export const dealRemainingCards = ({
     while (hand.length < handSize) {
       const nextCard = cardsToDeal.pop();
       if (!nextCard) {
-        throw Error('Dealing hands is screwed up.');
+        throw Error('Ran out of cards while dealing to players.');
       }
       hand.push(nextCard);
     }
