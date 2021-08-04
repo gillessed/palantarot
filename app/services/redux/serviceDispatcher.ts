@@ -21,7 +21,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(actionCreators
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounceTime ??;
+        this.debounceTime = options.debounceTime ?? 0;
         this.caching = options.caching;
         this.argToKey = options.argToKey ?? DefaultArgToKey;
       }
@@ -82,7 +82,7 @@ export function generatePropertyDispatcher<ARG, RESULT>(actionCreators: Property
     ) {
       this.debounceTime = 0;
       if (options) {
-        this.debounceTime = options.debounceTime ??;
+        this.debounceTime = options.debounceTime ?? 0;
         this.caching = options.caching;
       }
     }
