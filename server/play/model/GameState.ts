@@ -112,7 +112,7 @@ export interface BoardState {
 }
 
 export interface DealtBoardState extends BoardState {
-  readonly hands: { [player: number]: Card[] }
+  readonly hands: Card[][];
   readonly dog: Card[]
   readonly shows: ShowTrumpState
 }
