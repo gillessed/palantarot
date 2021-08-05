@@ -1,3 +1,6 @@
+// webpack needs to be explicitly required
+const webpack = require('webpack')
+
 var path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -67,15 +70,16 @@ module.exports = {
         include: [
           path.resolve(__dirname, 'node_modules')
         ],
-        loader: 'file-loader',
-        query: {
-          name: '[name]-[hash].[ext]',
-        }
+        loader: 'file-loader'
       },
     ],
   },
   plugins: [
     extractCss,
     html,
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+
   ],
 };
