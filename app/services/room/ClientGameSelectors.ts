@@ -130,6 +130,16 @@ const getGroupedChatText = defaultMemoize((chat: ChatText[]) => {
   return items.reverse();
 }); 
 
+const getPreviousTrick = defaultMemoize((game: ClientGame): Card[] | undefined => {
+  const { completedTricks } = game.playState;
+  const previousTrick = completedTricks[completedTricks.length - 1];
+  if (!previousTrick) {
+    return;
+  }
+  const { cards, order } = previousTrick
+  return order.map((playerId) => cards.get(playerId)!);
+}); 
+
 export const ClientGameSelectors = {
   getClientGame,
   isParticipant,
@@ -144,4 +154,5 @@ export const ClientGameSelectors = {
   getTrickCards,
   canShow,
   getGroupedChatText,
+  getPreviousTrick,
 };

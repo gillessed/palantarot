@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
+import { Card } from '../../../../server/play/model/Card';
 import { GameplayState } from '../../../../server/play/model/GameState';
 import { ClientGame } from '../../../services/room/ClientGame';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
 import './BottomLeftStatus.scss';
+import { CardGroup } from './CardGroup';
 import { getCardUrl } from './CardSvg';
 
 export namespace BottomLeftStatus {
@@ -21,6 +24,16 @@ export const BottomLeftStatusLayout = {
   Width: 400,
 };
 
+function renderCard(card: Card) {
+  return (
+    <img
+      key={`${card[0]}|${card[1]}`}
+      className='card-image'
+      src={getCardUrl(card)}
+    />
+  );
+}
+
 export class BottomLeftStatus extends React.PureComponent<BottomLeftStatus.Props> {
   public render() {
     const { height, game, spectatorMode } = this.props;
@@ -32,37 +45,35 @@ export class BottomLeftStatus extends React.PureComponent<BottomLeftStatus.Props
       game.playState.state === GameplayState.Playing ||
       game.playState.state === GameplayState.Completed
     );
+    const previousTrick = ClientGameSelectors.getPreviousTrick(game);
     return (
-      <foreignObject
-        x={0}
-        y={height - BottomLeftStatusLayout.Height}
-        width={BottomLeftStatusLayout.Width}
-        height={BottomLeftStatusLayout.Height}
-      >
-        <div className='bottom-left-status'>
-          <div className='bottom-left-background'>
-            {partnerCall && <div className='status-line'>
-              Parner Call:
-              <img
-                className='card-image'
-                src={getCardUrl(partnerCall)}
-              />
-            </div>}
-            {renderDog && <div className='status-line'>
-              <span className='title'>Dog:</span>
-              {dog.map((card) => {
-                return (
-                  <img
-                    key={`${card[0]}|${card[1]}`}
-                    className='card-image'
-                    src={getCardUrl(card)}
-                  />
-                );
-              })}
-            </div>}
-          </div>
-        </div>
-      </foreignObject>
-    )
+      <>
+        <CardGroup
+          title='Previous Trick'
+          cards={previousTrick ?? []}
+          x={0}
+          y={height - 300}
+          width={310}
+          height={150}
+        />
+        <CardGroup
+          title='Dog'
+          cards={dog}
+          x={0}
+          y={height - 150}
+          width={200}
+          height={150}
+        />
+        <CardGroup
+          title='Partner Call'
+          cards={partnerCall ? [partnerCall] : []}
+          x={190}
+          y={height - 150}
+          width={120}
+          height={150}
+          showEmptyIcon
+        />
+      </>
+    );
   }
 }
