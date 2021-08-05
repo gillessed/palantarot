@@ -11,6 +11,8 @@ TODO
 Development
 -----------
 
+To start, you need NodeJS >= 14.
+
 There are a few things you will need to run the app locally.
 
 Start up a mysql database:

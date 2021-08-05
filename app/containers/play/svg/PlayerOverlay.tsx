@@ -1,21 +1,12 @@
 import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
 import { GameplayState, PlayerId } from '../../../../server/play/model/GameState';
-import { ClientGame } from '../../../services/room/ClientGame';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import { isSpectatorModeObserver } from '../SpectatorMode';
+import { StateViewProps } from '../state/StateViewProps';
 import { PlayerTitleSvg } from './PlayerTitleSvg';
 import { getTitleArrangementSpec, TitleArrangementSpec } from './TitleArrangementSpec';
 
-interface Props {
-  width: number;
-  height: number;
-  players: Map<string, Player>;
-  game: ClientGame;
-  spectatorMode: SpectatorMode;
-}
-
-export class PlayerOverlay extends React.PureComponent<Props> {
+export class PlayerOverlay extends React.PureComponent<StateViewProps> {
   public render() {
     const { game, spectatorMode } = this.props;
     const playerOrder = ClientGameSelectors.getRotatedPlayerOrder(game);
@@ -30,12 +21,13 @@ export class PlayerOverlay extends React.PureComponent<Props> {
   }
 
   private renderPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
-    const { width, height, game, players, spectatorMode } = this.props;
+    const { width, height, game, players, spectatorMode, dispatchers } = this.props;
     if (playerOrder.length <= index) {
       return null;
     }
     const bid = game.playState.state === GameplayState.Bidding ? game.playState.playerBids.get(playerOrder[index]) : undefined;
-    const player = players.get(playerOrder[index]);
+    const playerId = playerOrder[index];
+    const player = players.get(playerId);
     const hand = isSpectatorModeObserver(spectatorMode) ? game.playState.allHands.get(player?.id ?? "") : undefined;
     return (
       <PlayerTitleSvg
@@ -48,6 +40,9 @@ export class PlayerOverlay extends React.PureComponent<Props> {
         spectatorMode={spectatorMode}
         hand={hand}
         playerCount={playerOrder.length}
+        selfId={game.playerId}
+        allowPoke={game.playState.allowNotifyPlayer}
+        dispatchers={dispatchers}
         {...this.getReadyProps(index)}
         {...spec[index](width, height)}
       />

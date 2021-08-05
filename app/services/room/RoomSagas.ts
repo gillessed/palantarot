@@ -3,8 +3,9 @@ import { TypedAction } from 'redoodle';
 import { all, call, delay, put, select, takeEvery } from 'redux-saga/effects';
 import { BidAction, ErrorCode } from '../../../server/play/model/GameEvents';
 import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
-import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, PlayerStatusUpdatedMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
+import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, NotifyPlayerMessagePayload, PlayerStatusUpdatedMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
 import { SocketMessage } from '../../../server/websocket/SocketMessage';
+import { AudioFileUrls } from '../../components/sound/Audio';
 import { Palantoaster } from '../../components/toaster/Toaster';
 import history from '../../history';
 import { StaticRoutes } from '../../routes';
@@ -37,6 +38,9 @@ function* handleMessage(action: TypedAction<SocketMessage>) {
       break;
     case RoomSocketMessages.error.type:
       yield call(handleRoomErrorMessage, message.payload);
+      break;
+    case RoomSocketMessages.notifyPlayer.type:
+      yield call(handleNotifyPlayer, message.payload);
       break;
   }
 }
@@ -84,6 +88,21 @@ export function* handleRoomErrorMessage(payload: RoomErrorMessagePayload) {
     });
   } else {
     // TODO: surface errors
+  }
+}
+
+let lastNotificationTime: number | null = null;
+
+export function* handleNotifyPlayer(payload: NotifyPlayerMessagePayload) {
+  const room: ReturnType<typeof RoomSelectors.getRoom> = yield select(RoomSelectors.getRoom);
+  if (room?.playerId !== payload.playerId) {
+    return;
+  }
+  const now = Date.now();
+  if (lastNotificationTime == null || now - lastNotificationTime > 10_000) {
+    const audio = new Audio(AudioFileUrls.Pylons);
+    audio.play();
+    lastNotificationTime = now;
   }
 }
 

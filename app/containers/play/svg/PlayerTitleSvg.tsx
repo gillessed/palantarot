@@ -4,10 +4,12 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { Card } from '../../../../server/play/model/Card';
-import { Bid, BidValue, Call } from '../../../../server/play/model/GameState';
+import { Bid, BidValue, Call, PlayerId } from '../../../../server/play/model/GameState';
+import { Dispatchers } from '../../../services/dispatchers';
 import { getPlayerName } from '../../../services/players/playerName';
 import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
-import { CardHeight, CardWidth, getMaxHandWidth, getObserverClipHeight, HandCardPopup, PlayerTextHeight, PlayerTextMargin, TrickWidth } from './CardSpec';
+import { ActionButton } from './ActionButton';
+import { CardHeight, CardWidth, getMaxHandWidth, getObserverClipHeight, HandCardPopup, PlayerTextHeight, PlayerTextMargin, PokeButtonHeight, PokeButtonOffset, PokeButtonWidth, TrickWidth } from './CardSpec';
 import { CardSvg } from './CardSvg';
 import { GradientIds } from './Gradients';
 import { HandSvg } from './HandSvg';
@@ -36,6 +38,9 @@ export namespace PlayerTitleSvg {
     spectatorMode: SpectatorMode;
     hand?: Card[];
     playerCount: number;
+    selfId: string;
+    allowPoke: PlayerId | null;
+    dispatchers: Dispatchers;
   }
 
   export interface State {
@@ -59,6 +64,8 @@ export interface TitleLayout {
   bidx: number;
   bidy: number;
   bidAnchor: string;
+  pokeButtonx: number;
+  pokeButtony: number;
 }
 
 const emptyLayout = (): TitleLayout => {
@@ -74,6 +81,8 @@ const emptyLayout = (): TitleLayout => {
     bidx: 100000,
     bidy: 0,
     bidAnchor: 'auto',
+    pokeButtonx: 0,
+    pokeButtony: 0,
   };
 }
 
@@ -97,7 +106,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
   }
 
   public render() {
-    const { svgWidth, svgHeight, player, showDealer, highlight, bid, hand, spectatorMode, playerCount } = this.props;
+    const { svgWidth, svgHeight, player, showDealer, highlight, bid, hand, spectatorMode, playerCount, allowPoke, selfId } = this.props;
     const playerName = player ? `${getPlayerName(player)}` : 'Unknown Player';
     const layoutArgs: PlayerTitleSvg.ArrangementArgs = { ...this.props, ...this.state };
     const clipHeight = getObserverClipHeight(svgWidth, svgHeight, playerCount);
@@ -110,7 +119,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
         'plain': !highlight,
       },
     );
-    const handLeft = L.bidx + 20;
+    const showPokeButton = allowPoke != null && allowPoke === player?.id && allowPoke !== selfId;
     return (
       <g>
         {!hand && <CardSvg
@@ -137,6 +146,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
         </text>
         {bid && this.renderBid(bid, L)}
         {this.renderIcons(L)}
+        {showPokeButton && this.renderPokeButton(L)}
       </g>
     );
   }
@@ -202,6 +212,27 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
       this.setState({ textWidth: textElement.getComputedTextLength() });
     }
   }
+
+  private renderPokeButton(L: TitleLayout) {
+    return (
+      <ActionButton
+        width={PokeButtonWidth}
+        height={PokeButtonHeight}
+        x={L.pokeButtonx}
+        y={L.pokeButtony}
+        text='Poke'
+        color='blue'
+        onClick={this.handlePokePlayer}
+      />
+    )
+  }
+
+  private handlePokePlayer = () => {
+    const { dispatchers, allowPoke } = this.props;
+    if (allowPoke != null) {
+      dispatchers.room.pokePlayer(allowPoke);
+    }
+  }
 }
 
 export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayout {
@@ -211,6 +242,7 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
     L.cardx = position - CardWidth / 2;
     L.cardy = TopCardY;
     L.texty = PlayerTextHeight + PlayerTextMargin + CardHeight + TopCardY;
+    L.pokeButtony = L.texty + PokeButtonHeight / 2 + PokeButtonOffset;
     L.icony = L.texty - IconSize.width / 2 - 15;
     L.bidy = L.cardy + CardHeight + 110;
     L.bidx = position;
@@ -220,24 +252,29 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
       L.textx = L.cardx - PlayerTextMargin + CardWidth;
       L.textAnchor = 'end';
       L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
+      L.pokeButtonx = L.textx - PokeButtonWidth / 2;
     } else {
       L.textx = L.cardx + PlayerTextMargin;
       L.textAnchor = 'start';
       L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
+      L.pokeButtonx = L.textx + PokeButtonWidth / 2;
     }
   } else if (side === 'left') {
     L.cardx = -CardWidth + HorizontalX;
     L.cardy = position;
     L.textAnchor = 'start';
     L.textx = PlayerTextMargin;
+    L.pokeButtonx = L.textx + PokeButtonWidth / 2;
     L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
     L.bidy = L.cardy + CardHeight / 2;
     L.bidx = HorizontalX + 30;
     L.bidAnchor = 'start';
     if (text === 'before') {
       L.texty = L.cardy - PlayerTextMargin;
+      L.pokeButtony = L.texty - PokeButtonWidth / 2 - PokeButtonOffset;
     } else {
       L.texty = L.cardy + CardHeight + PlayerTextHeight + PlayerTextMargin;
+      L.pokeButtony = L.texty + PokeButtonWidth / 2 + PokeButtonOffset;
     }
     L.icony = L.texty - IconSize.width / 2 - IconYOffset;
     L.iconx = textWidth !== undefined ? L.textx + textWidth + 10 : L.iconx;
@@ -247,13 +284,16 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
     L.bidy = L.cardy + CardHeight / 2;
     L.bidx = L.cardx - 30;
     L.textx = svgWidth - PlayerTextMargin;
+    L.pokeButtonx = L.textx - PokeButtonWidth / 2;
     L.textAnchor = 'end';
     L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
     L.bidAnchor = 'end';
     if (text === 'before') {
       L.texty = L.cardy - PlayerTextMargin;
+      L.pokeButtony = L.texty - PokeButtonWidth / 2 - PokeButtonOffset;
     } else {
       L.texty = L.cardy + CardHeight + PlayerTextHeight + PlayerTextMargin;
+      L.pokeButtony = L.texty + PokeButtonWidth / 2 + PokeButtonOffset;
     }
     L.icony = L.texty - IconSize.width / 2 - IconYOffset;
   } else if (side === 'bottom') {
@@ -283,7 +323,7 @@ export function getTitleLayoutForObserverMode(
   playerCount: number,
   clipHeight: number,
 ): TitleLayout {
-  const { svgWidth, svgHeight, side, position, text, textWidth } = args;
+  const { svgWidth, position } = args;
   const L = emptyLayout();
   const maxHandWidth = getMaxHandWidth(playerCount);
   const maximumWidth = maxHandWidth + TrickWidth;
