@@ -4,8 +4,10 @@
     "rootDir": ".",
     "outDir": "build"
   },
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+  "exclude": [
+      "build",
+      "node_modules",
+      "dist"
+  ],
+  "compileOnSave": false
 }
