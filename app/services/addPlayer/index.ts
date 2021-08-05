@@ -44,7 +44,7 @@ export function* addNewPlayerSaga(api: ServerApi) {
 function* addPlayer(api: ServerApi, action: TypedAction<AddNewPlayerPayload>) {
   try { 
     yield put(addNewPlayerActions.loading(undefined));
-    const player = yield api.addPlayer(action.payload.newPlayer);
+    const player: Player = yield api.addPlayer(action.payload.newPlayer);
     yield put(addNewPlayerActions.success(player));
   } catch(e) {
     yield put(addNewPlayerActions.error(e));
