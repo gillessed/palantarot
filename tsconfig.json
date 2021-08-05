@@ -1,13 +1,26 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "build"
+    "outDir": "build",
+    "target": "es6",
+    "moduleResolution": "node",
+
+    "jsx": "react",
+    "allowJs": true,
+    "inlineSourceMap": true,
+
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": false,
+    "preserveConstEnums": true,
+    "strictNullChecks": true,
+    "removeComments": false
   },
   "exclude": [
-      "build",
-      "node_modules",
-      "dist"
+    "build",
+    "node_modules",
+    "dist"
   ],
   "compileOnSave": false
 }

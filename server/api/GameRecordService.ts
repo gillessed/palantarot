@@ -6,13 +6,12 @@ import {GameRecord} from '../model/GameRecord';
 import {IMonth, Month} from '../model/Month';
 import {Records} from '../model/Records';
 import {Result, Role, RoleResult} from '../model/Result';
-import {WebsocketManager} from '../websocket/WebsocketManager';
 
 export class GameRecordService {
   public router: Router;
   private gameDb: GameRecordQuerier;
 
-  constructor(db: Database, websocketManager: WebsocketManager) {
+  constructor(db: Database) {
     this.router = Router();
     this.gameDb = new GameRecordQuerier(db);
     this.router.get('/records', this.getRecords);

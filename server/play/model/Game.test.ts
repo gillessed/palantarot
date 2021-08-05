@@ -10,13 +10,7 @@ import {
   playerTestingSetShuffler,
 } from './CardUtils';
 import {GameCompletedTransition} from './GameEvents';
-import {
-  BidValue,
-  Call,
-  CompletedBoardState,
-  PlayingBoardState,
-  PlayerId,
-} from './GameState';
+import {BidValue, Call, PlayingBoardState, PlayerId} from './GameState';
 
 const createTimer = () => {
   let logical_clock = 0;

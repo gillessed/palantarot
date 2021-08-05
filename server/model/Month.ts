@@ -50,7 +50,7 @@ export class IMonth implements Month {
     const previous = (this.month + 11) % 12;
     return IMonth.get({
       month: previous,
-      year: previous == 11 ? this.year - 1 : this.year,
+      year: previous === 11 ? this.year - 1 : this.year,
     });
   }
 
@@ -58,7 +58,7 @@ export class IMonth implements Month {
     const nextMonth = (this.month + 1) % 12;
     return IMonth.get({
       month: nextMonth,
-      year: nextMonth == 0 ? this.year + 1 : this.year,
+      year: nextMonth === 0 ? this.year + 1 : this.year,
     });
   }
 

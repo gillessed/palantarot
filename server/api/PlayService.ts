@@ -40,14 +40,14 @@ export class PlayService {
     this.router.get('/rooms', this.listRooms);
   }
 
-  public newRoom = async (req: Request, res: Response) => {
+  public newRoom = async (req: Request, _res: Response) => {
     const args: NewRoomArgs = req.body;
     const room = Room.empty(this, args);
     this.rooms.set(room.id, room);
     this.roomUpdated(room);
   };
 
-  public listRooms = async (_: Request, res: Response) => {
+  public listRooms = async (_req: Request, res: Response) => {
     const rooms: RoomDescriptions = {};
     for (const [id, room] of this.rooms) {
       rooms[id] = getRoomDescription(room);

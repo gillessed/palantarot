@@ -31,6 +31,7 @@ declare module 'apisauce' {
   }
   export type ApiResponse<T> = ApiErrorResponse<T> | ApiOkResponse<T>;
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   export interface ApisauceInstance {
     headers: any;
     addMonitor: (tron: any) => void;

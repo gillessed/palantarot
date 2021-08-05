@@ -73,6 +73,7 @@ export class StatsQuerier {
         'h_month',
         'was_bidder',
         'was_partner'
+      );
 
     allPlayers.join(
       allWonGamesMonthlyStatsQuery,

@@ -54,7 +54,7 @@ export const declareSlamActionReducer = <
   action: DeclareSlam
 ): ReducerResult<T> => {
   const player_num = getPlayerNum(state.players, action.player);
-  if (action.player != state.bidder) {
+  if (action.player !== state.bidder) {
     throw GameErrors.onlyBidderCanDeclareSlam(action.player, state.bidder);
   }
   const newState: T = {

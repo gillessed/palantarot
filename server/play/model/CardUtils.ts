@@ -96,18 +96,17 @@ export const shufflePlayers = (players: PlayerId[]): PlayerId[] =>
 
 export const dealCards = (players: number): DealtCards => {
   const comparer = compareCards(undefined);
-  while (true) {
+  let dog: Card[];
+  let hands: Card[][];
+  do {
     const cards = cardShuffler(createAllCards());
     const dogSize = players > 4 ? 3 : 6;
     const chunkSize = (cards.length - dogSize) / players;
     const deal = chunk<Card>(cards, chunkSize);
-    const dog = deal[players];
-    const hands = deal.slice(0, players).map(hand => hand.sort(comparer));
-    if (invalidDeal(hands)) {
-      continue; // Invalid hand, deal again!
-    }
-    return {dog, hands};
-  }
+    dog = deal[players];
+    hands = deal.slice(0, players).map(hand => hand.sort(comparer));
+  } while (invalidDeal(hands));
+  return {dog, hands};
 };
 
 export const dealRemainingCards = ({
@@ -167,7 +166,7 @@ export const dealRemainingCards = ({
 
 export const getTrumps = function (cards?: Card[]): TrumpCard[] {
   return (
-    cards?.filter((card: Card): card is TrumpCard => card[0] == Suit.Trump) ||
+    cards?.filter((card: Card): card is TrumpCard => card[0] === Suit.Trump) ||
     []
   );
 };

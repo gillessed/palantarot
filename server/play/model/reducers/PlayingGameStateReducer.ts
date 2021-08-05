@@ -1,9 +1,8 @@
-import {compact, filter, findIndex, isEqual, remove, sortBy} from 'lodash';
+import {compact, filter, findIndex, isEqual, remove} from 'lodash';
 import {Bout, Card, Suit, TheJoker, TheOne, TrumpValue} from '../Card';
 import {
   cardsContain,
   cardsWithout,
-  compareCards,
   getCardPoint,
   getCardsAllowedToPlay,
   getPlayerNum,
@@ -44,7 +43,7 @@ const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
     state.past_tricks.length > 0 ||
     state.current_trick.players
       .slice(state.current_trick.current_player)
-      .indexOf(action.player) == -1
+      .indexOf(action.player) === -1
   );
 };
 
@@ -175,7 +174,7 @@ const getFinalScore = (
 ): FinalScore => {
   const bidderWon = Math.sign(baseScore) > 0;
   let pointsResult = baseScore;
-  for (const player of shows) {
+  for (const _player of shows) {
     pointsResult += 10;
   }
 

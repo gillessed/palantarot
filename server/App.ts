@@ -146,7 +146,7 @@ export class App {
     const playerService = new PlayerService(this.config, this.db, botRegistry);
     this.express.use('/api/v1/players', playerService.router);
 
-    const gameService = new GameRecordService(this.db, this.websocketManager);
+    const gameService = new GameRecordService(this.db);
     this.express.use('/api/v1/game', gameService.router);
 
     const statsService = new StatsService(this.db);

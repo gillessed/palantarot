@@ -31,23 +31,29 @@ import {
 export function getNextPlayer(game: Game): PlayerId | null {
   const state = game.getState();
   switch (state.name) {
-    case GameplayState.NewGame:
+    case GameplayState.NewGame: {
       return null;
-    case GameplayState.Completed:
+    }
+    case GameplayState.Completed: {
       return null;
-    case GameplayState.Bidding:
+    }
+    case GameplayState.Bidding: {
       const bidState = state as BiddingBoardState;
       return bidState.bidding.bidders[0];
-    case GameplayState.PartnerCall:
+    }
+    case GameplayState.PartnerCall: {
       const callState = state as PartnerCallBoardState;
       return callState.bidder;
-    case GameplayState.DogReveal:
+    }
+    case GameplayState.DogReveal: {
       const dogState = state as DogRevealAndExchangeBoardState;
       return dogState.bidder;
-    case GameplayState.Playing:
+    }
+    case GameplayState.Playing: {
       const playState = state as PlayingBoardState;
       const currentTrick = playState.current_trick;
       return currentTrick.players[currentTrick.current_player];
+    }
   }
 }
 
@@ -58,11 +64,13 @@ export function playForBot(
 ): Action | null {
   const clientGame = convertStateToInGame(game, botId);
   switch (clientGame.playState.state) {
-    case GameplayState.NewGame:
+    case GameplayState.NewGame: {
       return null;
-    case GameplayState.Completed:
+    }
+    case GameplayState.Completed: {
       return null;
-    case GameplayState.Bidding:
+    }
+    case GameplayState.Bidding: {
       const bid = bot.bid(clientGame);
       const bidAction: BidAction = {
         ...bid,
@@ -71,7 +79,8 @@ export function playForBot(
         time: Date.now(),
       };
       return bidAction;
-    case GameplayState.PartnerCall:
+    }
+    case GameplayState.PartnerCall: {
       const call = bot.pickPartner(clientGame);
       const callAction: CallPartnerAction = {
         type: 'call_partner',
@@ -80,7 +89,8 @@ export function playForBot(
         card: call,
       };
       return callAction;
-    case GameplayState.DogReveal:
+    }
+    case GameplayState.DogReveal: {
       const dogCards = bot.dropDog(clientGame);
       const setDogAction: SetDogAction = {
         type: 'set_dog',
@@ -90,7 +100,8 @@ export function playForBot(
         dog: dogCards,
       };
       return setDogAction;
-    case GameplayState.Playing:
+    }
+    case GameplayState.Playing: {
       const card = bot.playCard(clientGame);
       const playCardAction: PlayCardAction = {
         type: 'play_card',
@@ -99,6 +110,7 @@ export function playForBot(
         card,
       };
       return playCardAction;
+    }
   }
 }
 
@@ -115,22 +127,26 @@ function convertStateToInGame(game: Game, botId: string): ClientGame {
   const playerIndex = state.players.indexOf(botId);
   let playState: PlayState = {...BlankState};
   switch (state.name) {
-    case GameplayState.Bidding:
+    case GameplayState.Bidding: {
       const bidState = state as BiddingBoardState;
       playState = convertBidBoardState(playerIndex, bidState);
       break;
-    case GameplayState.PartnerCall:
+    }
+    case GameplayState.PartnerCall: {
       const callState = state as PartnerCallBoardState;
       playState = convertCallBoardState(playerIndex, callState);
       break;
-    case GameplayState.DogReveal:
+    }
+    case GameplayState.DogReveal: {
       const dogState = state as DogRevealAndExchangeBoardState;
       playState = convertDogBoardState(playerIndex, dogState);
       break;
-    case GameplayState.Playing:
+    }
+    case GameplayState.Playing: {
       const playingState = state as PlayingBoardState;
       playState = convertPlayBoardState(game, botId, playerIndex, playingState);
       break;
+    }
   }
   return {
     playerId: botId,
