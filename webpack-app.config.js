@@ -67,10 +67,7 @@ module.exports = {
         include: [
           path.resolve(__dirname, 'node_modules')
         ],
-        loader: 'file-loader',
-        options: {
-          name: '[name]-[hash].[ext]',
-        }
+        loader: 'file-loader'
       },
     ],
   },
