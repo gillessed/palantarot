@@ -51,7 +51,8 @@ function* connectSaga(action: TypedAction<SocketConnectPayload>) {
       yield put(SocketActions.message(socketMessage));
     }
   } finally {
-    if (yield cancelled()) {
+    const isCancelled: boolean = yield cancelled();
+    if (isCancelled) {
       channel.close();
     }
   }

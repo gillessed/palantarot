@@ -68,7 +68,7 @@ module.exports = {
           path.resolve(__dirname, 'node_modules')
         ],
         loader: 'file-loader',
-        query: {
+        options: {
           name: '[name]-[hash].[ext]',
         }
       },
