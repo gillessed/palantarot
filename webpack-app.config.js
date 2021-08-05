@@ -15,7 +15,7 @@ const html = new HtmlWebpackPlugin({
   template: 'index.html',
 });
 
-const staticFileRegex = /\.(woff|svg|ttf|eot|gif|jpeg|jpg|png)([\?]?.*)$/;
+const staticFileRegex = /\.(woff|svg|ttf|eot|gif|jpeg|jpg|png|mp3)([\?]?.*)$/;
 
 module.exports = {
   entry: {

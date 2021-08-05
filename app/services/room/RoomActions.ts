@@ -1,6 +1,7 @@
 import { TypedAction } from 'redoodle';
 import { Action } from '../../../server/play/model/GameEvents';
 import { ChatText } from '../../../server/play/room/ChatText';
+import { NotifyPlayerMessagePayload } from '../../../server/play/room/RoomSocketMessages';
 import { actionName } from '../redux/actionName';
 import { GameUpdatesPayload, NewGameInfo, RoomStatusPayload, SetPlayerStatusPayload } from './RoomTypes';
 
@@ -21,6 +22,7 @@ const setPlayerStatus = TypedAction.define(name('setPlayerStatus'))<SetPlayerSta
 const setAutopass = TypedAction.define(name('setAutopass'))<boolean>();
 const setAutoplay = TypedAction.define(name('setAutoplay'))<boolean>();
 const autoplay = TypedAction.define(name('autoplay'))<SetPlayerStatusPayload>();
+const notifyPlayer = TypedAction.define(name('notifyPlayer'))<NotifyPlayerMessagePayload>();
 export const RoomActions = {
   roomStatus,
   gameAction,
@@ -37,4 +39,5 @@ export const RoomActions = {
   setAutopass,
   setAutoplay,
   autoplay,
+  notifyPlayer,
 };

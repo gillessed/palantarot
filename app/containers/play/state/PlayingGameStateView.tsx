@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { isEqual } from 'lodash';
+import * as React from 'react';
 import { Card } from '../../../../server/play/model/Card';
 import { getCardsAllowedToPlay } from '../../../../server/play/model/CardUtils';
 import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
@@ -22,6 +22,7 @@ export class PlayingStateView extends React.PureComponent<Props, State> {
   public state: State = {
     selectedCards: new Set(),
   };
+
   public render() {
     const { width, height, game, spectatorMode } = this.props;
     const { selectedCards } = this.state;

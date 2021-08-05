@@ -1,4 +1,4 @@
-import { Action, PlayerEvent, Transition } from "../model/GameEvents";
+import { Action, PlayerEvent } from "../model/GameEvents";
 import { DefaultGameSettings, GameSettings } from "../model/GameSettings";
 import { BoardState, GameplayState, NewGameBoardState, PlayerId, ReducerResult } from '../model/GameState';
 import { buildGameStateReducer, GameReducerMap } from '../model/reducers/GameStateReducers';
@@ -47,7 +47,7 @@ export class Game {
     return reducerResult;
   }
 
-  public appendTransition<T extends Transition>(event: T) {
+  public appendEvent<T extends PlayerEvent>(event: T) {
     this.log.push(event);
   }
 

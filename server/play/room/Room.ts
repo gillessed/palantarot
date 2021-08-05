@@ -10,13 +10,13 @@ import { autologGame } from "../Autolog";
 import { autoplayNextCard } from "../bots/Autoplay";
 import { getNextPlayer, playForBot } from "../bots/BotPlayer";
 import { Game } from "../game/Game";
-import { Action, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction } from "../model/GameEvents";
+import { Action, AllowNotifyPlayerEvent, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction } from "../model/GameEvents";
 import { GameSettings } from "../model/GameSettings";
 import { CompletedBoardState, CompletedGameState, GameplayState, PlayerId } from "../model/GameState";
 import { PlayerStatus } from "../room/PlayerStatus";
 import { ChatText, ServerChatAuthorId } from "./ChatText";
 import { NewRoomArgs } from './NewRoomArgs';
-import { BotMessagePayload, EnterRoomMessagePayload, GameActionMessagePayload, RoomChatMessagePayload, RoomSocketMessages } from "./RoomSocketMessages";
+import { BotMessagePayload, EnterRoomMessagePayload, GameActionMessagePayload, NotifyPlayerMessagePayload, RoomChatMessagePayload, RoomSocketMessages } from "./RoomSocketMessages";
 import { RoomStatus } from "./RoomStatus";
 
 export class Room {
@@ -39,6 +39,7 @@ export class Room {
 
   private playerIdToSocketId: Multimap<string>;
   private socketIdToPlayerId: Map<string, PlayerId>;
+  private pokeTimer: NodeJS.Timer | undefined;
 
   constructor(
     private readonly playService: PlayService,
@@ -67,6 +68,7 @@ export class Room {
       RoomSocketMessages.addBot.handle(untypedMessage, this.handleAddBotMessage);
       RoomSocketMessages.removeBot.handle(untypedMessage, this.handleRemoveBotMessage);
       RoomSocketMessages.autoplay.handle(untypedMessage, this.handleAutoplayMessage);
+      RoomSocketMessages.notifyPlayer.handleMessage(untypedMessage, this.handleNotifyPlayer);
     } catch (e) {
       console.error("Cannot process socket message", this.id, untypedMessage, e);
       socket.send(RoomSocketMessages.error({ roomId: this.id, error: "Cannot process socket message " + e }));
@@ -151,18 +153,14 @@ export class Room {
     }
   }
 
-  /* Helpers */
-
-  private getRoomSockets = (): JsonSocket[] => {
-    const sockets: JsonSocket[] = [];
-    for (const socketId of this.socketIdToPlayerId.keys()) {
-      const socket = this.playService.getSocketForSocketId(socketId);
-      if (socket != null) {
-        sockets.push(socket);
-      }
+  public handleNotifyPlayer = (message: SocketMessage<NotifyPlayerMessagePayload>) => {
+    const sockets = this.getSocketsForPlayerId(message.payload.playerId);
+    for (const socket of sockets) {
+      socket.send(message);
     }
-    return sockets;
   }
+
+  /* Helpers */
 
   private getSocketsForPlayerId = (playerId: string): JsonSocket[] => {
     const sockets: JsonSocket[] = [];
@@ -194,6 +192,7 @@ export class Room {
         }
       }
     }
+    this.handlePokeTimer(actions);
     this.playService.roomUpdated(this);
   }
 
@@ -283,5 +282,30 @@ export class Room {
       settings: this.game.settings,
     }));
     this.playService.roomUpdated(this);
+  }
+
+  private handlePokeTimer(actions: Action[]) {
+    const playerToPlay = getNextPlayer(this.game);
+    if (this.game.getState().name !== GameplayState.Playing || playerToPlay == null) {
+      return;
+    }
+    const containsPlayAction = actions.some((action) => action.type === 'play_card');
+    if (containsPlayAction) {
+      if (this.pokeTimer) {
+        clearTimeout(this.pokeTimer);
+      }
+      this.pokeTimer = setTimeout(() => {
+        const notifyEvent: AllowNotifyPlayerEvent = {
+          type: 'allow_notify_player',
+          playerId: playerToPlay,
+        };
+        this.game.appendEvent(notifyEvent)
+        this.broadcastMessage(RoomSocketMessages.gameUpdates({
+          roomId: this.id,
+          gameId: this.game.id,
+          events: [notifyEvent],
+        }));
+      }, 10_000);
+    }
   }
 }
