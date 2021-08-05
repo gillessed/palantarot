@@ -1,35 +1,49 @@
-import { chunk, differenceWith, filter, find, isEqual, shuffle } from "lodash";
-import { Card, RegSuit, RegValue, Suit, The21, TheJoker, TheOne, TrumpCard, TrumpValue } from "./Card";
-import { GameErrors } from "./GameErrors";
-import { PlayerId } from "./GameState";
+import {chunk, differenceWith, filter, find, isEqual, shuffle} from 'lodash';
+import {
+  Card,
+  RegSuit,
+  RegValue,
+  Suit,
+  The21,
+  TheJoker,
+  TheOne,
+  TrumpCard,
+  TrumpValue,
+} from './Card';
+import {GameErrors} from './GameErrors';
+import {PlayerId} from './GameState';
 
 /*
  * This file contains game code which is useful for both client and server.
  */
 
-export const RegSuits: RegSuit[] = [Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade];
+export const RegSuits: RegSuit[] = [
+  Suit.Club,
+  Suit.Diamond,
+  Suit.Heart,
+  Suit.Spade,
+];
 export const AllSuits: Suit[] = [...RegSuits, Suit.Trump];
 
 export function createAllCards(): Card[] {
   const cards: Card[] = [];
   for (const suit of RegSuits) {
     for (const value of Object.keys(RegValue)) {
-      if (Number.parseInt(value)) { // stupid number keys...
+      if (Number.parseInt(value)) {
+        // stupid number keys...
         continue;
       }
-      cards.push([
-        suit,
-        RegValue[value as keyof typeof RegValue]
-      ]);
+      cards.push([suit, RegValue[value as keyof typeof RegValue]]);
     }
   }
   for (const value of Object.keys(TrumpValue)) {
-    if (Number.parseInt(value)) { // stupid number keys...
+    if (Number.parseInt(value)) {
+      // stupid number keys...
       continue;
     }
-    cards.push([Suit.Trump, TrumpValue[value as keyof typeof TrumpValue]])
+    cards.push([Suit.Trump, TrumpValue[value as keyof typeof TrumpValue]]);
   }
-  return cards
+  return cards;
 }
 
 export function createCardsOfSuit(suit: Suit): Card[] {
@@ -38,17 +52,18 @@ export function createCardsOfSuit(suit: Suit): Card[] {
 
 export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
-  const value = parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
+  const value =
+    parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
   return [suit, value] as Card;
 }
 
 export function toCardString(card: Card): string {
-  return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`
+  return `#${card[1] === 'Joker' ? 'J' : card[1]}${card[0]}`;
 }
 
 function invalidDeal(hands: Card[][]): boolean {
   for (const hand of hands) {
-    const trumps = filter(hand, (card) => card[0] === Suit.Trump);
+    const trumps = filter(hand, card => card[0] === Suit.Trump);
     if (trumps.length === 1 && trumps[0][1] === TrumpValue._1) {
       return true;
     }
@@ -56,16 +71,19 @@ function invalidDeal(hands: Card[][]): boolean {
   return false;
 }
 
-export const cardTestingSetShuffler = (new_shuffler: (cards: Card[]) => Card[] = shuffle) => {
-  cardShuffler = new_shuffler
+export const cardTestingSetShuffler = (
+  new_shuffler: (cards: Card[]) => Card[] = shuffle
+) => {
+  cardShuffler = new_shuffler;
 };
 let cardShuffler: (cards: Card[]) => Card[] = shuffle;
 
-export const playerTestingSetShuffler = (new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle) => {
-  playerShuffler = new_shuffler
+export const playerTestingSetShuffler = (
+  new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle
+) => {
+  playerShuffler = new_shuffler;
 };
 let playerShuffler: (players: PlayerId[]) => PlayerId[] = shuffle;
-
 
 export interface DealtCards {
   dog: Card[];
@@ -73,7 +91,8 @@ export interface DealtCards {
 }
 
 export const shuffleDeck = (): Card[] => cardShuffler(createAllCards());
-export const shufflePlayers = (players: PlayerId[]): PlayerId[] => playerShuffler(players);
+export const shufflePlayers = (players: PlayerId[]): PlayerId[] =>
+  playerShuffler(players);
 
 export const dealCards = (players: number): DealtCards => {
   const comparer = compareCards(undefined);
@@ -83,11 +102,11 @@ export const dealCards = (players: number): DealtCards => {
     const chunkSize = (cards.length - dogSize) / players;
     const deal = chunk<Card>(cards, chunkSize);
     const dog = deal[players];
-    const hands = deal.slice(0, players).map((hand) => hand.sort(comparer));
+    const hands = deal.slice(0, players).map(hand => hand.sort(comparer));
     if (invalidDeal(hands)) {
       continue; // Invalid hand, deal again!
     }
-    return { dog, hands };
+    return {dog, hands};
   }
 };
 
@@ -96,15 +115,15 @@ export const dealRemainingCards = ({
   players,
   allowInvalid,
 }: {
-  fixedDeal: DealtCards,
-  players: number,
-  allowInvalid?: boolean,
+  fixedDeal: DealtCards;
+  players: number;
+  allowInvalid?: boolean;
 }): DealtCards => {
   const comparer = compareCards(undefined);
   const dealtCards: DealtCards = {
     hands: [],
     dog: [],
-  }
+  };
   const currentCards: Card[] = [];
   for (let i = 0; i < players; i++) {
     dealtCards.hands.push([]);
@@ -141,25 +160,34 @@ export const dealRemainingCards = ({
   }
 
   if (!allowInvalid && invalidDeal(dealtCards.hands)) {
-    return dealRemainingCards({ fixedDeal, players, allowInvalid });
+    return dealRemainingCards({fixedDeal, players, allowInvalid});
   }
   return dealtCards;
-}
+};
 
 export const getTrumps = function (cards?: Card[]): TrumpCard[] {
-  return cards?.filter((card: Card): card is TrumpCard => card[0] == Suit.Trump) || [];
+  return (
+    cards?.filter((card: Card): card is TrumpCard => card[0] == Suit.Trump) ||
+    []
+  );
 };
 
 export const cardsEqual = function (one: Card[], two: Card[]): boolean {
   return isEqual(one.sort(), two.sort());
 };
 
-export const cardsContain = function (cards: Card[], target: Card): Card | undefined {
-  return find(cards, (card) => isEqual(card, target))
+export const cardsContain = function (
+  cards: Card[],
+  target: Card
+): Card | undefined {
+  return find(cards, card => isEqual(card, target));
 };
 
-export const cardsWithout = function (cards: Card[], ...subtract: Card[]): Card[] {
-  return differenceWith(cards, subtract, isEqual)
+export const cardsWithout = function (
+  cards: Card[],
+  ...subtract: Card[]
+): Card[] {
+  return differenceWith(cards, subtract, isEqual);
 };
 
 export const getPlayerNum = function (players: PlayerId[], player: PlayerId) {
@@ -188,37 +216,55 @@ export function getLeadSuit(trick: Card[]): Suit | undefined {
 function getLowestAllowableTrump(trick: Card[]): TrumpValue {
   let lowestAllowed = TrumpValue._1;
   for (const card of trick) {
-    if (card[0] === Suit.Trump && card[1] !== TrumpValue.Joker && lowestAllowed < card[1]) {
+    if (
+      card[0] === Suit.Trump &&
+      card[1] !== TrumpValue.Joker &&
+      lowestAllowed < card[1]
+    ) {
       lowestAllowed = card[1];
     }
   }
   return lowestAllowed;
 }
 
-export const getCardsAllowedToPlay = function (hand: Card[], trick: Card[], anyPlayerPlayedCard: boolean, partnerSuit?: Card): Card[] {
+export const getCardsAllowedToPlay = function (
+  hand: Card[],
+  trick: Card[],
+  anyPlayerPlayedCard: boolean,
+  partnerSuit?: Card
+): Card[] {
   const leadsuit = getLeadSuit(trick);
   if (leadsuit === undefined) {
     if (!anyPlayerPlayedCard) {
-      return hand.filter((card) => card[0] !== (partnerSuit ?? [])[0] || isEqual(card, partnerSuit)); // lead anything that isn't the partner suit or is the called card
+      return hand.filter(
+        card => card[0] !== (partnerSuit ?? [])[0] || isEqual(card, partnerSuit)
+      ); // lead anything that isn't the partner suit or is the called card
     } else {
       return hand; // new trick, lead whatever
     }
   }
 
-  const joker = filter(hand, (card) => isEqual(card, TheJoker));
-  const handInSuit = filter(hand, (card) => card[0] === leadsuit);
+  const joker = filter(hand, card => isEqual(card, TheJoker));
+  const handInSuit = filter(hand, card => card[0] === leadsuit);
   if (leadsuit !== Suit.Trump && handInSuit.length > 0) {
     return [...handInSuit, ...joker]; // can follow non-trump suit
   }
 
   const lowest_allowed = getLowestAllowableTrump(trick);
-  const allowedTrump = filter(hand, (card) =>
-    card[0] === Suit.Trump && card[1] !== TrumpValue.Joker && card[1] >= lowest_allowed);
+  const allowedTrump = filter(
+    hand,
+    card =>
+      card[0] === Suit.Trump &&
+      card[1] !== TrumpValue.Joker &&
+      card[1] >= lowest_allowed
+  );
   if (allowedTrump.length > 0) {
     return [...allowedTrump, ...joker]; // can over-trump
   }
-  const trump = filter(hand, (card) =>
-    card[0] === Suit.Trump && card[1] !== TrumpValue.Joker);
+  const trump = filter(
+    hand,
+    card => card[0] === Suit.Trump && card[1] !== TrumpValue.Joker
+  );
   if (trump.length > 0) {
     return [...trump, ...joker]; // need to play some trump
   } else {
@@ -228,11 +274,16 @@ export const getCardsAllowedToPlay = function (hand: Card[], trick: Card[], anyP
 
 export function getCardSuitAsNumber(value: Suit): number {
   switch (value) {
-    case Suit.Trump: return 5;
-    case Suit.Club: return 1;
-    case Suit.Diamond: return 2;
-    case Suit.Heart: return 3;
-    case Suit.Spade: return 4;
+    case Suit.Trump:
+      return 5;
+    case Suit.Club:
+      return 1;
+    case Suit.Diamond:
+      return 2;
+    case Suit.Heart:
+      return 3;
+    case Suit.Spade:
+      return 4;
   }
 }
 
@@ -288,7 +339,9 @@ export function getCardValueAsNumber(value: RegValue | TrumpValue): number {
 
 type Comparator<T> = (t1: T, T2: T) => number;
 
-export const compareCards = function (lead_suit?: Suit | undefined): Comparator<Card> {
+export const compareCards = function (
+  lead_suit?: Suit | undefined
+): Comparator<Card> {
   return (left: Card, right: Card) => {
     if (isEqual(left, right)) {
       return 0;
@@ -297,7 +350,9 @@ export const compareCards = function (lead_suit?: Suit | undefined): Comparator<
     } else if (right[1] === TrumpValue.Joker) {
       return 1;
     } else if (left[0] === right[0]) {
-      return Math.sign(getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1]));
+      return Math.sign(
+        getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1])
+      );
     } else if (left[0] === Suit.Trump) {
       return 1;
     } else if (right[0] === Suit.Trump) {
@@ -309,15 +364,19 @@ export const compareCards = function (lead_suit?: Suit | undefined): Comparator<
     } else {
       return left[0].charCodeAt(0) - right[0].charCodeAt(0); // at this point, whatever.
     }
-  }
+  };
 };
 
 export const getCardPoint = function (card: Card) {
   if (card[0] === Suit.Trump) {
-    if (card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21) {
-      return 4.5
+    if (
+      card[1] === TrumpValue.Joker ||
+      card[1] === TrumpValue._1 ||
+      card[1] === TrumpValue._21
+    ) {
+      return 4.5;
     } else {
-      return 0.5
+      return 0.5;
     }
   } else {
     switch (card[1]) {
@@ -345,12 +404,15 @@ export const getCardPoint = function (card: Card) {
 };
 
 // Note: this does not include the joker slam code. If this actually happens, well, I guess we can code it afterwards.
-export const getWinner = function (trick: Card[], players: PlayerId[]): [Card, PlayerId] {
+export const getWinner = function (
+  trick: Card[],
+  players: PlayerId[]
+): [Card, PlayerId] {
   let [card, player] = [trick[0], players[0]];
   const comparer = compareCards(getLeadSuit(trick));
   for (const index in trick) {
     if (comparer(trick[index], card) > 0) {
-      [card, player] = [trick[index], players[index]]
+      [card, player] = [trick[index], players[index]];
     }
   }
   return [card, player];

@@ -1,14 +1,17 @@
-import { Request, Response, Router } from 'express';
-import { TarotBotRegistry } from '../../bots/TarotBot';
-import { Database } from '../db/dbConnector';
-import { GameRecordQuerier } from '../db/GameRecordQuerier';
-import { PlayerQuerier } from '../db/PlayerQuerier';
-import { LobbySocketMessages } from '../play/lobby/LobbySocketMessages';
-import { NewRoomArgs } from '../play/room/NewRoomArgs';
-import { Room } from '../play/room/Room';
-import { getRoomDescription, RoomDescriptions } from '../play/room/RoomDescription';
-import { JsonSocket } from '../websocket/JsonSocket';
-import { WebsocketManager } from '../websocket/WebsocketManager';
+import {Request, Response, Router} from 'express';
+import {TarotBotRegistry} from '../../bots/TarotBot';
+import {Database} from '../db/dbConnector';
+import {GameRecordQuerier} from '../db/GameRecordQuerier';
+import {PlayerQuerier} from '../db/PlayerQuerier';
+import {LobbySocketMessages} from '../play/lobby/LobbySocketMessages';
+import {NewRoomArgs} from '../play/room/NewRoomArgs';
+import {Room} from '../play/room/Room';
+import {
+  getRoomDescription,
+  RoomDescriptions,
+} from '../play/room/RoomDescription';
+import {JsonSocket} from '../websocket/JsonSocket';
+import {WebsocketManager} from '../websocket/WebsocketManager';
 
 export class PlayService {
   public router: Router;
@@ -23,7 +26,7 @@ export class PlayService {
   constructor(
     db: Database,
     websocketManager: WebsocketManager,
-    public readonly botRegistry: TarotBotRegistry,
+    public readonly botRegistry: TarotBotRegistry
   ) {
     this.router = Router();
     this.gameQuerier = new GameRecordQuerier(db);
@@ -36,7 +39,6 @@ export class PlayService {
     this.router.post('/new_room', this.newRoom);
     this.router.get('/rooms', this.listRooms);
   }
-
 
   public newRoom = async (req: Request, res: Response) => {
     const args: NewRoomArgs = req.body;
@@ -60,7 +62,7 @@ export class PlayService {
   }
 
   public getSocketForSocketId(socketId: string): JsonSocket | undefined {
-    return this.websocketManager.getSocket(socketId ?? "");
+    return this.websocketManager.getSocket(socketId ?? '');
   }
 
   public playerEnteredLobby(socketId: string) {

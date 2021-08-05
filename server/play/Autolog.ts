@@ -1,25 +1,34 @@
-import { PlayerRoles } from '../../app/components/forms/PlayerRoles';
-import { getPointsEarned } from '../../app/components/forms/pointsEarned';
-import { GameRecordQuerier } from '../db/GameRecordQuerier';
-import { GameRecord as Results, HandData, PlayerHand } from '../model/GameRecord';
-import { Game } from './game/Game';
-import { CompletedBoardState, CompletedGameState, GameplayState, Outcome } from './model/GameState';
+import {PlayerRoles} from '../../app/components/forms/PlayerRoles';
+import {getPointsEarned} from '../../app/components/forms/pointsEarned';
+import {GameRecordQuerier} from '../db/GameRecordQuerier';
+import {GameRecord as Results, HandData, PlayerHand} from '../model/GameRecord';
+import {Game} from './game/Game';
+import {
+  CompletedBoardState,
+  CompletedGameState,
+  GameplayState,
+  Outcome,
+} from './model/GameState';
 
 export async function autologGame(
   game: Game,
-  gameQuerier: GameRecordQuerier,
+  gameQuerier: GameRecordQuerier
 ): Promise<void> {
-  if (!game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
+  if (
+    !game.settings.autologEnabled ||
+    game.getState().name !== GameplayState.Completed ||
+    game.logged
+  ) {
     return Promise.resolve();
   }
 
   const state = game.getState() as CompletedBoardState;
   const endState = state.end_state;
-  
+
   const bidderHand = getHandForPlayer(
     endState,
     PlayerRoles.BIDDER,
-    endState.bidder,
+    endState.bidder
   );
 
   let partnerHand: PlayerHand | undefined = undefined;
@@ -27,7 +36,7 @@ export async function autologGame(
     partnerHand = getHandForPlayer(
       endState,
       PlayerRoles.PARTNER,
-      endState.partner,
+      endState.partner
     );
   }
 
@@ -35,12 +44,8 @@ export async function autologGame(
   for (const player of state.players) {
     if (player === endState.bidder || player === endState.partner) {
       continue;
-    } 
-    const hand = getHandForPlayer(
-      endState,
-      PlayerRoles.PLAYER1,
-      player,
-    );
+    }
+    const hand = getHandForPlayer(endState, PlayerRoles.PLAYER1, player);
     oppositionHands.push(hand);
   }
 
@@ -60,7 +65,7 @@ export async function autologGame(
     points: endState.pointsResult,
     slam: endState.pointsResult >= 270,
     handData,
-  }
+  };
   await gameQuerier.saveGame(results);
   game.logged = true;
   return Promise.resolve();
@@ -69,7 +74,7 @@ export async function autologGame(
 function getHandForPlayer(
   endState: CompletedGameState,
   playerRole: string,
-  playerId: string,
+  playerId: string
 ): PlayerHand {
   const playerIndex = endState.players.indexOf(playerId);
   const hand: PlayerHand = {
@@ -79,10 +84,11 @@ function getHandForPlayer(
       endState.pointsResult,
       playerRole,
       endState.players.length,
-      endState.partner === endState.bidder,
+      endState.partner === endState.bidder
     ),
     showedTrump: endState.shows.indexOf(endState.bidder) >= 0,
-    oneLast:  (endState.outcomes[playerIndex] ?? []).indexOf(Outcome.ONE_LAST) >= 0,
+    oneLast:
+      (endState.outcomes[playerIndex] ?? []).indexOf(Outcome.ONE_LAST) >= 0,
   };
   return hand;
 }

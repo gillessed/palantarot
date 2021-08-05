@@ -1,4 +1,4 @@
-import { indexFlags } from './indexFlags';
+import {indexFlags} from './indexFlags';
 /*
  * Simple query builders that should do most things need. If need more, implement more.
  */
@@ -10,11 +10,13 @@ export const QueryBuilder = {
   delete: (table: string) => new DeleteBuilder(table),
   select: (table: string) => new SelectBuilder(table),
   subselect: (table: string, name: string) => new SelectBuilder(table, name),
-  join: (table: string, type: JoinType, condition: ComparisonBuilder) => new JoinBuilder(table, type, condition),
+  join: (table: string, type: JoinType, condition: ComparisonBuilder) =>
+    new JoinBuilder(table, type, condition),
   where: (condition: ComparisonBuilder) => new WhereBuilder(condition),
   compare: (conjunction?: 'AND' | 'OR') => new ComparisonBuilder(conjunction),
-  contains: (column: string, value: string) => new ContainsBuilder(column, value),
-}
+  contains: (column: string, value: string) =>
+    new ContainsBuilder(column, value),
+};
 
 export interface QueryBuilder {
   getQueryString: () => string;
@@ -26,9 +28,12 @@ export interface QueryBuilder {
 const convertTimestamp = "timestamp AT TIME ZONE 'UTC' AT TIME ZONE '-8'";
 
 export const Queries = {
-  selectYear: (name: string = 'h_year') => `EXTRACT(YEAR FROM (${convertTimestamp})) AS ${name}`,
-  selectMonth: (name: string = 'h_month') => `EXTRACT(MONTH FROM (${convertTimestamp})) AS ${name}`,
-  selectDay: (name: string = 'h_day') => `EXTRACT(DAY FROM (${convertTimestamp})) AS ${name}`,
+  selectYear: (name = 'h_year') =>
+    `EXTRACT(YEAR FROM (${convertTimestamp})) AS ${name}`,
+  selectMonth: (name = 'h_month') =>
+    `EXTRACT(MONTH FROM (${convertTimestamp})) AS ${name}`,
+  selectDay: (name = 'h_day') =>
+    `EXTRACT(DAY FROM (${convertTimestamp})) AS ${name}`,
 };
 
 export interface UpsertBuilder extends QueryBuilder {
@@ -99,7 +104,7 @@ class UpdateBuilder implements UpsertBuilder {
     let queryString = 'UPDATE ';
     queryString += this.table;
     queryString += ' SET ';
-    queryString += this._columns.map((column) => column + '=?').join(', ')
+    queryString += this._columns.map(column => column + '=?').join(', ');
     if (this._where) {
       queryString += ' ';
       queryString += this._where.getQueryString();
@@ -122,9 +127,7 @@ class UpdateBuilder implements UpsertBuilder {
 
 class DeleteBuilder implements QueryBuilder {
   private _where?: WhereBuilder;
-  constructor(
-    private readonly _table: string,
-  ) {}
+  constructor(private readonly _table: string) {}
 
   public where(condition: ComparisonBuilder): DeleteBuilder {
     this._where = new WhereBuilder(condition);
@@ -156,7 +159,7 @@ class DeleteBuilder implements QueryBuilder {
 
 class SelectBuilder implements QueryBuilder {
   private _columns: string[] = [];
-  private _star: boolean = false;
+  private _star = false;
   private _where?: WhereBuilder;
   private _offset?: number;
   private _limit?: number;
@@ -166,13 +169,10 @@ class SelectBuilder implements QueryBuilder {
   private _groupBy?: string[];
   private _name: string;
 
-  constructor(
-    private readonly _table: string,
-    name?: string,
-  ) {
+  constructor(private readonly _table: string, name?: string) {
     this._name = name || 'no name set';
     this._joins = [];
-  };
+  }
 
   public getName(): string | undefined {
     return this._name;
@@ -198,7 +198,11 @@ class SelectBuilder implements QueryBuilder {
     return this;
   }
 
-  public join(table: string | SelectBuilder, type: JoinType, condition: ConditionBuilder): SelectBuilder {
+  public join(
+    table: string | SelectBuilder,
+    type: JoinType,
+    condition: ConditionBuilder
+  ): SelectBuilder {
     this._joins.push(new JoinBuilder(table, type, condition));
     return this;
   }
@@ -211,7 +215,7 @@ class SelectBuilder implements QueryBuilder {
   public orderBy(column: string, direction?: 'asc' | 'desc'): SelectBuilder {
     this._orderBy = column;
     this._orderDirection = direction;
-    return this
+    return this;
   }
 
   public limit(limit: number, offset?: number): SelectBuilder {
@@ -309,7 +313,7 @@ class JoinBuilder implements QueryBuilder {
   }
 
   public getValues(): any[] {
-    let values: any[] = [];
+    const values: any[] = [];
     if (this._table instanceof SelectBuilder) {
       values.push(...this._table.getValues());
     }
@@ -336,7 +340,7 @@ class WhereBuilder implements QueryBuilder {
   }
 }
 
-interface ConditionBuilder extends QueryBuilder {}
+type ConditionBuilder = QueryBuilder;
 
 export type Comparator = '=' | '>' | '<' | '>=' | '<=' | '!=' | '<>';
 
@@ -349,9 +353,13 @@ class ComparisonBuilder implements ConditionBuilder {
     this.conjunction = conjunction ?? 'AND';
   }
 
-  public compareValue(column: string, comparator: Comparator, value: any): ComparisonBuilder {
+  public compareValue(
+    column: string,
+    comparator: Comparator,
+    value: any
+  ): ComparisonBuilder {
     let clause = column;
-    clause += ' '
+    clause += ' ';
     clause += comparator;
     clause += ' ? ';
     this.clauses.push(clause);
@@ -359,7 +367,11 @@ class ComparisonBuilder implements ConditionBuilder {
     return this;
   }
 
-  public compareColumn(column1: string, comparator: Comparator, column2: string): ComparisonBuilder {
+  public compareColumn(
+    column1: string,
+    comparator: Comparator,
+    column2: string
+  ): ComparisonBuilder {
     let clause = column1;
     clause += ' ';
     clause += comparator;
@@ -370,13 +382,13 @@ class ComparisonBuilder implements ConditionBuilder {
   }
 
   public columnIn(column: string, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`${column} IN (${subselect.getIndexedQueryString()})`)
+    this.clauses.push(`${column} IN (${subselect.getIndexedQueryString()})`);
     this.values.push(...subselect.getValues());
     return this;
   }
 
   public valueIn(value: any, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`? IN (${subselect.getIndexedQueryString()})`)
+    this.clauses.push(`? IN (${subselect.getIndexedQueryString()})`);
     this.values.push(value);
     this.values.push(...subselect.getValues());
     return this;
@@ -398,7 +410,7 @@ class ComparisonBuilder implements ConditionBuilder {
 class ContainsBuilder implements ConditionBuilder {
   constructor(
     private readonly column: string,
-    private readonly values: string,
+    private readonly values: string
   ) {}
 
   public getQueryString(): string {

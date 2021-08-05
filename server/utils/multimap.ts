@@ -1,5 +1,3 @@
-
-
 export class Multimap<T> {
   private map: Map<string, Set<T>> = new Map();
 

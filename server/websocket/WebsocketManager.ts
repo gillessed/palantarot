@@ -1,9 +1,9 @@
 import http from 'http';
 import https from 'https';
-import WebSocket, { MessageEvent } from 'ws';
-import { JsonSocket } from './JsonSocket';
-import { SocketCloseListener, SocketMessageListener } from './SocketListener';
-import { isSocketConnectionMessage, SocketMessage } from './SocketMessage';
+import WebSocket, {MessageEvent} from 'ws';
+import {JsonSocket} from './JsonSocket';
+import {SocketCloseListener, SocketMessageListener} from './SocketListener';
+import {isSocketConnectionMessage, SocketMessage} from './SocketMessage';
 
 export class WebsocketManager {
   private server: WebSocket.Server;
@@ -18,8 +18,8 @@ export class WebsocketManager {
   }
 
   public start(server: http.Server | https.Server) {
-    this.server = new WebSocket.Server({ server });
-    this.server.on('connection', (socket) => {
+    this.server = new WebSocket.Server({server});
+    this.server.on('connection', socket => {
       socket.onmessage = (event: MessageEvent) => {
         try {
           const data: SocketMessage<any> = JSON.parse(event.data as string);
@@ -48,16 +48,16 @@ export class WebsocketManager {
       for (const listener of this.socketMessageListeners) {
         listener.handleMessage(socketId, jsonSocket, message);
       }
-    }
+    };
     jsonSocket.handleClose = () => {
       console.debug(`socket ${socketId} disconnected`);
       for (const listener of this.socketCloseListeners) {
-          listener.handleClose(socketId);
+        listener.handleClose(socketId);
       }
       this.socketMap.delete(socketId);
-    }
+    };
     this.socketMap.set(socketId, jsonSocket);
-  }
+  };
 
   public getSocket(userId: string) {
     return this.socketMap.get(userId);

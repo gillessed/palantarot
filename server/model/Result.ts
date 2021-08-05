@@ -1,7 +1,7 @@
 export enum Role {
-  BIDDER = "BIDDER",
-  PARTNER = "PARTNER",
-  OPPOSITION = "OPPOSITION",
+  BIDDER = 'BIDDER',
+  PARTNER = 'PARTNER',
+  OPPOSITION = 'OPPOSITION',
 }
 
 export interface RoleResult {

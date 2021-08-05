@@ -16,5 +16,5 @@ export const Player = {
     } else {
       return 'Uknown Player: ' + playerId;
     }
-  }
-}
+  },
+};

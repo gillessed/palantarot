@@ -9,10 +9,14 @@ export interface Aggregate {
   id: string;
   values: {
     [key: string]: any;
-  }
+  };
 }
 
-export function count<RECORD>(records: RECORD[], groupBy: (record: RECORD) => string, accessors: Aggregator<RECORD, any, any>[]): Aggregate[] {
+export function count<RECORD>(
+  records: RECORD[],
+  groupBy: (record: RECORD) => string,
+  accessors: Aggregator<RECORD, any, any>[]
+): Aggregate[] {
   const countMap = new Map<string, Aggregate>();
   records.forEach((record: RECORD) => {
     const id = groupBy(record);
@@ -21,13 +25,17 @@ export function count<RECORD>(records: RECORD[], groupBy: (record: RECORD) => st
     }
     const aggregate = countMap.get(id)!;
     const newAggregate: Aggregate = {
-      id, values: {...aggregate.values},
+      id,
+      values: {...aggregate.values},
     };
     accessors.forEach((accessor: Aggregator<RECORD, any, any>) => {
       const extracted = accessor.extractor(record);
       if (extracted !== undefined) {
         const aggregateValue = newAggregate.values[accessor.name];
-        const newAggregateValue = accessor.aggretator(aggregateValue, extracted);
+        const newAggregateValue = accessor.aggretator(
+          aggregateValue,
+          extracted
+        );
         newAggregate.values[accessor.name] = newAggregateValue;
       }
       countMap.set(id, newAggregate);
@@ -36,7 +44,11 @@ export function count<RECORD>(records: RECORD[], groupBy: (record: RECORD) => st
   return Array.from(countMap.values());
 }
 
-export function getEmptyAggregate<RECORD>(record: RECORD, groupBy: (record: RECORD) => string, accessors: Aggregator<RECORD, any, any>[]): Aggregate {
+export function getEmptyAggregate<RECORD>(
+  record: RECORD,
+  groupBy: (record: RECORD) => string,
+  accessors: Aggregator<RECORD, any, any>[]
+): Aggregate {
   const aggregate: Aggregate = {
     id: groupBy(record),
     values: {},

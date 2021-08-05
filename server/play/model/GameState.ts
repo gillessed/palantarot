@@ -1,6 +1,19 @@
-import { Bout, Card } from "./Card";
-import { Action, BidAction, CallPartnerAction, DeclareSlam, EnterGameAction, GameSettingsAction, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from "./GameEvents";
-
+import {Bout, Card} from './Card';
+import {
+  Action,
+  BidAction,
+  CallPartnerAction,
+  DeclareSlam,
+  EnterGameAction,
+  GameSettingsAction,
+  LeaveGameAction,
+  PlayCardAction,
+  PlayerEvent,
+  PlayerNotReadyAction,
+  PlayerReadyAction,
+  SetDogAction,
+  ShowTrumpAction,
+} from './GameEvents';
 
 export enum GameplayState {
   NewGame = 'new_game',
@@ -11,9 +24,12 @@ export enum GameplayState {
   Completed = 'completed',
 }
 
-export const isGamePlayState = (state: GameplayState, targetStates: GameplayState[]) => {
+export const isGamePlayState = (
+  state: GameplayState,
+  targetStates: GameplayState[]
+) => {
   return targetStates.indexOf(state) >= 0;
-}
+};
 
 export enum BidValue {
   PASS = 0,
@@ -39,60 +55,60 @@ export type PlayerId = string;
 export const DummyPlayer: PlayerId = '[dummy null player]';
 
 export interface Trick {
-  readonly trick_num: number
+  readonly trick_num: number;
   /** n-th card was played by n-th player */
-  readonly cards: Card[]
-  readonly players: PlayerId[]
-  readonly current_player: number
+  readonly cards: Card[];
+  readonly players: PlayerId[];
+  readonly current_player: number;
 }
 
 export interface CompletedTrick {
-  readonly trick_num: number
-  readonly cards: Card[]
-  readonly players: PlayerId[]
-  readonly winner: PlayerId
+  readonly trick_num: number;
+  readonly cards: Card[];
+  readonly players: PlayerId[];
+  readonly winner: PlayerId;
 }
 
 export interface Bid {
-  readonly player: PlayerId
-  readonly bid: BidValue
-  readonly calls: Call[]
+  readonly player: PlayerId;
+  readonly bid: BidValue;
+  readonly calls: Call[];
 }
 
 export interface CurrentBids {
   /** in order of bid */
   readonly bids: Bid[];
   /** remaining bidders, in order of bidding, 0-th position is next bidder */
-  readonly bidders: PlayerId[]
-  readonly current_high: Bid
+  readonly bidders: PlayerId[];
+  readonly current_high: Bid;
 }
 
 export interface CompletedBids {
-  readonly winningBid: Bid
-  readonly calls: { [player: number]: Call[] }
+  readonly winningBid: Bid;
+  readonly calls: {[player: number]: Call[]};
 }
 
 export type ShowTrumpState = PlayerId[];
 
 export interface JokerExchangeState {
-  readonly player: PlayerId
-  readonly owed_to: PlayerId
+  readonly player: PlayerId;
+  readonly owed_to: PlayerId;
 }
 
 export interface CompletedGameState {
-  readonly players: PlayerId[]
-  readonly bidder: PlayerId
-  readonly bid: BidValue
-  readonly partner?: PlayerId
-  readonly dog: Card[]
+  readonly players: PlayerId[];
+  readonly bidder: PlayerId;
+  readonly bid: BidValue;
+  readonly partner?: PlayerId;
+  readonly dog: Card[];
 
-  readonly calls: { [player: number]: Call[] }
-  readonly outcomes: { [player: number]: Outcome[] }
-  readonly shows: PlayerId[]
-  readonly pointsEarned: number
-  readonly bouts: Bout[]
-  readonly bidderWon: boolean
-  readonly pointsResult: number
+  readonly calls: {[player: number]: Call[]};
+  readonly outcomes: {[player: number]: Outcome[]};
+  readonly shows: PlayerId[];
+  readonly pointsEarned: number;
+  readonly bouts: Bout[];
+  readonly bidderWon: boolean;
+  readonly pointsResult: number;
 }
 
 export interface ReducerResult<RESULT extends BoardState> {
@@ -101,7 +117,11 @@ export interface ReducerResult<RESULT extends BoardState> {
   serverMessages?: string[];
 }
 
-export interface BoardReducer<STATE extends BoardState, ACTION extends Action, RESULT extends BoardState> {
+export interface BoardReducer<
+  STATE extends BoardState,
+  ACTION extends Action,
+  RESULT extends BoardState
+> {
   (state: STATE, action: ACTION): ReducerResult<RESULT>;
 }
 
@@ -113,17 +133,22 @@ export interface BoardState {
 
 export interface DealtBoardState extends BoardState {
   readonly hands: Card[][];
-  readonly dog: Card[]
-  readonly shows: ShowTrumpState
+  readonly dog: Card[];
+  readonly shows: ShowTrumpState;
 }
 
 export interface NewGameBoardState extends BoardState {
   readonly name: GameplayState.NewGame;
 
-  readonly ready: PlayerId[]
+  readonly ready: PlayerId[];
 }
-export type NewGameActions = GameSettingsAction | EnterGameAction | LeaveGameAction | PlayerReadyAction | PlayerNotReadyAction;
-export type NewGameStates = NewGameBoardState | BiddingBoardState
+export type NewGameActions =
+  | GameSettingsAction
+  | EnterGameAction
+  | LeaveGameAction
+  | PlayerReadyAction
+  | PlayerNotReadyAction;
+export type NewGameStates = NewGameBoardState | BiddingBoardState;
 
 export interface BiddingBoardState extends DealtBoardState {
   readonly name: GameplayState.Bidding;
@@ -131,17 +156,28 @@ export interface BiddingBoardState extends DealtBoardState {
   readonly bidding: CurrentBids;
 }
 export type BiddingStateActions = BidAction | ShowTrumpAction;
-export type BiddingStates = BiddingBoardState | PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState | NewGameBoardState
+export type BiddingStates =
+  | BiddingBoardState
+  | PartnerCallBoardState
+  | DogRevealAndExchangeBoardState
+  | PlayingBoardState
+  | NewGameBoardState;
 
 export interface PartnerCallBoardState extends DealtBoardState {
-  readonly name: GameplayState.PartnerCall
+  readonly name: GameplayState.PartnerCall;
 
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
   readonly bidder: PlayerId;
 }
-export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrumpAction;
-export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
+export type PartnerCallStateActions =
+  | CallPartnerAction
+  | DeclareSlam
+  | ShowTrumpAction;
+export type PartnerCallStates =
+  | PartnerCallBoardState
+  | DogRevealAndExchangeBoardState
+  | PlayingBoardState;
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
   readonly name: GameplayState.DogReveal;
@@ -153,8 +189,13 @@ export interface DogRevealAndExchangeBoardState extends DealtBoardState {
   readonly partner?: PlayerId;
 }
 /** {@link SetDogAction} is for bidder only */
-export type DogRevealStateActions = SetDogAction | DeclareSlam | ShowTrumpAction;
-export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState;
+export type DogRevealStateActions =
+  | SetDogAction
+  | DeclareSlam
+  | ShowTrumpAction;
+export type DogRevealStates =
+  | DogRevealAndExchangeBoardState
+  | PlayingBoardState;
 
 /**
  * Transitions:
@@ -174,8 +215,11 @@ export interface PlayingBoardState extends DealtBoardState {
   readonly current_trick: Trick;
   readonly past_tricks: CompletedTrick[];
 }
-export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction
-export type PlayingStates = PlayingBoardState | CompletedBoardState
+export type PlayingStateActions =
+  | PlayCardAction
+  | DeclareSlam
+  | ShowTrumpAction;
+export type PlayingStates = PlayingBoardState | CompletedBoardState;
 
 export interface CompletedBoardState extends BoardState {
   readonly name: GameplayState.Completed;
@@ -187,7 +231,7 @@ export interface CompletedBoardState extends BoardState {
 
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
-  readonly shows: ShowTrumpState
+  readonly shows: ShowTrumpState;
   readonly jokerState?: JokerExchangeState;
   readonly joker_exchanged?: Card;
 
@@ -195,7 +239,3 @@ export interface CompletedBoardState extends BoardState {
   readonly end_state: CompletedGameState;
 }
 export type CompletedStateActions = any;
-
-
-
-

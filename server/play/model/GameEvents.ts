@@ -1,6 +1,13 @@
-import { Card, TrumpCard } from './Card';
-import { GameSettings } from './GameSettings';
-import { Bid, BidValue, Call, CompletedGameState, JokerExchangeState, PlayerId } from './GameState';
+import {Card, TrumpCard} from './Card';
+import {GameSettings} from './GameSettings';
+import {
+  Bid,
+  BidValue,
+  Call,
+  CompletedGameState,
+  JokerExchangeState,
+  PlayerId,
+} from './GameState';
 
 export interface PlayerEvent {
   readonly type: ActionType | TransitionType | 'error';
@@ -34,8 +41,19 @@ export interface Action extends PlayerEvent {
   readonly time: number;
 }
 
-export type ActionType = 'game_settings' | 'enter_game' | 'leave_game' | 'mark_player_ready' | 'unmark_player_ready'
-  | 'bid' | 'show_trump' | 'call_partner' | 'declare_slam' | 'set_dog' | 'play_card' | 'show_dog_to_observers';
+export type ActionType =
+  | 'game_settings'
+  | 'enter_game'
+  | 'leave_game'
+  | 'mark_player_ready'
+  | 'unmark_player_ready'
+  | 'bid'
+  | 'show_trump'
+  | 'call_partner'
+  | 'declare_slam'
+  | 'set_dog'
+  | 'play_card'
+  | 'show_dog_to_observers';
 
 export interface GameSettingsAction extends Action {
   readonly type: 'game_settings';
@@ -43,19 +61,19 @@ export interface GameSettingsAction extends Action {
 }
 
 export interface EnterGameAction extends Action {
-  readonly type: 'enter_game'
+  readonly type: 'enter_game';
 }
 
 export interface LeaveGameAction extends Action {
-  readonly type: 'leave_game'
+  readonly type: 'leave_game';
 }
 
 export interface PlayerReadyAction extends Action {
-  readonly type: 'mark_player_ready'
+  readonly type: 'mark_player_ready';
 }
 
 export interface PlayerNotReadyAction extends Action {
-  readonly type: 'unmark_player_ready'
+  readonly type: 'unmark_player_ready';
 }
 
 export interface BidAction extends Action {
@@ -105,11 +123,18 @@ export interface ShowDogToObservers extends PlayerEvent {
  * Their types are all past tense.
  */
 export interface Transition extends PlayerEvent {
-  readonly type: TransitionType
+  readonly type: TransitionType;
 }
 
-export type TransitionType = 'players_set' | 'dealt_hand' | 'bidding_completed' | 'dog_revealed' | 'game_started'
-  | 'completed_trick' | 'game_completed' | 'game_aborted';
+export type TransitionType =
+  | 'players_set'
+  | 'dealt_hand'
+  | 'bidding_completed'
+  | 'dog_revealed'
+  | 'game_started'
+  | 'completed_trick'
+  | 'game_completed'
+  | 'game_aborted';
 
 export interface PlayersSetTransition extends Transition {
   readonly type: 'players_set';
@@ -119,7 +144,7 @@ export interface PlayersSetTransition extends Transition {
 export interface DealtHandTransition extends Transition {
   readonly type: 'dealt_hand';
   readonly playerId: PlayerId;
-  readonly hand: Card[]
+  readonly hand: Card[];
 }
 
 export interface BiddingCompletedTransition extends Transition {

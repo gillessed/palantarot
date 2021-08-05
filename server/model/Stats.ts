@@ -1,4 +1,4 @@
-import { IMonth } from './Month';
+import {IMonth} from './Month';
 export type Stats = Stat[];
 
 export interface Stat {
@@ -51,23 +51,42 @@ export interface StatAverage {
 }
 
 export function getAverages(playerStats: AggregatedStats): StatAverages {
-  const allRoles = getAverage(playerStats, (stat: AggregatedStat) => stat.allStats);
+  const allRoles = getAverage(
+    playerStats,
+    (stat: AggregatedStat) => stat.allStats
+  );
   if (!allRoles) {
     return {};
   }
   return {
     allRoles,
-    bidder: getAverage(playerStats, (stat: AggregatedStat) => stat.bidderStats, allRoles.totalCount),
-    partner: getAverage(playerStats, (stat: AggregatedStat) => stat.partnerStats, allRoles.totalCount),
-    opposition: getAverage(playerStats, (stat: AggregatedStat) => stat.oppositionStats, allRoles.totalCount),
+    bidder: getAverage(
+      playerStats,
+      (stat: AggregatedStat) => stat.bidderStats,
+      allRoles.totalCount
+    ),
+    partner: getAverage(
+      playerStats,
+      (stat: AggregatedStat) => stat.partnerStats,
+      allRoles.totalCount
+    ),
+    opposition: getAverage(
+      playerStats,
+      (stat: AggregatedStat) => stat.oppositionStats,
+      allRoles.totalCount
+    ),
   };
 }
 
-export function getAverage(playerStats: AggregatedStats, mapper: (stats: AggregatedStat) => RoleStats, allTotal?: number): StatAverage | undefined {
+export function getAverage(
+  playerStats: AggregatedStats,
+  mapper: (stats: AggregatedStat) => RoleStats,
+  allTotal?: number
+): StatAverage | undefined {
   const roleStats: RoleStats[] = playerStats
     .map(mapper)
     .filter(roleStat => roleStat.totalGames > 0);
-  
+
   if (roleStats.length === 0) {
     return undefined;
   }
@@ -86,7 +105,8 @@ export function getAverage(playerStats: AggregatedStats, mapper: (stats: Aggrega
     scoreCount += roleStat.wonGames;
     winScore += roleStat.wonScore;
   }
-  let win: number | undefined = scoreCount > 0 ? winScore / scoreCount : undefined;
+  const win: number | undefined =
+    scoreCount > 0 ? winScore / scoreCount : undefined;
 
   let rate = 0;
   if (allTotal !== undefined) {

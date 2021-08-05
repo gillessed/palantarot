@@ -8,4 +8,4 @@ export const DefaultGameSettings: GameSettings = {
   autologEnabled: true,
   bakerBengtsonVariant: false,
   publicHands: true,
-}
+};

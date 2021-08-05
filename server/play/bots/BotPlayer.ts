@@ -1,16 +1,40 @@
-import { ClientGame } from "../../../app/services/room/ClientGame";
-import { BlankState, PlayState, ShowDetails, TrickCards } from "../../../app/services/room/ClientGameEventHandler";
-import { TarotBot } from "../../../bots/TarotBot";
-import { Game } from "../game/Game";
-import { Card } from "../model/Card";
-import { Action, BidAction, CallPartnerAction, PlayCardAction, SetDogAction, ShowTrumpAction } from "../model/GameEvents";
-import { Bid, BiddingBoardState, CompletedTrick, DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PlayerId, PlayingBoardState, Trick } from "../model/GameState";
+import {ClientGame} from '../../../app/services/room/ClientGame';
+import {
+  BlankState,
+  PlayState,
+  ShowDetails,
+  TrickCards,
+} from '../../../app/services/room/ClientGameEventHandler';
+import {TarotBot} from '../../../bots/TarotBot';
+import {Game} from '../game/Game';
+import {Card} from '../model/Card';
+import {
+  Action,
+  BidAction,
+  CallPartnerAction,
+  PlayCardAction,
+  SetDogAction,
+  ShowTrumpAction,
+} from '../model/GameEvents';
+import {
+  Bid,
+  BiddingBoardState,
+  CompletedTrick,
+  DogRevealAndExchangeBoardState,
+  GameplayState,
+  PartnerCallBoardState,
+  PlayerId,
+  PlayingBoardState,
+  Trick,
+} from '../model/GameState';
 
 export function getNextPlayer(game: Game): PlayerId | null {
   const state = game.getState();
   switch (state.name) {
-    case GameplayState.NewGame: return null;
-    case GameplayState.Completed: return null;
+    case GameplayState.NewGame:
+      return null;
+    case GameplayState.Completed:
+      return null;
     case GameplayState.Bidding:
       const bidState = state as BiddingBoardState;
       return bidState.bidding.bidders[0];
@@ -27,11 +51,17 @@ export function getNextPlayer(game: Game): PlayerId | null {
   }
 }
 
-export function playForBot(game: Game, botId: string, bot: TarotBot): Action | null {
+export function playForBot(
+  game: Game,
+  botId: string,
+  bot: TarotBot
+): Action | null {
   const clientGame = convertStateToInGame(game, botId);
   switch (clientGame.playState.state) {
-    case GameplayState.NewGame: return null;
-    case GameplayState.Completed: return null;
+    case GameplayState.NewGame:
+      return null;
+    case GameplayState.Completed:
+      return null;
     case GameplayState.Bidding:
       const bid = bot.bid(clientGame);
       const bidAction: BidAction = {
@@ -62,7 +92,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
       return setDogAction;
     case GameplayState.Playing:
       const card = bot.playCard(clientGame);
-      const playCardAction: PlayCardAction = { 
+      const playCardAction: PlayCardAction = {
         type: 'play_card',
         player: botId,
         time: Date.now(),
@@ -83,7 +113,7 @@ function getPlayerBids(bids: Bid[]) {
 function convertStateToInGame(game: Game, botId: string): ClientGame {
   const state = game.getState();
   const playerIndex = state.players.indexOf(botId);
-  let playState: PlayState = { ...BlankState };
+  let playState: PlayState = {...BlankState};
   switch (state.name) {
     case GameplayState.Bidding:
       const bidState = state as BiddingBoardState;
@@ -111,7 +141,10 @@ function convertStateToInGame(game: Game, botId: string): ClientGame {
   };
 }
 
-function convertBidBoardState(playerIndex: number, state: BiddingBoardState): PlayState {
+function convertBidBoardState(
+  playerIndex: number,
+  state: BiddingBoardState
+): PlayState {
   const playState: PlayState = {
     ...BlankState,
     playerOrder: state.players,
@@ -123,7 +156,10 @@ function convertBidBoardState(playerIndex: number, state: BiddingBoardState): Pl
   return playState;
 }
 
-function convertCallBoardState(playerIndex: number, state: PartnerCallBoardState): PlayState {
+function convertCallBoardState(
+  playerIndex: number,
+  state: PartnerCallBoardState
+): PlayState {
   const playState: PlayState = {
     ...BlankState,
     state: GameplayState.PartnerCall,
@@ -135,23 +171,38 @@ function convertCallBoardState(playerIndex: number, state: PartnerCallBoardState
   return playState;
 }
 
-function convertDogBoardState(playerIndex: number, state: DogRevealAndExchangeBoardState): PlayState {
+function convertDogBoardState(
+  playerIndex: number,
+  state: DogRevealAndExchangeBoardState
+): PlayState {
   return {
-    ...convertCallBoardState(playerIndex, state as unknown as PartnerCallBoardState),
+    ...convertCallBoardState(
+      playerIndex,
+      state as unknown as PartnerCallBoardState
+    ),
     state: GameplayState.DogReveal,
     dog: state.dog,
   };
 }
 
-function convertPlayBoardState(game: Game, botId: string, playerIndex: number, state: PlayingBoardState): PlayState {
+function convertPlayBoardState(
+  game: Game,
+  botId: string,
+  playerIndex: number,
+  state: PlayingBoardState
+): PlayState {
   const currentTrick = state.current_trick;
   return {
-    ...convertDogBoardState(playerIndex, state as unknown as DogRevealAndExchangeBoardState),
+    ...convertDogBoardState(
+      playerIndex,
+      state as unknown as DogRevealAndExchangeBoardState
+    ),
     state: GameplayState.Playing,
     toPlay: currentTrick.players[currentTrick.current_player],
     partner: state.partner,
     partnerCard: state.called,
-    anyPlayerPlayedCard: currentTrick.trick_num > 0 || currentTrick.cards.length > 0,
+    anyPlayerPlayedCard:
+      currentTrick.trick_num > 0 || currentTrick.cards.length > 0,
     trick: convertTrick(state.current_trick),
     completedTricks: state.past_tricks.map(convertCompletedTrick),
     shows: getShows(game, botId),
@@ -160,7 +211,7 @@ function convertPlayBoardState(game: Game, botId: string, playerIndex: number, s
 
 function getShows(game: Game, botId: string) {
   const showDetails: ShowDetails[] = [];
-  game.getEvents(botId).events.forEach((event) => {
+  game.getEvents(botId).events.forEach(event => {
     if (event.type === 'show_trump') {
       const trumpEvent = event as ShowTrumpAction;
       showDetails.push({

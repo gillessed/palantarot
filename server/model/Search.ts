@@ -1,4 +1,4 @@
-import { generateId } from '../utils/randomString';
+import {generateId} from '../utils/randomString';
 export interface SearchQuery {
   id: string;
   playerQueries: PlayerQuery[];
@@ -6,21 +6,21 @@ export interface SearchQuery {
   bidQuery: number[];
   numberOfPlayers: number[];
   dateRange?: {
-    start: string,
-    end: string,
+    start: string;
+    end: string;
   };
 }
 
 export enum PlayerPredicate {
-  inGame="in game",
-  bidder="bidder",
-  partner="partner",
-  opponent="opponent",
+  inGame = 'in game',
+  bidder = 'bidder',
+  partner = 'partner',
+  opponent = 'opponent',
 }
 
 export enum PlayerOperator {
-  is="is",
-  isNot="is not",
+  is = 'is',
+  isNot = 'is not',
 }
 
 export interface PlayerQuery {
@@ -30,11 +30,11 @@ export interface PlayerQuery {
 }
 
 export enum ScoreOperator {
-  equals="=",
-  greaterThan=">",
-  lessThan="<",
-  greaterThanOrEqual=">=",
-  lessThanOrEqual="<=",
+  equals = '=',
+  greaterThan = '>',
+  lessThan = '<',
+  greaterThanOrEqual = '>=',
+  lessThanOrEqual = '<=',
 }
 
 export interface ScoreQuery {
@@ -68,10 +68,13 @@ export function emptyScoreQuery(): ScoreQuery {
 }
 
 export function isQueryEmpty(query: SearchQuery) {
-  const { playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange } = query;
-  return playerQueries.length === 0 &&
+  const {playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange} =
+    query;
+  return (
+    playerQueries.length === 0 &&
     numberOfPlayers.length === 0 &&
     scoreQueries.length === 0 &&
     bidQuery.length === 0 &&
-    dateRange === undefined;
+    dateRange === undefined
+  );
 }

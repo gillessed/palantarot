@@ -1,9 +1,9 @@
-import { defineSocketMessage } from '../../websocket/SocketMessage';
-import { Action, ErrorCode, PlayerEvent } from '../model/GameEvents';
-import { GameSettings } from '../model/GameSettings';
-import { ChatText } from './ChatText';
-import { PlayerStatus } from './PlayerStatus';
-import { RoomStatus } from './RoomStatus';
+import {defineSocketMessage} from '../../websocket/SocketMessage';
+import {Action, ErrorCode, PlayerEvent} from '../model/GameEvents';
+import {GameSettings} from '../model/GameSettings';
+import {ChatText} from './ChatText';
+import {PlayerStatus} from './PlayerStatus';
+import {RoomStatus} from './RoomStatus';
 
 export interface EnterRoomMessagePayload {
   roomId: string;
@@ -19,7 +19,7 @@ export interface PlayerStatusUpdatedMessagePayload {
 
 export interface RoomChatMessagePayload {
   roomId: string;
-  chat: ChatText;  
+  chat: ChatText;
 }
 
 export interface GameActionMessagePayload {
@@ -62,12 +62,23 @@ export interface RoomStatusMessagePayload {
 
 const name = (method: string) => `room::${method}`;
 
-const enterRoom = defineSocketMessage<EnterRoomMessagePayload>(name('enterRoom'));
-const roomStatus = defineSocketMessage<RoomStatusMessagePayload>(name('roomStatus'));
-const playerStatusUpdated = defineSocketMessage<PlayerStatusUpdatedMessagePayload>(name('playerStatusUpdated'));
+const enterRoom = defineSocketMessage<EnterRoomMessagePayload>(
+  name('enterRoom')
+);
+const roomStatus = defineSocketMessage<RoomStatusMessagePayload>(
+  name('roomStatus')
+);
+const playerStatusUpdated =
+  defineSocketMessage<PlayerStatusUpdatedMessagePayload>(
+    name('playerStatusUpdated')
+  );
 const roomChat = defineSocketMessage<RoomChatMessagePayload>(name('roomChat'));
-const gameAction = defineSocketMessage<GameActionMessagePayload>(name('gameAction'));
-const gameUpdates = defineSocketMessage<GameUpdatesMessagePayload>(name('gameUpdates'));
+const gameAction = defineSocketMessage<GameActionMessagePayload>(
+  name('gameAction')
+);
+const gameUpdates = defineSocketMessage<GameUpdatesMessagePayload>(
+  name('gameUpdates')
+);
 const error = defineSocketMessage<RoomErrorMessagePayload>(name('error'));
 const newGame = defineSocketMessage<NewGameMessagePayload>(name('newGame'));
 const addBot = defineSocketMessage<BotMessagePayload>(name('adBot'));

@@ -1,4 +1,4 @@
-import yargs, { exit } from "yargs";
+import yargs, {exit} from 'yargs';
 
 const argv = yargs
   .option('runs', {
@@ -13,8 +13,7 @@ const argv = yargs
   .options('out', {
     alias: 'f',
     type: 'string',
-  })
-  .argv;
+  }).argv;
 
 console.log('Tarot bot simulator');
 
@@ -27,5 +26,3 @@ if (argv.out == null) {
   console.log('Missing args: out');
   exit(1, new Error('Missing args: out'));
 }
-
-

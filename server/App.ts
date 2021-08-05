@@ -1,28 +1,41 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Request } from 'express';
+import express, {Request} from 'express';
 import logger from 'morgan';
 import path from 'path';
-import { DynamicRoutes, DynamicRoutesEnumerable, StaticRoutes, StatisRoutesEnumerable as StaticRoutesEnumerable } from '../app/routes';
-import { DefaultTarotBotRegistry } from "../bots/TarotBot";
-import { AuthService, createRequestValidator } from './api/AuthService';
-import { GameRecordService } from './api/GameRecordService';
-import { PlayerService } from './api/PlayerService';
-import { PlayService } from "./api/PlayService";
-import { PlaySocketCloseListener } from './api/PlaySocketCloseListener';
-import { SearchService } from './api/SearchService';
-import { StatsService } from './api/StatsService';
-import { TarothonService } from './api/TarothonService';
-import { Config } from './config';
-import { Database } from './db/dbConnector';
-import { LobbySocketListener } from "./play/lobby/LobbySocketListener";
-import { RoomSocketListener } from './play/room/RoomSocketListener';
-import { WebsocketManager } from './websocket/WebsocketManager';
+import {
+  DynamicRoutes,
+  DynamicRoutesEnumerable,
+  StaticRoutes,
+  StatisRoutesEnumerable as StaticRoutesEnumerable,
+} from '../app/routes';
+import {DefaultTarotBotRegistry} from '../bots/TarotBot';
+import {AuthService, createRequestValidator} from './api/AuthService';
+import {GameRecordService} from './api/GameRecordService';
+import {PlayerService} from './api/PlayerService';
+import {PlayService} from './api/PlayService';
+import {PlaySocketCloseListener} from './api/PlaySocketCloseListener';
+import {SearchService} from './api/SearchService';
+import {StatsService} from './api/StatsService';
+import {TarothonService} from './api/TarothonService';
+import {Config} from './config';
+import {Database} from './db/dbConnector';
+import {LobbySocketListener} from './play/lobby/LobbySocketListener';
+import {RoomSocketListener} from './play/room/RoomSocketListener';
+import {WebsocketManager} from './websocket/WebsocketManager';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
-const thirtyDaysMs =  oneDayMs * 30;
-const unauthedRoutes = ['/login', '/favicon', '/resources', '/static', '/src', '/icon', '/.well-known'];
+const thirtyDaysMs = oneDayMs * 30;
+const unauthedRoutes = [
+  '/login',
+  '/favicon',
+  '/resources',
+  '/static',
+  '/src',
+  '/icon',
+  '/.well-known',
+];
 
 export class App {
   public express: express.Application;
@@ -31,7 +44,7 @@ export class App {
   constructor(
     private readonly config: Config,
     private readonly db: Database,
-    private readonly websocketManager: WebsocketManager,
+    private readonly websocketManager: WebsocketManager
   ) {
     this.requestValidator = createRequestValidator(config);
     this.express = express();
@@ -40,11 +53,11 @@ export class App {
   }
 
   private middleware() {
-    this.express.use(cors())
+    this.express.use(cors());
     this.express.use(logger('dev'));
     this.express.use(cookieParser());
     this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({ extended: false }));
+    this.express.use(bodyParser.urlencoded({extended: false}));
     this.auth();
   }
 
@@ -60,7 +73,10 @@ export class App {
       } else {
         if (this.isProtectedPath(req.path)) {
           if (authedRequest) {
-            res.cookie(this.config.auth.cookieName, this.config.auth.token, { maxAge: oneDayMs * 30, httpOnly: true});
+            res.cookie(this.config.auth.cookieName, this.config.auth.token, {
+              maxAge: oneDayMs * 30,
+              httpOnly: true,
+            });
             next();
           } else {
             res.clearCookie(this.config.auth.cookieName);
@@ -68,7 +84,7 @@ export class App {
           }
         } else if (req.path === '/login' && authedRequest) {
           res.redirect(StaticRoutes.home());
-        } else if(req.path === '/logout') {
+        } else if (req.path === '/logout') {
           res.clearCookie(this.config.auth.cookieName);
           res.redirect('/login');
         } else {
@@ -94,11 +110,30 @@ export class App {
   }
 
   private staticRoutes() {
-    this.express.use('/.well-known', express.static(path.join(this.config.assetDir, '.well-known'), { dotfiles: 'allow' } ));
-    this.express.use('/favicon-16x16.png', express.static(this.config.assetDir + '/static/images/favicon-16x16.png'));
-    this.express.use('/favicon-32x32.png', express.static(this.config.assetDir + '/static/images/favicon-32x32.png'));
-    this.express.use('/src', express.static(path.resolve(this.config.assetDir, 'src')));
-    this.express.use('/static', express.static(path.resolve(this.config.assetDir, 'static'), { maxAge: thirtyDaysMs}));
+    this.express.use(
+      '/.well-known',
+      express.static(path.join(this.config.assetDir, '.well-known'), {
+        dotfiles: 'allow',
+      })
+    );
+    this.express.use(
+      '/favicon-16x16.png',
+      express.static(this.config.assetDir + '/static/images/favicon-16x16.png')
+    );
+    this.express.use(
+      '/favicon-32x32.png',
+      express.static(this.config.assetDir + '/static/images/favicon-32x32.png')
+    );
+    this.express.use(
+      '/src',
+      express.static(path.resolve(this.config.assetDir, 'src'))
+    );
+    this.express.use(
+      '/static',
+      express.static(path.resolve(this.config.assetDir, 'static'), {
+        maxAge: thirtyDaysMs,
+      })
+    );
     this.express.get('/icons-*', (req, res) => {
       const filename = path.basename(req.path);
       res.sendFile(path.resolve(this.config.assetDir, filename));
@@ -113,7 +148,7 @@ export class App {
 
     const gameService = new GameRecordService(this.db, this.websocketManager);
     this.express.use('/api/v1/game', gameService.router);
-    
+
     const statsService = new StatsService(this.db);
     this.express.use('/api/v1/stats', statsService.router);
 
@@ -126,7 +161,11 @@ export class App {
     const searchService = new SearchService(this.db);
     this.express.use('/api/v1/search', searchService.router);
 
-    const playService = new PlayService(this.db, this.websocketManager, botRegistry);
+    const playService = new PlayService(
+      this.db,
+      this.websocketManager,
+      botRegistry
+    );
     this.express.use('/api/v1/play', playService.router);
 
     const lobbySocketListener = new LobbySocketListener(playService);
@@ -136,14 +175,14 @@ export class App {
     const playSocketCloseListener = new PlaySocketCloseListener(playService);
     this.websocketManager.addCloseListener(playSocketCloseListener);
   }
- 
+
   private redirectRoute() {
     this.express.use('/', (req, res, next) => {
       if (req.path.startsWith('/.well-known')) {
         next();
       } else if (req.path.startsWith('/api')) {
         res.sendStatus(404);
-      } else if (!this.isAppRoute(req.path))  {
+      } else if (!this.isAppRoute(req.path)) {
         res.redirect('/');
       } else {
         res.sendFile(path.join(path.resolve(), 'index.html'));
@@ -152,13 +191,19 @@ export class App {
   }
 
   private isAppRoute(path: string): boolean {
-    const staticRoutes = Object.keys(StaticRoutes).map((route) => StaticRoutesEnumerable[route]());
-    const staticMatch = staticRoutes.find((route) => path === route);
+    const staticRoutes = Object.keys(StaticRoutes).map(route =>
+      StaticRoutesEnumerable[route]()
+    );
+    const staticMatch = staticRoutes.find(route => path === route);
     if (staticMatch) {
       return true;
     }
-    const dynamicRoutes = Object.keys(DynamicRoutes).map((route) => new RegExp(DynamicRoutesEnumerable[route]('[^/]+')));
-    const dynamicMatch = dynamicRoutes.find((routeRegex) => routeRegex.test(path));
+    const dynamicRoutes = Object.keys(DynamicRoutes).map(
+      route => new RegExp(DynamicRoutesEnumerable[route]('[^/]+'))
+    );
+    const dynamicMatch = dynamicRoutes.find(routeRegex =>
+      routeRegex.test(path)
+    );
     if (dynamicMatch) {
       return true;
     }

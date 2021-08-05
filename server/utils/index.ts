@@ -22,7 +22,10 @@ export function mapToObject<T>(map: Map<string, T>): {[key: string]: T} {
   return object;
 }
 
-export function mapFromCollection(collection: any[], keyName: string): Map<string, any> {
+export function mapFromCollection(
+  collection: any[],
+  keyName: string
+): Map<string, any> {
   const map = new Map<string, any>();
   for (const item of collection) {
     map.set(item[keyName], item);
@@ -31,11 +34,11 @@ export function mapFromCollection(collection: any[], keyName: string): Map<strin
 }
 
 export function camelCaseToTitle(str: string) {
-  return str.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+  return str.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
 }
 
 export function curry<ARG1, ARG2, RESULT>(
-  func: (arg1: ARG1, arg2: ARG2) => RESULT,
+  func: (arg1: ARG1, arg2: ARG2) => RESULT
 ): (arg1: ARG1) => (arg2: ARG2) => RESULT {
   return (arg1: ARG1) => {
     return (arg2: ARG2) => {
@@ -44,7 +47,7 @@ export function curry<ARG1, ARG2, RESULT>(
   };
 }
 
-export function encodeQueryData(data: { [key: string]: any }) {
+export function encodeQueryData(data: {[key: string]: any}) {
   const ret = [];
   for (const d in data) {
     if (!data[d]) continue;
@@ -54,11 +57,14 @@ export function encodeQueryData(data: { [key: string]: any }) {
 }
 
 export function randomString(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 export function formatTimestamp(timestamp: string) {
-    return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
+  return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
 }
 
 export function pTimeout(ms: number) {
@@ -69,17 +75,16 @@ export function pTimeout(ms: number) {
   });
 }
 
-
 interface MaxObj<T> {
   obj: T;
   value: number;
 }
 export function arrayMax<T>(array: T[], max: (t: T) => number): T | undefined {
   let maxObj: MaxObj<T> | undefined = undefined;
-  for (let obj of array) {
+  for (const obj of array) {
     const value = max(obj);
     if (!maxObj || value > maxObj.value) {
-      maxObj = { obj, value };
+      maxObj = {obj, value};
     }
   }
   return maxObj ? maxObj.obj : undefined;
@@ -89,9 +94,9 @@ export type SortOrder = 'asc' | 'desc';
 export type Comparator<T> = (t1: T, T2: T) => number;
 
 export function integerComparator<T>(
-    map: (t: T) => number,
-    order: SortOrder,
-    fallback?: Comparator<T>,
+  map: (t: T) => number,
+  order: SortOrder,
+  fallback?: Comparator<T>
 ): Comparator<T> {
   return (t1: T, t2: T) => {
     const n1 = map(t1);

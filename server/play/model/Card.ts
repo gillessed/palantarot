@@ -75,7 +75,10 @@ export const AllVs: Card[] = [
   [Suit.Spade, RegValue.V],
 ];
 
-export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [Suit.Trump, TrumpValue.Joker];
+export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [
+  Suit.Trump,
+  TrumpValue.Joker,
+];
 export const TheOne: [Suit.Trump, TrumpValue._1] = [Suit.Trump, TrumpValue._1];
 export const The21: [Suit.Trump, TrumpValue._21] = [Suit.Trump, TrumpValue._21];
 
@@ -89,10 +92,11 @@ export type Bout = typeof TheJoker | typeof TheOne | typeof The21;
 
 export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
-  const value = parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
+  const value =
+    parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
   return [suit, value] as Card;
 }
 
 export function toCardString(card: Card): string {
-  return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`
+  return `#${card[1] === 'Joker' ? 'J' : card[1]}${card[0]}`;
 }
