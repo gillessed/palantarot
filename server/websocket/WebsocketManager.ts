@@ -6,7 +6,7 @@ import {SocketCloseListener, SocketMessageListener} from './SocketListener';
 import {isSocketConnectionMessage, SocketMessage} from './SocketMessage';
 
 export class WebsocketManager {
-  private server: WebSocket.Server;
+  private server?: WebSocket.Server;
   private socketMap: Map<string, JsonSocket>;
   private socketMessageListeners: Set<SocketMessageListener>;
   private socketCloseListeners: Set<SocketCloseListener>;

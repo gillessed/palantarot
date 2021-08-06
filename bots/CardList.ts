@@ -1,6 +1,6 @@
-import { isEqual } from "lodash";
-import { Card, Suit, TrumpValue } from "../server/play/model/Card";
-import { getCardValueAsNumber } from "../server/play/model/CardUtils";
+import {isEqual} from 'lodash';
+import {Card, Suit, TrumpValue} from '../server/play/model/Card';
+import {getCardValueAsNumber} from '../server/play/model/CardUtils';
 
 export class CardList {
   private list: Card[];
@@ -10,24 +10,24 @@ export class CardList {
 
   public add = (...cards: Card[]) => {
     this.list.push(...cards);
-  }
+  };
 
   private removeInternal = (card: Card) => {
-    const index = this.list.findIndex((c) => isEqual(c, card));
+    const index = this.list.findIndex(c => isEqual(c, card));
     this.list.splice(index, 1);
-  }
+  };
 
   public remove = (...cards: Card[]) => {
     cards.forEach(this.removeInternal);
-  }
+  };
 
   public has = (card: Card): boolean => {
-    return !!this.list.find((c) => isEqual(c, card));
-  }
+    return !!this.list.find(c => isEqual(c, card));
+  };
 
   public get = (index: number): Card => {
     return this.list[index];
-  }
+  };
 
   public sort(comparator: (c1: Card, c2: Card) => number) {
     this.list.sort(comparator);
@@ -47,16 +47,16 @@ export class CardList {
       }
     }
     return minCard;
-  }
+  };
 
   public suitFilter = (suit: Suit): CardList => {
     const cards = this.list.filter(([cardSuit, _]) => cardSuit === suit);
     return new CardList(...cards);
-  }
+  };
 
   public size = () => {
     return this.list.length;
-  }
+  };
 
   public [Symbol.iterator]() {
     return this.list[Symbol.iterator]();

@@ -6,7 +6,7 @@ import { Card, Elevation, Button, Intent } from '@blueprintjs/core';
 import history from '../../history';
 import { StaticRoutes, DynamicRoutes } from '../../routes';
 import { pageCache } from '../pageCache/PageCache';
-import { convertToMomenthon, Momenthon, getDateStrings } from '../../services/tarothonData/transform';
+import { convertToMomenthon, Momenthon, Time, getDateStrings } from '../../services/tarothonData/transform';
 
 interface Props {
   tarothons: Tarothon[];
@@ -25,9 +25,9 @@ class TarothonsContainerInternal extends React.PureComponent<Props, {}> {
           return 0;
         }
       });
-    const previous = sorted.filter((t) => t.isWhen === Momenthon.Time.DONE);
-    const current = sorted.find((t) => t.isWhen === Momenthon.Time.NOW);
-    const upcoming = sorted.filter((t) => t.isWhen === Momenthon.Time.UPCOMING);
+    const previous = sorted.filter((t) => t.isWhen === Time.DONE);
+    const current = sorted.find((t) => t.isWhen === Time.NOW);
+    const upcoming = sorted.filter((t) => t.isWhen === Time.UPCOMING);
     return (
       <div className='tarothons-container page-container'>
         <div className='title'>

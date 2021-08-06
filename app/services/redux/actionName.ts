@@ -1,1 +1,2 @@
-export const actionName = (prefix: string) => (method: string) => `${prefix}::${method}`;
+export const actionName = (prefix: string) => (method: string) =>
+  `${prefix}::${method}`;

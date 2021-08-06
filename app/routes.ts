@@ -14,10 +14,11 @@ const StaticRoutesInternal = {
   login: () => '/login',
   rules: () => '/app/rules',
   bots: () => '/app/bots',
-}
+};
 
-export const StaticRoutes = StaticRoutesInternal; 
-export const StatisRoutesEnumerable: { [key: string]: () => string } = StaticRoutesInternal;
+export const StaticRoutes = StaticRoutesInternal;
+export const StatisRoutesEnumerable: {[key: string]: () => string} =
+  StaticRoutesInternal;
 
 const DynamicRoutesInternal = {
   game: (gameId: string) => `/app/game/${gameId}`,
@@ -28,5 +29,7 @@ const DynamicRoutesInternal = {
   play: (roomId: string) => `/play/${roomId}`,
 };
 
-export const DynamicRoutes = DynamicRoutesInternal; 
-export const DynamicRoutesEnumerable: { [key: string]: (...args: string[]) => string } = DynamicRoutesInternal;
+export const DynamicRoutes = DynamicRoutesInternal;
+export const DynamicRoutesEnumerable: {
+  [key: string]: (...args: string[]) => string;
+} = DynamicRoutesInternal;

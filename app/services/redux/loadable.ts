@@ -11,7 +11,10 @@ export class LoadableCache<KEY, VALUE> {
   private cache: Map<KEY, Loadable<KEY, VALUE>>;
   public loading: boolean;
 
-  private constructor(options?: {cache: Map<KEY, Loadable<KEY, VALUE>>, loading: boolean}) {
+  private constructor(options?: {
+    cache: Map<KEY, Loadable<KEY, VALUE>>;
+    loading: boolean;
+  }) {
     if (options) {
       this.cache = options.cache;
       this.loading = options.loading;
@@ -43,7 +46,7 @@ export class LoadableCache<KEY, VALUE> {
 
   public getSubset(...keys: KEY[]): Map<KEY, Loadable<KEY, VALUE>> {
     return new Map<KEY, Loadable<KEY, VALUE>>(
-      keys.map((key) => [key, this.get(key)] as [KEY, Loadable<KEY, VALUE>]),
+      keys.map(key => [key, this.get(key)] as [KEY, Loadable<KEY, VALUE>])
     );
   }
 
@@ -57,11 +60,12 @@ export class LoadableCache<KEY, VALUE> {
   }
 
   public getLoadedSubset(...keys: KEY[]): Map<KEY, VALUE> {
-    return new Map<KEY, VALUE>(keys
-      .map((key) => {
-        return [key, this.getLoaded(key)] as [KEY, VALUE];
-      })
-      .filter((key) => key[1]),
+    return new Map<KEY, VALUE>(
+      keys
+        .map(key => {
+          return [key, this.getLoaded(key)] as [KEY, VALUE];
+        })
+        .filter(key => key[1])
     );
   }
 
@@ -92,7 +96,7 @@ export class LoadableCache<KEY, VALUE> {
   public errored(keys: KEY[], error: Error) {
     const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     const date = new Date();
-    keys.map((key) => {
+    keys.map(key => {
       const entry = {
         key,
         loading: false,
@@ -101,7 +105,10 @@ export class LoadableCache<KEY, VALUE> {
       };
       newCache.set(key, entry);
     });
-    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({
+      cache: newCache,
+      loading: this.loading,
+    });
   }
 
   public refreshCache() {
@@ -112,16 +119,22 @@ export class LoadableCache<KEY, VALUE> {
         cached: false,
       });
     }
-    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({
+      cache: newCache,
+      loading: this.loading,
+    });
   }
 
   public keysLoading(...keys: KEY[]) {
     const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     for (const key of keys) {
-      const entry = { ...this.get(key), loading: true };
+      const entry = {...this.get(key), loading: true};
       newCache.set(key, entry);
     }
-    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({
+      cache: newCache,
+      loading: this.loading,
+    });
   }
 
   public globalLoading() {
@@ -133,7 +146,10 @@ export class LoadableCache<KEY, VALUE> {
     for (const key of keys) {
       newCache.delete(key);
     }
-    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: this.loading});
+    return new LoadableCache<KEY, VALUE>({
+      cache: newCache,
+      loading: this.loading,
+    });
   }
 
   public clearAll() {

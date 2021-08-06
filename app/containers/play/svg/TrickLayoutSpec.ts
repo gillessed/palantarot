@@ -1,6 +1,6 @@
-import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
-import { BottomLeftStatusLayout } from './BottomLeftStatus';
-import { CardHeight, CardWidth } from './CardSpec';
+import {isSpectatorModeObserver, SpectatorMode} from '../SpectatorMode';
+import {BottomLeftStatusLayout} from './BottomLeftStatus';
+import {CardHeight, CardWidth} from './CardSpec';
 
 export interface TrickLayout {
   x: number;
@@ -10,7 +10,9 @@ export interface TrickLayout {
   textAnchor: string;
 }
 
-export type TrickLayoutSpec = Array<(svgWidth: number, svgHeight: number) => TrickLayout>;
+export type TrickLayoutSpec = Array<
+  (svgWidth: number, svgHeight: number) => TrickLayout
+>;
 export const TrickLayoutSpecs = {
   threePlayers: [
     (svgWidth: number, svgHeight: number) => {
@@ -22,7 +24,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y + CardHeight + 40,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 + 5;
@@ -33,7 +35,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y - 20,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 - CardWidth - 5;
@@ -44,7 +46,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y - 20,
         textAnchor: 'middle',
-      }
+      };
     },
   ],
   fourPlayers: [
@@ -57,7 +59,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y + CardHeight + 40,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 + CardWidth / 2 + 10;
@@ -68,7 +70,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth + 30,
         ty: y + CardHeight / 2,
         textAnchor: 'start',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 - CardWidth / 2;
@@ -79,10 +81,10 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y - 20,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
-      const x = svgWidth / 2 - 3 * CardWidth / 2 - 10;
+      const x = svgWidth / 2 - (3 * CardWidth) / 2 - 10;
       const y = svgHeight / 2 - CardHeight / 2;
       return {
         x,
@@ -90,7 +92,7 @@ export const TrickLayoutSpecs = {
         tx: x - 30,
         ty: y + CardHeight / 2 + 15,
         textAnchor: 'end',
-      }
+      };
     },
   ],
   fivePlayers: [
@@ -103,7 +105,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y + CardHeight + 40,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 + CardWidth / 2 + 10;
@@ -114,7 +116,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth + 30,
         ty: y + CardHeight / 2,
         textAnchor: 'start',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 + 5;
@@ -125,7 +127,7 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y - 20,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
       const x = svgWidth / 2 - CardWidth - 5;
@@ -136,10 +138,10 @@ export const TrickLayoutSpecs = {
         tx: x + CardWidth / 2,
         ty: y - 20,
         textAnchor: 'middle',
-      }
+      };
     },
     (svgWidth: number, svgHeight: number) => {
-      const x = svgWidth / 2 - 3 * CardWidth / 2 - 10;
+      const x = svgWidth / 2 - (3 * CardWidth) / 2 - 10;
       const y = svgHeight / 2 - 30;
       return {
         x,
@@ -147,7 +149,7 @@ export const TrickLayoutSpecs = {
         tx: x - 30,
         ty: y + CardHeight / 2 + 15,
         textAnchor: 'end',
-      }
+      };
     },
   ],
 };
@@ -179,7 +181,10 @@ export const ObserverModeArrangementSpecs = {
   fivePlayers: generateLeftAlignedSpec(5),
 };
 
-export function getTrickLayoutSpec(count: number, spectatorMode: SpectatorMode): TrickLayoutSpec {
+export function getTrickLayoutSpec(
+  count: number,
+  spectatorMode: SpectatorMode
+): TrickLayoutSpec {
   if (isSpectatorModeObserver(spectatorMode)) {
     if (count <= 3) {
       return ObserverModeArrangementSpecs.threePlayers;

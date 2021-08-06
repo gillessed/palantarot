@@ -19,7 +19,7 @@ interface State {
 }
 
 export class PlaySvgContainer extends React.Component<Props, State> {
-  private containerDiv: HTMLDivElement;
+  private containerDiv?: HTMLDivElement;
 
   constructor(props: Props) {
     super(props);
@@ -67,11 +67,13 @@ export class PlaySvgContainer extends React.Component<Props, State> {
   }
 
   private windowResizeListener = () => {
-    this.setState({
-      dimensions: {
-        width: this.containerDiv.clientWidth,
-        height: this.containerDiv.clientHeight,
-      },
-    });
+      if (this.containerDiv) {
+          this.setState({
+              dimensions: {
+                  width: this.containerDiv.clientWidth,
+                  height: this.containerDiv.clientHeight,
+              },
+          });
+      }
   }
 }

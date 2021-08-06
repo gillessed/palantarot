@@ -5,7 +5,7 @@ export const PlayerRoles = {
   PLAYER2: 'Player 2',
   PLAYER3: 'Player 3',
   PLAYER4: 'Player 4',
-}
+};
 
 export const OppositionRoles = [
   PlayerRoles.PLAYER1,

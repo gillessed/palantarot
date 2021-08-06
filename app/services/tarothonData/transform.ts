@@ -1,12 +1,10 @@
 import moment from 'moment';
-import { Tarothon } from '../../../server/model/Tarothon';
+import {Tarothon} from '../../../server/model/Tarothon';
 
-export namespace Momenthon {
-  export enum Time {
-    UPCOMING = 'UPCOMING',
-    NOW = 'NOW',
-    DONE = 'DONE',
-  }
+export enum Time {
+  UPCOMING = 'UPCOMING',
+  NOW = 'NOW',
+  DONE = 'DONE',
 }
 
 /**
@@ -17,20 +15,20 @@ export interface Momenthon {
   start: moment.Moment;
   end: moment.Moment;
   length: number;
-  isWhen: Momenthon.Time;
+  isWhen: Time;
 }
 
 export function convertToMomenthon(tarothon: Tarothon): Momenthon {
   const now = moment();
   const start = moment(tarothon.begin);
   const end = moment(tarothon.end);
-  let isWhen: Momenthon.Time;
+  let isWhen: Time;
   if (now > end) {
-    isWhen = Momenthon.Time.DONE;
+    isWhen = Time.DONE;
   } else if (now < start) {
-    isWhen = Momenthon.Time.UPCOMING;
+    isWhen = Time.UPCOMING;
   } else {
-    isWhen = Momenthon.Time.NOW;
+    isWhen = Time.NOW;
   }
   const lengthMoment = moment.duration(end.diff(start));
   const length = lengthMoment.asHours();
@@ -47,5 +45,5 @@ export function getDateStrings(m: Momenthon) {
   return {
     date: m.start.format('ddd MMM DD YYYY'),
     startTime: m.start.format('HH:mm'),
-  }
+  };
 }

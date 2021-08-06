@@ -1,13 +1,13 @@
-import { TypedAction } from 'redoodle';
-import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-import { LobbySocketMessages } from '../../../server/play/lobby/LobbySocketMessages';
-import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
-import { RoomDescription } from '../../../server/play/room/RoomDescription';
-import { SocketMessage } from '../../../server/websocket/SocketMessage';
-import { ServerApi } from '../../api/serverApi';
-import { SocketActions } from '../socket/socketService';
-import { LobbyActions } from './LobbyActions';
-import { lobbyService } from './LobbyService';
+import {TypedAction} from 'redoodle';
+import {all, call, fork, put, takeEvery} from 'redux-saga/effects';
+import {LobbySocketMessages} from '../../../server/play/lobby/LobbySocketMessages';
+import {NewRoomArgs} from '../../../server/play/room/NewRoomArgs';
+import {RoomDescription} from '../../../server/play/room/RoomDescription';
+import {SocketMessage} from '../../../server/websocket/SocketMessage';
+import {ServerApi} from '../../api/serverApi';
+import {SocketActions} from '../socket/socketService';
+import {LobbyActions} from './LobbyActions';
+import {lobbyService} from './LobbyService';
 
 function* handleMessage(action: TypedAction<SocketMessage>) {
   const message = action.payload;

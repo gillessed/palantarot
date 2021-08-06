@@ -1,5 +1,5 @@
-import { TypedAction } from 'redoodle';
-import { ReduxState } from '../rootReducer';
+import {TypedAction} from 'redoodle';
+import {ReduxState} from '../rootReducer';
 export interface RefreshState {
   refreshCounter: number;
 }
@@ -14,4 +14,4 @@ export const RefreshActions = {
 
 export const refreshSelector = (state: ReduxState) => {
   return state.refresh.refreshCounter;
-}
+};

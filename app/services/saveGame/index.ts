@@ -1,20 +1,23 @@
-import { all, takeEvery } from 'redux-saga/effects';
-import { GameRecord } from '../../../server/model/GameRecord';
-import { Loadable } from '../redux/loadable';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { createSagaPropertyOperation } from '../redux/serviceSaga';
-import { ServerApi } from './../../api/serverApi';
+import {all, takeEvery} from 'redux-saga/effects';
+import {GameRecord} from '../../../server/model/GameRecord';
+import {Loadable} from '../redux/loadable';
+import {PropertyDispatcher} from '../redux/serviceDispatcher';
+import {generatePropertyService} from '../redux/serviceGenerator';
+import {createSagaPropertyOperation} from '../redux/serviceSaga';
+import {ServerApi} from './../../api/serverApi';
 
 export type SaveGameService = Loadable<GameRecord, void>;
 
 const saveGameOperation = (api: ServerApi) => {
   return (newGame: GameRecord) => {
     return api.saveGame(newGame);
-  }
+  };
 };
 
-const saveGameService = generatePropertyService<GameRecord, void>('saveGame', saveGameOperation);
+const saveGameService = generatePropertyService<GameRecord, void>(
+  'saveGame',
+  saveGameOperation
+);
 
 export const saveGameActions = saveGameService.actions;
 export const SaveGameDispatcher = saveGameService.dispatcher;
@@ -25,7 +28,7 @@ export const saveGameSaga = function* (api: ServerApi) {
   yield all([
     takeEvery(
       saveGameActions.request.TYPE,
-      createSagaPropertyOperation(saveGameOperation(api), saveGameActions),
-    )
+      createSagaPropertyOperation(saveGameOperation(api), saveGameActions)
+    ),
   ]);
-}
+};

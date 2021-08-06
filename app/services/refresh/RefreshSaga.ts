@@ -1,6 +1,5 @@
-import { takeEvery } from 'redux-saga/effects';
-import { SocketActions } from '../socket/socketService';
-
+import {takeEvery} from 'redux-saga/effects';
+import {SocketActions} from '../socket/socketService';
 
 function* handleMessage() {
   // TODO: handle refresh for real

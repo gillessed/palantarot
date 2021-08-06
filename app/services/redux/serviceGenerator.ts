@@ -1,13 +1,25 @@
-import { takeEvery } from 'redux-saga/effects';
-import { ServerApi } from './../../api/serverApi';
-import { generatePropertyActions, generateServiceActions } from './serviceActions';
-import { generatePropertyDispatcher, generateServiceDispatcher } from './serviceDispatcher';
-import { generatePropertyReducer, generateServiceReducer } from './serviceReducer';
-import { createSagaPropertyOperation, createSagaServiceOperation } from './serviceSaga';
+import {takeEvery} from 'redux-saga/effects';
+import {ServerApi} from './../../api/serverApi';
+import {
+  generatePropertyActions,
+  generateServiceActions,
+} from './serviceActions';
+import {
+  generatePropertyDispatcher,
+  generateServiceDispatcher,
+} from './serviceDispatcher';
+import {
+  generatePropertyReducer,
+  generateServiceReducer,
+} from './serviceReducer';
+import {
+  createSagaPropertyOperation,
+  createSagaServiceOperation,
+} from './serviceSaga';
 
 export function generatePropertyService<ARG, RESULT>(
   prefix: string,
-  operation: (api: ServerApi) => (arg: ARG) => Promise<RESULT> | RESULT,
+  operation: (api: ServerApi) => (arg: ARG) => Promise<RESULT> | RESULT
 ) {
   const actions = generatePropertyActions<ARG, RESULT>(prefix);
   const dispatcher = generatePropertyDispatcher(actions);
@@ -15,9 +27,9 @@ export function generatePropertyService<ARG, RESULT>(
   const saga = function* (api: ServerApi) {
     yield takeEvery(
       actions.request.TYPE,
-      createSagaPropertyOperation<ARG, RESULT>(operation(api), actions),
+      createSagaPropertyOperation<ARG, RESULT>(operation(api), actions)
     );
-  }
+  };
   return {
     actions,
     dispatcher,
@@ -28,8 +40,10 @@ export function generatePropertyService<ARG, RESULT>(
 
 export function generateService<ARG, RESULT, KEY = ARG>(
   prefix: string,
-  operation: (api: ServerApi) => (arg: ARG[]) => Promise<Map<ARG, RESULT>> | Map<ARG, RESULT>,
-  argMapper: (arg: ARG) => KEY,
+  operation: (
+    api: ServerApi
+  ) => (arg: ARG[]) => Promise<Map<ARG, RESULT>> | Map<ARG, RESULT>,
+  argMapper: (arg: ARG) => KEY
 ) {
   const actions = generateServiceActions<ARG, RESULT>(prefix);
   const dispatcher = generateServiceDispatcher<ARG, RESULT, KEY>(actions);
@@ -37,9 +51,9 @@ export function generateService<ARG, RESULT, KEY = ARG>(
   const saga = function* (api: ServerApi) {
     yield takeEvery(
       actions.request.TYPE,
-      createSagaServiceOperation<ARG, RESULT>(operation(api), actions),
+      createSagaServiceOperation<ARG, RESULT>(operation(api), actions)
     );
-  }
+  };
   return {
     actions,
     dispatcher,

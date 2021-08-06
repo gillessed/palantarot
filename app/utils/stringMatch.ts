@@ -1,6 +1,6 @@
-import { PlayerSelect } from '../components/forms/PlayerSelect';
+import {PlayerSelect} from '../components/forms/PlayerSelect';
 
-interface Match { 
+interface Match {
   item: PlayerSelect.Item;
   substringMatches: SubstringMatch[];
   matchDelta: number;
@@ -12,12 +12,17 @@ interface SubstringMatch {
   end: number;
 }
 
-export function findMatches(query: string, items: PlayerSelect.Item[]): PlayerSelect.Item[] {
+export function findMatches(
+  query: string,
+  items: PlayerSelect.Item[]
+): PlayerSelect.Item[] {
   const lowerCaseQuery = query.toLowerCase();
-  
-  const filtered = items.map((item: PlayerSelect.Item) => {
-    return match(lowerCaseQuery, item);
-  }).filter((match) => match) as Match[];
+
+  const filtered = items
+    .map((item: PlayerSelect.Item) => {
+      return match(lowerCaseQuery, item);
+    })
+    .filter(match => match) as Match[];
 
   const sorted = filtered.sort((matchA, matchB) => {
     if (matchA.substringMatches.length !== matchB.substringMatches.length) {
@@ -27,15 +32,18 @@ export function findMatches(query: string, items: PlayerSelect.Item[]): PlayerSe
     }
   });
 
-  return sorted.map((match) => ({
+  return sorted.map(match => ({
     ...match.item,
-    hightlights: match.substringMatches.map((subMatch) => [subMatch.start, subMatch.end]) as [number, number][],
+    hightlights: match.substringMatches.map(subMatch => [
+      subMatch.start,
+      subMatch.end,
+    ]) as [number, number][],
   }));
 }
 
 function match(query: string, item: PlayerSelect.Item): Match | undefined {
   let matchDelta = 0;
-  let substringMatches: SubstringMatch[] = [];
+  const substringMatches: SubstringMatch[] = [];
   let currentMatch = '';
   let currentMatchStart = -1;
   let queryIndex = 0;

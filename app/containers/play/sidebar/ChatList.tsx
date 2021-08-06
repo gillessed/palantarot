@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Player } from '../../../../server/model/Player';
 import { PlayerId } from '../../../../server/play/model/GameState';
 import { ChatText, ServerChatAuthorId } from '../../../../server/play/room/ChatText';
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export class ChatList extends React.PureComponent<Props> {
-  private messageDiv: HTMLDivElement;
+  private messageDiv?: HTMLDivElement;
 
   public componentDidUpdate(prevProps: Props) {
     const currentChat = prevProps.chat;
@@ -59,27 +59,5 @@ export class ChatList extends React.PureComponent<Props> {
         />
       )
     }
-    // switch (event.type) {
-    //   case 'bid':
-    //     const bidEvent = event as BidAction;
-    //     const bidRussian = (bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1) >= 0;
-    //     const bidderName = getPlayerName(players.get(bidEvent.player));
-    //     const bidMessage = bidEvent.bid === BidValue.PASS
-    //       ? `${bidderName} passed`
-    //       : `${bidderName} bid ${bidRussian ? 'russian 20' : bidEvent.bid}`;
-    //     return <GameEventMessage key={index} message={bidMessage} />;
-    //   case 'bidding_completed':
-    //     const biddingCompletedTransition = event as BiddingCompletedTransition;
-    //     const biddingCompletedWinner = biddingCompletedTransition.winning_bid.player;
-    //     const biddingCompletedPlayerName = getPlayerName(players.get(biddingCompletedWinner));
-    //     const biddingCompletedMessage = `${biddingCompletedPlayerName} has won the bid`;
-    //     return <GameEventMessage key={index} message={biddingCompletedMessage} />;
-    //   case 'call_partner':
-    //     const callEvent = event as CallPartnerAction;
-    //     const callPlayerName = getPlayerName(players.get(callEvent.player));
-    //     const callMessage = `${callPlayerName} has called ${getCardText(callEvent.card)}`
-    //     return <GameEventMessage key={index} message={callMessage} />;
-    //   default: return null;
-    // }
   }
 }

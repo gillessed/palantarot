@@ -1,8 +1,8 @@
-import { ClientGame } from "../app/services/room/ClientGame";
-import { Card } from "../server/play/model/Card";
-import { Bid } from "../server/play/model/GameState";
-import { RandomBot, RandomBotType } from "./RandomBot";
-import { SimpleBot, SimpleBotType } from "./SimpleBot";
+import {ClientGame} from '../app/services/room/ClientGame';
+import {Card} from '../server/play/model/Card';
+import {Bid} from '../server/play/model/GameState';
+import {RandomBot, RandomBotType} from './RandomBot';
+import {SimpleBot, SimpleBotType} from './SimpleBot';
 
 export interface TarotBot {
   type: string;
@@ -12,7 +12,7 @@ export interface TarotBot {
   playCard(game: ClientGame): Card;
 }
 
-export type TarotBotRegistry = { [key: string]: () => TarotBot };
+export type TarotBotRegistry = {[key: string]: () => TarotBot};
 export const DefaultTarotBotRegistry: TarotBotRegistry = {
   [RandomBotType]: () => new RandomBot(),
   [SimpleBotType]: () => new SimpleBot(),

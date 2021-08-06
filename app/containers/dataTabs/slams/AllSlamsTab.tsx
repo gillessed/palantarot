@@ -1,5 +1,5 @@
 import { HTMLTable } from '@blueprintjs/core';
-import * as React from 'react';
+import React from 'react';
 import { GameRecord } from '../../../../server/model/GameRecord';
 import { Player } from '../../../../server/model/Player';
 import { Records } from '../../../../server/model/Records';

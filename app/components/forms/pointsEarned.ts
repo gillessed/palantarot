@@ -1,10 +1,10 @@
-import { PlayerRoles } from './PlayerRoles';
+import {PlayerRoles} from './PlayerRoles';
 
 export function getPointsEarned(
   basePoints: number,
   playerRole: string,
   numberOfPlayers: number,
-  bidderCalledSelf: boolean,
+  bidderCalledSelf: boolean
 ) {
   if (playerRole === PlayerRoles.BIDDER) {
     if (numberOfPlayers === 3) {

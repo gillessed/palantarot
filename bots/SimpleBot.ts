@@ -1,13 +1,31 @@
-import { isEqual } from 'lodash';
-import { ClientGame } from '../app/services/room/ClientGame';
-import { Card, RegValue, Suit, The21, TheJoker, TrumpValue } from "../server/play/model/Card";
-import { cardsWithout, getCardValueAsNumber, getLeadCard, getTrumps, RegSuits } from "../server/play/model/CardUtils";
-import { Bid, BidValue, Call } from '../server/play/model/GameState';
-import { dropValueSortComparator, getNonSelfCalls, getTrickCardList, lambdaMin } from "./BotUtils";
-import { CardList } from './CardList';
-import { RandomBot } from './RandomBot';
-import { analyseGameState } from "./StateAnalysis";
-import { TarotBot } from "./TarotBot";
+import {isEqual} from 'lodash';
+import {ClientGame} from '../app/services/room/ClientGame';
+import {
+  Card,
+  RegValue,
+  Suit,
+  The21,
+  TheJoker,
+  TrumpValue,
+} from '../server/play/model/Card';
+import {
+  cardsWithout,
+  getCardValueAsNumber,
+  getLeadCard,
+  getTrumps,
+  RegSuits,
+} from '../server/play/model/CardUtils';
+import {Bid, BidValue, Call} from '../server/play/model/GameState';
+import {
+  dropValueSortComparator,
+  getNonSelfCalls,
+  getTrickCardList,
+  lambdaMin,
+} from './BotUtils';
+import {CardList} from './CardList';
+import {RandomBot} from './RandomBot';
+import {analyseGameState} from './StateAnalysis';
+import {TarotBot} from './TarotBot';
 
 export const SimpleBotType = 'Simple Bot';
 
@@ -34,70 +52,67 @@ export class SimpleBot implements TarotBot {
     if (game.playState.playerOrder.length < 5) {
       return this.randomBot.bid(game);
     }
-    const { playState, playerId } = game;
-    const { hand } = playState;
-    const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
-    const russianOnTable = !![...playState.playerBids.values()].find((bid) => bid.calls.indexOf(Call.RUSSIAN) >= 0);
+    const {playState, playerId} = game;
+    const {hand} = playState;
+    const maxBid = Math.max(
+      ...[...playState.playerBids.values()].map(bid => bid.bid)
+    );
+    const russianOnTable = !![...playState.playerBids.values()].find(
+      bid => bid.calls.indexOf(Call.RUSSIAN) >= 0
+    );
 
-    const hasOne = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue._1]));
-    const hasJoker = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue.Joker]));
-    const hasTwentyOne = hand.find((c) => isEqual(c, [Suit.Trump, TrumpValue._21]));
+    const hasOne = hand.find(c => isEqual(c, [Suit.Trump, TrumpValue._1]));
+    const hasJoker = hand.find(c => isEqual(c, [Suit.Trump, TrumpValue.Joker]));
+    const hasTwentyOne = hand.find(c =>
+      isEqual(c, [Suit.Trump, TrumpValue._21])
+    );
     const kingCount = hand.filter(([_, value]) => value === RegValue.R).length;
-    const boutCount = [hasOne, hasJoker, hasTwentyOne].reduce((acc, b) => b ? acc : acc + 1, 0);
+    const boutCount = [hasOne, hasJoker, hasTwentyOne].reduce(
+      (acc, b) => (b ? acc : acc + 1),
+      0
+    );
     const voidCount = [Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade]
-      .map((voidSuit) => hand.filter(([suit, _]) => suit === voidSuit).length)
-      .reduce((acc, s) => s === 0 ? acc + 1 : acc, 0);
+      .map(voidSuit => hand.filter(([suit, _]) => suit === voidSuit).length)
+      .reduce((acc, s) => (s === 0 ? acc + 1 : acc), 0);
     const trumps = getTrumps(hand);
     const trumpCount = trumps.length;
     const trumpKingCount = kingCount + trumpCount;
     const trumpKingVoidCount = trumpKingCount + voidCount;
-    const countWithVoidSmudge = trumpKingVoidCount - (hasOne && voidCount === 0 ? 1 : 0);
+    const countWithVoidSmudge =
+      trumpKingVoidCount - (hasOne && voidCount === 0 ? 1 : 0);
     const hasRussian = kingCount >= 2 && boutCount >= 1;
     let bidValue: BidValue = BidValue.PASS;
 
-    const bid160 = (
+    const bid160 =
       (boutCount === 3 && countWithVoidSmudge >= 7) ||
       (boutCount === 2 && countWithVoidSmudge >= 8) ||
       (boutCount === 1 && countWithVoidSmudge >= 10) ||
-      (boutCount === 0 && countWithVoidSmudge >= 13)
-    );
-    const bid80 = (
+      (boutCount === 0 && countWithVoidSmudge >= 13);
+    const bid80 =
       (boutCount === 3 && countWithVoidSmudge >= 6) ||
       (boutCount === 2 && countWithVoidSmudge >= 7) ||
       (boutCount === 1 && countWithVoidSmudge >= 9) ||
-      (boutCount === 0 && countWithVoidSmudge >= 12)
-    );
-    const bid40 = (
+      (boutCount === 0 && countWithVoidSmudge >= 12);
+    const bid40 =
       (boutCount === 3 && trumpCount >= 4) ||
       (boutCount === 2 && trumpKingCount >= 6) ||
       (boutCount === 1 && trumpKingCount >= 9) ||
-      (boutCount === 0 && trumpKingCount >= 11)
-    );
+      (boutCount === 0 && trumpKingCount >= 11);
     const bidRussian = hasRussian;
-    const bid20 = (
+    const bid20 =
       (boutCount === 3 && trumpCount >= 3) ||
       (boutCount === 2 && trumpKingCount >= 5) ||
       (boutCount === 1 && trumpKingCount >= 8) ||
-      (boutCount === 0 && trumpKingCount >= 10)
-    );
-    const bid10 = (
+      (boutCount === 0 && trumpKingCount >= 10);
+    const bid10 =
       (boutCount === 1 && trumpCount >= 6) ||
       (boutCount === 1 && trumpCount >= 5 && kingCount >= 1) ||
-      (boutCount === 0 && trumpCount >= 8)
-    );
+      (boutCount === 0 && trumpCount >= 8);
 
-    const bid160r = (
-      (bid160) ||
-      (bid80) ||
-      (bid40 && !hasOne) ||
-      (hasRussian && hasTwentyOne)
-    );
+    const bid160r =
+      bid160 || bid80 || (bid40 && !hasOne) || (hasRussian && hasTwentyOne);
 
-    const bid40r = (
-      (bid40 && hasOne) ||
-      (bid20) ||
-      (bid10 && kingCount >= 1)
-    );
+    const bid40r = (bid40 && hasOne) || bid20 || (bid10 && kingCount >= 1);
 
     if (russianOnTable) {
       if (bid160r) {
@@ -113,7 +128,7 @@ export class SimpleBot implements TarotBot {
       } else if (BidValue.FORTY > maxBid && bid40) {
         bidValue = BidValue.FORTY;
       } else if (BidValue.TWENTY > maxBid && bidRussian) {
-        return { bid: BidValue.TWENTY, player: playerId, calls: [Call.RUSSIAN] };
+        return {bid: BidValue.TWENTY, player: playerId, calls: [Call.RUSSIAN]};
       } else if (BidValue.TWENTY > maxBid) {
         bidValue = BidValue.TWENTY;
       } else if (BidValue.TEN > maxBid && bid10) {
@@ -121,20 +136,23 @@ export class SimpleBot implements TarotBot {
       }
     }
 
-    return { bid: bidValue, player: playerId, calls: [] };
+    return {bid: bidValue, player: playerId, calls: []};
   }
 
   /**
    * Simple bot picks its longest suit as its partner suit. If there is a tie, it is randomly broken. It will never call itself on purpose.
    */
   public pickPartner(game: ClientGame): Card {
-    const { hand } = game.playState;
+    const {hand} = game.playState;
     const bidSet = getNonSelfCalls(game);
     const suitLengths: [number, Suit][] = bidSet.map(([callSuit, _]) => {
       const suitLength = hand.filter(([suit, _]) => suit === callSuit).length;
       return [suitLength, callSuit as Suit];
     });
-    const finalSuit: Suit = suitLengths.reduce(([maxLength, maxSuit], [suitLength, suit]) => suitLength >= maxLength ? [suitLength, suit] : [maxLength, maxSuit])[1];
+    const finalSuit: Suit = suitLengths.reduce(
+      ([maxLength, maxSuit], [suitLength, suit]) =>
+        suitLength >= maxLength ? [suitLength, suit] : [maxLength, maxSuit]
+    )[1];
     const finalCard = bidSet.filter(([suit, _]) => finalSuit === suit)[0];
     return finalCard;
   }
@@ -147,8 +165,8 @@ export class SimpleBot implements TarotBot {
       return this.randomBot.dropDog(game);
     }
 
-    const { playState } = game;
-    const { hand } = playState;
+    const {playState} = game;
+    const {hand} = playState;
     let unDroppedHand = [...hand];
     const dogCards: Card[] = [];
     const partnerCard = game.playState.partnerCard;
@@ -158,12 +176,17 @@ export class SimpleBot implements TarotBot {
     const partnerSuit = partnerCard[0];
 
     const suitCount = [Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade]
-      .map((voidSuit) => [voidSuit, hand.filter(([suit, _]) => suit === voidSuit).length])
+      .map(voidSuit => [
+        voidSuit,
+        hand.filter(([suit, _]) => suit === voidSuit).length,
+      ])
       .filter(([pSuit, _]) => pSuit !== partnerSuit) as [Suit, number][];
     const shortestSuit = lambdaMin(([_, count]) => count, ...suitCount)[0];
 
     if (shortestSuit.length > 0 && shortestSuit.length <= 3) {
-      const cardsOfShortSuit = hand.filter(([suit, _]) => suit === shortestSuit);
+      const cardsOfShortSuit = hand.filter(
+        ([suit, _]) => suit === shortestSuit
+      );
       dogCards.push(...cardsOfShortSuit);
       unDroppedHand = cardsWithout(unDroppedHand, ...cardsOfShortSuit);
     }
@@ -187,7 +210,7 @@ export class SimpleBot implements TarotBot {
    *   - lead king of fullest king suit
    *   - lead lowest trump
    *   - lead random
-   * else 
+   * else
    *   - see if any determination can be made on who can win the trick after you
    *   - if you can win, win
    *   - if your team wins, feed
@@ -197,27 +220,36 @@ export class SimpleBot implements TarotBot {
     if (game.playState.playerOrder.length < 5) {
       return this.randomBot.playCard(game);
     }
-    const { playState } = game;
-    const { hand, trick: currentTrick, completedTricks } = playState;
+    const {playState} = game;
+    const {hand, trick: currentTrick, completedTricks} = playState;
 
     const handList = new CardList(...hand);
 
     const trickCardList = getTrickCardList(currentTrick);
     const leadCard = getLeadCard(trickCardList);
     const stateAnalysis = analyseGameState(game);
-    const hasJoker = !!hand.find(([s, v]) => s === Suit.Trump && v === TrumpValue.Joker);
-    const has1 = !!hand.find(([s, v]) => s === Suit.Trump && v === TrumpValue._1);
-    const has21 = !!hand.find(([s, v]) => s === Suit.Trump && v === TrumpValue._21);
+    const hasJoker = !!hand.find(
+      ([s, v]) => s === Suit.Trump && v === TrumpValue.Joker
+    );
+    const has1 = !!hand.find(
+      ([s, v]) => s === Suit.Trump && v === TrumpValue._1
+    );
+    const has21 = !!hand.find(
+      ([s, v]) => s === Suit.Trump && v === TrumpValue._21
+    );
 
-    const suitRemaining: [Suit, number, boolean][] = RegSuits.map((suit) => {
-      const remaining = stateAnalysis.suits[suit].remainingCards.size() - handList.suitFilter(suit).size();
+    const suitRemaining: [Suit, number, boolean][] = RegSuits.map(suit => {
+      const remaining =
+        stateAnalysis.suits[suit].remainingCards.size() -
+        handList.suitFilter(suit).size();
       const hasKing = handList.has([suit, RegValue.R]);
       return [suit, remaining, hasKing];
     });
-    const nonKingSuitsRemaining = suitRemaining.filter(([_suit, _remaining, hasKing]) => !hasKing).sort(([_s1, r1], [_s2, r2]) => r1 - r2);
-    const emptiestNonKingSuit = nonKingSuitsRemaining.length === 0
-      ? null
-      : nonKingSuitsRemaining[0][0];
+    const nonKingSuitsRemaining = suitRemaining
+      .filter(([_suit, _remaining, hasKing]) => !hasKing)
+      .sort(([_s1, r1], [_s2, r2]) => r1 - r2);
+    const emptiestNonKingSuit =
+      nonKingSuitsRemaining.length === 0 ? null : nonKingSuitsRemaining[0][0];
 
     if (completedTricks.length === 13 && hasJoker) {
       return TheJoker;
@@ -232,7 +264,12 @@ export class SimpleBot implements TarotBot {
 
       // Lead emptiest non-king suit
       if (emptiestNonKingSuit) {
-        return hand.filter(([suit]) => suit === emptiestNonKingSuit).sort(([_s1, v1], [_s2, v2]) => getCardValueAsNumber(v1) - getCardValueAsNumber(v2))[0];
+        return hand
+          .filter(([suit]) => suit === emptiestNonKingSuit)
+          .sort(
+            ([_s1, v1], [_s2, v2]) =>
+              getCardValueAsNumber(v1) - getCardValueAsNumber(v2)
+          )[0];
       }
     }
 

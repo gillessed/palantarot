@@ -1,13 +1,23 @@
-import { Card, TrumpCard } from '../../../server/play/model/Card';
-import { BidAction, CallPartnerAction, EnterGameAction, LeaveGameAction, PlayCardAction, PlayerNotReadyAction, PlayerReadyAction, SetDogAction, ShowTrumpAction } from '../../../server/play/model/GameEvents';
-import { BidValue, Call, PlayerId } from '../../../server/play/model/GameState';
-import { RoomDispatcher } from './RoomDispatcher';
+import {Card, TrumpCard} from '../../../server/play/model/Card';
+import {
+  BidAction,
+  CallPartnerAction,
+  EnterGameAction,
+  LeaveGameAction,
+  PlayCardAction,
+  PlayerNotReadyAction,
+  PlayerReadyAction,
+  SetDogAction,
+  ShowTrumpAction,
+} from '../../../server/play/model/GameEvents';
+import {BidValue, Call, PlayerId} from '../../../server/play/model/GameState';
+import {RoomDispatcher} from './RoomDispatcher';
 
 export class PlayDispatcher {
   constructor(
     private readonly roomDispatcher: RoomDispatcher,
-    private readonly player: PlayerId,
-  ) { }
+    private readonly player: PlayerId
+  ) {}
 
   public enterGame(time?: number) {
     const action: EnterGameAction = {
@@ -66,7 +76,7 @@ export class PlayDispatcher {
       card,
       player: this.player,
       time: time ?? Date.now(),
-    }
+    };
     this.roomDispatcher.gameAction(action);
   }
 
@@ -77,7 +87,7 @@ export class PlayDispatcher {
       player: this.player,
       privateTo: this.player,
       time: time ?? Date.now(),
-    }
+    };
     this.roomDispatcher.gameAction(action);
   }
 
@@ -87,7 +97,7 @@ export class PlayDispatcher {
       card,
       player: this.player,
       time: time ?? Date.now(),
-    }
+    };
     this.roomDispatcher.gameAction(action);
   }
 
@@ -96,8 +106,8 @@ export class PlayDispatcher {
       type: 'show_trump',
       cards,
       player: this.player,
-      time: time?? Date.now(),
-    }
+      time: time ?? Date.now(),
+    };
     this.roomDispatcher.gameAction(action);
   }
 }

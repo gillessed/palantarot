@@ -1,5 +1,5 @@
-import { IconName } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
+import {IconName} from '@blueprintjs/core';
+import {IconNames} from '@blueprintjs/icons';
 
 export interface SpectatorMode {
   type: string;
@@ -25,11 +25,13 @@ export function isSpectatorModeObserver(mode: SpectatorMode) {
   return mode.type === SpectatorModeObserverType;
 }
 
-export function isSpectatorModePlayer(mode: SpectatorMode): mode is SpectatorModePlayer {
+export function isSpectatorModePlayer(
+  mode: SpectatorMode
+): mode is SpectatorModePlayer {
   return mode.type === SpectatorModePlayerType;
 }
 
-export const SpectatorModeNone: SpectatorMode ={
+export const SpectatorModeNone: SpectatorMode = {
   type: SpectatorModeNoneType,
   menuItem: 'Normal View',
   icon: IconNames.GRID_VIEW,
@@ -41,7 +43,10 @@ export const SpectatorModeObserver: SpectatorMode = {
   icon: IconNames.LIST,
 };
 
-export function createSpectatorModePlayer(playerId: string, playerName: string) {
+export function createSpectatorModePlayer(
+  playerId: string,
+  playerName: string
+) {
   return {
     type: SpectatorModePlayerType,
     menuItem: `Follow ${playerName}`,

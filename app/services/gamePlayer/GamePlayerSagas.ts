@@ -1,9 +1,9 @@
-import { TypedAction } from 'redoodle';
-import { put, takeEvery } from 'redux-saga/effects';
-import { GamePlayerActions } from './GamePlayerActions';
-import { GamePlayer } from './GamePlayerTypes';
+import {TypedAction} from 'redoodle';
+import {put, takeEvery} from 'redux-saga/effects';
+import {GamePlayerActions} from './GamePlayerActions';
+import {GamePlayer} from './GamePlayerTypes';
 
-const GamePlayerCookie = 'palantarot-game-player'
+const GamePlayerCookie = 'palantarot-game-player';
 
 function parseCookies() {
   const cookieArrays = document.cookie.split(';');
@@ -16,10 +16,10 @@ function parseCookies() {
 }
 
 function setCookie(key: string, value: string, exdays: number) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  var expires = "expires=" + d.toUTCString();
-  document.cookie = key + "=" + value + ";" + expires + ";path=/";
+  const d = new Date();
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+  const expires = 'expires=' + d.toUTCString();
+  document.cookie = key + '=' + value + ';' + expires + ';path=/';
 }
 
 function deleteCookie(key: string) {
@@ -35,7 +35,10 @@ function* setGamePlayerSaga(action: TypedAction<GamePlayer | null>) {
       const serialized = btoa(JSON.stringify(gamePlayer));
       setCookie(GamePlayerCookie, serialized, 30);
     } catch (error) {
-      console.warn('There was an error saving the game player cookie', gamePlayer);
+      console.warn(
+        'There was an error saving the game player cookie',
+        gamePlayer
+      );
     }
   }
 }
@@ -44,11 +47,16 @@ export function* gamePlayerSaga() {
   const cookies = parseCookies();
   if (cookies.has(GamePlayerCookie)) {
     try {
-      const gamePlayer = JSON.parse(atob(cookies.get(GamePlayerCookie) ?? '')) as GamePlayer;
+      const gamePlayer = JSON.parse(
+        atob(cookies.get(GamePlayerCookie) ?? '')
+      ) as GamePlayer;
       setCookie(GamePlayerCookie, cookies.get(GamePlayerCookie) ?? '', 30);
       yield put(GamePlayerActions.set(gamePlayer));
     } catch (error) {
-      console.warn('There was an error trying to parse the save player data', cookies.get(GamePlayerCookie));
+      console.warn(
+        'There was an error trying to parse the save player data',
+        cookies.get(GamePlayerCookie)
+      );
     }
   }
 

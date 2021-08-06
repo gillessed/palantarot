@@ -1,9 +1,12 @@
-import { TypedAction } from 'redoodle';
-import { END, EventChannel, eventChannel } from 'redux-saga';
-import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
-import { generateId } from '../../../server/utils/randomString';
-import { socketConnectionMessage, SocketMessage } from '../../../server/websocket/SocketMessage';
-import { actionName } from '../redux/actionName';
+import {TypedAction} from 'redoodle';
+import {END, EventChannel, eventChannel} from 'redux-saga';
+import {cancelled, put, take, takeEvery} from 'redux-saga/effects';
+import {generateId} from '../../../server/utils/randomString';
+import {
+  socketConnectionMessage,
+  SocketMessage,
+} from '../../../server/websocket/SocketMessage';
+import {actionName} from '../redux/actionName';
 
 export interface SocketConnectPayload {
   id: string;
@@ -18,7 +21,7 @@ export const SocketActions = {
   send: TypedAction.define(name('send'))<SocketMessage<any>>(),
   error: TypedAction.define(name('error'))<Error>(),
   close: TypedAction.define(name('close'))<void>(),
-}
+};
 
 export function* socketSaga() {
   yield takeEvery(SocketActions.connect.TYPE, connectSaga);
@@ -58,7 +61,10 @@ function* connectSaga(action: TypedAction<SocketConnectPayload>) {
   }
 }
 
-function* sendSaga(websocket: WebSocket, action: TypedAction<SocketMessage<any>>) {
+function* sendSaga(
+  websocket: WebSocket,
+  action: TypedAction<SocketMessage<any>>
+) {
   if (websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify(action.payload));
   } else if (websocket.readyState === WebSocket.CONNECTING) {
@@ -71,8 +77,8 @@ function* closeSaga(channel: EventChannel<SocketMessage<any>>) {
 }
 
 function listen(socket: WebSocket): EventChannel<SocketMessage<any>> {
-  return eventChannel((emitter) => {
-    socket.onmessage = (event) => {
+  return eventChannel(emitter => {
+    socket.onmessage = event => {
       try {
         const data: SocketMessage<any> = JSON.parse(event.data);
         emitter(data);
@@ -84,7 +90,7 @@ function listen(socket: WebSocket): EventChannel<SocketMessage<any>> {
     socket.onclose = () => emitter(END);
     return () => {
       socket.close();
-    }
+    };
   });
 }
 

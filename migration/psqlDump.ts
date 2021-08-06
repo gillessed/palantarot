@@ -4,8 +4,7 @@ import {Player} from '../server/model/Player';
 import {SqlConfig, Hand, PlayerHand} from './dump';
 
 if (process.argv.length !== 4) {
-  console.log('Usage: node psqlDump.js CONFIG_FILE DUMP_FILE');
-  process.exit(1);
+  throw Error('Usage: node psqlDump.js CONFIG_FILE DUMP_FILE');
 }
 const config: SqlConfig = JSON.parse(
   fs.readFileSync(process.argv[2], {encoding: 'utf8'})

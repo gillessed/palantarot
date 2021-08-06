@@ -1,8 +1,10 @@
-import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
-import { BottomLeftStatusLayout } from './BottomLeftStatus';
-import { PlayerTitleSvg } from './PlayerTitleSvg';
+import {isSpectatorModeObserver, SpectatorMode} from '../SpectatorMode';
+import {BottomLeftStatusLayout} from './BottomLeftStatus';
+import {PlayerTitleSvg} from './PlayerTitleSvg';
 
-export type TitleArrangementSpec = Array<(svgWidth: number, svgHeight: number) => PlayerTitleSvg.ArrangementProps>;
+export type TitleArrangementSpec = Array<
+  (svgWidth: number, svgHeight: number) => PlayerTitleSvg.ArrangementProps
+>;
 export const TitleArrangementSpecs = {
   threePlayers: [
     (svgWidth: number, svgHeight: number) => {
@@ -20,7 +22,7 @@ export const TitleArrangementSpecs = {
         svgWidth,
         svgHeight,
         side: 'top',
-        position: Math.min(svgWidth - 400, 2 * svgWidth / 3),
+        position: Math.min(svgWidth - 400, (2 * svgWidth) / 3),
         text: 'after',
       };
       return props;
@@ -104,7 +106,7 @@ export const TitleArrangementSpecs = {
         svgWidth,
         svgHeight,
         side: 'top',
-        position: Math.min(svgWidth - 400, 2 * svgWidth / 3),
+        position: Math.min(svgWidth - 400, (2 * svgWidth) / 3),
         text: 'after',
       };
       return props;
@@ -158,7 +160,10 @@ export const ObserverModeArrangementSpecs = {
   fivePlayers: generateRightAlignedSpec(5),
 };
 
-export function getTitleArrangementSpec(count: number, spectatorMode: SpectatorMode): TitleArrangementSpec {
+export function getTitleArrangementSpec(
+  count: number,
+  spectatorMode: SpectatorMode
+): TitleArrangementSpec {
   if (!isSpectatorModeObserver(spectatorMode)) {
     if (count <= 3) {
       return TitleArrangementSpecs.threePlayers;

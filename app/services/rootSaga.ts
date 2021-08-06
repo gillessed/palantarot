@@ -1,32 +1,30 @@
-import { all, fork } from 'redux-saga/effects';
-import { ServerApi } from './../api/serverApi';
-import { addNewPlayerSaga } from './addPlayer';
-import { addTarothonSaga } from './addTarothon/index';
-import { authSaga } from './auth/index';
-import { bidsSaga } from './bids/index';
-import { deleteGameSaga } from './deleteGame/index';
-import { deleteTarothonSaga } from './deleteTarothon/index';
-import { deltasSaga } from './deltas/index';
-import { gameSaga } from './game';
-import { gamePlayerSaga } from './gamePlayer/GamePlayerSagas';
-import { lobbySaga } from './lobby/LobbySaga';
-import { monthGamesSaga } from './monthGames/index';
-import { playersSaga } from './players';
-import { recentGamesSaga } from './recentGames';
-import { recordsSaga } from './records/index';
-import { refreshSaga } from './refresh/RefreshSaga';
-import { resultsSaga } from './results/index';
-import { roomSaga } from './room/RoomSagas';
-import { listenerLoop, SagaListener } from './sagaListener';
-import { saveGameSaga } from './saveGame/index';
-import { searchSaga } from './search/index';
-import { socketSaga } from './socket/socketService';
-import { statsSaga } from './stats/index';
-import { streaksSaga } from './streaks/index';
-import { tarothonDataSaga } from './tarothonData';
-import { tarothonsSaga } from './tarothons/index';
-
-
+import {all, fork} from 'redux-saga/effects';
+import {ServerApi} from './../api/serverApi';
+import {addNewPlayerSaga} from './addPlayer';
+import {addTarothonSaga} from './addTarothon/index';
+import {authSaga} from './auth/index';
+import {bidsSaga} from './bids/index';
+import {deleteGameSaga} from './deleteGame/index';
+import {deleteTarothonSaga} from './deleteTarothon/index';
+import {deltasSaga} from './deltas/index';
+import {gameSaga} from './game';
+import {gamePlayerSaga} from './gamePlayer/GamePlayerSagas';
+import {lobbySaga} from './lobby/LobbySaga';
+import {monthGamesSaga} from './monthGames/index';
+import {playersSaga} from './players';
+import {recentGamesSaga} from './recentGames';
+import {recordsSaga} from './records/index';
+import {refreshSaga} from './refresh/RefreshSaga';
+import {resultsSaga} from './results/index';
+import {roomSaga} from './room/RoomSagas';
+import {listenerLoop, SagaListener} from './sagaListener';
+import {saveGameSaga} from './saveGame/index';
+import {searchSaga} from './search/index';
+import {socketSaga} from './socket/socketService';
+import {statsSaga} from './stats/index';
+import {streaksSaga} from './streaks/index';
+import {tarothonDataSaga} from './tarothonData';
+import {tarothonsSaga} from './tarothons/index';
 
 export function* rootSaga(api: ServerApi, listeners: Set<SagaListener<any>>) {
   yield all([

@@ -1,23 +1,44 @@
-import { ClientGame } from "../app/services/room/ClientGame";
-import { TrickCards } from "../app/services/room/ClientGameEventHandler";
-import { AllCs, AllDs, AllRs, AllVs, Card, RegValue, Suit } from "../server/play/model/Card";
-import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../server/play/model/CardUtils";
+import {ClientGame} from '../app/services/room/ClientGame';
+import {TrickCards} from '../app/services/room/ClientGameEventHandler';
+import {
+  AllCs,
+  AllDs,
+  AllRs,
+  AllVs,
+  Card,
+  RegValue,
+  Suit,
+} from '../server/play/model/Card';
+import {
+  cardsWithout,
+  getCardSuitAsNumber,
+  getCardValueAsNumber,
+  isBout,
+} from '../server/play/model/CardUtils';
 
 const NonPassBids = [10, 20, 40, 80, 160];
 // const NonPassBids = [10, 20, 40];
 
 export function getPossibleBidValues(clientGame: ClientGame): number[] {
-  const { playState, playerId } = clientGame;
-  const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
-  const availableBidValue: number[] = [0, ...NonPassBids.filter((value) => value > maxBid)];
+  const {playState} = clientGame;
+  const maxBid = Math.max(
+    ...[...playState.playerBids.values()].map(bid => bid.bid)
+  );
+  const availableBidValue: number[] = [
+    0,
+    ...NonPassBids.filter(value => value > maxBid),
+  ];
   return availableBidValue;
 }
 
 export function getNonSelfCalls(clientGame: ClientGame): Card[] {
   const hand = clientGame.playState.hand;
-  const hasAllRs = hand.filter(([_, value]) => value === RegValue.R).length === 4;
-  const hasAllDs = hand.filter(([_, value]) => value === RegValue.D).length === 4;
-  const hasAllCs = hand.filter(([_, value]) => value === RegValue.C).length === 4;
+  const hasAllRs =
+    hand.filter(([_, value]) => value === RegValue.R).length === 4;
+  const hasAllDs =
+    hand.filter(([_, value]) => value === RegValue.D).length === 4;
+  const hasAllCs =
+    hand.filter(([_, value]) => value === RegValue.C).length === 4;
   let bidSet: Card[] = [];
   if (!hasAllRs) {
     bidSet = AllRs;
@@ -47,7 +68,6 @@ export function lambdaMax<T>(l: (t: T) => number, ...list: T[]): T {
   }
   return maxT;
 }
-
 
 export function lambdaMin<T>(l: (t: T) => number, ...list: T[]): T {
   if (list.length === 0) {
@@ -95,5 +115,7 @@ export function dropValueSortComparator(c1: Card, c2: Card) {
 }
 
 export function getTrickCardList(trick: TrickCards) {
-  return trick.order.map((playerId) => trick.cards.get(playerId)).filter((c) => c) as Card[];
+  return trick.order
+    .map(playerId => trick.cards.get(playerId))
+    .filter(c => c) as Card[];
 }

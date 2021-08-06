@@ -83,7 +83,7 @@ const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
 export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, PlayerTitleSvg.State> {
-  private textElement: SVGTextElement;
+  private textElement?: SVGTextElement;
   public state: PlayerTitleSvg.State = {};
 
   public componentWillReceiveProps(nextProps: PlayerTitleSvg.Props) {
@@ -110,7 +110,6 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
         'plain': !highlight,
       },
     );
-    const handLeft = L.bidx + 20;
     return (
       <g>
         {!hand && <CardSvg

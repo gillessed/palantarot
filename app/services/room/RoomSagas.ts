@@ -1,18 +1,26 @@
-import { Intent } from '@blueprintjs/core';
-import { TypedAction } from 'redoodle';
-import { all, call, delay, put, select, takeEvery } from 'redux-saga/effects';
-import { BidAction, ErrorCode } from '../../../server/play/model/GameEvents';
-import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
-import { EnterRoomMessagePayload, GameUpdatesMessagePayload, NewGameMessagePayload, PlayerStatusUpdatedMessagePayload, RoomChatMessagePayload, RoomErrorMessagePayload, RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
-import { SocketMessage } from '../../../server/websocket/SocketMessage';
-import { Palantoaster } from '../../components/toaster/Toaster';
+import {Intent} from '@blueprintjs/core';
+import {TypedAction} from 'redoodle';
+import {all, call, delay, put, select, takeEvery} from 'redux-saga/effects';
+import {BidAction, ErrorCode} from '../../../server/play/model/GameEvents';
+import {PlayerStatus} from '../../../server/play/room/PlayerStatus';
+import {
+  EnterRoomMessagePayload,
+  GameUpdatesMessagePayload,
+  NewGameMessagePayload,
+  PlayerStatusUpdatedMessagePayload,
+  RoomChatMessagePayload,
+  RoomErrorMessagePayload,
+  RoomSocketMessages,
+} from '../../../server/play/room/RoomSocketMessages';
+import {SocketMessage} from '../../../server/websocket/SocketMessage';
+import {Palantoaster} from '../../components/toaster/Toaster';
 import history from '../../history';
-import { StaticRoutes } from '../../routes';
-import { getGamePlayer } from '../gamePlayer/GamePlayerSelectors';
-import { SocketActions } from '../socket/socketService';
-import { RoomActions } from './RoomActions';
-import { RoomSelectors } from './RoomSelectors';
-import { RoomStatusPayload } from './RoomTypes';
+import {StaticRoutes} from '../../routes';
+import {getGamePlayer} from '../gamePlayer/GamePlayerSelectors';
+import {SocketActions} from '../socket/socketService';
+import {RoomActions} from './RoomActions';
+import {RoomSelectors} from './RoomSelectors';
+import {RoomStatusPayload} from './RoomTypes';
 
 function* handleMessage(action: TypedAction<SocketMessage>) {
   const message = action.payload;
@@ -42,20 +50,36 @@ function* handleMessage(action: TypedAction<SocketMessage>) {
 }
 
 export function* handleEnterRoomMessage(payload: EnterRoomMessagePayload) {
-  yield put(RoomActions.setPlayerStatus({ playerId: payload.playerId, playerStatus: PlayerStatus.Online }));
+  yield put(
+    RoomActions.setPlayerStatus({
+      playerId: payload.playerId,
+      playerStatus: PlayerStatus.Online,
+    })
+  );
 }
 
-export function* handlePlayerStatusUpdated(payload: PlayerStatusUpdatedMessagePayload) {
-  yield put(RoomActions.setPlayerStatus({ playerId: payload.playerId, playerStatus: payload.playerStatus }));
+export function* handlePlayerStatusUpdated(
+  payload: PlayerStatusUpdatedMessagePayload
+) {
+  yield put(
+    RoomActions.setPlayerStatus({
+      playerId: payload.playerId,
+      playerStatus: payload.playerStatus,
+    })
+  );
 }
 
 export function* handleRoomStatusMessage(payload: RoomStatusPayload) {
-  const gamePlayer: ReturnType<typeof getGamePlayer> = yield select(getGamePlayer);
+  const gamePlayer: ReturnType<typeof getGamePlayer> = yield select(
+    getGamePlayer
+  );
   if (gamePlayer != null) {
-    yield put(RoomActions.roomStatus({
-      playerId: gamePlayer.playerId,
-      room: payload.room,
-    }));
+    yield put(
+      RoomActions.roomStatus({
+        playerId: gamePlayer.playerId,
+        room: payload.room,
+      })
+    );
   }
 }
 
@@ -64,15 +88,19 @@ export function* handleRoomChatMessage(payload: RoomChatMessagePayload) {
 }
 
 export function* handleGameUpdatesMessage(payload: GameUpdatesMessagePayload) {
-  yield put(RoomActions.gameUpdate({ gameId: payload.gameId, events: payload.events }));
+  yield put(
+    RoomActions.gameUpdate({gameId: payload.gameId, events: payload.events})
+  );
   yield call(autoSaga);
 }
 
 export function* handleNewGameMessage(payload: NewGameMessagePayload) {
-  yield put(RoomActions.newGameCreated({
-    gameSettings: payload.settings,
-    gameId: payload.gameId,
-  }));
+  yield put(
+    RoomActions.newGameCreated({
+      gameSettings: payload.settings,
+      gameId: payload.gameId,
+    })
+  );
 }
 
 export function* handleRoomErrorMessage(payload: RoomErrorMessagePayload) {
@@ -95,24 +123,43 @@ export function* roomSaga() {
   ]);
 }
 
-
 function* autoSaga() {
-  const room: ReturnType<typeof RoomSelectors.getRoom> = yield select(RoomSelectors.getRoom);
+  const room: ReturnType<typeof RoomSelectors.getRoom> = yield select(
+    RoomSelectors.getRoom
+  );
   const roomId = room?.id;
   const game = room?.game;
   const gamePlayer = room?.playerId;
   const playState = game?.playState;
   const nextPlayerToPlay = game?.playState.toPlay;
 
-  const autoplay: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutoplay);
-  if (roomId && game && gamePlayer === nextPlayerToPlay && gamePlayer != null && autoplay) {
+  const autoplay: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(
+    RoomSelectors.getAutoplay
+  );
+  if (
+    roomId &&
+    game &&
+    gamePlayer === nextPlayerToPlay &&
+    gamePlayer != null &&
+    autoplay
+  ) {
     yield delay(1000);
-    yield put(SocketActions.send(RoomSocketMessages.autoplay({ roomId })));
+    yield put(SocketActions.send(RoomSocketMessages.autoplay({roomId})));
   }
 
-  const nextPlayerToBid = playState?.toBid ? playState.playerOrder[playState?.toBid] : undefined;
-  const autopass: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(RoomSelectors.getAutopass);
-  if (roomId && game && gamePlayer === nextPlayerToBid && gamePlayer != null && autopass) {
+  const nextPlayerToBid = playState?.toBid
+    ? playState.playerOrder[playState?.toBid]
+    : undefined;
+  const autopass: ReturnType<typeof RoomSelectors.getAutoplay> = yield select(
+    RoomSelectors.getAutopass
+  );
+  if (
+    roomId &&
+    game &&
+    gamePlayer === nextPlayerToBid &&
+    gamePlayer != null &&
+    autopass
+  ) {
     yield delay(1000);
     const action: BidAction = {
       type: 'bid',
@@ -120,6 +167,10 @@ function* autoSaga() {
       player: gamePlayer,
       time: Date.now(),
     };
-    yield put(SocketActions.send(RoomSocketMessages.gameAction({ roomId, playerId: gamePlayer, action, })));
+    yield put(
+      SocketActions.send(
+        RoomSocketMessages.gameAction({roomId, playerId: gamePlayer, action})
+      )
+    );
   }
 }

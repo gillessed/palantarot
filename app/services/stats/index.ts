@@ -1,26 +1,28 @@
-import { IMonth } from '../../../server/model/Month';
+import {IMonth} from '../../../server/model/Month';
 import {
-  AggregatedStat, AggregatedStats,
-
-  RoleStats, Stats
+  AggregatedStat,
+  AggregatedStats,
+  RoleStats,
+  Stats,
 } from '../../../server/model/Stats';
-import { Dispatchers } from '../dispatchers';
-import { Loader } from '../loader';
-import { PropertyDispatcher } from '../redux/serviceDispatcher';
-import { generatePropertyService } from '../redux/serviceGenerator';
-import { ReduxState } from '../rootReducer';
-import { ServerApi } from './../../api/serverApi';
-import { Loadable } from './../redux/loadable';
+import {Dispatchers} from '../dispatchers';
+import {Loader} from '../loader';
+import {PropertyDispatcher} from '../redux/serviceDispatcher';
+import {generatePropertyService} from '../redux/serviceGenerator';
+import {ReduxState} from '../rootReducer';
+import {ServerApi} from './../../api/serverApi';
+import {Loadable} from './../redux/loadable';
 
 export type StatsService = Loadable<void, AggregatedStats>;
 
-const statsService = generatePropertyService<void, AggregatedStats>('stats',
+const statsService = generatePropertyService<void, AggregatedStats>(
+  'stats',
   (api: ServerApi) => {
     return () => {
       return api.getStats().then((stats: Stats) => {
         return aggregateStats(stats);
       });
-    }
+    };
   }
 );
 
@@ -31,7 +33,8 @@ export const statsReducer = statsService.reducer.build();
 export const statsSaga = statsService.saga;
 export const statsLoader: Loader<ReduxState, void, AggregatedStats> = {
   get: (state: ReduxState, _: undefined) => state.stats,
-  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) => dispatchers.stats.request(undefined, force),
+  load: (dispatchers: Dispatchers, _: undefined, force?: boolean) =>
+    dispatchers.stats.request(undefined, force),
 };
 
 const aggregateStats = (stats: Stats): AggregatedStats => {
@@ -42,7 +45,7 @@ const aggregateStats = (stats: Stats): AggregatedStats => {
     if (!value) {
       value = {
         playerId: stat.playerId,
-        month: IMonth.get({ month: stat.month, year: stat.year }),
+        month: IMonth.get({month: stat.month, year: stat.year}),
       };
     }
     const roleStats: RoleStats = {
@@ -70,37 +73,61 @@ const aggregateStats = (stats: Stats): AggregatedStats => {
     aggregates.set(key, value);
   }
 
-  const completedAggregates = Array.from(aggregates.values()).map((partial: Partial<AggregatedStat>) => {
-    if (!partial.bidderStats) {
-      partial = {
-        ...partial,
-        bidderStats: { totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0 },
+  const completedAggregates = Array.from(aggregates.values()).map(
+    (partial: Partial<AggregatedStat>) => {
+      if (!partial.bidderStats) {
+        partial = {
+          ...partial,
+          bidderStats: {totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0},
+        };
+      }
+      if (!partial.partnerStats) {
+        partial = {
+          ...partial,
+          partnerStats: {
+            totalGames: 0,
+            totalScore: 0,
+            wonGames: 0,
+            wonScore: 0,
+          },
+        };
+      }
+      if (!partial.oppositionStats) {
+        partial = {
+          ...partial,
+          oppositionStats: {
+            totalGames: 0,
+            totalScore: 0,
+            wonGames: 0,
+            wonScore: 0,
+          },
+        };
+      }
+      const allStats = {
+        totalGames:
+          partial.bidderStats!.totalGames +
+          partial.partnerStats!.totalGames +
+          partial.oppositionStats!.totalGames,
+        totalScore:
+          partial.bidderStats!.totalScore +
+          partial.partnerStats!.totalScore +
+          partial.oppositionStats!.totalScore,
+        wonGames:
+          partial.bidderStats!.wonGames +
+          partial.partnerStats!.wonGames +
+          partial.oppositionStats!.wonGames,
+        wonScore:
+          partial.bidderStats!.wonScore +
+          partial.partnerStats!.wonScore +
+          partial.oppositionStats!.wonScore,
       };
-    }
-    if (!partial.partnerStats) {
-      partial = {
-        ...partial,
-        partnerStats: { totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0 },
-      };
-    }
-    if (!partial.oppositionStats) {
-      partial = {
-        ...partial,
-        oppositionStats: { totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0 },
-      };
-    }
-    const allStats = {
-      totalGames: partial.bidderStats!.totalGames + partial.partnerStats!.totalGames + partial.oppositionStats!.totalGames,
-      totalScore: partial.bidderStats!.totalScore + partial.partnerStats!.totalScore + partial.oppositionStats!.totalScore,
-      wonGames: partial.bidderStats!.wonGames + partial.partnerStats!.wonGames + partial.oppositionStats!.wonGames,
-      wonScore: partial.bidderStats!.wonScore + partial.partnerStats!.wonScore + partial.oppositionStats!.wonScore,
-    };
 
-    return {
-      ...partial,
-      allStats,
-    } as AggregatedStat;
-  });
+      return {
+        ...partial,
+        allStats,
+      } as AggregatedStat;
+    }
+  );
 
   return completedAggregates;
-}
+};

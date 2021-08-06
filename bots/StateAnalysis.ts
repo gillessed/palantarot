@@ -1,14 +1,18 @@
-import { isEqual } from "lodash";
-import { ClientGame } from "../app/services/room/ClientGame";
-import { Suit, TrumpValue } from "../server/play/model/Card";
-import { AllSuits, createCardsOfSuit, getLeadCard } from "../server/play/model/CardUtils";
-import { getTrickCardList } from "./BotUtils";
-import { CardList } from "./CardList";
+import {isEqual} from 'lodash';
+import {ClientGame} from '../app/services/room/ClientGame';
+import {Suit, TrumpValue} from '../server/play/model/Card';
+import {
+  AllSuits,
+  createCardsOfSuit,
+  getLeadCard,
+} from '../server/play/model/CardUtils';
+import {getTrickCardList} from './BotUtils';
+import {CardList} from './CardList';
 
 export interface StateAnalysis {
   onePlayed: boolean;
-  hands: { [key: string]: HandAnalysis};
-  suits: { [key: string]: SuitAnalysis};
+  hands: {[key: string]: HandAnalysis};
+  suits: {[key: string]: SuitAnalysis};
 }
 
 export interface HandAnalysis {
@@ -22,12 +26,16 @@ export interface SuitAnalysis {
 }
 
 export function analyseGameState(clientGame: ClientGame): StateAnalysis {
-  const { trick: currentTrick, completedTricks, playerOrder } = clientGame.playState;
+  const {
+    trick: currentTrick,
+    completedTricks,
+    playerOrder,
+  } = clientGame.playState;
   const stateAnalysis: StateAnalysis = {
     onePlayed: false,
     hands: {},
     suits: {},
-  }
+  };
   for (const player of playerOrder) {
     if (player !== clientGame.playerId) {
       stateAnalysis.hands[player] = {
@@ -67,7 +75,12 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
             stateAnalysis.hands[playerList[i]].knownVoids.add(Suit.Trump);
           }
         }
-        if (card[0] === Suit.Trump && !isJoker && highestTrump !== null && (+card[1]) < highestTrump) {
+        if (
+          card[0] === Suit.Trump &&
+          !isJoker &&
+          highestTrump !== null &&
+          +card[1] < highestTrump
+        ) {
           stateAnalysis.hands[playerList[i]].highestTrump = highestTrump;
         }
       }

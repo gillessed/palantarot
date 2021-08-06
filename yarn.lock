@@ -365,6 +365,14 @@
     react-day-picker "^7.3.0"
     tslib "^1.9.0"
 
+"@blueprintjs/icons@3.27.0":
+  version "3.27.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.27.0.tgz#f4c03e8bc2f9310f7eaefaab26dd91f65935da43"
+  integrity sha512-ItRioyrr2s70chclj5q38HS9omKOa15b3JZXv9JcMIFz+6w6rAcoAH7DA+5xIs27bFjax/SdAZp/eYXSw0+QpA==
+  dependencies:
+    classnames "^2.2"
+    tslib "~1.13.0"
+
 "@blueprintjs/icons@^3.6.0", "@blueprintjs/icons@^3.8.0":
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.9.1.tgz#064d43314313f0feb4b1dd7e0904ddc17c8652d1"
@@ -10562,6 +10570,11 @@ tslib@^2.0.3:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
   integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+
+tslib@~1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.13.0.tgz#c881e13cc7015894ed914862d276436fa9a47043"
+  integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
 
 tsutils@^3.21.0:
   version "3.21.0"

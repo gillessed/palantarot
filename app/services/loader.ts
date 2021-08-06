@@ -1,5 +1,5 @@
-import { Loadable } from './redux/loadable';
-import { Dispatchers } from './dispatchers';
+import {Loadable} from './redux/loadable';
+import {Dispatchers} from './dispatchers';
 
 export interface Loaders<STATE> {
   [key: string]: Loader<STATE, any, any>;

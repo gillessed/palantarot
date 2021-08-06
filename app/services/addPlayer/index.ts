@@ -1,16 +1,16 @@
-import { TypedAction, TypedReducer } from 'redoodle';
-import { Store } from 'redux';
-import { all, put, takeLatest } from 'redux-saga/effects';
-import { actionName } from '../redux/actionName';
-import { ReduxState } from '../rootReducer';
-import { NewPlayer, Player } from './../../../server/model/Player';
-import { curry } from './../../../server/utils';
-import { ServerApi } from './../../api/serverApi';
+import {TypedAction, TypedReducer} from 'redoodle';
+import {Store} from 'redux';
+import {all, put, takeLatest} from 'redux-saga/effects';
+import {actionName} from '../redux/actionName';
+import {ReduxState} from '../rootReducer';
+import {NewPlayer, Player} from './../../../server/model/Player';
+import {curry} from './../../../server/utils';
+import {ServerApi} from './../../api/serverApi';
 
 export interface AddNewPlayerPayload {
-  newPlayer: NewPlayer,
-  redirect?: string,
-  source?: any,
+  newPlayer: NewPlayer;
+  redirect?: string;
+  source?: any;
 }
 
 const name = actionName('addPlayer');
@@ -42,11 +42,11 @@ export function* addNewPlayerSaga(api: ServerApi) {
 }
 
 function* addPlayer(api: ServerApi, action: TypedAction<AddNewPlayerPayload>) {
-  try { 
+  try {
     yield put(addNewPlayerActions.loading(undefined));
     const player: Player = yield api.addPlayer(action.payload.newPlayer);
     yield put(addNewPlayerActions.success(player));
-  } catch(e) {
+  } catch (e) {
     yield put(addNewPlayerActions.error(e));
   }
 }
@@ -64,13 +64,16 @@ const INITIAL_STATE = {
 };
 
 export const addPlayerReducer = TypedReducer.builder<AddPlayerService>()
-  .withHandler(addNewPlayerActions.request.TYPE, (state: AddPlayerService, payload: AddNewPlayerPayload) => {
-    return {
-      ...state,
-      redirect: payload.redirect,
-      source: payload.source,
-    };
-  })
+  .withHandler(
+    addNewPlayerActions.request.TYPE,
+    (state: AddPlayerService, payload: AddNewPlayerPayload) => {
+      return {
+        ...state,
+        redirect: payload.redirect,
+        source: payload.source,
+      };
+    }
+  )
   .withHandler(addNewPlayerActions.loading.TYPE, (state: AddPlayerService) => {
     return {
       ...state,
@@ -79,22 +82,28 @@ export const addPlayerReducer = TypedReducer.builder<AddPlayerService>()
       loading: true,
     };
   })
-  .withHandler(addNewPlayerActions.success.TYPE, (state: AddPlayerService, payload: Player) => {
-    return {
-      ...state,
-      newPlayer: payload,
-      error: undefined,
-      loading: false,
-    };
-  })
-  .withHandler(addNewPlayerActions.error.TYPE, (state: AddPlayerService, payload: Error) => {
-    return {
-      ...state,
-      newPlayer: undefined,
-      error: payload, 
-      loading: false,
-    };
-  })
+  .withHandler(
+    addNewPlayerActions.success.TYPE,
+    (state: AddPlayerService, payload: Player) => {
+      return {
+        ...state,
+        newPlayer: payload,
+        error: undefined,
+        loading: false,
+      };
+    }
+  )
+  .withHandler(
+    addNewPlayerActions.error.TYPE,
+    (state: AddPlayerService, payload: Error) => {
+      return {
+        ...state,
+        newPlayer: undefined,
+        error: payload,
+        loading: false,
+      };
+    }
+  )
   .withHandler(addNewPlayerActions.clear.TYPE, () => INITIAL_STATE)
   .withDefaultHandler((state = INITIAL_STATE) => state)
   .build();

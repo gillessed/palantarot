@@ -1,7 +1,7 @@
-import { RoomDescription } from '../../../server/play/room/RoomDescription';
-import { LobbyActions } from './LobbyActions';
-import { lobbyService } from './LobbyService';
-import { LobbyService } from './LobbyTypes';
+import {RoomDescription} from '../../../server/play/room/RoomDescription';
+import {LobbyActions} from './LobbyActions';
+import {lobbyService} from './LobbyService';
+import {LobbyService} from './LobbyTypes';
 
 function roomUpdateReducer(state: LobbyService, room: RoomDescription) {
   if (!state.value || state.loading) {

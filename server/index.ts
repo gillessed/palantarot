@@ -1,7 +1,6 @@
 import https, {ServerOptions} from 'https';
 import http from 'http';
 import fs from 'fs';
-import WebSocket from 'ws';
 import {App} from './App';
 import {connect, Database} from './db/dbConnector';
 import {readConfig} from './config';
@@ -40,7 +39,7 @@ connect(config.database, (db: Database) => {
     server.on('error', onError);
     server.on('listening', onListen);
   } else {
-    const server = http.createServer(app.express);
+    const server = http.createServer(app.express as any);
     websocketManager.start(server);
     server.listen(port);
     server.on('error', onError);
@@ -52,13 +51,9 @@ connect(config.database, (db: Database) => {
     const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
     switch (error.code) {
       case 'EACCES':
-        console.error(`${bind} requires elevated privileges`);
-        process.exit(1);
-        break;
+        throw Error(`${bind} requires elevated privileges`);
       case 'EADDRINUSE':
-        console.error(`${bind} is already in use`);
-        process.exit(1);
-        break;
+        throw Error(`${bind} is already in use`);
       default:
         throw error;
     }
