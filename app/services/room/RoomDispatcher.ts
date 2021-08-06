@@ -1,5 +1,6 @@
 import {Store} from 'redux';
 import {Action} from '../../../server/play/model/GameEvents';
+import {PlayerId} from '../../../server/play/model/GameState';
 import {ChatText} from '../../../server/play/room/ChatText';
 import {RoomSocketMessages} from '../../../server/play/room/RoomSocketMessages';
 import {generateId} from '../../../server/utils/randomString';
@@ -96,6 +97,15 @@ export class RoomDispatcher {
 
   public goToNextGame() {
     this.store.dispatch(RoomActions.moveToNewGame());
+  }
+
+  public pokePlayer(playerId: PlayerId) {
+    const roomId = this.store.getState().room?.id;
+    if (roomId != null) {
+      this.store.dispatch(
+        SocketActions.send(RoomSocketMessages.notifyPlayer({roomId, playerId}))
+      );
+    }
   }
 
   // Game Actions

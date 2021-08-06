@@ -2,6 +2,7 @@ import {isEqual, without} from 'lodash';
 import {Card, TrumpCard} from '../../../server/play/model/Card';
 import {cardsWithout, compareCards} from '../../../server/play/model/CardUtils';
 import {
+  AllowNotifyPlayerEvent,
   BidAction,
   BiddingCompletedTransition,
   CallPartnerAction,
@@ -56,6 +57,7 @@ export interface PlayState {
   readonly shows: ShowDetails[];
   readonly showIndex: number | null;
   readonly allHands: Map<PlayerId, Card[]>;
+  readonly allowNotifyPlayer: PlayerId | null;
 }
 
 export interface ShowDetails {
@@ -79,6 +81,7 @@ export const BlankState: PlayState = {
   shows: [],
   showIndex: null,
   allHands: new Map(),
+  allowNotifyPlayer: null,
 };
 
 function markPlayerReady(
@@ -316,6 +319,7 @@ function playCard(
     partner,
     anyPlayerPlayedCard: true,
     allHands: newAllHands,
+    allowNotifyPlayer: null,
   };
 }
 
@@ -348,6 +352,16 @@ function gameAborted(
   return {
     ...BlankState,
     playerOrder: state.playerOrder,
+  };
+}
+
+function allowNotifyPlayer(
+  state: PlayState,
+  event: AllowNotifyPlayerEvent
+): PlayState {
+  return {
+    ...state,
+    allowNotifyPlayer: event.playerId,
   };
 }
 
@@ -393,6 +407,8 @@ export function updateGameForEvent(
       return gameComplete(state, event as GameCompletedTransition);
     case 'game_aborted':
       return gameAborted(state, event as GameAbortedTransition);
+    case 'allow_notify_player':
+      return allowNotifyPlayer(state, event as AllowNotifyPlayerEvent);
     default:
       return state;
   }

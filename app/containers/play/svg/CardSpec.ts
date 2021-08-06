@@ -13,6 +13,10 @@ export const PlayerTextMargin = 10;
 export const TrickMargin = 125;
 export const TrickWidth = CardWidth + TrickMargin * 2;
 
+export const PokeButtonWidth = 100;
+export const PokeButtonHeight = 60;
+export const PokeButtonOffset = 20;
+
 export function getMaxHandWidth(players: number) {
   const cardCount = players === 3 ? 24 : players === 4 ? 18 : 15;
   const boundedSeparation = MaxHandCardSeparation * (cardCount - 1);

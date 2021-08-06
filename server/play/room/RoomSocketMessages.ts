@@ -60,6 +60,11 @@ export interface RoomStatusMessagePayload {
   room: RoomStatus;
 }
 
+export interface NotifyPlayerMessagePayload {
+  roomId: string;
+  playerId: string;
+}
+
 const name = (method: string) => `room::${method}`;
 
 const enterRoom = defineSocketMessage<EnterRoomMessagePayload>(
@@ -84,6 +89,9 @@ const newGame = defineSocketMessage<NewGameMessagePayload>(name('newGame'));
 const addBot = defineSocketMessage<BotMessagePayload>(name('adBot'));
 const removeBot = defineSocketMessage<BotMessagePayload>(name('removeBot'));
 const autoplay = defineSocketMessage<AutoplayMessagePayload>(name('autoplay'));
+const notifyPlayer = defineSocketMessage<NotifyPlayerMessagePayload>(
+  name('notifyPlayer')
+);
 
 export const RoomSocketMessages = {
   enterRoom,
@@ -97,4 +105,5 @@ export const RoomSocketMessages = {
   addBot,
   removeBot,
   autoplay,
+  notifyPlayer,
 };

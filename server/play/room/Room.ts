@@ -12,6 +12,7 @@ import {getNextPlayer, playForBot} from '../bots/BotPlayer';
 import {Game} from '../game/Game';
 import {
   Action,
+  AllowNotifyPlayerEvent,
   EnterGameAction,
   LeaveGameAction,
   PlayerEvent,
@@ -32,6 +33,7 @@ import {
   BotMessagePayload,
   EnterRoomMessagePayload,
   GameActionMessagePayload,
+  NotifyPlayerMessagePayload,
   RoomChatMessagePayload,
   RoomSocketMessages,
 } from './RoomSocketMessages';
@@ -54,6 +56,7 @@ export class Room {
 
   private playerIdToSocketId: Multimap<string>;
   private socketIdToPlayerId: Map<string, PlayerId>;
+  private pokeTimer: NodeJS.Timer | undefined;
 
   constructor(
     private readonly playService: PlayService,
@@ -100,6 +103,10 @@ export class Room {
       RoomSocketMessages.autoplay.handle(
         untypedMessage,
         this.handleAutoplayMessage
+      );
+      RoomSocketMessages.notifyPlayer.handleMessage(
+        untypedMessage,
+        this.handleNotifyPlayer
       );
     } catch (e) {
       console.error(
@@ -207,18 +214,16 @@ export class Room {
     }
   };
 
-  /* Helpers */
-
-  private getRoomSockets = (): JsonSocket[] => {
-    const sockets: JsonSocket[] = [];
-    for (const socketId of this.socketIdToPlayerId.keys()) {
-      const socket = this.playService.getSocketForSocketId(socketId);
-      if (socket != null) {
-        sockets.push(socket);
-      }
+  public handleNotifyPlayer = (
+    message: SocketMessage<NotifyPlayerMessagePayload>
+  ) => {
+    const sockets = this.getSocketsForPlayerId(message.payload.playerId);
+    for (const socket of sockets) {
+      socket.send(message);
     }
-    return sockets;
   };
+
+  /* Helpers */
 
   private getSocketsForPlayerId = (playerId: string): JsonSocket[] => {
     const sockets: JsonSocket[] = [];
@@ -252,6 +257,7 @@ export class Room {
         }
       }
     }
+    this.handlePokeTimer(actions);
     this.playService.roomUpdated(this);
   };
 
@@ -356,4 +362,36 @@ export class Room {
     );
     this.playService.roomUpdated(this);
   };
+
+  private handlePokeTimer(actions: Action[]) {
+    const playerToPlay = getNextPlayer(this.game);
+    if (
+      this.game.getState().name !== GameplayState.Playing ||
+      playerToPlay == null
+    ) {
+      return;
+    }
+    const containsPlayAction = actions.some(
+      action => action.type === 'play_card'
+    );
+    if (containsPlayAction) {
+      if (this.pokeTimer) {
+        clearTimeout(this.pokeTimer);
+      }
+      this.pokeTimer = setTimeout(() => {
+        const notifyEvent: AllowNotifyPlayerEvent = {
+          type: 'allow_notify_player',
+          playerId: playerToPlay,
+        };
+        this.game.appendEvent(notifyEvent);
+        this.broadcastMessage(
+          RoomSocketMessages.gameUpdates({
+            roomId: this.id,
+            gameId: this.game.id,
+            events: [notifyEvent],
+          })
+        );
+      }, 10_000);
+    }
+  }
 }

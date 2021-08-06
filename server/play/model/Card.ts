@@ -1,3 +1,5 @@
+import {isEqual} from 'lodash';
+
 export enum Suit {
   Spade = 'S',
   Heart = 'H',
@@ -81,6 +83,12 @@ export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [
 ];
 export const TheOne: [Suit.Trump, TrumpValue._1] = [Suit.Trump, TrumpValue._1];
 export const The21: [Suit.Trump, TrumpValue._21] = [Suit.Trump, TrumpValue._21];
+
+export function isBout(card: Card) {
+  return (
+    isEqual(card, TheJoker) || isEqual(card, TheOne) || isEqual(card, The21)
+  );
+}
 
 export type RegCard = [RegSuit, RegValue];
 

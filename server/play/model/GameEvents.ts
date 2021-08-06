@@ -10,7 +10,7 @@ import {
 } from './GameState';
 
 export interface PlayerEvent {
-  readonly type: ActionType | TransitionType | 'error';
+  readonly type: ActionType | TransitionType | OtherEventsType | 'error';
   /** if contains state for only one player, which player to send to. */
   readonly privateTo?: PlayerId;
   /** if set, will not send to any of the following players */
@@ -178,4 +178,13 @@ export interface GameCompletedTransition extends Transition {
 export interface GameAbortedTransition extends Transition {
   readonly type: 'game_aborted';
   readonly reason: string;
+}
+
+/* OTHER EVENTS */
+
+export type OtherEventsType = 'allow_notify_player';
+
+export interface AllowNotifyPlayerEvent extends PlayerEvent {
+  readonly type: 'allow_notify_player';
+  readonly playerId: string;
 }
