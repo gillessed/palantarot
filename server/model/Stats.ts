@@ -1,4 +1,4 @@
-import {IMonth} from './Month';
+import { IMonth } from './Month';
 export type Stats = Stat[];
 
 export interface Stat {

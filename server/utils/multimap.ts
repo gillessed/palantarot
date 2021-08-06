@@ -4,7 +4,7 @@ export class Multimap<T> {
   public set(key: string, value: T) {
     const currentValues = this.map.get(key);
     if (currentValues == null) {
-      const values = new Set([value]);
+      const values = new Set([ value ]);
       this.map.set(key, values);
     } else {
       const newValues = new Set(currentValues);

@@ -26,7 +26,7 @@ export function count<RECORD>(
     const aggregate = countMap.get(id)!;
     const newAggregate: Aggregate = {
       id,
-      values: {...aggregate.values},
+      values: { ...aggregate.values },
     };
     accessors.forEach((accessor: Aggregator<RECORD, any, any>) => {
       const extracted = accessor.extractor(record);

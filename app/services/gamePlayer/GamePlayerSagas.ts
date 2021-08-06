@@ -1,7 +1,7 @@
-import {TypedAction} from 'redoodle';
-import {put, takeEvery} from 'redux-saga/effects';
-import {GamePlayerActions} from './GamePlayerActions';
-import {GamePlayer} from './GamePlayerTypes';
+import { TypedAction } from 'redoodle';
+import { put, takeEvery } from 'redux-saga/effects';
+import { GamePlayerActions } from './GamePlayerActions';
+import { GamePlayer } from './GamePlayerTypes';
 
 const GamePlayerCookie = 'palantarot-game-player';
 
@@ -9,7 +9,7 @@ function parseCookies() {
   const cookieArrays = document.cookie.split(';');
   const cookies = new Map<string, string>();
   for (const entry of cookieArrays) {
-    const [key, value] = entry.trim().split('=');
+    const [ key, value ] = entry.trim().split('=');
     cookies.set(key, value);
   }
   return cookies;

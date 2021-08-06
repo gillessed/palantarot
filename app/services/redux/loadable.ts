@@ -46,7 +46,7 @@ export class LoadableCache<KEY, VALUE> {
 
   public getSubset(...keys: KEY[]): Map<KEY, Loadable<KEY, VALUE>> {
     return new Map<KEY, Loadable<KEY, VALUE>>(
-      keys.map(key => [key, this.get(key)] as [KEY, Loadable<KEY, VALUE>])
+      keys.map(key => [ key, this.get(key) ] as [KEY, Loadable<KEY, VALUE>])
     );
   }
 
@@ -63,20 +63,20 @@ export class LoadableCache<KEY, VALUE> {
     return new Map<KEY, VALUE>(
       keys
         .map(key => {
-          return [key, this.getLoaded(key)] as [KEY, VALUE];
+          return [ key, this.getLoaded(key) ] as [KEY, VALUE];
         })
         .filter(key => key[1])
     );
   }
 
   public loadedSingle(key: KEY, object: VALUE) {
-    return this.loaded(new Map<KEY, VALUE>([[key, object]]));
+    return this.loaded(new Map<KEY, VALUE>([ [ key, object ] ]));
   }
 
   public loaded(objects: Map<KEY, VALUE>) {
     const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     const date = new Date();
-    for (const [key, object] of objects) {
+    for (const [ key, object ] of objects) {
       const entry = {
         key,
         loading: false,
@@ -86,11 +86,11 @@ export class LoadableCache<KEY, VALUE> {
       };
       newCache.set(key, entry);
     }
-    return new LoadableCache<KEY, VALUE>({cache: newCache, loading: false});
+    return new LoadableCache<KEY, VALUE>({ cache: newCache, loading: false });
   }
 
   public erroredSingle(key: KEY, error: Error) {
-    return this.errored([key], error);
+    return this.errored([ key ], error);
   }
 
   public errored(keys: KEY[], error: Error) {
@@ -128,7 +128,7 @@ export class LoadableCache<KEY, VALUE> {
   public keysLoading(...keys: KEY[]) {
     const newCache = new Map<KEY, Loadable<KEY, VALUE>>(this.cache);
     for (const key of keys) {
-      const entry = {...this.get(key), loading: true};
+      const entry = { ...this.get(key), loading: true };
       newCache.set(key, entry);
     }
     return new LoadableCache<KEY, VALUE>({
@@ -138,7 +138,7 @@ export class LoadableCache<KEY, VALUE> {
   }
 
   public globalLoading() {
-    return new LoadableCache({cache: this.cache, loading: true});
+    return new LoadableCache({ cache: this.cache, loading: true });
   }
 
   public clear(...keys: KEY[]) {

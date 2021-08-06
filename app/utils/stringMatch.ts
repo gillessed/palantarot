@@ -1,4 +1,4 @@
-import {PlayerSelect} from '../components/forms/PlayerSelect';
+import { PlayerSelect } from '../components/forms/PlayerSelect';
 
 interface Match {
   item: PlayerSelect.Item;

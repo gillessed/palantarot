@@ -1,13 +1,13 @@
-import {ClientGame} from '../../../app/services/room/ClientGame';
+import { ClientGame } from '../../../app/services/room/ClientGame';
 import {
   BlankState,
   PlayState,
   ShowDetails,
   TrickCards,
 } from '../../../app/services/room/ClientGameEventHandler';
-import {TarotBot} from '../../../bots/TarotBot';
-import {Game} from '../game/Game';
-import {Card} from '../model/Card';
+import { TarotBot } from '../../../bots/TarotBot';
+import { Game } from '../game/Game';
+import { Card } from '../model/Card';
 import {
   Action,
   BidAction,
@@ -125,7 +125,7 @@ function getPlayerBids(bids: Bid[]) {
 function convertStateToInGame(game: Game, botId: string): ClientGame {
   const state = game.getState();
   const playerIndex = state.players.indexOf(botId);
-  let playState: PlayState = {...BlankState};
+  let playState: PlayState = { ...BlankState };
   switch (state.name) {
     case GameplayState.Bidding: {
       const bidState = state as BiddingBoardState;

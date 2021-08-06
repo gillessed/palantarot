@@ -1,5 +1,5 @@
-import {compact, findIndex, isEqual} from 'lodash';
-import {TheJoker} from '../Card';
+import { compact, findIndex, isEqual } from 'lodash';
+import { TheJoker } from '../Card';
 import {
   cardsContain,
   cardsWithout,
@@ -7,7 +7,7 @@ import {
   getPlayerNum,
   getWinner,
 } from '../CardUtils';
-import {GameErrors} from '../GameErrors';
+import { GameErrors } from '../GameErrors';
 import {
   getBaseScore,
   getEarnings,
@@ -34,7 +34,7 @@ import {
   showTrumpActionReducer,
   simpleResult,
 } from './CommonReducers';
-import {getNewTrick} from './Utils';
+import { getNewTrick } from './Utils';
 
 const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return (
@@ -103,15 +103,15 @@ export const handlePlayCardAction = (
       hands,
       current_trick: {
         ...state.current_trick,
-        cards: [...state.current_trick.cards, action.card],
+        cards: [ ...state.current_trick.cards, action.card ],
         current_player: state.current_trick.current_player + 1,
       },
     };
     return simpleResult(newState, action);
   } else {
     // last card in trick
-    const new_cards = [...state.current_trick.cards, action.card];
-    const [winning_card, winner] = getWinner(
+    const new_cards = [ ...state.current_trick.cards, action.card ];
+    const [ winning_card, winner ] = getWinner(
       new_cards,
       state.current_trick.players
     );
@@ -143,7 +143,7 @@ export const handlePlayCardAction = (
           winner,
           completed_trick.trick_num + 1
         ),
-        past_tricks: [...state.past_tricks, completed_trick],
+        past_tricks: [ ...state.past_tricks, completed_trick ],
       };
       const completedTrickTransition: CompletedTrickTransition = {
         type: 'completed_trick',
@@ -152,11 +152,11 @@ export const handlePlayCardAction = (
         jokerState,
         privateTo: undefined,
       };
-      return {state: newState, events: [action, completedTrickTransition]};
+      return { state: newState, events: [ action, completedTrickTransition ] };
     } else {
       // end of game!
-      const tricks = [...state.past_tricks, completed_trick];
-      const biddingTeam = compact([state.bidder, state.partner]);
+      const tricks = [ ...state.past_tricks, completed_trick ];
+      const biddingTeam = compact([ state.bidder, state.partner ]);
       const earnings = getEarnings(
         biddingTeam,
         tricks,
@@ -208,8 +208,8 @@ export const handlePlayCardAction = (
       const completedGameMessage = 'The game is over';
       return {
         state: newBoardState,
-        events: [action, completedTrickTransition, completedGameTransition],
-        serverMessages: [completedGameMessage],
+        events: [ action, completedTrickTransition, completedGameTransition ],
+        serverMessages: [ completedGameMessage ],
       };
     }
   }

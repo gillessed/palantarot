@@ -1,6 +1,6 @@
-import {Router, Request, Response} from 'express';
-import {AuthRequest} from '../../app/services/auth/index';
-import {Config} from '../config';
+import { Router, Request, Response } from 'express';
+import { AuthRequest } from '../../app/services/auth/index';
+import { Config } from '../config';
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 
@@ -21,7 +21,7 @@ export class AuthService {
       });
       res.sendStatus(200);
     } else {
-      res.send({error: 'Incorrect password'});
+      res.send({ error: 'Incorrect password' });
     }
   };
 }

@@ -1,7 +1,7 @@
-import {call, take, fork, cancel} from 'redux-saga/effects';
-import {Task} from 'redux-saga';
-import {TypedAction} from 'redoodle';
-import {SocketMessage} from '../../server/websocket/SocketMessage';
+import { call, take, fork, cancel } from 'redux-saga/effects';
+import { Task } from 'redux-saga';
+import { TypedAction } from 'redoodle';
+import { SocketMessage } from '../../server/websocket/SocketMessage';
 
 export interface SagaListener<PAYLOAD> {
   actionType: TypedAction.Definition<string, PAYLOAD>;

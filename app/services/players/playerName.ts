@@ -1,4 +1,4 @@
-import {Player} from '../../../server/model/Player';
+import { Player } from '../../../server/model/Player';
 
 export function getPlayerName(player?: Player) {
   return player != null

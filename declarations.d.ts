@@ -1,5 +1,5 @@
 declare module 'apisauce' {
-  import {AxiosInstance, AxiosRequestConfig} from 'axios';
+  import { AxiosInstance, AxiosRequestConfig } from 'axios';
 
   export type PROBLEM_CODE =
     | 'CLIENT_ERROR'

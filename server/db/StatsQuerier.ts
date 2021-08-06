@@ -1,10 +1,10 @@
-import {QueryResult} from 'pg';
-import {BidStats} from '../model/Bid';
-import {Delta, Deltas} from '../model/Delta';
-import {Stat, Stats} from '../model/Stats';
-import {Streak} from '../model/Streak';
-import {Database} from './dbConnector';
-import {Queries, QueryBuilder} from './queryBuilder/QueryBuilder';
+import { QueryResult } from 'pg';
+import { BidStats } from '../model/Bid';
+import { Delta, Deltas } from '../model/Delta';
+import { Stat, Stats } from '../model/Stats';
+import { Streak } from '../model/Streak';
+import { Database } from './dbConnector';
+import { Queries, QueryBuilder } from './queryBuilder/QueryBuilder';
 
 export class StatsQuerier {
   private db: Database;
@@ -110,8 +110,8 @@ export class StatsQuerier {
         allDeltas.sort(this.deltaComparator);
         if (allDeltas.length <= length) {
           return {
-            maximums: [...allDeltas].reverse(),
-            minimums: [...allDeltas],
+            maximums: [ ...allDeltas ].reverse(),
+            minimums: [ ...allDeltas ],
           };
         } else {
           return {
@@ -145,8 +145,8 @@ export class StatsQuerier {
         allDeltas.sort(this.deltaComparator);
         if (allDeltas.length <= length) {
           return {
-            maximums: [...allDeltas].reverse(),
-            minimums: [...allDeltas],
+            maximums: [ ...allDeltas ].reverse(),
+            minimums: [ ...allDeltas ],
           };
         } else {
           return {
@@ -200,12 +200,12 @@ export class StatsQuerier {
 
   public getStreak = (playerId: string, win: boolean): Promise<Streak> => {
     return this.db
-      .query('SELECT getStreak($1, $2)', [playerId, win])
+      .query('SELECT getStreak($1, $2)', [ playerId, win ])
       .then((result: QueryResult) => {
         const raw = result.rows[0]['getstreak']
           .replace('(', '')
           .replace(')', '');
-        const [lastGameId, gameCount] = raw.split(',');
+        const [ lastGameId, gameCount ] = raw.split(',');
         return {
           playerId,
           gameCount: +gameCount,

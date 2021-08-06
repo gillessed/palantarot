@@ -1,5 +1,5 @@
-import {PlayerEvent} from '../server/play/model/GameEvents';
-import {BoardState, PlayingBoardState} from '../server/play/model/GameState';
+import { PlayerEvent } from '../server/play/model/GameEvents';
+import { BoardState, PlayingBoardState } from '../server/play/model/GameState';
 import {
   buildGameStateReducer,
   GameReducerMap,
@@ -14,7 +14,7 @@ export class RandomPlayout {
 
   public doAction(event: PlayerEvent) {
     const reducer = this.reducers[this.state.name];
-    const {state: newState} = reducer(this.state, event);
+    const { state: newState } = reducer(this.state, event);
     this.state = newState;
   }
 }

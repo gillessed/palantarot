@@ -1,11 +1,11 @@
-import {Request, Response, Router} from 'express';
-import {TarotBotRegistry} from '../../bots/TarotBot';
-import {Config} from '../config';
-import {AdminPasswordKey} from '../headers';
-import {Player} from '../model/Player';
-import {Database} from './../db/dbConnector';
-import {PlayerQuerier} from './../db/PlayerQuerier';
-import {NewPlayer} from './../model/Player';
+import { Request, Response, Router } from 'express';
+import { TarotBotRegistry } from '../../bots/TarotBot';
+import { Config } from '../config';
+import { AdminPasswordKey } from '../headers';
+import { Player } from '../model/Player';
+import { Database } from './../db/dbConnector';
+import { PlayerQuerier } from './../db/PlayerQuerier';
+import { NewPlayer } from './../model/Player';
 
 export class PlayerService {
   public router: Router;
@@ -31,7 +31,7 @@ export class PlayerService {
         res.send(players);
       })
       .catch((error: any) => {
-        res.send({error: 'Error fetching players: ' + error});
+        res.send({ error: 'Error fetching players: ' + error });
       });
   };
 
@@ -39,7 +39,7 @@ export class PlayerService {
     const adminPassword = req.headers[AdminPasswordKey];
     const newPlayer = req.body as NewPlayer;
     if (newPlayer.isBot && adminPassword !== this.config.adminPassword) {
-      res.send({error: 'You do not have permission to create a bot'});
+      res.send({ error: 'You do not have permission to create a bot' });
       return;
     }
     this.playerDb
@@ -64,7 +64,7 @@ export class PlayerService {
         res.send(insertedPlayer);
       })
       .catch((error: Error) => {
-        res.send({error: error.message});
+        res.send({ error: error.message });
       });
   };
 }

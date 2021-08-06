@@ -1,6 +1,6 @@
-import {cardsEqual, getPlayerNum, getTrumps} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
-import {DeclareSlam, PlayerEvent, ShowTrumpAction} from '../GameEvents';
+import { cardsEqual, getPlayerNum, getTrumps } from '../CardUtils';
+import { GameErrors } from '../GameErrors';
+import { DeclareSlam, PlayerEvent, ShowTrumpAction } from '../GameEvents';
 import {
   BoardState,
   Call,
@@ -16,7 +16,7 @@ export const simpleResult = <RESULT extends BoardState>(
   serverMessages?: string[]
 ): ReducerResult<RESULT> => ({
   state,
-  events: [action],
+  events: [ action ],
   serverMessages,
 });
 
@@ -42,7 +42,7 @@ export const showTrumpActionReducer = <T extends DealtBoardState>(
   }
   const newState: T = {
     ...state,
-    shows: [...state.shows, action.player],
+    shows: [ ...state.shows, action.player ],
   };
   return simpleResult(newState, action);
 };
@@ -63,7 +63,7 @@ export const declareSlamActionReducer = <
       ...state.bidding,
       calls: {
         ...state.bidding.calls,
-        [player_num]: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
+        [player_num]: [ ...state.bidding.calls[player_num], Call.DECLARED_SLAM ],
       },
     },
   };

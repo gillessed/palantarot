@@ -1,7 +1,7 @@
-import {Aggregator, count} from '../../../server/utils/count';
-import {MonthlyScore} from '../../../server/model/Records';
-import {RoleResult} from '../../../server/model/Result';
-import {integerComparator} from '../../../server/utils/index';
+import { Aggregator, count } from '../../../server/utils/count';
+import { MonthlyScore } from '../../../server/model/Records';
+import { RoleResult } from '../../../server/model/Result';
+import { integerComparator } from '../../../server/utils/index';
 
 export const RecordsSelectors = {
   getTotalScoresFromMonthlyScore: (
@@ -23,7 +23,7 @@ export const RecordsSelectors = {
     return count<MonthlyScore>(
       monthlyScores,
       monthlyScore => monthlyScore.playerId,
-      [pointsAggregator, gamesPlayedAggregator]
+      [ pointsAggregator, gamesPlayedAggregator ]
     )
       .map(aggregate => {
         return {

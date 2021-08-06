@@ -1,6 +1,6 @@
-import {isEqual, without} from 'lodash';
-import {Card, TrumpCard} from '../../../server/play/model/Card';
-import {cardsWithout, compareCards} from '../../../server/play/model/CardUtils';
+import { isEqual, without } from 'lodash';
+import { Card, TrumpCard } from '../../../server/play/model/Card';
+import { cardsWithout, compareCards } from '../../../server/play/model/CardUtils';
 import {
   AllowNotifyPlayerEvent,
   BidAction,
@@ -109,7 +109,7 @@ function unmarkPlayerReady(
 function enterGame(state: PlayState, action: EnterGameAction): PlayState {
   return {
     ...state,
-    playerOrder: [...state.playerOrder, action.player],
+    playerOrder: [ ...state.playerOrder, action.player ],
   };
 }
 
@@ -152,7 +152,7 @@ function playersSet(state: PlayState, action: PlayersSetTransition): PlayState {
 function showTrump(state: PlayState, action: ShowTrumpAction): PlayState {
   const newShows = [
     ...state.shows,
-    {player: action.player, trumpCards: action.cards},
+    { player: action.player, trumpCards: action.cards },
   ];
   return {
     ...state,
@@ -168,7 +168,7 @@ function bid(state: PlayState, action: BidAction): PlayState {
     bid: action.bid,
     calls: action.calls ?? [],
   });
-  const passCount = [...state.playerBids.values()].reduce((acc, value) => {
+  const passCount = [ ...state.playerBids.values() ].reduce((acc, value) => {
     return acc + (value.bid === BidValue.PASS ? 1 : 0);
   }, 0);
   if (state.playerOrder.length - passCount <= 1) {
@@ -219,7 +219,7 @@ function dogRevealed(
     return {
       ...state,
       state: GameplayState.DogReveal,
-      hand: [...state.hand, ...action.dog].sort(compareCards()),
+      hand: [ ...state.hand, ...action.dog ].sort(compareCards()),
       partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
     };
@@ -248,7 +248,7 @@ function setDog(state: PlayState, action: SetDogAction): PlayState {
     const globalHand = state.allHands.get(action.player);
     const newAllHands = new Map(state.allHands);
     if (globalHand != null) {
-      const handWithDog = [...globalHand, ...state.dog];
+      const handWithDog = [ ...globalHand, ...state.dog ];
       const droppedHand = cardsWithout(handWithDog, ...action.dog);
       droppedHand.sort(compareCards());
       newAllHands.set(action.player, droppedHand);
@@ -285,13 +285,13 @@ function playCard(
   let newOrder;
   let newCompletedTricks = state.completedTricks;
   if (state.trick.completed) {
-    newTrickCards = new Map([[action.player, action.card]]);
-    newOrder = [action.player];
-    newCompletedTricks = [...state.completedTricks, state.trick];
+    newTrickCards = new Map([ [ action.player, action.card ] ]);
+    newOrder = [ action.player ];
+    newCompletedTricks = [ ...state.completedTricks, state.trick ];
   } else {
     newTrickCards = new Map(state.trick.cards);
     newTrickCards.set(action.player, action.card);
-    newOrder = [...(state.trick.order ?? []), action.player];
+    newOrder = [ ...(state.trick.order ?? []), action.player ];
   }
   const newTrick: TrickCards = {
     order: newOrder,
@@ -329,7 +329,7 @@ function completedTrick(
 ): PlayState {
   return {
     ...state,
-    trick: {...state.trick, completed: true, winner: action.winner},
+    trick: { ...state.trick, completed: true, winner: action.winner },
     toPlay: action.winner,
   };
 }

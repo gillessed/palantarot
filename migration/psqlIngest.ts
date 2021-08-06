@@ -1,17 +1,17 @@
 import * as fs from 'fs';
-import {Client} from 'pg';
-import {Player} from '../server/model/Player';
-import {Dump, Hand, PlayerHand, SqlConfig} from './dump';
+import { Client } from 'pg';
+import { Player } from '../server/model/Player';
+import { Dump, Hand, PlayerHand, SqlConfig } from './dump';
 
 if (process.argv.length !== 4) {
   throw Error('Usage: node psqlInjest.js CONFIG_FILE DUMP_FILE');
 }
 
 const config: SqlConfig = JSON.parse(
-  fs.readFileSync(process.argv[2], {encoding: 'utf8'})
+  fs.readFileSync(process.argv[2], { encoding: 'utf8' })
 );
 const dump: Dump = JSON.parse(
-  fs.readFileSync(process.argv[3], {encoding: 'utf8'})
+  fs.readFileSync(process.argv[3], { encoding: 'utf8' })
 );
 console.log(
   `Injesting ${dump.players.length} players, ${dump.hands.length} hands, and ${dump.playerHands.length} player hands.`
@@ -24,34 +24,34 @@ async function inject() {
 
   try {
     const playerColumns: [keyof Player, string][] = [
-      ['id', 'id'],
-      ['firstName', 'first_name'],
-      ['lastName', 'last_name'],
+      [ 'id', 'id' ],
+      [ 'firstName', 'first_name' ],
+      [ 'lastName', 'last_name' ],
     ];
     await insertType('players', playerColumns, dump.players, 10);
 
     const handColumns: [keyof Hand, string][] = [
-      ['id', 'id'],
-      ['timestamp', 'timestamp'],
-      ['players', 'players'],
-      ['bidder', 'bidder_fk_id'],
-      ['partner', 'partner_fk_id'],
-      ['bidAmount', 'bid_amt'],
-      ['points', 'points'],
-      ['slam', 'slam'],
+      [ 'id', 'id' ],
+      [ 'timestamp', 'timestamp' ],
+      [ 'players', 'players' ],
+      [ 'bidder', 'bidder_fk_id' ],
+      [ 'partner', 'partner_fk_id' ],
+      [ 'bidAmount', 'bid_amt' ],
+      [ 'points', 'points' ],
+      [ 'slam', 'slam' ],
     ];
     await insertType('hand', handColumns, dump.hands.map(sanitizeHand), 100);
 
     const playerHandColumns: [keyof PlayerHand, string][] = [
-      ['id', 'id'],
-      ['timestamp', 'timestamp'],
-      ['hand', 'hand_fk_id'],
-      ['player', 'player_fk_id'],
-      ['isBidder', 'was_bidder'],
-      ['isPartner', 'was_partner'],
-      ['showed', 'showed_trump'],
-      ['oneLast', 'one_last'],
-      ['points', 'points_earned'],
+      [ 'id', 'id' ],
+      [ 'timestamp', 'timestamp' ],
+      [ 'hand', 'hand_fk_id' ],
+      [ 'player', 'player_fk_id' ],
+      [ 'isBidder', 'was_bidder' ],
+      [ 'isPartner', 'was_partner' ],
+      [ 'showed', 'showed_trump' ],
+      [ 'oneLast', 'one_last' ],
+      [ 'points', 'points_earned' ],
     ];
     await insertType(
       'player_hand',

@@ -1,9 +1,9 @@
-import {all, takeEvery} from 'redux-saga/effects';
-import {Loadable} from '../redux/loadable';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {createSagaPropertyOperation} from '../redux/serviceSaga';
-import {ServerApi} from './../../api/serverApi';
+import { all, takeEvery } from 'redux-saga/effects';
+import { Loadable } from '../redux/loadable';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { createSagaPropertyOperation } from '../redux/serviceSaga';
+import { ServerApi } from './../../api/serverApi';
 
 export type DeleteGameService = Loadable<string, void>;
 

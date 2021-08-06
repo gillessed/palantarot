@@ -1,10 +1,10 @@
-import {debounce, isEqual} from 'lodash';
-import {Store} from 'redux';
-import {IMonth, Month} from '../../../server/model/Month';
-import {DefaultArgToKey} from '../loader';
-import {ReduxState} from '../rootReducer';
-import {Loadable, LoadableCache} from './loadable';
-import {PropertyActions, ServiceActions} from './serviceActions';
+import { debounce, isEqual } from 'lodash';
+import { Store } from 'redux';
+import { IMonth, Month } from '../../../server/model/Month';
+import { DefaultArgToKey } from '../loader';
+import { ReduxState } from '../rootReducer';
+import { Loadable, LoadableCache } from './loadable';
+import { PropertyActions, ServiceActions } from './serviceActions';
 
 export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(
   actionCreators: ServiceActions<ARG, RESULT>
@@ -32,7 +32,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(
     public request(args: ARG[], force?: boolean) {
       let uncachedArgs = Array.from(args);
       if (this.caching) {
-        const {isCached} = this.caching;
+        const { isCached } = this.caching;
         const state = this.caching.accessor(this.store.getState());
         uncachedArgs = uncachedArgs.filter((arg: ARG) => {
           const key = this.argToKey(arg);
@@ -56,7 +56,7 @@ export function generateServiceDispatcher<ARG, RESULT, KEY = ARG>(
     }
 
     public requestSingle(arg: ARG, force?: boolean) {
-      this.request([arg], force);
+      this.request([ arg ], force);
     }
 
     public clear(args: ARG[]) {

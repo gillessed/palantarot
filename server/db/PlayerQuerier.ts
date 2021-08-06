@@ -1,9 +1,9 @@
-import {QueryResult} from 'pg';
-import {RandomBotType} from '../../bots/RandomBot';
-import {NewPlayer} from '../model/Player';
-import {Player} from './../model/Player';
-import {Database} from './dbConnector';
-import {QueryBuilder} from './queryBuilder/QueryBuilder';
+import { QueryResult } from 'pg';
+import { RandomBotType } from '../../bots/RandomBot';
+import { NewPlayer } from '../model/Player';
+import { Player } from './../model/Player';
+import { Database } from './dbConnector';
+import { QueryBuilder } from './queryBuilder/QueryBuilder';
 
 export class PlayerQuerier {
   private db: Database;
@@ -68,7 +68,7 @@ export class PlayerQuerier {
       .query(query.getIndexedQueryString(), query.getValues())
       .then((result: QueryResult) => {
         const id = result.rows[0].id;
-        return {...player, id};
+        return { ...player, id };
       });
   };
 }

@@ -1,4 +1,4 @@
-import {Card, TrumpCard} from '../../../server/play/model/Card';
+import { Card, TrumpCard } from '../../../server/play/model/Card';
 import {
   BidAction,
   CallPartnerAction,
@@ -10,8 +10,8 @@ import {
   SetDogAction,
   ShowTrumpAction,
 } from '../../../server/play/model/GameEvents';
-import {BidValue, Call, PlayerId} from '../../../server/play/model/GameState';
-import {RoomDispatcher} from './RoomDispatcher';
+import { BidValue, Call, PlayerId } from '../../../server/play/model/GameState';
+import { RoomDispatcher } from './RoomDispatcher';
 
 export class PlayDispatcher {
   constructor(
@@ -59,7 +59,7 @@ export class PlayDispatcher {
     const action: BidAction = {
       type: 'bid',
       bid,
-      calls: russian ? [Call.RUSSIAN] : undefined,
+      calls: russian ? [ Call.RUSSIAN ] : undefined,
       player: this.player,
       time: time ?? Date.now(),
     };
@@ -83,7 +83,7 @@ export class PlayDispatcher {
   public dropDog(cards: Set<Card>, time?: number) {
     const action: SetDogAction = {
       type: 'set_dog',
-      dog: [...cards],
+      dog: [ ...cards ],
       player: this.player,
       privateTo: this.player,
       time: time ?? Date.now(),

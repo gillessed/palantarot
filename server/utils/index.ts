@@ -84,7 +84,7 @@ export function arrayMax<T>(array: T[], max: (t: T) => number): T | undefined {
   for (const obj of array) {
     const value = max(obj);
     if (!maxObj || value > maxObj.value) {
-      maxObj = {obj, value};
+      maxObj = { obj, value };
     }
   }
   return maxObj ? maxObj.obj : undefined;

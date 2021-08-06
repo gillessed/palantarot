@@ -1,12 +1,12 @@
-import {TarothonData} from '../../../server/model/Tarothon';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {ServiceDispatcher} from '../redux/serviceDispatcher';
-import {generateService, identityMapper} from '../redux/serviceGenerator';
-import {wrapAsBatchCall} from '../redux/utils';
-import {ReduxState} from '../rootReducer';
-import {ServerApi} from './../../api/serverApi';
-import {LoadableCache} from './../redux/loadable';
+import { TarothonData } from '../../../server/model/Tarothon';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
+import { wrapAsBatchCall } from '../redux/utils';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { LoadableCache } from './../redux/loadable';
 
 export type TarothonDataService = LoadableCache<string, TarothonData>;
 

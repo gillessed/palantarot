@@ -1,9 +1,9 @@
-import {GameRecord} from '../../../server/model/GameRecord';
-import {ServiceDispatcher} from '../redux/serviceDispatcher';
-import {generateService, identityMapper} from '../redux/serviceGenerator';
-import {wrapAsBatchCall} from '../redux/utils';
-import {ServerApi} from './../../api/serverApi';
-import {LoadableCache} from './../redux/loadable';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
+import { wrapAsBatchCall } from '../redux/utils';
+import { ServerApi } from './../../api/serverApi';
+import { LoadableCache } from './../redux/loadable';
 
 export type GameService = LoadableCache<string, GameRecord>;
 

@@ -1,4 +1,4 @@
-import {GameErrors} from '../GameErrors';
+import { GameErrors } from '../GameErrors';
 import {
   BoardReducer,
   CompletedBoardState,
@@ -6,11 +6,11 @@ import {
   GameplayState,
   ReducerResult,
 } from '../GameState';
-import {BiddingGameStateReducer} from './BiddingGameStateReducer';
-import {DogRevealGameStateReducer} from './DogRevealGameStateReducer';
-import {NewGameStateReducer} from './NewGameStateReducer';
-import {PartnerCallGameStateReducer} from './PartnerCallGameStateReducer';
-import {PlayingGameStateReducer} from './PlayingGameStateReducer';
+import { BiddingGameStateReducer } from './BiddingGameStateReducer';
+import { DogRevealGameStateReducer } from './DogRevealGameStateReducer';
+import { NewGameStateReducer } from './NewGameStateReducer';
+import { PartnerCallGameStateReducer } from './PartnerCallGameStateReducer';
+import { PlayingGameStateReducer } from './PlayingGameStateReducer';
 
 export type GameReducerMap = {[state: string]: BoardReducer<any, any, any>};
 

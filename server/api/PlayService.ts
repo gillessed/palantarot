@@ -1,17 +1,17 @@
-import {Request, Response, Router} from 'express';
-import {TarotBotRegistry} from '../../bots/TarotBot';
-import {Database} from '../db/dbConnector';
-import {GameRecordQuerier} from '../db/GameRecordQuerier';
-import {PlayerQuerier} from '../db/PlayerQuerier';
-import {LobbySocketMessages} from '../play/lobby/LobbySocketMessages';
-import {NewRoomArgs} from '../play/room/NewRoomArgs';
-import {Room} from '../play/room/Room';
+import { Request, Response, Router } from 'express';
+import { TarotBotRegistry } from '../../bots/TarotBot';
+import { Database } from '../db/dbConnector';
+import { GameRecordQuerier } from '../db/GameRecordQuerier';
+import { PlayerQuerier } from '../db/PlayerQuerier';
+import { LobbySocketMessages } from '../play/lobby/LobbySocketMessages';
+import { NewRoomArgs } from '../play/room/NewRoomArgs';
+import { Room } from '../play/room/Room';
 import {
   getRoomDescription,
   RoomDescriptions,
 } from '../play/room/RoomDescription';
-import {JsonSocket} from '../websocket/JsonSocket';
-import {WebsocketManager} from '../websocket/WebsocketManager';
+import { JsonSocket } from '../websocket/JsonSocket';
+import { WebsocketManager } from '../websocket/WebsocketManager';
 
 export class PlayService {
   public router: Router;
@@ -49,7 +49,7 @@ export class PlayService {
 
   public listRooms = async (_req: Request, res: Response) => {
     const rooms: RoomDescriptions = {};
-    for (const [id, room] of this.rooms) {
+    for (const [ id, room ] of this.rooms) {
       rooms[id] = getRoomDescription(room);
     }
     res.send(rooms);

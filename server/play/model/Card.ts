@@ -1,4 +1,4 @@
-import {isEqual} from 'lodash';
+import { isEqual } from 'lodash';
 
 export enum Suit {
   Spade = 'S',
@@ -53,36 +53,36 @@ export enum TrumpValue {
 }
 
 export const AllRs: Card[] = [
-  [Suit.Club, RegValue.R],
-  [Suit.Diamond, RegValue.R],
-  [Suit.Heart, RegValue.R],
-  [Suit.Spade, RegValue.R],
+  [ Suit.Club, RegValue.R ],
+  [ Suit.Diamond, RegValue.R ],
+  [ Suit.Heart, RegValue.R ],
+  [ Suit.Spade, RegValue.R ],
 ];
 export const AllDs: Card[] = [
-  [Suit.Club, RegValue.D],
-  [Suit.Diamond, RegValue.D],
-  [Suit.Heart, RegValue.D],
-  [Suit.Spade, RegValue.D],
+  [ Suit.Club, RegValue.D ],
+  [ Suit.Diamond, RegValue.D ],
+  [ Suit.Heart, RegValue.D ],
+  [ Suit.Spade, RegValue.D ],
 ];
 export const AllCs: Card[] = [
-  [Suit.Club, RegValue.C],
-  [Suit.Diamond, RegValue.C],
-  [Suit.Heart, RegValue.C],
-  [Suit.Spade, RegValue.C],
+  [ Suit.Club, RegValue.C ],
+  [ Suit.Diamond, RegValue.C ],
+  [ Suit.Heart, RegValue.C ],
+  [ Suit.Spade, RegValue.C ],
 ];
 export const AllVs: Card[] = [
-  [Suit.Club, RegValue.V],
-  [Suit.Diamond, RegValue.V],
-  [Suit.Heart, RegValue.V],
-  [Suit.Spade, RegValue.V],
+  [ Suit.Club, RegValue.V ],
+  [ Suit.Diamond, RegValue.V ],
+  [ Suit.Heart, RegValue.V ],
+  [ Suit.Spade, RegValue.V ],
 ];
 
 export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [
   Suit.Trump,
   TrumpValue.Joker,
 ];
-export const TheOne: [Suit.Trump, TrumpValue._1] = [Suit.Trump, TrumpValue._1];
-export const The21: [Suit.Trump, TrumpValue._21] = [Suit.Trump, TrumpValue._21];
+export const TheOne: [Suit.Trump, TrumpValue._1] = [ Suit.Trump, TrumpValue._1 ];
+export const The21: [Suit.Trump, TrumpValue._21] = [ Suit.Trump, TrumpValue._21 ];
 
 export function isBout(card: Card) {
   return (
@@ -102,7 +102,7 @@ export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
   const value =
     parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
-  return [suit, value] as Card;
+  return [ suit, value ] as Card;
 }
 
 export function toCardString(card: Card): string {

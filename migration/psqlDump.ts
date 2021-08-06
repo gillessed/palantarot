@@ -1,13 +1,13 @@
-import {Client} from 'pg';
+import { Client } from 'pg';
 import * as fs from 'fs';
-import {Player} from '../server/model/Player';
-import {SqlConfig, Hand, PlayerHand} from './dump';
+import { Player } from '../server/model/Player';
+import { SqlConfig, Hand, PlayerHand } from './dump';
 
 if (process.argv.length !== 4) {
   throw Error('Usage: node psqlDump.js CONFIG_FILE DUMP_FILE');
 }
 const config: SqlConfig = JSON.parse(
-  fs.readFileSync(process.argv[2], {encoding: 'utf8'})
+  fs.readFileSync(process.argv[2], { encoding: 'utf8' })
 );
 const client = new Client(config);
 
@@ -53,12 +53,12 @@ async function dumpAll() {
         };
       }
     );
-    const dump = {players, hands, playerHands};
+    const dump = { players, hands, playerHands };
     const serialized = JSON.stringify(dump);
     console.log(
       'Writing ' + serialized.length + ' characters to file ' + process.argv[3]
     );
-    fs.writeFileSync(process.argv[3], serialized, {encoding: 'utf8'});
+    fs.writeFileSync(process.argv[3], serialized, { encoding: 'utf8' });
   } finally {
     client.end();
   }

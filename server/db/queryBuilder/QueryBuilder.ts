@@ -1,4 +1,4 @@
-import {indexFlags} from './indexFlags';
+import { indexFlags } from './indexFlags';
 /*
  * Simple query builders that should do most things need. If need more, implement more.
  */

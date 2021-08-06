@@ -1,4 +1,4 @@
-import {actionName} from '../../app/services/redux/actionName';
+import { actionName } from '../../app/services/redux/actionName';
 
 export interface SocketMessage<Payload = any> {
   type: string;
@@ -58,7 +58,7 @@ export const isSocketConnectionMessage = (
   if (data == null) {
     return false;
   }
-  const {type, payload} = data;
+  const { type, payload } = data;
   return (
     type === connectionMessageName &&
     payload != null &&

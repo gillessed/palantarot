@@ -1,6 +1,6 @@
-import {TypedAction} from 'redoodle';
-import {Store} from 'redux';
-import {ReduxState} from '../rootReducer';
+import { TypedAction } from 'redoodle';
+import { Store } from 'redux';
+import { ReduxState } from '../rootReducer';
 
 export const pageCacheAction = TypedAction.define('pageCache')<void>();
 

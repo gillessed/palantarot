@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import {SocketMessage} from './SocketMessage';
+import { SocketMessage } from './SocketMessage';
 
 export class JsonSocket {
   public handleClose?: () => void;

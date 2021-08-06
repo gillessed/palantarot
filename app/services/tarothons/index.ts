@@ -1,11 +1,11 @@
-import {Tarothon} from '../../../server/model/Tarothon';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {ReduxState} from '../rootReducer';
-import {ServerApi} from './../../api/serverApi';
-import {Loadable} from './../redux/loadable';
+import { Tarothon } from '../../../server/model/Tarothon';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type TarothonsService = Loadable<void, Tarothon[]>;
 

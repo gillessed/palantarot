@@ -1,11 +1,11 @@
-import {Request, Response, Router} from 'express';
+import { Request, Response, Router } from 'express';
 import moment from 'moment-timezone';
-import {Database} from '../db/dbConnector';
-import {GameRecordQuerier, RecentGameQuery} from '../db/GameRecordQuerier';
-import {GameRecord} from '../model/GameRecord';
-import {IMonth, Month} from '../model/Month';
-import {Records} from '../model/Records';
-import {Result, Role, RoleResult} from '../model/Result';
+import { Database } from '../db/dbConnector';
+import { GameRecordQuerier, RecentGameQuery } from '../db/GameRecordQuerier';
+import { GameRecord } from '../model/GameRecord';
+import { IMonth, Month } from '../model/Month';
+import { Records } from '../model/Records';
+import { Result, Role, RoleResult } from '../model/Result';
 
 export class GameRecordService {
   public router: Router;
@@ -30,9 +30,9 @@ export class GameRecordService {
     const body = req.body as Month;
     const month = IMonth.m(body);
 
-    const {valid, error} = month.isValid({inPast: true});
+    const { valid, error } = month.isValid({ inPast: true });
     if (!valid) {
-      res.send({error});
+      res.send({ error });
     }
 
     const startDate = IMonth.convertToSql(month);
@@ -69,7 +69,7 @@ export class GameRecordService {
       );
       const resultMap: Map<string, Partial<Result>> = new Map();
       for (const result of allResults) {
-        resultMap.set(result.id, {id: result.id, all: result});
+        resultMap.set(result.id, { id: result.id, all: result });
       }
       bidderResults.forEach(this.mapRoleResult(resultMap, Role.BIDDER));
       partnerResults.forEach(this.mapRoleResult(resultMap, Role.PARTNER));
@@ -77,7 +77,7 @@ export class GameRecordService {
       const results = Array.from(resultMap.values());
       res.send(results);
     } catch (error) {
-      res.send({error: `Error getting results for month: ${error}`});
+      res.send({ error: `Error getting results for month: ${error}` });
     }
   };
 
@@ -116,11 +116,11 @@ export class GameRecordService {
     return (partial: Partial<Result>, roleResult: RoleResult) => {
       switch (role) {
         case Role.BIDDER:
-          return {...partial, bidder: roleResult};
+          return { ...partial, bidder: roleResult };
         case Role.PARTNER:
-          return {...partial, partner: roleResult};
+          return { ...partial, partner: roleResult };
         case Role.OPPOSITION:
-          return {...partial, opposition: roleResult};
+          return { ...partial, opposition: roleResult };
       }
     };
   };
@@ -168,9 +168,9 @@ export class GameRecordService {
     const body = req.body as Month;
     const month = IMonth.m(body);
 
-    const {valid, error} = month.isValid({inPast: true});
+    const { valid, error } = month.isValid({ inPast: true });
     if (!valid) {
-      res.send({error});
+      res.send({ error });
     }
 
     const startDate = IMonth.convertToSql(month);
@@ -196,7 +196,7 @@ export class GameRecordService {
         res.send(games);
       })
       .catch((error: any) => {
-        res.send({error: 'Error loading recent games: ' + error});
+        res.send({ error: 'Error loading recent games: ' + error });
       });
   };
 
@@ -208,7 +208,7 @@ export class GameRecordService {
         res.send(game);
       })
       .catch(() => {
-        res.send({error: 'Could not find game with id ' + id});
+        res.send({ error: 'Could not find game with id ' + id });
       });
   };
 
@@ -222,12 +222,12 @@ export class GameRecordService {
         //this.refreshSocketManager.sendRefreshMessage();
       })
       .catch(e => {
-        res.send({error: 'Could not save game: ' + e});
+        res.send({ error: 'Could not save game: ' + e });
       });
   };
 
   public deleteGame = (req: Request, res: Response) => {
-    const {gameId} = req.body;
+    const { gameId } = req.body;
     this.gameDb
       .deleteGame(gameId)
       .then(() => {
@@ -236,7 +236,7 @@ export class GameRecordService {
         //this.refreshSocketManager.sendRefreshMessage();
       })
       .catch(e => {
-        res.send({error: 'Could not delete game: ' + e});
+        res.send({ error: 'Could not delete game: ' + e });
       });
   };
 
@@ -245,15 +245,15 @@ export class GameRecordService {
     this.gameDb
       .getAllMonthlyTotals()
       .then(scores => {
-        records = {...records, scores};
+        records = { ...records, scores };
         return this.gameDb.getSlamGames();
       })
       .then((slamGames: GameRecord[]) => {
-        records = {...records, slamGames};
+        records = { ...records, slamGames };
         res.send(records);
       })
       .catch(e => {
-        res.send({error: 'Could not get scores: ' + e});
+        res.send({ error: 'Could not get scores: ' + e });
       });
   };
 

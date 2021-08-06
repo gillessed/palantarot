@@ -1,8 +1,8 @@
-import {NewTarothon, Tarothon} from '../../../server/model/Tarothon';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {ServerApi} from './../../api/serverApi';
-import {Loadable} from './../redux/loadable';
+import { NewTarothon, Tarothon } from '../../../server/model/Tarothon';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 type Request = Tarothon | NewTarothon;
 export type AddTarothonService = Loadable<Request, string>;

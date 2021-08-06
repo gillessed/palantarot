@@ -1,5 +1,5 @@
-import {SpectatorModeObserver} from '../SpectatorMode';
-import {getTitleArrangementSpec} from './TitleArrangementSpec';
+import { SpectatorModeObserver } from '../SpectatorMode';
+import { getTitleArrangementSpec } from './TitleArrangementSpec';
 
 export const MaxHandCardSeparation = 50;
 export const CardWidth = 120;

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
-import {concat, find, isEqual} from 'lodash';
-import {Game, testingGetState} from '../game/Game';
-import {Card, TheOne} from './Card';
+import { concat, find, isEqual } from 'lodash';
+import { Game, testingGetState } from '../game/Game';
+import { Card, TheOne } from './Card';
 import {
   cardTestingSetShuffler,
   cardsContain,
@@ -9,8 +9,8 @@ import {
   getPlayerNum,
   playerTestingSetShuffler,
 } from './CardUtils';
-import {GameCompletedTransition} from './GameEvents';
-import {BidValue, Call, PlayingBoardState, PlayerId} from './GameState';
+import { GameCompletedTransition } from './GameEvents';
+import { BidValue, Call, PlayingBoardState, PlayerId } from './GameState';
 
 const createTimer = () => {
   let logical_clock = 0;
@@ -19,95 +19,95 @@ const createTimer = () => {
 
 export const SampleDeal = {
   dog: [
-    ['T', 19],
-    ['H', 4],
-    ['D', 4],
+    [ 'T', 19 ],
+    [ 'H', 4 ],
+    [ 'D', 4 ],
   ] as Card[],
   hands: [
     [
-      ['C', 3],
-      ['C', 'D'],
-      ['D', 5],
-      ['D', 6],
-      ['D', 'V'],
-      ['D', 'D'],
-      ['D', 'R'],
-      ['H', 5],
-      ['S', 1],
-      ['S', 9],
-      ['S', 'V'],
-      ['S', 'C'],
-      ['T', 7],
-      ['T', 12],
-      ['T', 18],
+      [ 'C', 3 ],
+      [ 'C', 'D' ],
+      [ 'D', 5 ],
+      [ 'D', 6 ],
+      [ 'D', 'V' ],
+      [ 'D', 'D' ],
+      [ 'D', 'R' ],
+      [ 'H', 5 ],
+      [ 'S', 1 ],
+      [ 'S', 9 ],
+      [ 'S', 'V' ],
+      [ 'S', 'C' ],
+      [ 'T', 7 ],
+      [ 'T', 12 ],
+      [ 'T', 18 ],
     ],
     [
-      ['C', 10],
-      ['D', 1],
-      ['D', 3],
-      ['D', 10],
-      ['H', 1],
-      ['H', 2],
-      ['H', 3],
-      ['H', 'R'],
-      ['S', 2],
-      ['S', 3],
-      ['S', 8],
-      ['S', 'R'],
-      ['T', 6],
-      ['T', 8],
-      ['T', 21],
+      [ 'C', 10 ],
+      [ 'D', 1 ],
+      [ 'D', 3 ],
+      [ 'D', 10 ],
+      [ 'H', 1 ],
+      [ 'H', 2 ],
+      [ 'H', 3 ],
+      [ 'H', 'R' ],
+      [ 'S', 2 ],
+      [ 'S', 3 ],
+      [ 'S', 8 ],
+      [ 'S', 'R' ],
+      [ 'T', 6 ],
+      [ 'T', 8 ],
+      [ 'T', 21 ],
     ],
     [
-      ['C', 1],
-      ['C', 4],
-      ['C', 7],
-      ['C', 8],
-      ['C', 'V'],
-      ['C', 'R'],
-      ['D', 9],
-      ['D', 'C'],
-      ['H', 10],
-      ['H', 'V'],
-      ['S', 4],
-      ['T', 4],
-      ['T', 9],
-      ['T', 11],
-      ['T', 16],
+      [ 'C', 1 ],
+      [ 'C', 4 ],
+      [ 'C', 7 ],
+      [ 'C', 8 ],
+      [ 'C', 'V' ],
+      [ 'C', 'R' ],
+      [ 'D', 9 ],
+      [ 'D', 'C' ],
+      [ 'H', 10 ],
+      [ 'H', 'V' ],
+      [ 'S', 4 ],
+      [ 'T', 4 ],
+      [ 'T', 9 ],
+      [ 'T', 11 ],
+      [ 'T', 16 ],
     ],
     [
-      ['C', 2],
-      ['C', 9],
-      ['D', 2],
-      ['D', 7],
-      ['H', 6],
-      ['H', 7],
-      ['H', 'C'],
-      ['S', 5],
-      ['S', 6],
-      ['S', 7],
-      ['S', 10],
-      ['S', 'D'],
-      ['T', 2],
-      ['T', 3],
-      ['T', 5],
+      [ 'C', 2 ],
+      [ 'C', 9 ],
+      [ 'D', 2 ],
+      [ 'D', 7 ],
+      [ 'H', 6 ],
+      [ 'H', 7 ],
+      [ 'H', 'C' ],
+      [ 'S', 5 ],
+      [ 'S', 6 ],
+      [ 'S', 7 ],
+      [ 'S', 10 ],
+      [ 'S', 'D' ],
+      [ 'T', 2 ],
+      [ 'T', 3 ],
+      [ 'T', 5 ],
     ],
     [
-      ['T', 'Joker'],
-      ['C', 5],
-      ['C', 6],
-      ['C', 'C'],
-      ['D', 8], // -> dog
-      ['H', 8],
-      ['H', 9],
-      ['H', 'D'],
-      ['T', 1],
-      ['T', 10],
-      ['T', 13],
-      ['T', 14],
-      ['T', 15],
-      ['T', 17],
-      /* ['T', 19] */ ['T', 20],
+      [ 'T', 'Joker' ],
+      [ 'C', 5 ],
+      [ 'C', 6 ],
+      [ 'C', 'C' ],
+      [ 'D', 8 ], // -> dog
+      [ 'H', 8 ],
+      [ 'H', 9 ],
+      [ 'H', 'D' ],
+      [ 'T', 1 ],
+      [ 'T', 10 ],
+      [ 'T', 13 ],
+      [ 'T', 14 ],
+      [ 'T', 15 ],
+      [ 'T', 17 ],
+      /* ['T', 19] */ [ 'T', 20 ],
     ],
   ] as Card[][],
 };
@@ -130,7 +130,7 @@ function autoplayTrick(game: Game, time: () => number) {
     const card =
       find(cards, card => !isEqual(card, TheOne)) ||
       cardsContain(cards, TheOne);
-    game.playerAction({type: 'play_card', player, card, time: time()});
+    game.playerAction({ type: 'play_card', player, card, time: time() });
   }
 }
 
@@ -149,20 +149,20 @@ test('5 player game', () => {
     'samira',
   ]);
 
-  game.playerAction({type: 'enter_game', player: 'dxiao', time: time()});
-  game.playerAction({type: 'enter_game', player: 'ericb', time: time()});
-  game.playerAction({type: 'enter_game', player: 'gcole', time: time()});
-  game.playerAction({type: 'enter_game', player: 'karl', time: time()});
-  game.playerAction({type: 'enter_game', player: 'samira', time: time()});
+  game.playerAction({ type: 'enter_game', player: 'dxiao', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'ericb', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'gcole', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'karl', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'samira', time: time() });
   game.playerAction({
     type: 'mark_player_ready',
     player: 'samira',
     time: time(),
   });
-  game.playerAction({type: 'mark_player_ready', player: 'ericb', time: time()});
-  game.playerAction({type: 'mark_player_ready', player: 'gcole', time: time()});
-  game.playerAction({type: 'mark_player_ready', player: 'karl', time: time()});
-  game.playerAction({type: 'mark_player_ready', player: 'dxiao', time: time()});
+  game.playerAction({ type: 'mark_player_ready', player: 'ericb', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'gcole', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'karl', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'dxiao', time: time() });
 
   assert.deepStrictEqual(
     game.getEvents('dxiao').events.pop()?.type,
@@ -179,7 +179,7 @@ test('5 player game', () => {
     type: 'bid',
     player: 'ericb',
     bid: BidValue.TWENTY,
-    calls: [Call.RUSSIAN],
+    calls: [ Call.RUSSIAN ],
     time: time(),
   });
   game.playerAction({
@@ -221,7 +221,7 @@ test('5 player game', () => {
   game.playerAction({
     type: 'call_partner',
     player: 'samira',
-    card: ['H', 'R'],
+    card: [ 'H', 'R' ],
     time: time(),
   });
 
@@ -234,9 +234,9 @@ test('5 player game', () => {
     type: 'set_dog',
     player: 'samira',
     dog: [
-      ['D', 4],
-      ['D', 8],
-      ['H', 4],
+      [ 'D', 4 ],
+      [ 'D', 8 ],
+      [ 'H', 4 ],
     ],
     privateTo: 'samira',
     time: time(),
@@ -252,46 +252,46 @@ test('5 player game', () => {
     player: 'samira',
     time: time(),
     cards: [
-      ['T', 'Joker'],
-      ['T', 1],
-      ['T', 10],
-      ['T', 13],
-      ['T', 14],
-      ['T', 15],
-      ['T', 17],
-      ['T', 19],
-      ['T', 20],
+      [ 'T', 'Joker' ],
+      [ 'T', 1 ],
+      [ 'T', 10 ],
+      [ 'T', 13 ],
+      [ 'T', 14 ],
+      [ 'T', 15 ],
+      [ 'T', 17 ],
+      [ 'T', 19 ],
+      [ 'T', 20 ],
     ],
   });
 
   game.playerAction({
     type: 'play_card',
     player: 'dxiao',
-    card: ['C', 3],
+    card: [ 'C', 3 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'ericb',
-    card: ['C', 10],
+    card: [ 'C', 10 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'gcole',
-    card: ['C', 'R'],
+    card: [ 'C', 'R' ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'karl',
-    card: ['C', 2],
+    card: [ 'C', 2 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'samira',
-    card: ['C', 5],
+    card: [ 'C', 5 ],
     time: time(),
   });
 
@@ -303,31 +303,31 @@ test('5 player game', () => {
   game.playerAction({
     type: 'play_card',
     player: 'gcole',
-    card: ['C', 1],
+    card: [ 'C', 1 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'karl',
-    card: ['C', 9],
+    card: [ 'C', 9 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'samira',
-    card: ['C', 6],
+    card: [ 'C', 6 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'dxiao',
-    card: ['C', 'D'],
+    card: [ 'C', 'D' ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'ericb',
-    card: ['T', 6],
+    card: [ 'T', 6 ],
     time: time(),
   });
 
@@ -339,31 +339,31 @@ test('5 player game', () => {
   game.playerAction({
     type: 'play_card',
     player: 'ericb',
-    card: ['T', 8],
+    card: [ 'T', 8 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'gcole',
-    card: ['T', 11],
+    card: [ 'T', 11 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'karl',
-    card: ['T', 2],
+    card: [ 'T', 2 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'samira',
-    card: ['T', 13],
+    card: [ 'T', 13 ],
     time: time(),
   });
   game.playerAction({
     type: 'play_card',
     player: 'dxiao',
-    card: ['T', 18],
+    card: [ 'T', 18 ],
     time: time(),
   });
 
@@ -384,9 +384,9 @@ test('5 player game', () => {
     game.getEvents('dxiao', time() - 5).events.pop() as GameCompletedTransition
   ).end_state;
   assert.deepStrictEqual(end_state.bidderWon, true);
-  assert.deepStrictEqual(end_state.outcomes[4], ['one_last']);
+  assert.deepStrictEqual(end_state.outcomes[4], [ 'one_last' ]);
   assert.deepStrictEqual(end_state.bouts.length, 3);
   assert.deepStrictEqual(end_state.pointsEarned, 53);
-  assert.deepStrictEqual(end_state.shows, ['samira']);
+  assert.deepStrictEqual(end_state.shows, [ 'samira' ]);
   assert.deepStrictEqual(end_state.pointsResult, 80);
 });

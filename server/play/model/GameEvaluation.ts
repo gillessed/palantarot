@@ -1,6 +1,6 @@
-import {filter, isEqual, remove} from 'lodash';
-import {isBout, Bout, Card, TheJoker, TheOne} from './Card';
-import {cardsContain, getCardPoint} from './CardUtils';
+import { filter, isEqual, remove } from 'lodash';
+import { isBout, Bout, Card, TheJoker, TheOne } from './Card';
+import { cardsContain, getCardPoint } from './CardUtils';
 import {
   BidValue,
   Call,
@@ -72,7 +72,7 @@ export const getEarnings = (
 };
 
 export const getBaseScore = (bid: BidValue, earnings: Earnings): number => {
-  const neededToWin = [56, 51, 41, 36][earnings.bouts.length];
+  const neededToWin = [ 56, 51, 41, 36 ][earnings.bouts.length];
   let baseScore = bid;
   baseScore +=
     Math.ceil(Math.abs(earnings.pointsEarned - neededToWin) / 10) * 10;
@@ -93,12 +93,12 @@ export const getOutcomes = (
   ).length;
   if (tricks_won === tricks.length) {
     for (const player of biddingTeam) {
-      outcomes[players.indexOf(player)] = [Outcome.SLAMMED];
+      outcomes[players.indexOf(player)] = [ Outcome.SLAMMED ];
     }
   } else if (tricks_won === 0) {
     for (const player_num of players.keys()) {
       if (biddingTeam.indexOf(players[player_num]) === -1) {
-        outcomes[player_num] = [Outcome.SLAMMED];
+        outcomes[player_num] = [ Outcome.SLAMMED ];
       }
     }
   }

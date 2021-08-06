@@ -1,4 +1,4 @@
-import {generateId} from '../utils/randomString';
+import { generateId } from '../utils/randomString';
 export interface SearchQuery {
   id: string;
   playerQueries: PlayerQuery[];
@@ -68,7 +68,7 @@ export function emptyScoreQuery(): ScoreQuery {
 }
 
 export function isQueryEmpty(query: SearchQuery) {
-  const {playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange} =
+  const { playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange } =
     query;
   return (
     playerQueries.length === 0 &&

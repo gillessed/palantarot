@@ -1,15 +1,15 @@
 import moment from 'moment-timezone';
-import {QueryResult} from 'pg';
+import { QueryResult } from 'pg';
 import {
   GameRecord,
   GameRecordPartial,
   HandData,
   PlayerHand,
 } from '../model/GameRecord';
-import {MonthlyScore} from '../model/Records';
-import {Role, RoleResult} from '../model/Result';
-import {PlayerPredicate, SearchQuery} from '../model/Search';
-import {Database} from './dbConnector';
+import { MonthlyScore } from '../model/Records';
+import { Role, RoleResult } from '../model/Result';
+import { PlayerPredicate, SearchQuery } from '../model/Search';
+import { Database } from './dbConnector';
 import {
   Queries,
   QueryBuilder,

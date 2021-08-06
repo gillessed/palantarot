@@ -1,6 +1,6 @@
-import {RegValue} from '../../../../server/play/model/Card';
-import {ClientGame} from '../../../services/room/ClientGame';
-import {ClientGameSelectors} from '../../../services/room/ClientGameSelectors';
+import { RegValue } from '../../../../server/play/model/Card';
+import { ClientGame } from '../../../services/room/ClientGame';
+import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
 
 export function getAllowedPartnerCalls(game: ClientGame) {
   const counts = ClientGameSelectors.getValueCounts(game);

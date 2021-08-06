@@ -1,6 +1,6 @@
-import {Suit} from '../Card';
-import {cardsContain} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
+import { Suit } from '../Card';
+import { cardsContain } from '../CardUtils';
+import { GameErrors } from '../GameErrors';
 import {
   CallPartnerAction,
   DogRevealTransition,
@@ -20,7 +20,7 @@ import {
   declareSlamActionReducer,
   showTrumpActionReducer,
 } from './CommonReducers';
-import {getNewTrick} from './Utils';
+import { getNewTrick } from './Utils';
 
 const handleCallPartnerAction = (
   state: PartnerCallBoardState,
@@ -55,7 +55,7 @@ const handleCallPartnerAction = (
       first_player: state.players[0],
       privateTo: undefined,
     };
-    return {state: newState, events: [action, gameStartedTransition]};
+    return { state: newState, events: [ action, gameStartedTransition ] };
   } else {
     const newState: DogRevealAndExchangeBoardState = {
       ...state,
@@ -69,7 +69,7 @@ const handleCallPartnerAction = (
       player: state.bidder,
       privateTo: undefined,
     };
-    return {state: newState, events: [action, dogRevealTransition]};
+    return { state: newState, events: [ action, dogRevealTransition ] };
   }
 };
 

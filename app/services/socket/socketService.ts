@@ -1,12 +1,12 @@
-import {TypedAction} from 'redoodle';
-import {END, EventChannel, eventChannel} from 'redux-saga';
-import {cancelled, put, take, takeEvery} from 'redux-saga/effects';
-import {generateId} from '../../../server/utils/randomString';
+import { TypedAction } from 'redoodle';
+import { END, EventChannel, eventChannel } from 'redux-saga';
+import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
+import { generateId } from '../../../server/utils/randomString';
 import {
   socketConnectionMessage,
   SocketMessage,
 } from '../../../server/websocket/SocketMessage';
-import {actionName} from '../redux/actionName';
+import { actionName } from '../redux/actionName';
 
 export interface SocketConnectPayload {
   id: string;

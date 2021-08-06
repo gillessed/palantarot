@@ -1,13 +1,13 @@
-import {GameRecord} from '../../../server/model/GameRecord';
-import {Month} from '../../../server/model/Month';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {LoadableCache} from '../redux/loadable';
-import {ServiceDispatcher} from '../redux/serviceDispatcher';
-import {generateService, identityMapper} from '../redux/serviceGenerator';
-import {wrapAsBatchCall} from '../redux/utils';
-import {ReduxState} from '../rootReducer';
-import {ServerApi} from './../../api/serverApi';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { Month } from '../../../server/model/Month';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { LoadableCache } from '../redux/loadable';
+import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService, identityMapper } from '../redux/serviceGenerator';
+import { wrapAsBatchCall } from '../redux/utils';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
 
 export type MonthGamesService = LoadableCache<Month, GameRecord[]>;
 

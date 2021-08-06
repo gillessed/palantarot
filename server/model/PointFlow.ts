@@ -1,5 +1,5 @@
-import {GameRecord} from './GameRecord';
-import {Month} from './Month';
+import { GameRecord } from './GameRecord';
+import { Month } from './Month';
 
 export interface PointFlowRequest {
   player: string;

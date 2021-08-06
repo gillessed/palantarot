@@ -1,19 +1,19 @@
-import {GameRecord} from '../../../server/model/GameRecord';
-import {SearchQuery} from '../../../server/model/Search';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {LoadableCache} from '../redux/loadable';
-import {ServiceDispatcher} from '../redux/serviceDispatcher';
-import {generateService} from '../redux/serviceGenerator';
-import {ReduxState} from '../rootReducer';
-import {ServerApi} from './../../api/serverApi';
+import { GameRecord } from '../../../server/model/GameRecord';
+import { SearchQuery } from '../../../server/model/Search';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { LoadableCache } from '../redux/loadable';
+import { ServiceDispatcher } from '../redux/serviceDispatcher';
+import { generateService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
 
 export type SearchService = LoadableCache<string, GameRecord[]>;
 
 const searchOperation = (api: ServerApi) => {
   return (queries: SearchQuery[]) => {
     return api.search(queries[0]).then((result: GameRecord[]) => {
-      return new Map<SearchQuery, GameRecord[]>([[queries[0], result]]);
+      return new Map<SearchQuery, GameRecord[]>([ [ queries[0], result ] ]);
     });
   };
 };

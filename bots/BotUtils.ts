@@ -1,5 +1,5 @@
-import {ClientGame} from '../app/services/room/ClientGame';
-import {TrickCards} from '../app/services/room/ClientGameEventHandler';
+import { ClientGame } from '../app/services/room/ClientGame';
+import { TrickCards } from '../app/services/room/ClientGameEventHandler';
 import {
   AllCs,
   AllDs,
@@ -16,13 +16,13 @@ import {
   isBout,
 } from '../server/play/model/CardUtils';
 
-const NonPassBids = [10, 20, 40, 80, 160];
+const NonPassBids = [ 10, 20, 40, 80, 160 ];
 // const NonPassBids = [10, 20, 40];
 
 export function getPossibleBidValues(clientGame: ClientGame): number[] {
-  const {playState} = clientGame;
+  const { playState } = clientGame;
   const maxBid = Math.max(
-    ...[...playState.playerBids.values()].map(bid => bid.bid)
+    ...[ ...playState.playerBids.values() ].map(bid => bid.bid)
   );
   const availableBidValue: number[] = [
     0,
@@ -34,11 +34,11 @@ export function getPossibleBidValues(clientGame: ClientGame): number[] {
 export function getNonSelfCalls(clientGame: ClientGame): Card[] {
   const hand = clientGame.playState.hand;
   const hasAllRs =
-    hand.filter(([_, value]) => value === RegValue.R).length === 4;
+    hand.filter(([ _, value ]) => value === RegValue.R).length === 4;
   const hasAllDs =
-    hand.filter(([_, value]) => value === RegValue.D).length === 4;
+    hand.filter(([ _, value ]) => value === RegValue.D).length === 4;
   const hasAllCs =
-    hand.filter(([_, value]) => value === RegValue.C).length === 4;
+    hand.filter(([ _, value ]) => value === RegValue.C).length === 4;
   let bidSet: Card[] = [];
   if (!hasAllRs) {
     bidSet = AllRs;
@@ -86,8 +86,8 @@ export function lambdaMin<T>(l: (t: T) => number, ...list: T[]): T {
 }
 
 export function dropValueSortComparator(c1: Card, c2: Card) {
-  const [suit1, value1] = c1;
-  const [suit2, value2] = c2;
+  const [ suit1, value1 ] = c1;
+  const [ suit2, value2 ] = c2;
   if (isBout(c1) && !isBout(c2)) {
     return -1;
   } else if (!isBout(c1) && isBout(c2)) {

@@ -1,9 +1,9 @@
-import {ServerApi} from '../../api/serverApi';
-import {Dispatchers} from '../../services/dispatchers';
-import {Loader} from '../../services/loader';
-import {generatePropertyService} from '../../services/redux/serviceGenerator';
-import {ReduxState} from '../../services/rootReducer';
-import {Lobby} from './LobbyTypes';
+import { ServerApi } from '../../api/serverApi';
+import { Dispatchers } from '../../services/dispatchers';
+import { Loader } from '../../services/loader';
+import { generatePropertyService } from '../../services/redux/serviceGenerator';
+import { ReduxState } from '../../services/rootReducer';
+import { Lobby } from './LobbyTypes';
 
 export const lobbyService = generatePropertyService<void, Lobby>(
   'lobby',
@@ -13,7 +13,7 @@ export const lobbyService = generatePropertyService<void, Lobby>(
         .listRooms()
         .then(
           rooms =>
-            new Map(Object.keys(rooms).map(roomId => [roomId, rooms[roomId]]))
+            new Map(Object.keys(rooms).map(roomId => [ roomId, rooms[roomId] ]))
         );
     };
   }

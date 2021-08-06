@@ -1,5 +1,5 @@
-import {Action, PlayerEvent} from '../model/GameEvents';
-import {DefaultGameSettings, GameSettings} from '../model/GameSettings';
+import { Action, PlayerEvent } from '../model/GameEvents';
+import { DefaultGameSettings, GameSettings } from '../model/GameSettings';
 import {
   BoardState,
   GameplayState,
@@ -82,7 +82,7 @@ export class Game {
         events.push(this.log[i]);
       }
     }
-    return {events, count: i};
+    return { events, count: i };
   }
 
   /* module */ getState() {

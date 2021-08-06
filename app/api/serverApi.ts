@@ -1,27 +1,27 @@
-import {ApisauceInstance, create} from 'apisauce';
-import {DeltasRequest} from '../../server/api/StatsService';
-import {RecentGameQuery} from '../../server/db/GameRecordQuerier';
-import {AdminPasswordKey} from '../../server/headers';
-import {BidRequest, BidStats} from '../../server/model/Bid';
-import {Deltas} from '../../server/model/Delta';
-import {GameRecord} from '../../server/model/GameRecord';
-import {Records} from '../../server/model/Records';
-import {SearchQuery} from '../../server/model/Search';
-import {Stats} from '../../server/model/Stats';
-import {Streak} from '../../server/model/Streak';
-import {NewTarothon, Tarothon, TarothonData} from '../../server/model/Tarothon';
-import {GameSettings} from '../../server/play/model/GameSettings';
-import {NewRoomArgs} from '../../server/play/room/NewRoomArgs';
-import {RoomDescriptions} from '../../server/play/room/RoomDescription';
-import {mapFromCollection} from '../../server/utils';
-import {pTimeout} from '../../server/utils/index';
-import {getAdminPassword} from '../admin';
+import { ApisauceInstance, create } from 'apisauce';
+import { DeltasRequest } from '../../server/api/StatsService';
+import { RecentGameQuery } from '../../server/db/GameRecordQuerier';
+import { AdminPasswordKey } from '../../server/headers';
+import { BidRequest, BidStats } from '../../server/model/Bid';
+import { Deltas } from '../../server/model/Delta';
+import { GameRecord } from '../../server/model/GameRecord';
+import { Records } from '../../server/model/Records';
+import { SearchQuery } from '../../server/model/Search';
+import { Stats } from '../../server/model/Stats';
+import { Streak } from '../../server/model/Streak';
+import { NewTarothon, Tarothon, TarothonData } from '../../server/model/Tarothon';
+import { GameSettings } from '../../server/play/model/GameSettings';
+import { NewRoomArgs } from '../../server/play/room/NewRoomArgs';
+import { RoomDescriptions } from '../../server/play/room/RoomDescription';
+import { mapFromCollection } from '../../server/utils';
+import { pTimeout } from '../../server/utils/index';
+import { getAdminPassword } from '../admin';
 import history from '../history';
-import {StaticRoutes} from '../routes';
-import {AuthRequest} from '../services/auth/index';
-import {Month} from './../../server/model/Month';
-import {NewPlayer, Player} from './../../server/model/Player';
-import {Result} from './../../server/model/Result';
+import { StaticRoutes } from '../routes';
+import { AuthRequest } from '../services/auth/index';
+import { Month } from './../../server/model/Month';
+import { NewPlayer, Player } from './../../server/model/Player';
+import { Result } from './../../server/model/Result';
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -72,7 +72,7 @@ export class ServerApi {
   };
 
   public deleteGame = (gameId: string): Promise<void> => {
-    return this.wrapPost<void>('/game/delete', {gameId});
+    return this.wrapPost<void>('/game/delete', { gameId });
   };
 
   public getRecords = (): Promise<Records> => {
@@ -104,7 +104,7 @@ export class ServerApi {
   };
 
   public deleteTarothon = (request: string): Promise<void> => {
-    return this.wrapPost('/tarothon/delete', {id: request});
+    return this.wrapPost('/tarothon/delete', { id: request });
   };
 
   public getStreaks = (): Promise<Streak[]> => {
@@ -132,7 +132,7 @@ export class ServerApi {
   public wrapGet = <RESP>(url: string) => {
     return this.api
       .get<RESP | {error: string}>(url, {
-        headers: {[AdminPasswordKey]: getAdminPassword()},
+        headers: { [AdminPasswordKey]: getAdminPassword() },
       })
       .then((response: any): RESP => {
         if (response.ok) {
@@ -154,7 +154,7 @@ export class ServerApi {
   public wrapPost = <RESP>(url: string, body: any) => {
     return this.api
       .post<RESP | {error: string}>(url, body, {
-        headers: {[AdminPasswordKey]: getAdminPassword()},
+        headers: { [AdminPasswordKey]: getAdminPassword() },
       })
       .then((response: any): RESP => {
         if (response.ok) {

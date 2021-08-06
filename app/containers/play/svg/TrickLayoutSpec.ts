@@ -1,6 +1,6 @@
-import {isSpectatorModeObserver, SpectatorMode} from '../SpectatorMode';
-import {BottomLeftStatusLayout} from './BottomLeftStatus';
-import {CardHeight, CardWidth} from './CardSpec';
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import { BottomLeftStatusLayout } from './BottomLeftStatus';
+import { CardHeight, CardWidth } from './CardSpec';
 
 export interface TrickLayout {
   x: number;

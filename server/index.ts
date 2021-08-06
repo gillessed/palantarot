@@ -1,10 +1,10 @@
-import https, {ServerOptions} from 'https';
+import https, { ServerOptions } from 'https';
 import http from 'http';
 import fs from 'fs';
-import {App} from './App';
-import {connect, Database} from './db/dbConnector';
-import {readConfig} from './config';
-import {WebsocketManager} from './websocket/WebsocketManager';
+import { App } from './App';
+import { connect, Database } from './db/dbConnector';
+import { readConfig } from './config';
+import { WebsocketManager } from './websocket/WebsocketManager';
 
 const config = readConfig();
 
@@ -16,7 +16,7 @@ connect(config.database, (db: Database) => {
   if (config.https.enabled) {
     const redirect = http.createServer((req, res) => {
       const redirect = 'https://' + req.headers['host'] + req.url;
-      res.writeHead(301, {Location: redirect});
+      res.writeHead(301, { Location: redirect });
       res.end();
     });
     redirect.listen(config.https.httpRedirectPort);

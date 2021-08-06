@@ -1,6 +1,6 @@
-import {TypedReducer} from 'redoodle';
-import {GamePlayerActions} from './GamePlayerActions';
-import {GamePlayer} from './GamePlayerTypes';
+import { TypedReducer } from 'redoodle';
+import { GamePlayerActions } from './GamePlayerActions';
+import { GamePlayer } from './GamePlayerTypes';
 
 const setGamePlayerReducer = (
   _: GamePlayer | null,

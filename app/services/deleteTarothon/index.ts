@@ -1,7 +1,7 @@
-import {Loadable} from '../redux/loadable';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {ServerApi} from './../../api/serverApi';
+import { Loadable } from '../redux/loadable';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ServerApi } from './../../api/serverApi';
 
 export type DeleteTarothonService = Loadable<string, void>;
 const deleteTarothonOperation = (api: ServerApi) => {

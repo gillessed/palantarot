@@ -1,5 +1,5 @@
-import {getPlayerNum} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
+import { getPlayerNum } from '../CardUtils';
+import { GameErrors } from '../GameErrors';
 import {
   BidAction,
   BiddingCompletedTransition,
@@ -24,8 +24,8 @@ import {
   PlayingBoardState,
   ReducerResult,
 } from '../GameState';
-import {showTrumpActionReducer, simpleResult} from './CommonReducers';
-import {getNewTrick, getStringForBid} from './Utils';
+import { showTrumpActionReducer, simpleResult } from './CommonReducers';
+import { getNewTrick, getStringForBid } from './Utils';
 
 const getAllCalls = (
   players: PlayerId[],
@@ -56,7 +56,7 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
       bidders.pop(); // all pass, only most recent bidder left -> bidding done.
     }
     return {
-      bids: [...state.bids, bid],
+      bids: [ ...state.bids, bid ],
       bidders,
       current_high: state.current_high,
     };
@@ -64,13 +64,13 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
     throw GameErrors.bidTooLow(bid.bid, state.current_high.bid);
   } else {
     // new bid is high
-    const bidders = [...state.bidders];
+    const bidders = [ ...state.bidders ];
     bidders.push(bidders.shift()!);
     if (bidders.length === 1) {
       bidders.pop(); // all pass, only most recent bidder left -> bidding done.
     }
     return {
-      bids: [...state.bids, bid],
+      bids: [ ...state.bids, bid ],
       bidders,
       current_high: bid,
     };
@@ -91,8 +91,8 @@ const handleAllPasses = (
     type: 'game_aborted',
     reason: 'Everybody passed!',
   };
-  const events = [action, abortTransition];
-  return {state: newState, events, serverMessages: ['Everyone passed']};
+  const events = [ action, abortTransition ];
+  return { state: newState, events, serverMessages: [ 'Everyone passed' ] };
 };
 
 const handleBidAction = (
@@ -110,7 +110,7 @@ const handleBidAction = (
       bidding: newBidState,
     };
     const bidMessage = `{${action.player}} bid ${getStringForBid(bid)}`;
-    return simpleResult(newState, action, [bidMessage]);
+    return simpleResult(newState, action, [ bidMessage ]);
   } else {
     // last bid
     if (newBidState.current_high.bid === BidValue.PASS) {
@@ -126,7 +126,7 @@ const handleBidAction = (
         winning_bid: newBidState.current_high,
         privateTo: undefined,
       };
-      const events: PlayerEvent[] = [action, biddingCompletedTransition];
+      const events: PlayerEvent[] = [ action, biddingCompletedTransition ];
       if (state.players.length === 5) {
         newState = {
           ...state,
@@ -186,7 +186,7 @@ const handleBidAction = (
       return {
         state: newState,
         events,
-        serverMessages: [bidMessage, winnerMessage],
+        serverMessages: [ bidMessage, winnerMessage ],
       };
     }
   }

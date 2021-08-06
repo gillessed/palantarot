@@ -1,8 +1,8 @@
-import {Player} from '../../model/Player';
-import {GameSettings} from '../model/GameSettings';
-import {GameplayState} from '../model/GameState';
-import {PlayerStatus} from './PlayerStatus';
-import {Room} from './Room';
+import { Player } from '../../model/Player';
+import { GameSettings } from '../model/GameSettings';
+import { GameplayState } from '../model/GameState';
+import { PlayerStatus } from './PlayerStatus';
+import { Room } from './Room';
 
 export type RoomDescriptions = {[key: string]: RoomDescription};
 

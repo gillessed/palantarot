@@ -1,11 +1,11 @@
-import {defaultMemoize} from 'reselect';
-import {Card, RegValue, Suit} from '../../../server/play/model/Card';
-import {PlayerId} from '../../../server/play/model/GameState';
-import {ChatText, ServerChatAuthorId} from '../../../server/play/room/ChatText';
-import {ReduxState} from '../rootReducer';
-import {ClientGame} from './ClientGame';
-import {TrickCards} from './ClientGameEventHandler';
-import {ChatMessageListItem, ChatTextGroup, isChatTextGroup} from './RoomTypes';
+import { defaultMemoize } from 'reselect';
+import { Card, RegValue, Suit } from '../../../server/play/model/Card';
+import { PlayerId } from '../../../server/play/model/GameState';
+import { ChatText, ServerChatAuthorId } from '../../../server/play/room/ChatText';
+import { ReduxState } from '../rootReducer';
+import { ClientGame } from './ClientGame';
+import { TrickCards } from './ClientGameEventHandler';
+import { ChatMessageListItem, ChatTextGroup, isChatTextGroup } from './RoomTypes';
 
 const getClientGame = (state: ReduxState) => state.room?.game;
 
@@ -43,7 +43,7 @@ const getDogSize = defaultMemoize((game: ClientGame) => {
 });
 
 const getRotatedPlayerOrder = defaultMemoize((game: ClientGame) => {
-  const {playState} = game;
+  const { playState } = game;
   const isParticpant = isParticipant(game);
   const playerOrder = playState.playerOrder;
   if (!isParticpant || playerOrder.length <= 1) {
@@ -69,7 +69,7 @@ const getHighestBid = defaultMemoize((game: ClientGame) => {
 const getValueCounts = defaultMemoize((game: ClientGame) => {
   const counts = new Map<string, number>();
   for (const card of game.playState.hand) {
-    const [_, valueEnum] = card;
+    const [ _, valueEnum ] = card;
     const value = `${valueEnum}`;
     counts.set(value, (counts.get(value) ?? 0) + 1);
   }
@@ -79,7 +79,7 @@ const getValueCounts = defaultMemoize((game: ClientGame) => {
 const getSuitCounts = defaultMemoize((game: ClientGame) => {
   const counts = new Map<string, number>();
   for (const card of game.playState.hand) {
-    const [suitEnum] = card;
+    const [ suitEnum ] = card;
     const suit = `${suitEnum}`;
     counts.set(suit, (counts.get(suit) ?? 0) + 1);
   }
@@ -133,7 +133,7 @@ const getGroupedChatText = defaultMemoize((chat: ChatText[]) => {
           id: currentChat.id,
           type: 'group',
           authorId: currentChat.authorId,
-          chat: [currentChat],
+          chat: [ currentChat ],
           time: currentChat.time,
         };
         items.push(messageGroup);

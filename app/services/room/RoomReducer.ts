@@ -1,13 +1,13 @@
-import {TypedReducer} from 'redoodle';
-import {PlayerEvent} from '../../../server/play/model/GameEvents';
-import {GameSettings} from '../../../server/play/model/GameSettings';
-import {PlayerId} from '../../../server/play/model/GameState';
-import {ChatText} from '../../../server/play/room/ChatText';
-import {PlayerStatus} from '../../../server/play/room/PlayerStatus';
-import {SocketActions} from '../socket/socketService';
-import {ClientGame} from './ClientGame';
-import {BlankState, updateGameForEvent} from './ClientGameEventHandler';
-import {RoomActions} from './RoomActions';
+import { TypedReducer } from 'redoodle';
+import { PlayerEvent } from '../../../server/play/model/GameEvents';
+import { GameSettings } from '../../../server/play/model/GameSettings';
+import { PlayerId } from '../../../server/play/model/GameState';
+import { ChatText } from '../../../server/play/room/ChatText';
+import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
+import { SocketActions } from '../socket/socketService';
+import { ClientGame } from './ClientGame';
+import { BlankState, updateGameForEvent } from './ClientGameEventHandler';
+import { RoomActions } from './RoomActions';
 import {
   ClientRoom,
   GameUpdatesPayload,
@@ -32,7 +32,7 @@ const roomStatusReducer = (
   state: ClientRoom | null,
   payload: RoomStatusPayload
 ): ClientRoom | null => {
-  const {room, playerId} = payload;
+  const { room, playerId } = payload;
   const players = new Map<PlayerId, PlayerStatus>();
   for (const playerId of Object.keys(room.players)) {
     players.set(playerId, room.players[playerId]);
@@ -74,7 +74,7 @@ const chatReceivedReducer = (
   }
   return {
     ...state,
-    chat: [...state.chat, chat],
+    chat: [ ...state.chat, chat ],
   };
 };
 
@@ -91,7 +91,7 @@ const updateGameWithEvents = (
   return {
     ...game,
     playState,
-    events: [...game.events, ...events],
+    events: [ ...game.events, ...events ],
     settings,
   };
 };
@@ -103,7 +103,7 @@ const gameUpdateReducer = (
   if (state == null) {
     return null;
   }
-  const {gameId, events} = payload;
+  const { gameId, events } = payload;
   const nextGame = state.nextGame;
   if (gameId === state.game.id) {
     const updatedGame = updateGameWithEvents(
@@ -133,7 +133,7 @@ const setAutopassReducer = (
   if (state == null) {
     return null;
   }
-  return {...state, autopass};
+  return { ...state, autopass };
 };
 
 const setAutoplayReducer = (
@@ -143,7 +143,7 @@ const setAutoplayReducer = (
   if (state == null) {
     return null;
   }
-  return {...state, autoplay};
+  return { ...state, autoplay };
 };
 
 const closeShowWindowReducer = (
@@ -210,7 +210,7 @@ const setPlayerStatusReducer = (
   if (state === null) {
     return state;
   }
-  const {playerId, playerStatus} = payload;
+  const { playerId, playerStatus } = payload;
   const newPlayers = new Map(state.players);
   newPlayers.set(playerId, playerStatus);
   return {

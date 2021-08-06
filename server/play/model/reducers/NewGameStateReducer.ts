@@ -1,7 +1,7 @@
-import {map, without} from 'lodash';
-import {Card} from '../Card';
-import {dealCards, shufflePlayers} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
+import { map, without } from 'lodash';
+import { Card } from '../Card';
+import { dealCards, shufflePlayers } from '../CardUtils';
+import { GameErrors } from '../GameErrors';
 import {
   DealtHandTransition,
   EnterGameAction,
@@ -22,7 +22,7 @@ import {
   NewGameStates,
   ReducerResult,
 } from '../GameState';
-import {simpleResult} from './CommonReducers';
+import { simpleResult } from './CommonReducers';
 
 const handleEnterGameAction = (
   state: NewGameBoardState,
@@ -36,7 +36,7 @@ const handleEnterGameAction = (
   }
   const newState: NewGameBoardState = {
     ...state,
-    players: [...state.players, action.player],
+    players: [ ...state.players, action.player ],
   };
   return simpleResult(newState, action);
 };
@@ -74,12 +74,12 @@ const handleMarkPlayerReadyAction = (
   ) {
     const newState: NewGameBoardState = {
       ...state,
-      ready: [...state.ready, action.player],
+      ready: [ ...state.ready, action.player ],
     };
     return simpleResult(newState, action);
   } else {
-    const {publicHands} = state;
-    const {dog, hands} = dealCards(state.players.length);
+    const { publicHands } = state;
+    const { dog, hands } = dealCards(state.players.length);
     const playerOrder = shufflePlayers(state.players);
 
     // Give greg cole a hand with four kings
@@ -120,9 +120,9 @@ const handleMarkPlayerReadyAction = (
           playerId: playerOrder[player],
         };
         if (state.publicHands) {
-          const exclude = [...playerOrder];
+          const exclude = [ ...playerOrder ];
           exclude.splice(player, 1);
-          return {...transition, exclude};
+          return { ...transition, exclude };
         } else {
           return {
             ...transition,
@@ -146,7 +146,7 @@ const handleMarkPlayerReadyAction = (
       };
       events.push(showDogEvent);
     }
-    return {state: bidState, events, serverMessages: ['A new game has begun']};
+    return { state: bidState, events, serverMessages: [ 'A new game has begun' ] };
   }
 };
 

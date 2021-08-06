@@ -1,5 +1,5 @@
-import {defineSocketMessage} from '../../websocket/SocketMessage';
-import {RoomDescription} from '../room/RoomDescription';
+import { defineSocketMessage } from '../../websocket/SocketMessage';
+import { RoomDescription } from '../room/RoomDescription';
 
 export interface EnterLobbyMessagePayload {
   playerId: string;

@@ -1,17 +1,17 @@
-import {IMonth} from '../../../server/model/Month';
+import { IMonth } from '../../../server/model/Month';
 import {
   AggregatedStat,
   AggregatedStats,
   RoleStats,
   Stats,
 } from '../../../server/model/Stats';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {ReduxState} from '../rootReducer';
-import {ServerApi} from './../../api/serverApi';
-import {Loadable} from './../redux/loadable';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type StatsService = Loadable<void, AggregatedStats>;
 
@@ -45,7 +45,7 @@ const aggregateStats = (stats: Stats): AggregatedStats => {
     if (!value) {
       value = {
         playerId: stat.playerId,
-        month: IMonth.get({month: stat.month, year: stat.year}),
+        month: IMonth.get({ month: stat.month, year: stat.year }),
       };
     }
     const roleStats: RoleStats = {
@@ -78,7 +78,7 @@ const aggregateStats = (stats: Stats): AggregatedStats => {
       if (!partial.bidderStats) {
         partial = {
           ...partial,
-          bidderStats: {totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0},
+          bidderStats: { totalGames: 0, totalScore: 0, wonGames: 0, wonScore: 0 },
         };
       }
       if (!partial.partnerStats) {

@@ -1,11 +1,11 @@
-import {isEqual} from 'lodash';
-import {Card, Suit, TrumpValue} from '../server/play/model/Card';
-import {getCardValueAsNumber} from '../server/play/model/CardUtils';
+import { isEqual } from 'lodash';
+import { Card, Suit, TrumpValue } from '../server/play/model/Card';
+import { getCardValueAsNumber } from '../server/play/model/CardUtils';
 
 export class CardList {
   private list: Card[];
   constructor(...cards: Card[]) {
-    this.list = [...cards];
+    this.list = [ ...cards ];
   }
 
   public add = (...cards: Card[]) => {
@@ -37,7 +37,7 @@ export class CardList {
     let minNum = 30;
     let minCard = null;
     for (const card of this.list) {
-      const [cardSuit, cardValue] = card;
+      const [ cardSuit, cardValue ] = card;
       if (cardValue !== TrumpValue.Joker && cardSuit === suit) {
         const num = getCardValueAsNumber(cardValue);
         if (num < minNum) {
@@ -50,7 +50,7 @@ export class CardList {
   };
 
   public suitFilter = (suit: Suit): CardList => {
-    const cards = this.list.filter(([cardSuit, _]) => cardSuit === suit);
+    const cards = this.list.filter(([ cardSuit, _ ]) => cardSuit === suit);
     return new CardList(...cards);
   };
 

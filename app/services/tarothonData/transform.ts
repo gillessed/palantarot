@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {Tarothon} from '../../../server/model/Tarothon';
+import { Tarothon } from '../../../server/model/Tarothon';
 
 export enum Time {
   UPCOMING = 'UPCOMING',

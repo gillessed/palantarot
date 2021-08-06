@@ -1,13 +1,13 @@
-import {Store} from 'redux';
-import {Action} from '../../../server/play/model/GameEvents';
-import {PlayerId} from '../../../server/play/model/GameState';
-import {ChatText} from '../../../server/play/room/ChatText';
-import {RoomSocketMessages} from '../../../server/play/room/RoomSocketMessages';
-import {generateId} from '../../../server/utils/randomString';
-import {ReduxState} from '../rootReducer';
-import {SocketActions} from '../socket/socketService';
-import {PlayDispatcher} from './ClientGameDispatcher';
-import {RoomActions} from './RoomActions';
+import { Store } from 'redux';
+import { Action } from '../../../server/play/model/GameEvents';
+import { PlayerId } from '../../../server/play/model/GameState';
+import { ChatText } from '../../../server/play/room/ChatText';
+import { RoomSocketMessages } from '../../../server/play/room/RoomSocketMessages';
+import { generateId } from '../../../server/utils/randomString';
+import { ReduxState } from '../rootReducer';
+import { SocketActions } from '../socket/socketService';
+import { PlayDispatcher } from './ClientGameDispatcher';
+import { RoomActions } from './RoomActions';
 
 export class RoomDispatcher {
   constructor(private readonly store: Store<ReduxState>) {}
@@ -18,7 +18,7 @@ export class RoomDispatcher {
     this.store.dispatch(
       SocketActions.connect({
         id: generateId(),
-        initialMessages: [RoomSocketMessages.enterRoom({roomId, playerId})],
+        initialMessages: [ RoomSocketMessages.enterRoom({ roomId, playerId }) ],
       })
     );
   }
@@ -29,7 +29,7 @@ export class RoomDispatcher {
     if (roomId && playerId) {
       this.store.dispatch(
         SocketActions.send(
-          RoomSocketMessages.gameAction({roomId, playerId, action})
+          RoomSocketMessages.gameAction({ roomId, playerId, action })
         )
       );
     }
@@ -39,7 +39,7 @@ export class RoomDispatcher {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
       this.store.dispatch(
-        SocketActions.send(RoomSocketMessages.addBot({roomId, botId}))
+        SocketActions.send(RoomSocketMessages.addBot({ roomId, botId }))
       );
     }
   }
@@ -48,7 +48,7 @@ export class RoomDispatcher {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
       this.store.dispatch(
-        SocketActions.send(RoomSocketMessages.removeBot({roomId, botId}))
+        SocketActions.send(RoomSocketMessages.removeBot({ roomId, botId }))
       );
     }
   }
@@ -81,7 +81,7 @@ export class RoomDispatcher {
         time: Date.now(),
       };
       this.store.dispatch(
-        SocketActions.send(RoomSocketMessages.roomChat({roomId, chat}))
+        SocketActions.send(RoomSocketMessages.roomChat({ roomId, chat }))
       );
     }
   }
@@ -90,7 +90,7 @@ export class RoomDispatcher {
     const roomId = this.store.getState().room?.id;
     if (roomId) {
       this.store.dispatch(
-        SocketActions.send(RoomSocketMessages.autoplay({roomId}))
+        SocketActions.send(RoomSocketMessages.autoplay({ roomId }))
       );
     }
   }
@@ -103,7 +103,7 @@ export class RoomDispatcher {
     const roomId = this.store.getState().room?.id;
     if (roomId != null) {
       this.store.dispatch(
-        SocketActions.send(RoomSocketMessages.notifyPlayer({roomId, playerId}))
+        SocketActions.send(RoomSocketMessages.notifyPlayer({ roomId, playerId }))
       );
     }
   }

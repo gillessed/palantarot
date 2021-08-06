@@ -1,9 +1,9 @@
 import http from 'http';
 import https from 'https';
-import WebSocket, {MessageEvent} from 'ws';
-import {JsonSocket} from './JsonSocket';
-import {SocketCloseListener, SocketMessageListener} from './SocketListener';
-import {isSocketConnectionMessage, SocketMessage} from './SocketMessage';
+import WebSocket, { MessageEvent } from 'ws';
+import { JsonSocket } from './JsonSocket';
+import { SocketCloseListener, SocketMessageListener } from './SocketListener';
+import { isSocketConnectionMessage, SocketMessage } from './SocketMessage';
 
 export class WebsocketManager {
   private server?: WebSocket.Server;
@@ -18,7 +18,7 @@ export class WebsocketManager {
   }
 
   public start(server: http.Server | https.Server) {
-    this.server = new WebSocket.Server({server});
+    this.server = new WebSocket.Server({ server });
     this.server.on('connection', socket => {
       socket.onmessage = (event: MessageEvent) => {
         try {

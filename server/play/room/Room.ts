@@ -1,15 +1,15 @@
-import {RandomBotType} from '../../../bots/RandomBot';
-import {PlayService} from '../../api/PlayService';
-import {Player} from '../../model/Player';
-import {Multimap} from '../../utils/multimap';
-import {promiseDelay} from '../../utils/promiseDelay';
-import {generateId} from '../../utils/randomString';
-import {JsonSocket} from '../../websocket/JsonSocket';
-import {SocketMessage} from '../../websocket/SocketMessage';
-import {autologGame} from '../Autolog';
-import {autoplayNextCard} from '../bots/Autoplay';
-import {getNextPlayer, playForBot} from '../bots/BotPlayer';
-import {Game} from '../game/Game';
+import { RandomBotType } from '../../../bots/RandomBot';
+import { PlayService } from '../../api/PlayService';
+import { Player } from '../../model/Player';
+import { Multimap } from '../../utils/multimap';
+import { promiseDelay } from '../../utils/promiseDelay';
+import { generateId } from '../../utils/randomString';
+import { JsonSocket } from '../../websocket/JsonSocket';
+import { SocketMessage } from '../../websocket/SocketMessage';
+import { autologGame } from '../Autolog';
+import { autoplayNextCard } from '../bots/Autoplay';
+import { getNextPlayer, playForBot } from '../bots/BotPlayer';
+import { Game } from '../game/Game';
 import {
   Action,
   AllowNotifyPlayerEvent,
@@ -19,16 +19,16 @@ import {
   PlayerNotReadyAction,
   PlayerReadyAction,
 } from '../model/GameEvents';
-import {GameSettings} from '../model/GameSettings';
+import { GameSettings } from '../model/GameSettings';
 import {
   CompletedBoardState,
   CompletedGameState,
   GameplayState,
   PlayerId,
 } from '../model/GameState';
-import {PlayerStatus} from '../room/PlayerStatus';
-import {ChatText, ServerChatAuthorId} from './ChatText';
-import {NewRoomArgs} from './NewRoomArgs';
+import { PlayerStatus } from '../room/PlayerStatus';
+import { ChatText, ServerChatAuthorId } from './ChatText';
+import { NewRoomArgs } from './NewRoomArgs';
 import {
   BotMessagePayload,
   EnterRoomMessagePayload,
@@ -37,7 +37,7 @@ import {
   RoomChatMessagePayload,
   RoomSocketMessages,
 } from './RoomSocketMessages';
-import {RoomStatus} from './RoomStatus';
+import { RoomStatus } from './RoomStatus';
 
 export class Room {
   public static empty = (playService: PlayService, args: NewRoomArgs) => {
@@ -148,7 +148,7 @@ export class Room {
     socketId: string,
     message: SocketMessage<EnterRoomMessagePayload>
   ) => {
-    const {playerId} = message.payload;
+    const { playerId } = message.payload;
     this.broadcastMessage(message);
     this.playerIdToSocketId.set(playerId, socketId);
     this.socketIdToPlayerId.set(socketId, playerId);
@@ -165,13 +165,13 @@ export class Room {
     this.broadcastMessage(message);
   };
 
-  public handleGameActionMessage = ({action}: GameActionMessagePayload) => {
-    this.processGameActions([action]);
+  public handleGameActionMessage = ({ action }: GameActionMessagePayload) => {
+    this.processGameActions([ action ]);
     this.handleBotPlayers();
   };
 
   public handleAddBotMessage = (payload: BotMessagePayload) => {
-    const {botId} = payload;
+    const { botId } = payload;
     const alreadyIn = this.game.getState().players.indexOf(botId) >= 0;
     if (alreadyIn) {
       return;
@@ -187,11 +187,11 @@ export class Room {
       player: botId,
       time: new Date().getTime(),
     };
-    this.processGameActions([joinGame, ready]);
+    this.processGameActions([ joinGame, ready ]);
   };
 
   public handleRemoveBotMessage = (payload: BotMessagePayload) => {
-    const {botId} = payload;
+    const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
     const unready: PlayerNotReadyAction = {
       type: 'unmark_player_ready',
@@ -203,13 +203,13 @@ export class Room {
       player: botId,
       time: new Date().getTime(),
     };
-    this.processGameActions([unready, leaveGame]);
+    this.processGameActions([ unready, leaveGame ]);
   };
 
   public handleAutoplayMessage = () => {
     const action = autoplayNextCard(this.game, Date.now());
     if (action) {
-      this.processGameActions([action]);
+      this.processGameActions([ action ]);
       this.handleBotPlayers();
     }
   };
@@ -238,7 +238,7 @@ export class Room {
 
   private processGameActions = (actions: Action[]) => {
     for (const action of actions) {
-      const {events, serverMessages} = this.game.playerAction(action);
+      const { events, serverMessages } = this.game.playerAction(action);
       if (events) {
         this.broadcastGameEvents(events);
       }
@@ -252,7 +252,7 @@ export class Room {
           };
           this.chat.push(chat);
           this.broadcastMessage(
-            RoomSocketMessages.roomChat({roomId: this.id, chat})
+            RoomSocketMessages.roomChat({ roomId: this.id, chat })
           );
         }
       }
@@ -305,7 +305,7 @@ export class Room {
 
   private getRoomStatus = (playerId: string): RoomStatus => {
     const players: {[key: string]: PlayerStatus} = {};
-    for (const [playerId, status] of this.players) {
+    for (const [ playerId, status ] of this.players) {
       players[playerId] = status;
     }
     return {
@@ -335,7 +335,7 @@ export class Room {
       const action = playForBot(this.game, nextPlayerId, bot);
       if (action) {
         await promiseDelay(1000);
-        this.processGameActions([action]);
+        this.processGameActions([ action ]);
       } else {
         break;
       }
@@ -388,7 +388,7 @@ export class Room {
           RoomSocketMessages.gameUpdates({
             roomId: this.id,
             gameId: this.game.id,
-            events: [notifyEvent],
+            events: [ notifyEvent ],
           })
         );
       }, 10_000);

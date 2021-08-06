@@ -1,13 +1,13 @@
-import {isEqual} from 'lodash';
-import {ClientGame} from '../app/services/room/ClientGame';
-import {Suit, TrumpValue} from '../server/play/model/Card';
+import { isEqual } from 'lodash';
+import { ClientGame } from '../app/services/room/ClientGame';
+import { Suit, TrumpValue } from '../server/play/model/Card';
 import {
   AllSuits,
   createCardsOfSuit,
   getLeadCard,
 } from '../server/play/model/CardUtils';
-import {getTrickCardList} from './BotUtils';
-import {CardList} from './CardList';
+import { getTrickCardList } from './BotUtils';
+import { CardList } from './CardList';
 
 export interface StateAnalysis {
   onePlayed: boolean;
@@ -50,14 +50,14 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
       remainingCards: new CardList(...createCardsOfSuit(suit)),
     };
   }
-  for (const trick of [...completedTricks, currentTrick]) {
+  for (const trick of [ ...completedTricks, currentTrick ]) {
     const trickCardList = getTrickCardList(trick);
     const playerList = trick.order;
     const leadCard = getLeadCard(trickCardList);
     let highestTrump: number | null = null;
     for (let i = 0; i < trickCardList.length; i++) {
       const card = trickCardList[i];
-      const [cardSuit, cardValue] = card;
+      const [ cardSuit, cardValue ] = card;
       const isOne = cardSuit === Suit.Trump && cardValue === TrumpValue._1;
       const isJoker = cardSuit === Suit.Trump && cardValue === TrumpValue.Joker;
       stateAnalysis.suits[cardSuit].playedCards.add(card);

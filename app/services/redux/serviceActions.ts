@@ -1,5 +1,5 @@
-import {TypedAction} from 'redoodle';
-import {actionName} from './actionName';
+import { TypedAction } from 'redoodle';
+import { actionName } from './actionName';
 
 // Service
 

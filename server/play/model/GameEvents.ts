@@ -1,5 +1,5 @@
-import {Card, TrumpCard} from './Card';
-import {GameSettings} from './GameSettings';
+import { Card, TrumpCard } from './Card';
+import { GameSettings } from './GameSettings';
 import {
   Bid,
   BidValue,

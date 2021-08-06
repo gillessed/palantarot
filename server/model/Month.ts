@@ -1,5 +1,5 @@
 import moment from 'moment-timezone';
-import {integerComparator, SortOrder, Comparator} from '../utils/index';
+import { integerComparator, SortOrder, Comparator } from '../utils/index';
 
 export interface Month {
   year: number;
@@ -38,12 +38,12 @@ export class IMonth implements Month {
     error?: string;
   } {
     if (this.month < 0 || this.month > 11) {
-      return {valid: false, error: `Month must be between 0-11: ${this.month}`};
+      return { valid: false, error: `Month must be between 0-11: ${this.month}` };
     }
     if (options && options.inPast && this.year > moment().year()) {
-      return {valid: false, error: `Year must be less than ${moment().year()}`};
+      return { valid: false, error: `Year must be less than ${moment().year()}` };
     }
-    return {valid: true};
+    return { valid: true };
   }
 
   public previous(): IMonth {
@@ -63,11 +63,11 @@ export class IMonth implements Month {
   }
 
   public simpleObject(): Month {
-    return {month: this.month, year: this.year};
+    return { month: this.month, year: this.year };
   }
 
   public static n(m: number, y: number) {
-    return IMonth.get(new IMonth({month: m, year: y}));
+    return IMonth.get(new IMonth({ month: m, year: y }));
   }
 
   public static m(m: Month) {
@@ -75,7 +75,7 @@ export class IMonth implements Month {
   }
 
   public static now() {
-    return IMonth.get({month: moment().month(), year: moment().year()});
+    return IMonth.get({ month: moment().month(), year: moment().year() });
   }
 
   public static toString(month: Month): string {

@@ -1,4 +1,4 @@
-import yargs, {exit} from 'yargs';
+import yargs, { exit } from 'yargs';
 
 const argv = yargs
   .option('runs', {

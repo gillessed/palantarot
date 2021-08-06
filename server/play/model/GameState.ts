@@ -1,4 +1,4 @@
-import {Bout, Card} from './Card';
+import { Bout, Card } from './Card';
 import {
   Action,
   BidAction,

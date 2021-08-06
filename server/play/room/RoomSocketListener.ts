@@ -1,9 +1,9 @@
-import {PlayService} from '../../api/PlayService';
-import {JsonSocket} from '../../websocket/JsonSocket';
-import {SocketMessageListener} from '../../websocket/SocketListener';
-import {SocketMessage} from '../../websocket/SocketMessage';
-import {ErrorCode} from '../model/GameEvents';
-import {RoomSocketMessages} from './RoomSocketMessages';
+import { PlayService } from '../../api/PlayService';
+import { JsonSocket } from '../../websocket/JsonSocket';
+import { SocketMessageListener } from '../../websocket/SocketListener';
+import { SocketMessage } from '../../websocket/SocketMessage';
+import { ErrorCode } from '../model/GameEvents';
+import { RoomSocketMessages } from './RoomSocketMessages';
 
 export function isRoomMessage(
   message: SocketMessage
@@ -22,7 +22,7 @@ export class RoomSocketListener implements SocketMessageListener {
     if (!isRoomMessage(message)) {
       return;
     }
-    const {roomId} = message.payload;
+    const { roomId } = message.payload;
     const room = this.playService.getRoom(roomId);
     if (room != null) {
       room.handleMessage(socketId, socket, message);

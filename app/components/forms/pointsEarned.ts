@@ -1,4 +1,4 @@
-import {PlayerRoles} from './PlayerRoles';
+import { PlayerRoles } from './PlayerRoles';
 
 export function getPointsEarned(
   basePoints: number,

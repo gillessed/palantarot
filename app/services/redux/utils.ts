@@ -5,7 +5,7 @@ export function wrapAsBatchCall<ARG, RESULT>(
     return Promise.all(
       args.map(arg =>
         baseFunction(arg)
-          .then(result => [arg, result] as [ARG, RESULT])
+          .then(result => [ arg, result ] as [ARG, RESULT])
           .catch(error => {
             const wrapped = new Error(
               `Unable to resolve request ${arg}}:\n ${error.stack}`

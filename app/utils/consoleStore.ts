@@ -1,6 +1,6 @@
-import {Store} from 'redux';
-import {ClientGame} from '../services/room/ClientGame';
-import {ReduxState} from '../services/rootReducer';
+import { Store } from 'redux';
+import { ClientGame } from '../services/room/ClientGame';
+import { ReduxState } from '../services/rootReducer';
 
 function getGameUpdatedFiltered(
   store: Store<ReduxState>

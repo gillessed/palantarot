@@ -1,13 +1,13 @@
-import {PlayerId} from '../../../server/play/model/GameState';
-import {addNewPlayerActions} from '../addPlayer/index';
-import {Dispatchers} from '../dispatchers';
-import {Loader} from '../loader';
-import {PropertyDispatcher} from '../redux/serviceDispatcher';
-import {generatePropertyService} from '../redux/serviceGenerator';
-import {ReduxState} from '../rootReducer';
-import {Player} from './../../../server/model/Player';
-import {ServerApi} from './../../api/serverApi';
-import {Loadable} from './../redux/loadable';
+import { PlayerId } from '../../../server/play/model/GameState';
+import { addNewPlayerActions } from '../addPlayer/index';
+import { Dispatchers } from '../dispatchers';
+import { Loader } from '../loader';
+import { PropertyDispatcher } from '../redux/serviceDispatcher';
+import { generatePropertyService } from '../redux/serviceGenerator';
+import { ReduxState } from '../rootReducer';
+import { Player } from './../../../server/model/Player';
+import { ServerApi } from './../../api/serverApi';
+import { Loadable } from './../redux/loadable';
 
 export type PlayersService = Loadable<void, Map<PlayerId, Player>>;
 

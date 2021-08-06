@@ -1,4 +1,4 @@
-import {TypedReducer} from 'redoodle';
+import { TypedReducer } from 'redoodle';
 import {
   RefreshState,
   InitialRefreshState,

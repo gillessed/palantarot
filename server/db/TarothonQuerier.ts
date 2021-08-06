@@ -1,7 +1,7 @@
-import {Database} from './dbConnector';
-import {QueryBuilder} from './queryBuilder/QueryBuilder';
-import {QueryResult} from 'pg';
-import {Tarothon, NewTarothon} from '../model/Tarothon';
+import { Database } from './dbConnector';
+import { QueryBuilder } from './queryBuilder/QueryBuilder';
+import { QueryResult } from 'pg';
+import { Tarothon, NewTarothon } from '../model/Tarothon';
 
 export class TarothonQuerier {
   private db: Database;
@@ -73,6 +73,6 @@ export class TarothonQuerier {
     const id = result['id'];
     const begin = result['begin_date'];
     const end = result['end_date'];
-    return {id, begin, end};
+    return { id, begin, end };
   };
 }

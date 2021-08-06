@@ -1,6 +1,6 @@
-import {isSpectatorModeObserver, SpectatorMode} from '../SpectatorMode';
-import {BottomLeftStatusLayout} from './BottomLeftStatus';
-import {PlayerTitleSvg} from './PlayerTitleSvg';
+import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
+import { BottomLeftStatusLayout } from './BottomLeftStatus';
+import { PlayerTitleSvg } from './PlayerTitleSvg';
 
 export type TitleArrangementSpec = Array<
   (svgWidth: number, svgHeight: number) => PlayerTitleSvg.ArrangementProps

@@ -1,8 +1,8 @@
-import {TypedAction} from 'redoodle';
-import {Action} from '../../../server/play/model/GameEvents';
-import {ChatText} from '../../../server/play/room/ChatText';
-import {NotifyPlayerMessagePayload} from '../../../server/play/room/RoomSocketMessages';
-import {actionName} from '../redux/actionName';
+import { TypedAction } from 'redoodle';
+import { Action } from '../../../server/play/model/GameEvents';
+import { ChatText } from '../../../server/play/room/ChatText';
+import { NotifyPlayerMessagePayload } from '../../../server/play/room/RoomSocketMessages';
+import { actionName } from '../redux/actionName';
 import {
   GameUpdatesPayload,
   NewGameInfo,

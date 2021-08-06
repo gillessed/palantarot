@@ -1,13 +1,65 @@
 {
-  "extends": "./node_modules/gts/",
+  "extends": [
+      "eslint:recommended"
+  ],
+  "plugins": [
+    "node"
+  ],
   "rules": {
-    "@typescript-eslint/no-unused-vars": [ "error", { "args": "none", "varsIgnorePattern": "^_" } ],
-    "@typescript-eslint/no-explicit-any": "off",
     "eqeqeq": [ "error", "smart" ],
     "require-yield": "off",
     "array-bracket-spacing": [ "error", "always" ],
     "object-curly-spacing": [ "error", "always" ],
     "comma-dangle": [ "error", "only-multiline" ],
-    "quotes": [ "error", "single" ]
-  }
+    "block-scoped-var": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "eol-last": "error",
+    "prefer-arrow-callback": "error",
+    "no-trailing-spaces": "error",
+    "quotes": ["warn", "single", { "avoidEscape": true }],
+    "no-restricted-properties": [
+      "error",
+      {
+        "object": "describe",
+        "property": "only"
+      },
+      {
+        "object": "it",
+        "property": "only"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "extends": [
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-unused-vars": [ "error", { "args": "none", "varsIgnorePattern": "^_" } ],
+        "node/no-missing-import": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-warning-comments": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/camelcase": "off",
+        "node/no-empty-function": "off",
+        "node/shebang": "off",
+        "no-dupe-class-members": "off",
+        "require-atomic-updates": "off"
+      },
+      "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+      }
+    }
+  ]
 }

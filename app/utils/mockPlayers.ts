@@ -1,8 +1,8 @@
-import {Player} from '../../server/model/Player';
-import {PlayerId} from '../../server/play/model/GameState';
-import {PlayDispatcher} from '../services/room/ClientGameDispatcher';
-import {RoomDispatcher} from '../services/room/RoomDispatcher';
-import {getWindowRedux} from './consoleStore';
+import { Player } from '../../server/model/Player';
+import { PlayerId } from '../../server/play/model/GameState';
+import { PlayDispatcher } from '../services/room/ClientGameDispatcher';
+import { RoomDispatcher } from '../services/room/RoomDispatcher';
+import { getWindowRedux } from './consoleStore';
 
 type DebugGroupActions = {
   numEnterGame(playerNum: number): void;
@@ -39,10 +39,10 @@ function getDebugPlayers(
 ): DebugPlayerInfo[] {
   const botPlayers: DebugPlayerInfo[] = allPlayers
     .filter(player => player.id !== selfId && player.isBot)
-    .map(player => ({key: getPlayerKey(player), id: player.id}));
+    .map(player => ({ key: getPlayerKey(player), id: player.id }));
   const nonBotPlayers: DebugPlayerInfo[] = allPlayers
     .filter(player => player.id !== selfId && !player.isBot)
-    .map(player => ({key: getPlayerKey(player), id: player.id}));
+    .map(player => ({ key: getPlayerKey(player), id: player.id }));
   const debugPlayers: DebugPlayerInfo[] = [];
   for (const nonDebugPlayer of botPlayers) {
     debugPlayers.push(nonDebugPlayer);
@@ -92,7 +92,7 @@ export function registerDebugPlayers(
   if (!playerMap) {
     return;
   }
-  const players = [...playerMap.values()];
+  const players = [ ...playerMap.values() ];
   const debugPlayers = getDebugPlayers(player, players);
   const groupActions: DebugGroupActions = {
     numEnterGame: getGroupAction(

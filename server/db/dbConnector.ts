@@ -1,4 +1,4 @@
-import {Pool, PoolClient, ConnectionConfig, QueryResult} from 'pg';
+import { Pool, PoolClient, ConnectionConfig, QueryResult } from 'pg';
 
 export class Database {
   private pool: Pool;

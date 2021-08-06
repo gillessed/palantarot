@@ -1,5 +1,5 @@
-import {TypedAction} from 'redoodle';
-import {ReduxState} from '../rootReducer';
+import { TypedAction } from 'redoodle';
+import { ReduxState } from '../rootReducer';
 export interface RefreshState {
   refreshCounter: number;
 }

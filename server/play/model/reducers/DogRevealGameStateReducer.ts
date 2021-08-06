@@ -1,7 +1,7 @@
-import {isEqual} from 'lodash';
-import {cardsWithout, getPlayerNum} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
-import {GameStartTransition, PlayerEvent, SetDogAction} from '../GameEvents';
+import { isEqual } from 'lodash';
+import { cardsWithout, getPlayerNum } from '../CardUtils';
+import { GameErrors } from '../GameErrors';
+import { GameStartTransition, PlayerEvent, SetDogAction } from '../GameEvents';
 import {
   DogRevealAndExchangeBoardState,
   DogRevealStateActions,
@@ -14,7 +14,7 @@ import {
   declareSlamActionReducer,
   showTrumpActionReducer,
 } from './CommonReducers';
-import {getNewTrick} from './Utils';
+import { getNewTrick } from './Utils';
 
 const handleSetDogAction = (
   state: DogRevealAndExchangeBoardState,
@@ -32,7 +32,7 @@ const handleSetDogAction = (
 
   const playerNum = getPlayerNum(state.players, state.bidder);
   const playerHand = state.hands[playerNum];
-  const cards = [...playerHand, ...state.dog];
+  const cards = [ ...playerHand, ...state.dog ];
   const newPlayerHand = cardsWithout(cards, ...action.dog);
 
   if (newPlayerHand.length !== playerHand.length) {
@@ -55,8 +55,8 @@ const handleSetDogAction = (
     first_player: state.players[0],
     privateTo: undefined,
   };
-  const events: PlayerEvent[] = [action, gameStartedTransition];
-  const {publicHands} = state;
+  const events: PlayerEvent[] = [ action, gameStartedTransition ];
+  const { publicHands } = state;
   if (publicHands) {
     const setDogForObservers: SetDogAction = {
       player: action.player,
@@ -67,7 +67,7 @@ const handleSetDogAction = (
     };
     events.push(setDogForObservers);
   }
-  return {state: newState, events};
+  return { state: newState, events };
 };
 
 export const DogRevealGameStateReducer = (

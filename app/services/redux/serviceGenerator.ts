@@ -1,5 +1,5 @@
-import {takeEvery} from 'redux-saga/effects';
-import {ServerApi} from './../../api/serverApi';
+import { takeEvery } from 'redux-saga/effects';
+import { ServerApi } from './../../api/serverApi';
 import {
   generatePropertyActions,
   generateServiceActions,

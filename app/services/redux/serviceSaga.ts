@@ -1,7 +1,7 @@
-import {TypedAction} from 'redoodle';
-import {SagaIterator} from 'redux-saga';
-import {call, put} from 'redux-saga/effects';
-import {PropertyActions, ServiceActions} from './serviceActions';
+import { TypedAction } from 'redoodle';
+import { SagaIterator } from 'redux-saga';
+import { call, put } from 'redux-saga/effects';
+import { PropertyActions, ServiceActions } from './serviceActions';
 
 export interface AsyncOperationBasePayload<T> {
   arg: T;
@@ -30,9 +30,9 @@ export function createSagaServiceOperation<ARG, RESULT>(
     try {
       yield put(actions.loading(arg));
       const result = yield call(operation, arg);
-      yield put(actions.success({arg, result}));
+      yield put(actions.success({ arg, result }));
     } catch (error) {
-      yield put(actions.error({arg, error}));
+      yield put(actions.error({ arg, error }));
     }
   };
 }
@@ -46,9 +46,9 @@ export function createSagaPropertyOperation<ARG, RESULT>(
     try {
       yield put(actions.loading(undefined));
       const result = yield call(operation, arg);
-      yield put(actions.success({arg, result}));
+      yield put(actions.success({ arg, result }));
     } catch (error) {
-      yield put(actions.error({error}));
+      yield put(actions.error({ error }));
     }
   };
 }

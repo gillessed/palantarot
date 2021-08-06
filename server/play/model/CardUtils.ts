@@ -1,4 +1,4 @@
-import {chunk, differenceWith, filter, find, isEqual, shuffle} from 'lodash';
+import { chunk, differenceWith, filter, find, isEqual, shuffle } from 'lodash';
 import {
   Card,
   RegSuit,
@@ -10,8 +10,8 @@ import {
   TrumpCard,
   TrumpValue,
 } from './Card';
-import {GameErrors} from './GameErrors';
-import {PlayerId} from './GameState';
+import { GameErrors } from './GameErrors';
+import { PlayerId } from './GameState';
 
 /*
  * This file contains game code which is useful for both client and server.
@@ -23,7 +23,7 @@ export const RegSuits: RegSuit[] = [
   Suit.Heart,
   Suit.Spade,
 ];
-export const AllSuits: Suit[] = [...RegSuits, Suit.Trump];
+export const AllSuits: Suit[] = [ ...RegSuits, Suit.Trump ];
 
 export function createAllCards(): Card[] {
   const cards: Card[] = [];
@@ -33,7 +33,7 @@ export function createAllCards(): Card[] {
         // stupid number keys...
         continue;
       }
-      cards.push([suit, RegValue[value as keyof typeof RegValue]]);
+      cards.push([ suit, RegValue[value as keyof typeof RegValue] ]);
     }
   }
   for (const value of Object.keys(TrumpValue)) {
@@ -41,20 +41,20 @@ export function createAllCards(): Card[] {
       // stupid number keys...
       continue;
     }
-    cards.push([Suit.Trump, TrumpValue[value as keyof typeof TrumpValue]]);
+    cards.push([ Suit.Trump, TrumpValue[value as keyof typeof TrumpValue] ]);
   }
   return cards;
 }
 
 export function createCardsOfSuit(suit: Suit): Card[] {
-  return createAllCards().filter(([cardSuit, _]) => cardSuit === suit);
+  return createAllCards().filter(([ cardSuit, _ ]) => cardSuit === suit);
 }
 
 export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
   const value =
     parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
-  return [suit, value] as Card;
+  return [ suit, value ] as Card;
 }
 
 export function toCardString(card: Card): string {
@@ -106,7 +106,7 @@ export const dealCards = (players: number): DealtCards => {
     dog = deal[players];
     hands = deal.slice(0, players).map(hand => hand.sort(comparer));
   } while (invalidDeal(hands));
-  return {dog, hands};
+  return { dog, hands };
 };
 
 export const dealRemainingCards = ({
@@ -159,7 +159,7 @@ export const dealRemainingCards = ({
   }
 
   if (!allowInvalid && invalidDeal(dealtCards.hands)) {
-    return dealRemainingCards({fixedDeal, players, allowInvalid});
+    return dealRemainingCards({ fixedDeal, players, allowInvalid });
   }
   return dealtCards;
 };
@@ -246,7 +246,7 @@ export const getCardsAllowedToPlay = function (
   const joker = filter(hand, card => isEqual(card, TheJoker));
   const handInSuit = filter(hand, card => card[0] === leadsuit);
   if (leadsuit !== Suit.Trump && handInSuit.length > 0) {
-    return [...handInSuit, ...joker]; // can follow non-trump suit
+    return [ ...handInSuit, ...joker ]; // can follow non-trump suit
   }
 
   const lowest_allowed = getLowestAllowableTrump(trick);
@@ -258,14 +258,14 @@ export const getCardsAllowedToPlay = function (
       card[1] >= lowest_allowed
   );
   if (allowedTrump.length > 0) {
-    return [...allowedTrump, ...joker]; // can over-trump
+    return [ ...allowedTrump, ...joker ]; // can over-trump
   }
   const trump = filter(
     hand,
     card => card[0] === Suit.Trump && card[1] !== TrumpValue.Joker
   );
   if (trump.length > 0) {
-    return [...trump, ...joker]; // need to play some trump
+    return [ ...trump, ...joker ]; // need to play some trump
   } else {
     return hand; // play whatever
   }
@@ -407,14 +407,14 @@ export const getWinner = function (
   trick: Card[],
   players: PlayerId[]
 ): [Card, PlayerId] {
-  let [card, player] = [trick[0], players[0]];
+  let [ card, player ] = [ trick[0], players[0] ];
   const comparer = compareCards(getLeadSuit(trick));
   for (const index in trick) {
     if (comparer(trick[index], card) > 0) {
-      [card, player] = [trick[index], players[index]];
+      [ card, player ] = [ trick[index], players[index] ];
     }
   }
-  return [card, player];
+  return [ card, player ];
 };
 
 export function isBout(c: Card) {
@@ -426,7 +426,7 @@ export function getArrayRandom<T>(array: T[]): T {
 }
 
 export function getArrayRandoms<T>(array: T[], count: number): T[] {
-  const dup = [...array];
+  const dup = [ ...array ];
   const picks: T[] = [];
   while (picks.length < count) {
     const index = Math.floor(Math.random() * dup.length);

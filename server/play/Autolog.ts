@@ -1,8 +1,8 @@
-import {PlayerRoles} from '../../app/components/forms/PlayerRoles';
-import {getPointsEarned} from '../../app/components/forms/pointsEarned';
-import {GameRecordQuerier} from '../db/GameRecordQuerier';
-import {GameRecord as Results, HandData, PlayerHand} from '../model/GameRecord';
-import {Game} from './game/Game';
+import { PlayerRoles } from '../../app/components/forms/PlayerRoles';
+import { getPointsEarned } from '../../app/components/forms/pointsEarned';
+import { GameRecordQuerier } from '../db/GameRecordQuerier';
+import { GameRecord as Results, HandData, PlayerHand } from '../model/GameRecord';
+import { Game } from './game/Game';
 import {
   CompletedBoardState,
   CompletedGameState,

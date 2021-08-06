@@ -1,10 +1,10 @@
-import {Bid, Call, PlayerId} from '../GameState';
+import { Bid, Call, PlayerId } from '../GameState';
 
 export const getTrickPlayerOrder = (
   players: PlayerId[],
   firstPlayer: PlayerId
 ) => {
-  const trickOrder = [...players];
+  const trickOrder = [ ...players ];
   while (trickOrder[0] !== firstPlayer) {
     trickOrder.push(trickOrder.shift() as PlayerId);
   }

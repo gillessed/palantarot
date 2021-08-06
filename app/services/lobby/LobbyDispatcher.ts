@@ -1,13 +1,13 @@
-import {Store} from 'redux';
-import {LobbySocketMessages} from '../../../server/play/lobby/LobbySocketMessages';
-import {NewRoomArgs} from '../../../server/play/room/NewRoomArgs';
-import {generateId} from '../../../server/utils/randomString';
-import {PropertyCachingState} from '../redux/serviceDispatcher';
-import {ReduxState} from '../rootReducer';
-import {SocketActions} from '../socket/socketService';
-import {LobbyActions} from './LobbyActions';
-import {lobbyService} from './LobbyService';
-import {Lobby} from './LobbyTypes';
+import { Store } from 'redux';
+import { LobbySocketMessages } from '../../../server/play/lobby/LobbySocketMessages';
+import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
+import { generateId } from '../../../server/utils/randomString';
+import { PropertyCachingState } from '../redux/serviceDispatcher';
+import { ReduxState } from '../rootReducer';
+import { SocketActions } from '../socket/socketService';
+import { LobbyActions } from './LobbyActions';
+import { lobbyService } from './LobbyService';
+import { Lobby } from './LobbyTypes';
 
 export class LobbyDispatcher extends lobbyService.dispatcher {
   constructor(
@@ -28,7 +28,7 @@ export class LobbyDispatcher extends lobbyService.dispatcher {
     this.store.dispatch(
       SocketActions.connect({
         id: generateId(),
-        initialMessages: [LobbySocketMessages.enterLobby({playerId})],
+        initialMessages: [ LobbySocketMessages.enterLobby({ playerId }) ],
       })
     );
   }

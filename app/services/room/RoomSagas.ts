@@ -1,8 +1,8 @@
-import {Intent} from '@blueprintjs/core';
-import {TypedAction} from 'redoodle';
-import {all, call, delay, put, select, takeEvery} from 'redux-saga/effects';
-import {BidAction, ErrorCode} from '../../../server/play/model/GameEvents';
-import {PlayerStatus} from '../../../server/play/room/PlayerStatus';
+import { Intent } from '@blueprintjs/core';
+import { TypedAction } from 'redoodle';
+import { all, call, delay, put, select, takeEvery } from 'redux-saga/effects';
+import { BidAction, ErrorCode } from '../../../server/play/model/GameEvents';
+import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
 import {
   EnterRoomMessagePayload,
   GameUpdatesMessagePayload,
@@ -13,16 +13,16 @@ import {
   RoomErrorMessagePayload,
   RoomSocketMessages,
 } from '../../../server/play/room/RoomSocketMessages';
-import {SocketMessage} from '../../../server/websocket/SocketMessage';
-import {AudioFileUrls} from '../../components/sound/Audio';
-import {Palantoaster} from '../../components/toaster/Toaster';
+import { SocketMessage } from '../../../server/websocket/SocketMessage';
+import { AudioFileUrls } from '../../components/sound/Audio';
+import { Palantoaster } from '../../components/toaster/Toaster';
 import history from '../../history';
-import {StaticRoutes} from '../../routes';
-import {getGamePlayer} from '../gamePlayer/GamePlayerSelectors';
-import {SocketActions} from '../socket/socketService';
-import {RoomActions} from './RoomActions';
-import {RoomSelectors} from './RoomSelectors';
-import {RoomStatusPayload} from './RoomTypes';
+import { StaticRoutes } from '../../routes';
+import { getGamePlayer } from '../gamePlayer/GamePlayerSelectors';
+import { SocketActions } from '../socket/socketService';
+import { RoomActions } from './RoomActions';
+import { RoomSelectors } from './RoomSelectors';
+import { RoomStatusPayload } from './RoomTypes';
 
 function* handleMessage(action: TypedAction<SocketMessage>) {
   const message = action.payload;
@@ -94,7 +94,7 @@ export function* handleRoomChatMessage(payload: RoomChatMessagePayload) {
 
 export function* handleGameUpdatesMessage(payload: GameUpdatesMessagePayload) {
   yield put(
-    RoomActions.gameUpdate({gameId: payload.gameId, events: payload.events})
+    RoomActions.gameUpdate({ gameId: payload.gameId, events: payload.events })
   );
   yield call(autoSaga);
 }
@@ -166,7 +166,7 @@ function* autoSaga() {
     autoplay
   ) {
     yield delay(1000);
-    yield put(SocketActions.send(RoomSocketMessages.autoplay({roomId})));
+    yield put(SocketActions.send(RoomSocketMessages.autoplay({ roomId })));
   }
 
   const nextPlayerToBid = playState?.toBid
@@ -191,7 +191,7 @@ function* autoSaga() {
     };
     yield put(
       SocketActions.send(
-        RoomSocketMessages.gameAction({roomId, playerId: gamePlayer, action})
+        RoomSocketMessages.gameAction({ roomId, playerId: gamePlayer, action })
       )
     );
   }

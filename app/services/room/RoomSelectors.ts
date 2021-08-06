@@ -1,5 +1,5 @@
-import {ReduxState} from '../rootReducer';
-import {ClientRoom} from './RoomTypes';
+import { ReduxState } from '../rootReducer';
+import { ClientRoom } from './RoomTypes';
 
 const getRoom = (state: ReduxState): ClientRoom | null => {
   return state.room;

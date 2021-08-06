@@ -1,11 +1,11 @@
-import {Request, Response, Router} from 'express';
-import {PlayerQuerier} from '../db/PlayerQuerier';
-import {StatsQuerier} from '../db/StatsQuerier';
-import {BidRequest, BidStats} from '../model/Bid';
-import {Deltas} from '../model/Delta';
-import {Stats} from '../model/Stats';
-import {Streak} from '../model/Streak';
-import {Database} from './../db/dbConnector';
+import { Request, Response, Router } from 'express';
+import { PlayerQuerier } from '../db/PlayerQuerier';
+import { StatsQuerier } from '../db/StatsQuerier';
+import { BidRequest, BidStats } from '../model/Bid';
+import { Deltas } from '../model/Delta';
+import { Stats } from '../model/Stats';
+import { Streak } from '../model/Streak';
+import { Database } from './../db/dbConnector';
 
 export class StatsService {
   public router: Router;
@@ -30,7 +30,7 @@ export class StatsService {
         res.send(stats);
       })
       .catch((error: any) => {
-        res.send({error: `Error getting stats: ${error}`});
+        res.send({ error: `Error getting stats: ${error}` });
       });
   };
 
@@ -47,7 +47,7 @@ export class StatsService {
         res.send(deltas);
       })
       .catch((error: any) => {
-        res.send({error: `Error getting deltas: ${error}`});
+        res.send({ error: `Error getting deltas: ${error}` });
       });
   };
 
@@ -59,7 +59,7 @@ export class StatsService {
         res.send(bids);
       })
       .catch((error: any) => {
-        res.send({error: `Error getting bid stats: ${error}`});
+        res.send({ error: `Error getting bid stats: ${error}` });
       });
   };
 
@@ -78,7 +78,7 @@ export class StatsService {
         res.send(streaks);
       })
       .catch((error: any) => {
-        res.send({error: `Error getting streaks: ${error}`});
+        res.send({ error: `Error getting streaks: ${error}` });
       });
   };
 }

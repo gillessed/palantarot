@@ -1,5 +1,5 @@
-import {IconName} from '@blueprintjs/core';
-import {IconNames} from '@blueprintjs/icons';
+import { IconName } from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
 
 export interface SpectatorMode {
   type: string;
