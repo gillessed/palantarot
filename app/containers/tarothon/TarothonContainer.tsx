@@ -3,7 +3,7 @@ import { TarothonData } from '../../../server/model/Tarothon';
 import { loadContainer } from '../LoadingContainer';
 import { pageCache } from '../pageCache/PageCache';
 import { tarothonDataLoader } from '../../services/tarothonData';
-import { convertToMomenthon, getDateStrings, Momenthon } from '../../services/tarothonData/transform';
+import { convertToMomenthon, getDateStrings, Momenthon, Time } from '../../services/tarothonData/transform';
 import { integerComparator } from '../../../server/utils';
 import { Result, RoleResult } from '../../../server/model/Result';
 import { ScoreTable } from '../../components/scoreTable/ScoreTable';
@@ -87,8 +87,8 @@ class TarothonContainerInternal extends React.PureComponent<PropsInternal, State
           </h1>
           <h6 className='bp3-heading'>{dateStrings.date}</h6>
         </div>
-        {momenthon.isWhen === Momenthon.Time.UPCOMING && this.renderUpcomingTarothon(momenthon)}
-        {momenthon.isWhen !== Momenthon.Time.UPCOMING && this.renderResults()}
+        {momenthon.isWhen === Time.UPCOMING && this.renderUpcomingTarothon(momenthon)}
+        {momenthon.isWhen !== Time.UPCOMING && this.renderResults()}
         {this.renderDeleteDialog()}
       </div>
     );

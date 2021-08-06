@@ -1,11 +1,4 @@
-import {
-  Card,
-  Suit,
-  RegValue,
-  TheJoker,
-  The21,
-  TheOne,
-} from './Card';
+import {Card, Suit, RegValue, TheJoker, The21, TheOne} from './Card';
 import {getEarnings} from './GameEvaluation';
 import {CompletedTrick, PlayerId} from './GameState';
 
