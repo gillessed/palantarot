@@ -62,7 +62,7 @@
     "moment-timezone": "^0.5.11",
     "morgan": "^1.8.1",
     "mysql": "^2.13.0",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.0",
     "normalize.css": "^5.0.0",
     "pg": "^8.7.1",
     "plottable": "^3.3.1",
