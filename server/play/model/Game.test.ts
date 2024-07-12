@@ -1,10 +1,12 @@
 import * as assert from "assert";
 import { concat, find, isEqual } from "lodash";
+import { PlayerRoles } from "../../../app/components/forms/PlayerRoles";
+import { getHandForPlayer } from "../Autolog";
 import { Game, testingGetState } from "../game/Game";
 import { Card, TheOne } from "./Card";
 import { cardTestingSetShuffler, cardsContain, getCardsAllowedToPlay, getPlayerNum, playerTestingSetShuffler } from "./CardUtils";
 import { GameCompletedTransition } from "./GameEvents";
-import { BidValue, Call, CompletedBoardState, PlayingBoardState, PlayerId } from "./GameState";
+import { BidValue, Call, PlayerId, PlayingBoardState } from "./GameState";
 
 const createTimer = () => {
   let logical_clock = 0;
@@ -145,4 +147,41 @@ test('5 player game', () => {
   assert.deepStrictEqual(end_state.pointsEarned, 53);
   assert.deepStrictEqual(end_state.shows, ['samira']);
   assert.deepStrictEqual(end_state.pointsResult, 80);
+});
+
+test('5 player game with self call', () => {
+  const game = Game.createNew();
+  const time = createTimer();
+  cardTestingSetShuffler((_cards: Card[]) => [...concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
+  playerTestingSetShuffler((_players: PlayerId[]) => ['dxiao', 'ericb', 'gcole', 'karl', 'samira']);
+
+  game.playerAction({ type: 'enter_game', player: 'dxiao', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'ericb', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'gcole', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'karl', time: time() });
+  game.playerAction({ type: 'enter_game', player: 'samira', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'samira', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'ericb', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'gcole', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'karl', time: time() });
+  game.playerAction({ type: 'mark_player_ready', player: 'dxiao', time: time() });
+
+  game.playerAction({ type: 'bid', player: 'dxiao', bid: BidValue.ONESIXTY, time: time() });
+
+  assert.deepStrictEqual(game.getEvents('dxiao').events.pop()?.type, 'bidding_completed');
+
+  game.playerAction({ type: 'call_partner', player: 'dxiao', card: ["D", "R"], time: time() });
+
+  assert.deepStrictEqual(game.getEvents('dxiao').events.pop()?.type, 'game_started');
+
+  for (let i = 0; i < 15; i++) {
+    autoplayTrick(game, time);
+  }
+
+  const lastState = game.getEvents('dxiao', time() - 5).events.pop();
+  expect(lastState).not.toBeFalsy();
+  expect(lastState?.type).toBe('game_completed');
+  const completedState = lastState as GameCompletedTransition;
+  const playerHand = getHandForPlayer(completedState.end_state, PlayerRoles.BIDDER, "dxiao");
+  expect(playerHand.pointsEarned).toBe(-880);
 });

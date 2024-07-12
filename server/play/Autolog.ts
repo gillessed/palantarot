@@ -66,7 +66,7 @@ export async function autologGame(
   return Promise.resolve();
 }
 
-function getHandForPlayer(
+export function getHandForPlayer(
   endState: CompletedGameState,
   playerRole: string,
   playerId: string,
@@ -82,7 +82,7 @@ function getHandForPlayer(
       endState.partner === endState.bidder,
     ),
     showedTrump: endState.shows.indexOf(endState.bidder) >= 0,
-    oneLast:  (endState.outcomes[playerIndex] ?? []).indexOf(Outcome.ONE_LAST) >= 0,
+    oneLast: (endState.outcomes[playerIndex] ?? []).indexOf(Outcome.ONE_LAST) >= 0,
   };
   return hand;
 }
