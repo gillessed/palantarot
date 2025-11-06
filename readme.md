@@ -20,7 +20,7 @@ Start up a mysql database:
 docker-compose up -d
 ```
 
-You will need to seed the database with the schema file `palantar_tarot.sql`.
+You will need to seed the database with the schema file `tarot_data.sql`.
 
 Once your database is up and running, run the following commands:
 

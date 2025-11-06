@@ -1,12 +1,10 @@
-version: "2"
-
 services:
   postgres:
     container_name: postgres.tarotcrew.com
-    image: postgres:11
+    image: postgres:18
     ports:
       - "5552:5432"
     environment:
-      - POSTGRES_PASSWORD=tarot1
       - POSTGRES_DB=tarot_data
       - POSTGRES_USER=tarot_user
+      - POSTGRES_PASSWORD=tarot1
