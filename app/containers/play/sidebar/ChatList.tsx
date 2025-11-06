@@ -55,7 +55,7 @@ export class ChatList extends React.PureComponent<Props> {
     // switch (event.type) {
     //   case 'bid':
     //     const bidEvent = event as BidAction;
-    //     const bidRussian = (bidEvent.calls?.indexOf(Call.RUSSIAN) ?? -1) >= 0;
+    //     const bidRussian = (bidEvent.calls?.indexOf("russian") ?? -1) >= 0;
     //     const bidderName = getPlayerName(players.get(bidEvent.player));
     //     const bidMessage = bidEvent.bid === BidValue.PASS
     //       ? `${bidderName} passed`

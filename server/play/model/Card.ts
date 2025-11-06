@@ -1,85 +1,65 @@
-import { isEqual } from "lodash";
+import pkg from "lodash";
 
-export enum Suit {
-  Spade = 'S',
-  Heart = 'H',
-  Diamond = 'D',
-  Club = 'C',
-  Trump = 'T',
-}
+const { isEqual } = pkg;
 
-export type RegSuit = Suit.Spade | Suit.Heart | Suit.Club | Suit.Diamond;
+export type Suit = "S" | "H" | "D" | "C" | "T";
 
-export enum RegValue {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-  _5 = 5,
-  _6 = 6,
-  _7 = 7,
-  _8 = 8,
-  _9 = 9,
-  _10 = 10,
-  V = 'V',
-  C = 'C',
-  D = 'D',
-  R = 'R',
-}
+export type RegSuit = "S" | "H" | "D" | "C";
 
-export enum TrumpValue {
-  Joker = 'Joker',
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-  _5 = 5,
-  _6 = 6,
-  _7 = 7,
-  _8 = 8,
-  _9 = 9,
-  _10 = 10,
-  _11 = 11,
-  _12 = 12,
-  _13 = 13,
-  _14 = 14,
-  _15 = 15,
-  _16 = 16,
-  _17 = 17,
-  _18 = 18,
-  _19 = 19,
-  _20 = 20,
-  _21 = 21,
-}
+export type RegValue = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "V" | "C" | "D" | "R";
+
+export type TrumpValue =
+  | "Joker"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "11"
+  | "12"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21";
 
 export const AllRs: Card[] = [
-  [Suit.Club, RegValue.R],
-  [Suit.Diamond, RegValue.R],
-  [Suit.Heart, RegValue.R],
-  [Suit.Spade, RegValue.R],
+  ["C", "R"],
+  ["D", "R"],
+  ["H", "R"],
+  ["S", "R"],
 ];
 export const AllDs: Card[] = [
-  [Suit.Club, RegValue.D],
-  [Suit.Diamond, RegValue.D],
-  [Suit.Heart, RegValue.D],
-  [Suit.Spade, RegValue.D],
+  ["C", "D"],
+  ["D", "D"],
+  ["H", "D"],
+  ["S", "D"],
 ];
 export const AllCs: Card[] = [
-  [Suit.Club, RegValue.C],
-  [Suit.Diamond, RegValue.C],
-  [Suit.Heart, RegValue.C],
-  [Suit.Spade, RegValue.C],
+  ["C", "C"],
+  ["D", "C"],
+  ["H", "C"],
+  ["S", "C"],
 ];
 export const AllVs: Card[] = [
-  [Suit.Club, RegValue.V],
-  [Suit.Diamond, RegValue.V],
-  [Suit.Heart, RegValue.V],
-  [Suit.Spade, RegValue.V],
+  ["C", "V"],
+  ["D", "V"],
+  ["H", "V"],
+  ["S", "V"],
 ];
 
-export const TheJoker: [Suit.Trump, TrumpValue.Joker] = [Suit.Trump, TrumpValue.Joker];
-export const TheOne: [Suit.Trump, TrumpValue._1] = [Suit.Trump, TrumpValue._1];
-export const The21: [Suit.Trump, TrumpValue._21] = [Suit.Trump, TrumpValue._21];
+export const TheJoker: ["T", "Joker"] = ["T", "Joker"];
+export const TheOne: ["T", "1"] = ["T", "1"];
+export const The21: ["T", "21"] = ["T", "21"];
 
 export function isBout(card: Card) {
   return isEqual(card, TheJoker) || isEqual(card, TheOne) || isEqual(card, The21);
@@ -87,7 +67,7 @@ export function isBout(card: Card) {
 
 export type RegCard = [RegSuit, RegValue];
 
-export type TrumpCard = [Suit.Trump, TrumpValue];
+export type TrumpCard = ["T", TrumpValue];
 
 export type Card = RegCard | TrumpCard;
 
@@ -100,5 +80,5 @@ export function parseCard(card: string): Card {
 }
 
 export function toCardString(card: Card): string {
-  return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`
+  return `#${card[1] === "Joker" ? "J" : card[1]}${card[0]}`;
 }

@@ -1,8 +1,8 @@
-import { indexFlags } from './indexFlags';
+import { indexFlags } from "./indexFlags.ts";
 /*
  * Simple query builders that should do most things need. If need more, implement more.
  */
-export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
+export type JoinType = "INNER" | "LEFT" | "RIGHT" | "OUTER";
 
 export const QueryBuilder = {
   insert: (table: string) => new InsertBuilder(table),
@@ -12,9 +12,9 @@ export const QueryBuilder = {
   subselect: (table: string, name: string) => new SelectBuilder(table, name),
   join: (table: string, type: JoinType, condition: ComparisonBuilder) => new JoinBuilder(table, type, condition),
   where: (condition: ComparisonBuilder) => new WhereBuilder(condition),
-  compare: (conjunction?: 'AND' | 'OR') => new ComparisonBuilder(conjunction),
+  compare: (conjunction?: "AND" | "OR") => new ComparisonBuilder(conjunction),
   contains: (column: string, value: string) => new ContainsBuilder(column, value),
-}
+};
 
 export interface QueryBuilder {
   getQueryString: () => string;
@@ -26,9 +26,9 @@ export interface QueryBuilder {
 const convertTimestamp = "timestamp AT TIME ZONE 'UTC' AT TIME ZONE '-8'";
 
 export const Queries = {
-  selectYear: (name: string = 'h_year') => `EXTRACT(YEAR FROM (${convertTimestamp})) AS ${name}`,
-  selectMonth: (name: string = 'h_month') => `EXTRACT(MONTH FROM (${convertTimestamp})) AS ${name}`,
-  selectDay: (name: string = 'h_day') => `EXTRACT(DAY FROM (${convertTimestamp})) AS ${name}`,
+  selectYear: (name: string = "h_year") => `EXTRACT(YEAR FROM (${convertTimestamp})) AS ${name}`,
+  selectMonth: (name: string = "h_month") => `EXTRACT(MONTH FROM (${convertTimestamp})) AS ${name}`,
+  selectDay: (name: string = "h_day") => `EXTRACT(DAY FROM (${convertTimestamp})) AS ${name}`,
 };
 
 export interface UpsertBuilder extends QueryBuilder {
@@ -39,8 +39,11 @@ class InsertBuilder implements UpsertBuilder {
   private columns: string[] = [];
   private values: any[] = [];
   private returning?: string;
+  private table: string;
 
-  public constructor(private readonly table: string) {}
+  public constructor(table: string) {
+    this.table = table;
+  }
 
   public v(column: string, value: any): InsertBuilder {
     this.columns.push(column);
@@ -54,15 +57,15 @@ class InsertBuilder implements UpsertBuilder {
   }
 
   public getQueryString(): string {
-    let queryString = 'INSERT INTO ';
+    let queryString = "INSERT INTO ";
     queryString += this.table;
-    queryString += ' (';
-    queryString += this.columns.join(', ');
-    queryString += ') VALUES (';
-    queryString += this.values.map(() => '?').join(', ');
-    queryString += ')';
+    queryString += " (";
+    queryString += this.columns.join(", ");
+    queryString += ") VALUES (";
+    queryString += this.values.map(() => "?").join(", ");
+    queryString += ")";
     if (this.returning) {
-      queryString += ' RETURNING ';
+      queryString += " RETURNING ";
       queryString += this.returning;
     }
     return queryString;
@@ -81,8 +84,11 @@ class UpdateBuilder implements UpsertBuilder {
   private _columns: string[] = [];
   private _values: any[] = [];
   private _where?: WhereBuilder;
+  private table: string;
 
-  public constructor(private readonly table: string) {}
+  public constructor(table: string) {
+    this.table = table;
+  }
 
   public v(column: string, value: any): UpdateBuilder {
     this._columns.push(column);
@@ -96,12 +102,12 @@ class UpdateBuilder implements UpsertBuilder {
   }
 
   public getQueryString(): string {
-    let queryString = 'UPDATE ';
+    let queryString = "UPDATE ";
     queryString += this.table;
-    queryString += ' SET ';
-    queryString += this._columns.map((column) => column + '=?').join(', ')
+    queryString += " SET ";
+    queryString += this._columns.map((column) => column + "=?").join(", ");
     if (this._where) {
-      queryString += ' ';
+      queryString += " ";
       queryString += this._where.getQueryString();
     }
     return queryString;
@@ -122,9 +128,10 @@ class UpdateBuilder implements UpsertBuilder {
 
 class DeleteBuilder implements QueryBuilder {
   private _where?: WhereBuilder;
-  constructor(
-    private readonly _table: string,
-  ) {}
+  private readonly _table: string;
+  constructor(_table: string) {
+    this._table = _table;
+  }
 
   public where(condition: ComparisonBuilder): DeleteBuilder {
     this._where = new WhereBuilder(condition);
@@ -132,10 +139,10 @@ class DeleteBuilder implements QueryBuilder {
   }
 
   public getQueryString(): string {
-    let queryString = 'DELETE FROM ';
+    let queryString = "DELETE FROM ";
     queryString += this._table;
     if (this._where) {
-      queryString += ' ';
+      queryString += " ";
       queryString += this._where.getIndexedQueryString();
     }
     return queryString;
@@ -162,17 +169,16 @@ class SelectBuilder implements QueryBuilder {
   private _limit?: number;
   private _joins: JoinBuilder[];
   private _orderBy?: string;
-  private _orderDirection?: 'asc' | 'desc';
+  private _orderDirection?: "asc" | "desc";
   private _groupBy?: string[];
   private _name: string;
+  private _table: string;
 
-  constructor(
-    private readonly _table: string,
-    name?: string,
-  ) {
-    this._name = name || 'no name set';
+  constructor(_table: string, name?: string) {
+    this._table = _table;
+    this._name = name || "no name set";
     this._joins = [];
-  };
+  }
 
   public getName(): string | undefined {
     return this._name;
@@ -208,10 +214,10 @@ class SelectBuilder implements QueryBuilder {
     return this;
   }
 
-  public orderBy(column: string, direction?: 'asc' | 'desc'): SelectBuilder {
+  public orderBy(column: string, direction?: "asc" | "desc"): SelectBuilder {
     this._orderBy = column;
     this._orderDirection = direction;
-    return this
+    return this;
   }
 
   public limit(limit: number, offset?: number): SelectBuilder {
@@ -226,38 +232,38 @@ class SelectBuilder implements QueryBuilder {
   }
 
   public getQueryString(): string {
-    let queryString = 'SELECT ';
+    let queryString = "SELECT ";
     if (this._star) {
-      queryString += '*';
+      queryString += "*";
     } else {
-      queryString += this._columns.join(', ');
+      queryString += this._columns.join(", ");
     }
-    queryString += ' FROM ';
+    queryString += " FROM ";
     queryString += this._table;
     for (const join of this._joins) {
-      queryString += ' ';
+      queryString += " ";
       queryString += join.getQueryString();
     }
     if (this._where) {
-      queryString += ' ';
+      queryString += " ";
       queryString += this._where.getQueryString();
     }
     if (this._groupBy) {
-      queryString += ' GROUP BY ';
-      queryString += this._groupBy.join(', ');
+      queryString += " GROUP BY ";
+      queryString += this._groupBy.join(", ");
     }
     if (this._orderBy) {
-      queryString += ' ORDER BY ';
+      queryString += " ORDER BY ";
       queryString += this._orderBy;
-      if (this._orderDirection === 'desc') {
-        queryString += ' DESC';
+      if (this._orderDirection === "desc") {
+        queryString += " DESC";
       }
     }
     if (this._limit) {
-      queryString += ' LIMIT ';
+      queryString += " LIMIT ";
       queryString += this._limit;
       if (this._offset) {
-        queryString += ' OFFSET ';
+        queryString += " OFFSET ";
         queryString += this._offset;
       }
     }
@@ -281,25 +287,28 @@ class SelectBuilder implements QueryBuilder {
 }
 
 class JoinBuilder implements QueryBuilder {
-  constructor(
-    private readonly _table: string | SelectBuilder,
-    private readonly _type: JoinType,
-    private readonly _condition: ConditionBuilder
-  ) {}
+  private readonly _table: string | SelectBuilder;
+  private readonly _type: JoinType;
+  private readonly _condition: ConditionBuilder;
+  constructor(_table: string | SelectBuilder, _type: JoinType, _condition: ConditionBuilder) {
+    this._table = _table;
+    this._type = _type;
+    this._condition = _condition;
+  }
 
   public getQueryString(): string {
     let queryString = this._type;
-    queryString += ' JOIN ';
+    queryString += " JOIN ";
     if (this._table instanceof SelectBuilder) {
-      queryString += '(';
+      queryString += "(";
       queryString += this._table.getQueryString();
-      queryString += ') ';
+      queryString += ") ";
       queryString += this._table.getName();
-      queryString += ' ';
+      queryString += " ";
     } else {
       queryString += this._table;
     }
-    queryString += ' ON ';
+    queryString += " ON ";
     queryString += this._condition.getQueryString();
     return queryString;
   }
@@ -319,10 +328,13 @@ class JoinBuilder implements QueryBuilder {
 }
 
 class WhereBuilder implements QueryBuilder {
-  constructor(private readonly conditionBuilder: ComparisonBuilder) {}
+  private readonly conditionBuilder: ComparisonBuilder;
+  constructor(conditionBuilder: ComparisonBuilder) {
+    this.conditionBuilder = conditionBuilder;
+  }
 
   public getQueryString(): string {
-    let queryString = 'WHERE ';
+    let queryString = "WHERE ";
     queryString += this.conditionBuilder.getQueryString();
     return queryString;
   }
@@ -338,22 +350,22 @@ class WhereBuilder implements QueryBuilder {
 
 interface ConditionBuilder extends QueryBuilder {}
 
-export type Comparator = '=' | '>' | '<' | '>=' | '<=' | '!=' | '<>';
+export type Comparator = "=" | ">" | "<" | ">=" | "<=" | "!=" | "<>";
 
 class ComparisonBuilder implements ConditionBuilder {
   private clauses: string[] = [];
   private values: any[] = [];
   private conjunction: string;
 
-  constructor(conjunction?: 'AND' | 'OR') {
-    this.conjunction = conjunction ?? 'AND';
+  constructor(conjunction?: "AND" | "OR") {
+    this.conjunction = conjunction ?? "AND";
   }
 
   public compareValue(column: string, comparator: Comparator, value: any): ComparisonBuilder {
     let clause = column;
-    clause += ' '
+    clause += " ";
     clause += comparator;
-    clause += ' ? ';
+    clause += " ? ";
     this.clauses.push(clause);
     this.values.push(value);
     return this;
@@ -361,22 +373,22 @@ class ComparisonBuilder implements ConditionBuilder {
 
   public compareColumn(column1: string, comparator: Comparator, column2: string): ComparisonBuilder {
     let clause = column1;
-    clause += ' ';
+    clause += " ";
     clause += comparator;
-    clause += ' ';
+    clause += " ";
     clause += column2;
     this.clauses.push(clause);
     return this;
   }
 
   public columnIn(column: string, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`${column} IN (${subselect.getIndexedQueryString()})`)
+    this.clauses.push(`${column} IN (${subselect.getIndexedQueryString()})`);
     this.values.push(...subselect.getValues());
     return this;
   }
 
   public valueIn(value: any, subselect: SelectBuilder): ComparisonBuilder {
-    this.clauses.push(`? IN (${subselect.getIndexedQueryString()})`)
+    this.clauses.push(`? IN (${subselect.getIndexedQueryString()})`);
     this.values.push(value);
     this.values.push(...subselect.getValues());
     return this;
@@ -396,16 +408,18 @@ class ComparisonBuilder implements ConditionBuilder {
 }
 
 class ContainsBuilder implements ConditionBuilder {
-  constructor(
-    private readonly column: string,
-    private readonly values: string,
-  ) {}
+  private readonly column: string;
+  private readonly values: string;
+  constructor(column: string, values: string) {
+    this.column = column;
+    this.values = values;
+  }
 
   public getQueryString(): string {
     let query = this.column;
-    query += ' IN (';
+    query += " IN (";
     query += this.values;
-    query += ') ';
+    query += ") ";
     return query;
   }
 

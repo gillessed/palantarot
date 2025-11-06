@@ -1,11 +1,11 @@
-import { type ClientGame } from "../../../app/services/room/ClientGame.ts";
 import {
   BlankState,
   type PlayState,
   type ShowDetails,
   type TrickCards,
-} from "../../../app/services/room/ClientGameEventHandler";
-import { type TarotBot } from "../../../bots/TarotBot.ts";
+} from "../../../app/services/room/ClientGameEventHandler.ts";
+import type { TarotBot } from "../../../shared/bots/TarotBot.ts";
+import type { ClientGame } from "../../../shared/types/ClientGame.ts";
 import { Game } from "../game/Game.ts";
 import { type Card } from "../model/Card.ts";
 import {
@@ -15,36 +15,35 @@ import {
   type PlayCardAction,
   type SetDogAction,
   type ShowTrumpAction,
-} from "../model/GameEvents";
+} from "../model/GameEvents.ts";
 import {
   type Bid,
   type BiddingBoardState,
   type CompletedTrick,
   type DogRevealAndExchangeBoardState,
-  GameplayState,
   type PartnerCallBoardState,
   type PlayerId,
   type PlayingBoardState,
   type Trick,
-} from "../model/GameState";
+} from "../model/GameState.ts";
 
 export function getNextPlayer(game: Game): PlayerId | null {
   const state = game.getState();
   switch (state.name) {
-    case GameplayState.NewGame:
+    case "new_game":
       return null;
-    case GameplayState.Completed:
+    case "completed":
       return null;
-    case GameplayState.Bidding:
+    case "bidding":
       const bidState = state as BiddingBoardState;
       return bidState.bidding.bidders[0];
-    case GameplayState.PartnerCall:
+    case "partner_call":
       const callState = state as PartnerCallBoardState;
       return callState.bidder;
-    case GameplayState.DogReveal:
+    case "dog_reveal":
       const dogState = state as DogRevealAndExchangeBoardState;
       return dogState.bidder;
-    case GameplayState.Playing:
+    case "playing":
       const playState = state as PlayingBoardState;
       const currentTrick = playState.current_trick;
       return currentTrick.players[currentTrick.current_player];
@@ -54,11 +53,11 @@ export function getNextPlayer(game: Game): PlayerId | null {
 export function playForBot(game: Game, botId: string, bot: TarotBot): Action | null {
   const clientGame = convertStateToInGame(game, botId);
   switch (clientGame.playState.state) {
-    case GameplayState.NewGame:
+    case "new_game":
       return null;
-    case GameplayState.Completed:
+    case "completed":
       return null;
-    case GameplayState.Bidding:
+    case "bidding":
       const bid = bot.bid(clientGame);
       const bidAction: BidAction = {
         ...bid,
@@ -67,7 +66,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
         time: Date.now(),
       };
       return bidAction;
-    case GameplayState.PartnerCall:
+    case "partner_call":
       const call = bot.pickPartner(clientGame);
       const callAction: CallPartnerAction = {
         type: "call_partner",
@@ -76,7 +75,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
         card: call,
       };
       return callAction;
-    case GameplayState.DogReveal:
+    case "dog_reveal":
       const dogCards = bot.dropDog(clientGame);
       const setDogAction: SetDogAction = {
         type: "set_dog",
@@ -86,7 +85,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
         dog: dogCards,
       };
       return setDogAction;
-    case GameplayState.Playing:
+    case "playing":
       const card = bot.playCard(clientGame);
       const playCardAction: PlayCardAction = {
         type: "play_card",
@@ -111,19 +110,19 @@ function convertStateToInGame(game: Game, botId: string): ClientGame {
   const playerIndex = state.players.indexOf(botId);
   let playState: PlayState = { ...BlankState };
   switch (state.name) {
-    case GameplayState.Bidding:
+    case "bidding":
       const bidState = state as BiddingBoardState;
       playState = convertBidBoardState(playerIndex, bidState);
       break;
-    case GameplayState.PartnerCall:
+    case "partner_call":
       const callState = state as PartnerCallBoardState;
       playState = convertCallBoardState(playerIndex, callState);
       break;
-    case GameplayState.DogReveal:
+    case "dog_reveal":
       const dogState = state as DogRevealAndExchangeBoardState;
       playState = convertDogBoardState(playerIndex, dogState);
       break;
-    case GameplayState.Playing:
+    case "playing":
       const playingState = state as PlayingBoardState;
       playState = convertPlayBoardState(game, botId, playerIndex, playingState);
       break;
@@ -141,7 +140,7 @@ function convertBidBoardState(playerIndex: number, state: BiddingBoardState): Pl
   const playState: PlayState = {
     ...BlankState,
     playerOrder: state.players,
-    state: GameplayState.Bidding,
+    state: "bidding",
     hand: state.hands[playerIndex],
     playerBids: getPlayerBids(state.bidding.bids),
     toBid: playerIndex,
@@ -152,7 +151,7 @@ function convertBidBoardState(playerIndex: number, state: BiddingBoardState): Pl
 function convertCallBoardState(playerIndex: number, state: PartnerCallBoardState): PlayState {
   const playState: PlayState = {
     ...BlankState,
-    state: GameplayState.PartnerCall,
+    state: "partner_call",
     playerOrder: state.players,
     hand: state.hands[playerIndex],
     winningBid: state.bidding.winningBid,
@@ -164,7 +163,7 @@ function convertCallBoardState(playerIndex: number, state: PartnerCallBoardState
 function convertDogBoardState(playerIndex: number, state: DogRevealAndExchangeBoardState): PlayState {
   return {
     ...convertCallBoardState(playerIndex, state as unknown as PartnerCallBoardState),
-    state: GameplayState.DogReveal,
+    state: "dog_reveal",
     dog: state.dog,
   };
 }
@@ -173,7 +172,7 @@ function convertPlayBoardState(game: Game, botId: string, playerIndex: number, s
   const currentTrick = state.current_trick;
   return {
     ...convertDogBoardState(playerIndex, state as unknown as DogRevealAndExchangeBoardState),
-    state: GameplayState.Playing,
+    state: "playing",
     toPlay: currentTrick.players[currentTrick.current_player],
     partner: state.partner,
     partnerCard: state.called,

@@ -1,4 +1,5 @@
-import { IMonth } from './Month';
+import { IMonth } from "./Month.ts";
+
 export type Stats = Stat[];
 
 export interface Stat {
@@ -63,11 +64,13 @@ export function getAverages(playerStats: AggregatedStats): StatAverages {
   };
 }
 
-export function getAverage(playerStats: AggregatedStats, mapper: (stats: AggregatedStat) => RoleStats, allTotal?: number): StatAverage | undefined {
-  const roleStats: RoleStats[] = playerStats
-    .map(mapper)
-    .filter(roleStat => roleStat.totalGames > 0);
-  
+export function getAverage(
+  playerStats: AggregatedStats,
+  mapper: (stats: AggregatedStat) => RoleStats,
+  allTotal?: number
+): StatAverage | undefined {
+  const roleStats: RoleStats[] = playerStats.map(mapper).filter((roleStat) => roleStat.totalGames > 0);
+
   if (roleStats.length === 0) {
     return undefined;
   }

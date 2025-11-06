@@ -1,11 +1,5 @@
-import { PlayerRoles } from "../../app/components/forms/PlayerRoles";
-import { getPointsEarned } from "../../app/components/forms/pointsEarned";
-import { GameRecordQuerier } from "../db/GameRecordQuerier";
-import { GameRecord as Results, HandData, PlayerHand } from "../model/GameRecord";
-import { Game } from "./game/Game";
-import { RegValue, Suit, TrumpValue } from "./model/Card";
-import { CompletedBoardState, CompletedGameState, GameplayState, Outcome } from "./model/GameState";
 import { getHandForPlayer } from "./Autolog.ts";
+import { type CompletedGameState } from "./model/GameState";
 
 test("Game computes correct hand for lost self call", () => {
   const gameResult: CompletedGameState = {
@@ -14,9 +8,9 @@ test("Game computes correct hand for lost self call", () => {
     bid: 40,
     partner: "1",
     dog: [
-      [Suit.Trump, TrumpValue._11],
-      [Suit.Heart, RegValue._4],
-      [Suit.Club, RegValue.V],
+      ["T", "11"],
+      ["H", "4"],
+      ["C", "V"],
     ],
     calls: {},
     outcomes: {},
@@ -26,6 +20,6 @@ test("Game computes correct hand for lost self call", () => {
     bidderWon: false,
     pointsResult: -70,
   };
-  const hand = getHandForPlayer(gameResult, PlayerRoles.BIDDER, "1");
+  const hand = getHandForPlayer(gameResult, "bidder", "1");
   expect(hand.pointsEarned).toBe(-280);
 });

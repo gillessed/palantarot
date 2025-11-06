@@ -1,4 +1,1 @@
-export enum PlayerStatus {
-  Online,
-  Offline,
-}
+export type PlayerStatus = "Online" | "Offline";

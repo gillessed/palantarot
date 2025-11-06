@@ -1,5 +1,5 @@
 import { type QueryResult } from "pg";
-import { RandomBotType } from "../../bots/RandomBot.ts";
+import { RandomBotType } from "../../shared/bots/RandomBot.ts";
 import { type NewPlayer } from "../model/Player.ts";
 import { Player } from "./../model/Player.ts";
 import { Database } from "./dbConnector.ts";

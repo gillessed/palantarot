@@ -1,23 +1,23 @@
-import { PlayerRoles } from "../../app/components/forms/PlayerRoles.ts";
+import type { PlayerRole } from "../../app/components/forms/PlayerRoles.ts";
 import { getPointsEarned } from "../../app/components/forms/pointsEarned.ts";
 import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
-import { type GameRecord as Results, type HandData, type PlayerHand } from "../model/GameRecord.ts";
+import { type HandData, type PlayerHand, type GameRecord as Results } from "../model/GameRecord.ts";
 import { Game } from "./game/Game.ts";
-import { type CompletedBoardState, type CompletedGameState, GameplayState, Outcome } from "./model/GameState.ts";
+import { type CompletedBoardState, type CompletedGameState } from "./model/GameState.ts";
 
 export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): Promise<void> {
-  if (!game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {
+  if (!game.settings.autologEnabled || game.getState().name !== "completed" || game.logged) {
     return Promise.resolve();
   }
 
   const state = game.getState() as CompletedBoardState;
   const endState = state.end_state;
 
-  const bidderHand = getHandForPlayer(endState, PlayerRoles.BIDDER, endState.bidder);
+  const bidderHand = getHandForPlayer(endState, "bidder", endState.bidder);
 
   let partnerHand: PlayerHand | undefined = undefined;
   if (endState.partner && endState.partner !== endState.bidder) {
-    partnerHand = getHandForPlayer(endState, PlayerRoles.PARTNER, endState.partner);
+    partnerHand = getHandForPlayer(endState, "partner", endState.partner);
   }
 
   const oppositionHands: PlayerHand[] = [];
@@ -25,7 +25,7 @@ export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): P
     if (player === endState.bidder || player === endState.partner) {
       continue;
     }
-    const hand = getHandForPlayer(endState, PlayerRoles.PLAYER1, player);
+    const hand = getHandForPlayer(endState, "player_1", player);
     oppositionHands.push(hand);
   }
 
@@ -51,7 +51,7 @@ export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): P
   return Promise.resolve();
 }
 
-export function getHandForPlayer(endState: CompletedGameState, playerRole: string, playerId: string): PlayerHand {
+export function getHandForPlayer(endState: CompletedGameState, playerRole: PlayerRole, playerId: string): PlayerHand {
   const playerIndex = endState.players.indexOf(playerId);
   const hand: PlayerHand = {
     id: playerId,
@@ -63,7 +63,7 @@ export function getHandForPlayer(endState: CompletedGameState, playerRole: strin
       endState.partner === endState.bidder
     ),
     showedTrump: endState.shows.indexOf(endState.bidder) >= 0,
-    oneLast: (endState.outcomes[playerIndex] ?? []).indexOf(Outcome.ONE_LAST) >= 0,
+    oneLast: (endState.outcomes[playerIndex] ?? []).indexOf("one_last") >= 0,
   };
   return hand;
 }

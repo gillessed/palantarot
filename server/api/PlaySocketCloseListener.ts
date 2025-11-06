@@ -1,4 +1,4 @@
-import { SocketCloseListener } from "../websocket/SocketListener.ts";
+import { type SocketCloseListener } from "../websocket/SocketListener.ts";
 import { PlayService } from "./PlayService.ts";
 
 export class PlaySocketCloseListener implements SocketCloseListener {

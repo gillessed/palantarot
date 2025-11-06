@@ -19,7 +19,7 @@ function buildSuit(suit: RegSuit) {
 function buildTrump() {
   const trump: Card[] = [];
   for (let i = 1; i <= 21; i++) {
-    trump.push([Suit.Trump, i]);
+    trump.push(["T", i]);
   }
   return trump;
 }
@@ -29,7 +29,7 @@ const Diamonds: Card[] = buildSuit(Suit.Diamond);
 const Hearts: Card[] = buildSuit(Suit.Heart);
 const Spades: Card[] = buildSuit(Suit.Spade);
 const Trump: Card[] = buildTrump();
-const Joker: Card = [Suit.Trump, TrumpValue.Joker];
+const Joker: Card = ["T", "Joker"];
 
 export class RulesContainer extends React.PureComponent {
   public render() {

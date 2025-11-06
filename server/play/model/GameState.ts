@@ -1,4 +1,4 @@
-import type { Bout, Card } from "./Card";
+import type { Bout, Card } from "./Card.ts";
 import type {
   Action,
   BidAction,
@@ -13,39 +13,21 @@ import type {
   PlayerReadyAction,
   SetDogAction,
   ShowTrumpAction,
-} from "./GameEvents";
+} from "./GameEvents.ts";
 
-export enum GameplayState {
-  NewGame = "new_game",
-  Bidding = "bidding",
-  PartnerCall = "partner_call",
-  DogReveal = "dog_reveal",
-  Playing = "playing",
-  Completed = "completed",
-}
+export type GameplayState = "new_game" | "bidding" | "partner_call" | "dog_reveal" | "playing" | "completed";
 
 export const isGamePlayState = (state: GameplayState, targetStates: GameplayState[]) => {
   return targetStates.indexOf(state) >= 0;
 };
 
-export enum BidValue {
-  PASS = 0,
-  TEN = 10,
-  TWENTY = 20,
-  FORTY = 40,
-  EIGHTY = 80,
-  ONESIXTY = 160,
-}
+export const BidPass: BidValue = 0;
 
-export enum Call {
-  RUSSIAN = "russian",
-  DECLARED_SLAM = "declared_slam",
-}
+export type BidValue = 0 | 10 | 20 | 40 | 80 | 160;
 
-export enum Outcome {
-  SLAMMED = "slammed",
-  ONE_LAST = "one_last",
-}
+export type Call = "russian" | "declared_slam";
+
+export type Outcome = "slammed" | "one_last";
 
 export type PlayerId = string;
 
@@ -131,7 +113,7 @@ export interface DealtBoardState extends BoardState {
 }
 
 export interface NewGameBoardState extends BoardState {
-  readonly name: GameplayState.NewGame;
+  readonly name: "new_game";
 
   readonly ready: PlayerId[];
 }
@@ -144,7 +126,7 @@ export type NewGameActions =
 export type NewGameStates = NewGameBoardState | BiddingBoardState;
 
 export interface BiddingBoardState extends DealtBoardState {
-  readonly name: GameplayState.Bidding;
+  readonly name: "bidding";
 
   readonly bidding: CurrentBids;
 }
@@ -157,7 +139,7 @@ export type BiddingStates =
   | NewGameBoardState;
 
 export interface PartnerCallBoardState extends DealtBoardState {
-  readonly name: GameplayState.PartnerCall;
+  readonly name: "partner_call";
 
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
@@ -167,7 +149,7 @@ export type PartnerCallStateActions = CallPartnerAction | DeclareSlam | ShowTrum
 export type PartnerCallStates = PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
 
 export interface DogRevealAndExchangeBoardState extends DealtBoardState {
-  readonly name: GameplayState.DogReveal;
+  readonly name: "dog_reveal";
 
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
@@ -184,7 +166,7 @@ export type DogRevealStates = DogRevealAndExchangeBoardState | PlayingBoardState
  *  - {@link CompletedBoardState}
  */
 export interface PlayingBoardState extends DealtBoardState {
-  readonly name: GameplayState.Playing;
+  readonly name: "playing";
 
   readonly allBids: Bid[];
   readonly bidding: CompletedBids;
@@ -201,7 +183,7 @@ export type PlayingStateActions = PlayCardAction | DeclareSlam | ShowTrumpAction
 export type PlayingStates = PlayingBoardState | CompletedBoardState;
 
 export interface CompletedBoardState extends BoardState {
-  readonly name: GameplayState.Completed;
+  readonly name: "completed";
 
   readonly bidder: PlayerId;
   readonly called?: Card;

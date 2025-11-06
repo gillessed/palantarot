@@ -151,7 +151,7 @@ test("5 player game", () => {
   assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "dealt_hand");
 
   game.playerAction({ type: "bid", player: "dxiao", bid: BidValue.TEN, time: time() });
-  game.playerAction({ type: "bid", player: "ericb", bid: BidValue.TWENTY, calls: [Call.RUSSIAN], time: time() });
+  game.playerAction({ type: "bid", player: "ericb", bid: BidValue.TWENTY, calls: ["russian"], time: time() });
   game.playerAction({ type: "bid", player: "gcole", bid: BidValue.PASS, time: time() });
   game.playerAction({ type: "bid", player: "karl", bid: BidValue.PASS, time: time() });
   game.playerAction({ type: "bid", player: "samira", bid: BidValue.FORTY, time: time() });
@@ -250,7 +250,7 @@ test("5 player game with self call", () => {
   game.playerAction({ type: "mark_player_ready", player: "karl", time: time() });
   game.playerAction({ type: "mark_player_ready", player: "dxiao", time: time() });
 
-  game.playerAction({ type: "bid", player: "dxiao", bid: BidValue.ONESIXTY, time: time() });
+  game.playerAction({ type: "bid", player: "dxiao", bid: 160, time: time() });
 
   assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "bidding_completed");
 

@@ -1,43 +1,38 @@
-import { chunk, differenceWith, filter, find, isEqual, shuffle } from "lodash";
+import pkg from "lodash";
 import {
   type Card,
   type RegSuit,
-  RegValue,
-  Suit,
+  type RegValue,
+  type Suit,
   The21,
   TheJoker,
   TheOne,
   type TrumpCard,
-  TrumpValue,
+  type TrumpValue,
 } from "./Card.ts";
 import { GameErrors } from "./GameErrors.ts";
 import { type PlayerId } from "./GameState.ts";
+
+const { chunk, differenceWith, filter, find, isEqual, shuffle } = pkg;
 
 /*
  * This file contains game code which is useful for both client and server.
  */
 
-export const RegSuits: RegSuit[] = [Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade];
-export const AllSuits: Suit[] = [...RegSuits, Suit.Trump];
+export const RegSuits: RegSuit[] = ["C", "D", "H", "S"];
+export const AllSuits: Suit[] = [...RegSuits, "T"];
 
 export function createAllCards(): Card[] {
   const cards: Card[] = [];
   for (const suit of RegSuits) {
-    for (const value of Object.keys(RegValue)) {
-      if (Number.parseInt(value)) {
-        // stupid number keys...
-        continue;
-      }
-      cards.push([suit, RegValue[value as keyof typeof RegValue]]);
+    for (let i = 1; i <= 10; i++) {
+      cards.push([suit, `${i}` as RegValue]);
     }
   }
-  for (const value of Object.keys(TrumpValue)) {
-    if (Number.parseInt(value)) {
-      // stupid number keys...
-      continue;
-    }
-    cards.push([Suit.Trump, TrumpValue[value as keyof typeof TrumpValue]]);
+  for (let i = 1; i <= 21; i++) {
+    cards.push(["T", `${i}` as TrumpValue]);
   }
+  cards.push(TheJoker);
   return cards;
 }
 
@@ -57,8 +52,8 @@ export function toCardString(card: Card): string {
 
 function invalidDeal(hands: Card[][]): boolean {
   for (const hand of hands) {
-    const trumps = filter(hand, (card) => card[0] === Suit.Trump);
-    if (trumps.length === 1 && trumps[0][1] === TrumpValue._1) {
+    const trumps = filter(hand, (card) => card[0] === "T");
+    if (trumps.length === 1 && trumps[0][1] === "1") {
       return true;
     }
   }
@@ -155,7 +150,7 @@ export const dealRemainingCards = ({
 };
 
 export const getTrumps = function (cards?: Card[]): TrumpCard[] {
-  return cards?.filter((card: Card): card is TrumpCard => card[0] == Suit.Trump) || [];
+  return cards?.filter((card: Card): card is TrumpCard => card[0] == "T") || [];
 };
 
 export const cardsEqual = function (one: Card[], two: Card[]): boolean {
@@ -181,7 +176,7 @@ export const getPlayerNum = function (players: PlayerId[], player: PlayerId) {
 
 export function getLeadCard(trick: Card[]): Card | undefined {
   for (const card of trick) {
-    if (card[1] !== TrumpValue.Joker) {
+    if (card[1] !== "Joker") {
       return card;
     }
   }
@@ -194,9 +189,9 @@ export function getLeadSuit(trick: Card[]): Suit | undefined {
 }
 
 function getLowestAllowableTrump(trick: Card[]): TrumpValue {
-  let lowestAllowed = TrumpValue._1;
+  let lowestAllowed: TrumpValue = "1";
   for (const card of trick) {
-    if (card[0] === Suit.Trump && card[1] !== TrumpValue.Joker && lowestAllowed < card[1]) {
+    if (card[0] === "T" && card[1] !== "Joker" && lowestAllowed < card[1]) {
       lowestAllowed = card[1];
     }
   }
@@ -220,19 +215,16 @@ export const getCardsAllowedToPlay = function (
 
   const joker = filter(hand, (card) => isEqual(card, TheJoker));
   const handInSuit = filter(hand, (card) => card[0] === leadsuit);
-  if (leadsuit !== Suit.Trump && handInSuit.length > 0) {
+  if (leadsuit !== "T" && handInSuit.length > 0) {
     return [...handInSuit, ...joker]; // can follow non-trump suit
   }
 
   const lowest_allowed = getLowestAllowableTrump(trick);
-  const allowedTrump = filter(
-    hand,
-    (card) => card[0] === Suit.Trump && card[1] !== TrumpValue.Joker && card[1] >= lowest_allowed
-  );
+  const allowedTrump = filter(hand, (card) => card[0] === "T" && card[1] !== "Joker" && card[1] >= lowest_allowed);
   if (allowedTrump.length > 0) {
     return [...allowedTrump, ...joker]; // can over-trump
   }
-  const trump = filter(hand, (card) => card[0] === Suit.Trump && card[1] !== TrumpValue.Joker);
+  const trump = filter(hand, (card) => card[0] === "T" && card[1] !== "Joker");
   if (trump.length > 0) {
     return [...trump, ...joker]; // need to play some trump
   } else {
@@ -242,64 +234,53 @@ export const getCardsAllowedToPlay = function (
 
 export function getCardSuitAsNumber(value: Suit): number {
   switch (value) {
-    case Suit.Trump:
+    case "T":
       return 5;
-    case Suit.Club:
+    case "C":
       return 1;
-    case Suit.Diamond:
+    case "D":
       return 2;
-    case Suit.Heart:
+    case "H":
       return 3;
-    case Suit.Spade:
+    case "S":
       return 4;
   }
 }
 
 export function getCardValueAsNumber(value: RegValue | TrumpValue): number {
   switch (value) {
-    case RegValue._1:
-    case RegValue._2:
-    case RegValue._3:
-    case RegValue._4:
-    case RegValue._5:
-    case RegValue._6:
-    case RegValue._7:
-    case RegValue._8:
-    case RegValue._9:
-    case RegValue._10:
-      return value.valueOf();
-    case RegValue.V:
+    case "1":
+    case "2":
+    case "3":
+    case "4":
+    case "5":
+    case "6":
+    case "7":
+    case "8":
+    case "9":
+    case "10":
+    case "11":
+    case "12":
+    case "13":
+    case "14":
+    case "15":
+    case "16":
+    case "17":
+    case "18":
+    case "19":
+    case "20":
+    case "21":
+      return Number(value);
+    case "V":
       return 11;
-    case RegValue.C:
+    case "C":
       return 12;
-    case RegValue.D:
+    case "D":
       return 13;
-    case RegValue.R:
+    case "R":
       return 14;
-    case TrumpValue.Joker:
+    case "Joker":
       return 0;
-    case TrumpValue._1:
-    case TrumpValue._2:
-    case TrumpValue._3:
-    case TrumpValue._4:
-    case TrumpValue._5:
-    case TrumpValue._6:
-    case TrumpValue._7:
-    case TrumpValue._8:
-    case TrumpValue._9:
-    case TrumpValue._10:
-    case TrumpValue._11:
-    case TrumpValue._12:
-    case TrumpValue._13:
-    case TrumpValue._14:
-    case TrumpValue._15:
-    case TrumpValue._16:
-    case TrumpValue._17:
-    case TrumpValue._18:
-    case TrumpValue._19:
-    case TrumpValue._20:
-    case TrumpValue._21:
-      return value.valueOf();
     default:
       throw new Error(value);
   }
@@ -311,15 +292,15 @@ export const compareCards = function (lead_suit?: Suit | undefined): Comparator<
   return (left: Card, right: Card) => {
     if (isEqual(left, right)) {
       return 0;
-    } else if (left[1] === TrumpValue.Joker) {
+    } else if (left[1] === "Joker") {
       return -1;
-    } else if (right[1] === TrumpValue.Joker) {
+    } else if (right[1] === "Joker") {
       return 1;
     } else if (left[0] === right[0]) {
       return Math.sign(getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1]));
-    } else if (left[0] === Suit.Trump) {
+    } else if (left[0] === "T") {
       return 1;
-    } else if (right[0] === Suit.Trump) {
+    } else if (right[0] === "T") {
       return -1;
     } else if (left[0] === lead_suit) {
       return 1;
@@ -332,32 +313,32 @@ export const compareCards = function (lead_suit?: Suit | undefined): Comparator<
 };
 
 export const getCardPoint = function (card: Card) {
-  if (card[0] === Suit.Trump) {
-    if (card[1] === TrumpValue.Joker || card[1] === TrumpValue._1 || card[1] === TrumpValue._21) {
+  if (card[0] === "T") {
+    if (card[1] === "Joker" || card[1] === "1" || card[1] === "21") {
       return 4.5;
     } else {
       return 0.5;
     }
   } else {
     switch (card[1]) {
-      case RegValue._1:
-      case RegValue._2:
-      case RegValue._3:
-      case RegValue._4:
-      case RegValue._5:
-      case RegValue._6:
-      case RegValue._7:
-      case RegValue._8:
-      case RegValue._9:
-      case RegValue._10:
+      case "1":
+      case "2":
+      case "3":
+      case "4":
+      case "5":
+      case "6":
+      case "7":
+      case "8":
+      case "9":
+      case "10":
         return 0.5;
-      case RegValue.V:
+      case "V":
         return 1.5;
-      case RegValue.C:
+      case "C":
         return 2.5;
-      case RegValue.D:
+      case "D":
         return 3.5;
-      case RegValue.R:
+      case "R":
         return 4.5;
     }
   }

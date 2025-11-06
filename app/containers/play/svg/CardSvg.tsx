@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const SuitMap = {
-  [Suit.Trump]: "Trump",
+  ["T"]: "Trump",
   [Suit.Club]: "Club",
   [Suit.Diamond]: "Diamond",
   [Suit.Heart]: "Heart",
@@ -41,7 +41,7 @@ interface OutlineLayout {
 export function getCardText(card: Card) {
   const [suit, value] = card;
   let suitText = "";
-  if (value === TrumpValue.Joker) {
+  if (value === "Joker") {
     return "the joker";
   }
   switch (suit) {
@@ -57,7 +57,7 @@ export function getCardText(card: Card) {
     case Suit.Spade:
       suitText = "spades";
       break;
-    case Suit.Trump:
+    case "T":
       suitText = "trump";
       break;
   }

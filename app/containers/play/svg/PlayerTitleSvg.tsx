@@ -170,7 +170,7 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
     const text =
       bid.bid === BidValue.PASS
         ? "PASS"
-        : bid.bid === BidValue.TWENTY && bid.calls.indexOf(Call.RUSSIAN) >= 0
+        : bid.bid === BidValue.TWENTY && bid.calls.indexOf("russian") >= 0
         ? "R 20"
         : `${bid.bid}`;
     return (

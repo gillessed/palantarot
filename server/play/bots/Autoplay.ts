@@ -1,11 +1,11 @@
 import { Game } from "../game/Game.ts";
 import { getCardsAllowedToPlay, getPlayerNum } from "../model/CardUtils.ts";
 import { type PlayCardAction } from "../model/GameEvents.ts";
-import { GameplayState, type PlayingBoardState } from "../model/GameState.ts";
+import { type PlayingBoardState } from "../model/GameState.ts";
 
 export function autoplayNextCard(game: Game, time: number): PlayCardAction {
   const anyState = game.getState();
-  if (anyState.name !== GameplayState.Playing) {
+  if (anyState.name !== "playing") {
     throw Error("Play has not begun.");
   }
   const state = anyState as PlayingBoardState;

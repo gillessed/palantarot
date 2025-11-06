@@ -1,11 +1,11 @@
-import { ClientGame } from "../app/services/room/ClientGame";
-import { Card, RegValue, Suit } from "../server/play/model/Card";
-import { getArrayRandom, getArrayRandoms, getCardsAllowedToPlay, isBout } from "../server/play/model/CardUtils";
-import { Bid } from "../server/play/model/GameState";
-import { getNonSelfCalls, getPossibleBidValues } from './BotUtils';
-import { TarotBot } from "./TarotBot";
+import { type ClientGame } from "../types/ClientGame.ts";
+import { type Card } from "../../server/play/model/Card.ts";
+import { getArrayRandom, getArrayRandoms, getCardsAllowedToPlay, isBout } from "../../server/play/model/CardUtils.ts";
+import { type Bid, type BidValue } from "../../server/play/model/GameState.ts";
+import { getNonSelfCalls, getPossibleBidValues } from "./BotUtils.ts";
+import { type TarotBot } from "./TarotBot.ts";
 
-export const RandomBotType = 'Random Bot';
+export const RandomBotType = "Random Bot";
 
 /**
  * Random bot will do everything randomly. However, there are a few restriction. See each method for more details.
@@ -18,7 +18,7 @@ export class RandomBot implements TarotBot {
    */
   public bid(game: ClientGame): Bid {
     const availableBidValues = getPossibleBidValues(game);
-    let bid: number = 0;
+    let bid: BidValue = 0;
     const random = Math.random();
     if (random > 0.95) {
       bid = 160;
@@ -38,7 +38,7 @@ export class RandomBot implements TarotBot {
     }
     return { bid, player: game.playerId, calls: [] };
   }
-  
+
   /**
    * Will pick the partner randomly, from available choices not it its own hand.
    */
@@ -53,10 +53,10 @@ export class RandomBot implements TarotBot {
    */
   public dropDog(game: ClientGame): Card[] {
     const hand = game.playState.hand;
-    const nonTrumpNonKing = hand.filter(([suit, value]) => suit !== Suit.Trump && value !== RegValue.R);
+    const nonTrumpNonKing = hand.filter(([suit, value]) => suit !== "T" && value !== "R");
     const dogCount = game.playState.playerOrder.length === 5 ? 3 : 6;
     if (nonTrumpNonKing.length === 0) {
-      const nonBoutNonKing = hand.filter((c) => !isBout(c) && c[1] !== RegValue.R);
+      const nonBoutNonKing = hand.filter((c) => !isBout(c) && c[1] !== "R");
       return getArrayRandoms(nonBoutNonKing, dogCount);
     } else {
       return getArrayRandoms(nonTrumpNonKing, dogCount);

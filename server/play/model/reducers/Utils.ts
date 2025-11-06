@@ -1,4 +1,4 @@
-import { type Bid, Call, type PlayerId } from "../GameState.ts";
+import { type Bid, type PlayerId } from "../GameState.ts";
 
 export const getTrickPlayerOrder = (players: PlayerId[], firstPlayer: PlayerId) => {
   const trickOrder = [...players];
@@ -16,7 +16,7 @@ export const getNewTrick = (players: PlayerId[], first_player: PlayerId, trick_n
 });
 
 export const getStringForBid = (bid: Bid) => {
-  if (bid.calls.indexOf(Call.RUSSIAN) >= 0) {
+  if (bid.calls.indexOf("russian") >= 0) {
     return `bid Russian ${bid.bid}`;
   } else if (bid.bid === 0) {
     return "passed";

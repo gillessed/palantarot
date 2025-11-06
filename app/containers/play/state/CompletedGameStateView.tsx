@@ -126,7 +126,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     const thresholds = [56, 51, 41, 36];
     let oneLastPlayer: string | undefined;
     for (let i = 0; i < endState.players.length; i++) {
-      if (endState.outcomes[i] && endState.outcomes[i].find((outcome) => outcome === Outcome.ONE_LAST)) {
+      if (endState.outcomes[i] && endState.outcomes[i].find((outcome) => outcome === "one_last")) {
         oneLastPlayer = endState.players[i];
       }
     }
@@ -208,11 +208,11 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     }
     playerOrder.push(...rest);
     for (const player of playerOrder) {
-      const role = player === state.bidder ? Role.BIDDER : player === state.partner ? Role.PARTNER : Role.OPPOSITION;
+      const role = player === state.bidder ? "bidder" : player === state.partner ? "partner" : "opposition";
       const points =
-        role === Role.BIDDER
+        role === "bidder"
           ? multiplier * state.pointsResult
-          : role === Role.PARTNER
+          : role === "partner"
           ? state.pointsResult
           : -state.pointsResult;
       results.push({
@@ -235,9 +235,9 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
               <React.Fragment key={index}>
                 <div className="result-separator" key={`separator-${index}`} />
                 <div className="player-result" key={`result-${index}`}>
-                  {result.role === Role.BIDDER && <Icon icon={IconNames.CROWN} iconSize={30} color="#FFC940" />}
-                  {result.role === Role.PARTNER && <Icon icon={IconNames.PERSON} iconSize={30} color="#FFC940" />}
-                  {result.role === Role.OPPOSITION && <Icon icon={IconNames.PEOPLE} iconSize={30} color="#C274C2" />}
+                  {result.role === "bidder" && <Icon icon={IconNames.CROWN} iconSize={30} color="#FFC940" />}
+                  {result.role === "partner" && <Icon icon={IconNames.PERSON} iconSize={30} color="#FFC940" />}
+                  {result.role === "opposition" && <Icon icon={IconNames.PEOPLE} iconSize={30} color="#C274C2" />}
                   <span className="unselectable">{playerName}</span>
                   <span className={pointsClasses}>{result.points}</span>
                 </div>

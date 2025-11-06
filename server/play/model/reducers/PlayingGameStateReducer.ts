@@ -1,4 +1,4 @@
-import { compact, findIndex, isEqual } from "lodash";
+import pkg from "lodash";
 import { TheJoker } from "../Card.ts";
 import { cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
@@ -8,18 +8,19 @@ import {
   type CompletedTrickTransition,
   type GameCompletedTransition,
   type PlayCardAction,
-} from "../GameEvents";
+} from "../GameEvents.ts";
 import {
   type CompletedBoardState,
   type CompletedGameState,
-  GameplayState,
   type PlayingBoardState,
   type PlayingStateActions,
   type PlayingStates,
   type ReducerResult,
-} from "../GameState";
+} from "../GameState.ts";
 import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
+
+const { compact, findIndex, isEqual } = pkg;
 
 const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return (
@@ -139,7 +140,7 @@ export const handlePlayCardAction = (
       };
       const newBoardState: CompletedBoardState = {
         ...state,
-        name: GameplayState.Completed,
+        name: "completed",
         jokerState: state.jokerState || jokerState,
         past_tricks: tricks,
         end_state: endState,

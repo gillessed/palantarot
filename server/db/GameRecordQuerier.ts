@@ -2,8 +2,8 @@ import moment from "moment-timezone";
 import { type QueryResult } from "pg";
 import { type GameRecord, type GameRecordPartial, type HandData, type PlayerHand } from "../model/GameRecord.ts";
 import { type MonthlyScore } from "../model/Records.ts";
-import { Role, type RoleResult } from "../model/Result.ts";
-import { PlayerPredicate, type SearchQuery } from "../model/Search.ts";
+import { type Role, type RoleResult } from "../model/Result.ts";
+import { type SearchQuery } from "../model/Search.ts";
 import { Database } from "./dbConnector.ts";
 import { Queries, QueryBuilder, type UpsertBuilder } from "./queryBuilder/QueryBuilder.ts";
 
@@ -39,13 +39,13 @@ export class GameRecordQuerier {
       .compareValue("timestamp", ">=", startDate)
       .compareValue("timestamp", "<", endDate);
     switch (role) {
-      case Role.BIDDER:
+      case "bidder":
         comparison.compareValue("was_bidder", "=", "true");
         break;
-      case Role.PARTNER:
+      case "partner":
         comparison.compareValue("was_partner", "=", "true");
         break;
-      case Role.OPPOSITION:
+      case "opposition":
         comparison.compareValue("was_bidder", "=", "false").compareValue("was_partner", "=", "false");
         break;
     }
@@ -143,24 +143,24 @@ export class GameRecordQuerier {
       const tableId = "p_" + playerQuery.player;
       const toJoin = QueryBuilder.subselect("player_hand", tableId).star().orderBy("timestamp", "desc");
       switch (playerQuery.predicate) {
-        case PlayerPredicate.inGame:
+        case "in_game":
           toJoin.where(QueryBuilder.compare().compareValue("player_fk_id", "=", playerQuery.player));
           break;
-        case PlayerPredicate.bidder:
+        case "bidder":
           toJoin.where(
             QueryBuilder.compare()
               .compareValue("player_fk_id", "=", playerQuery.player)
               .compareValue("was_bidder", "=", true)
           );
           break;
-        case PlayerPredicate.partner:
+        case "partner":
           toJoin.where(
             QueryBuilder.compare()
               .compareValue("player_fk_id", "=", playerQuery.player)
               .compareValue("was_partner", "=", true)
           );
           break;
-        case PlayerPredicate.opponent:
+        case "opponent":
           toJoin.where(
             QueryBuilder.compare()
               .compareValue("player_fk_id", "=", playerQuery.player)

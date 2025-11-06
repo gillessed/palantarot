@@ -1,14 +1,16 @@
-import { isEqual } from "lodash";
-import { ClientGame } from "../app/services/room/ClientGame";
-import { Suit, TrumpValue } from "../server/play/model/Card";
-import { AllSuits, createCardsOfSuit, getLeadCard } from "../server/play/model/CardUtils";
-import { getTrickCardList } from "./BotUtils";
-import { CardList } from "./CardList";
+import pkg from "lodash";
+import { type Suit } from "../../server/play/model/Card.ts";
+import { AllSuits, createCardsOfSuit, getLeadCard } from "../../server/play/model/CardUtils.ts";
+import { getTrickCardList } from "./BotUtils.ts";
+import { CardList } from "./CardList.ts";
+import type { ClientGame } from "../types/ClientGame.ts";
+
+const { isEqual } = pkg;
 
 export interface StateAnalysis {
   onePlayed: boolean;
-  hands: { [key: string]: HandAnalysis};
-  suits: { [key: string]: SuitAnalysis};
+  hands: { [key: string]: HandAnalysis };
+  suits: { [key: string]: SuitAnalysis };
 }
 
 export interface HandAnalysis {
@@ -27,7 +29,7 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
     onePlayed: false,
     hands: {},
     suits: {},
-  }
+  };
   for (const player of playerOrder) {
     if (player !== clientGame.playerId) {
       stateAnalysis.hands[player] = {
@@ -50,24 +52,24 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
     for (let i = 0; i < trickCardList.length; i++) {
       const card = trickCardList[i];
       const [cardSuit, cardValue] = card;
-      const isOne = cardSuit === Suit.Trump && cardValue === TrumpValue._1;
-      const isJoker = cardSuit === Suit.Trump && cardValue === TrumpValue.Joker;
+      const isOne = cardSuit === "T" && cardValue === "1";
+      const isJoker = cardSuit === "T" && cardValue === "Joker";
       stateAnalysis.suits[cardSuit].playedCards.add(card);
       stateAnalysis.suits[cardSuit].remainingCards.remove(card);
       if (isOne) {
         stateAnalysis.onePlayed = true;
       }
-      if (cardSuit === Suit.Trump && !isJoker) {
+      if (cardSuit === "T" && !isJoker) {
         highestTrump = +cardValue;
       }
       if (leadCard && !isEqual(card, leadCard)) {
         if (card[0] !== leadCard[0] && !isJoker) {
           stateAnalysis.hands[playerList[i]].knownVoids.add(leadCard[0]);
-          if (card[0] !== Suit.Trump) {
-            stateAnalysis.hands[playerList[i]].knownVoids.add(Suit.Trump);
+          if (card[0] !== "T") {
+            stateAnalysis.hands[playerList[i]].knownVoids.add("T");
           }
         }
-        if (card[0] === Suit.Trump && !isJoker && highestTrump !== null && (+card[1]) < highestTrump) {
+        if (card[0] === "T" && !isJoker && highestTrump !== null && +card[1] < highestTrump) {
           stateAnalysis.hands[playerList[i]].highestTrump = highestTrump;
         }
       }

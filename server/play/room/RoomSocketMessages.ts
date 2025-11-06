@@ -1,8 +1,8 @@
 import { defineSocketMessage } from "../../websocket/SocketMessage.ts";
-import { type Action, ErrorCode, type PlayerEvent } from "../model/GameEvents.ts";
+import { type Action, type ErrorCode, type PlayerEvent } from "../model/GameEvents.ts";
 import { type GameSettings } from "../model/GameSettings.ts";
 import { type ChatText } from "./ChatText.ts";
-import { PlayerStatus } from "./PlayerStatus.ts";
+import { type PlayerStatus } from "./PlayerStatus.ts";
 import { type RoomStatus } from "./RoomStatus.ts";
 
 export interface EnterRoomMessagePayload {

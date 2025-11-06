@@ -1,13 +1,13 @@
-import { ClientGame } from "../app/services/room/ClientGame";
-import { TrickCards } from "../app/services/room/ClientGameEventHandler";
-import { AllCs, AllDs, AllRs, AllVs, Card, RegValue, Suit } from "../server/play/model/Card";
-import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../server/play/model/CardUtils";
+import { type TrickCards } from "../../app/services/room/ClientGameEventHandler.ts";
+import { AllCs, AllDs, AllRs, AllVs, type Card } from "../../server/play/model/Card.ts";
+import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../../server/play/model/CardUtils.ts";
+import { type ClientGame } from "../types/ClientGame.ts";
 
 const NonPassBids = [10, 20, 40, 80, 160];
 // const NonPassBids = [10, 20, 40];
 
 export function getPossibleBidValues(clientGame: ClientGame): number[] {
-  const { playState, playerId } = clientGame;
+  const { playState } = clientGame;
   const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
   const availableBidValue: number[] = [0, ...NonPassBids.filter((value) => value > maxBid)];
   return availableBidValue;
@@ -15,9 +15,9 @@ export function getPossibleBidValues(clientGame: ClientGame): number[] {
 
 export function getNonSelfCalls(clientGame: ClientGame): Card[] {
   const hand = clientGame.playState.hand;
-  const hasAllRs = hand.filter(([_, value]) => value === RegValue.R).length === 4;
-  const hasAllDs = hand.filter(([_, value]) => value === RegValue.D).length === 4;
-  const hasAllCs = hand.filter(([_, value]) => value === RegValue.C).length === 4;
+  const hasAllRs = hand.filter(([_, value]) => value === "R").length === 4;
+  const hasAllDs = hand.filter(([_, value]) => value === "D").length === 4;
+  const hasAllCs = hand.filter(([_, value]) => value === "C").length === 4;
   let bidSet: Card[] = [];
   if (!hasAllRs) {
     bidSet = AllRs;
@@ -34,7 +34,7 @@ export function getNonSelfCalls(clientGame: ClientGame): Card[] {
 
 export function lambdaMax<T>(l: (t: T) => number, ...list: T[]): T {
   if (list.length === 0) {
-    throw Error('No max of empty list');
+    throw Error("No max of empty list");
   }
   let maxT = list[0];
   let maxVal = l(list[0]);
@@ -48,10 +48,9 @@ export function lambdaMax<T>(l: (t: T) => number, ...list: T[]): T {
   return maxT;
 }
 
-
 export function lambdaMin<T>(l: (t: T) => number, ...list: T[]): T {
   if (list.length === 0) {
-    throw Error('No max of empty list');
+    throw Error("No max of empty list");
   }
   let minT = list[0];
   let minVal = l(list[0]);
@@ -75,13 +74,13 @@ export function dropValueSortComparator(c1: Card, c2: Card) {
   } else if (isBout(c1) && isBout(c2)) {
     return 0;
   }
-  if (suit1 === Suit.Trump && suit2 !== Suit.Trump) {
+  if (suit1 === "T" && suit2 !== "T") {
     return -1;
   }
-  if (suit1 !== Suit.Trump && suit2 === Suit.Trump) {
+  if (suit1 !== "T" && suit2 === "T") {
     return 1;
   }
-  if (suit1 === Suit.Trump && suit2 === Suit.Trump) {
+  if (suit1 === "T" && suit2 === "T") {
     return 0;
   }
   const v1 = getCardValueAsNumber(value1);

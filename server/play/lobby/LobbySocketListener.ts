@@ -1,14 +1,14 @@
-import { PlayService } from '../../api/PlayService';
-import { JsonSocket } from '../../websocket/JsonSocket';
-import { SocketMessageListener } from '../../websocket/SocketListener';
-import { SocketMessage } from '../../websocket/SocketMessage';
-import { LobbySocketMessages } from './LobbySocketMessages';
+import { PlayService } from "../../api/PlayService.ts";
+import { JsonSocket } from "../../websocket/JsonSocket.ts";
+import { type SocketMessageListener } from "../../websocket/SocketListener.ts";
+import { type SocketMessage } from "../../websocket/SocketMessage.ts";
+import { LobbySocketMessages } from "./LobbySocketMessages.ts";
 
 export class LobbySocketListener implements SocketMessageListener {
-
-  constructor(
-    private playService: PlayService,
-  ) { }
+  private readonly playService: PlayService;
+  constructor(playService: PlayService) {
+    this.playService = playService;
+  }
 
   public handleMessage(socketId: string, socket: JsonSocket, message: SocketMessage<any>) {
     LobbySocketMessages.enterLobby.handle(message, (payload) => {

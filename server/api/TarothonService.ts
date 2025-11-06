@@ -1,10 +1,12 @@
-import { Request, Response, Router } from "express";
-import { has } from "lodash";
+import { type Request, type Response, Router } from "express";
+import pkg from "lodash";
 import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
 import { TarothonQuerier } from "../db/TarothonQuerier.ts";
-import { RoleResult } from "../model/Result.ts";
-import { NewTarothon, Tarothon, TarothonData } from "../model/Tarothon.ts";
+import { type RoleResult } from "../model/Result.ts";
+import { type NewTarothon, type Tarothon, type TarothonData } from "../model/Tarothon.ts";
 import { Database } from "./../db/dbConnector.ts";
+
+const { has } = pkg;
 
 export class TarothonService {
   public router: Router;

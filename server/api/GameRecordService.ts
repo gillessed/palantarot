@@ -1,11 +1,11 @@
-import { Request, type Response, Router } from "express";
+import { type Request, type Response, Router } from "express";
 import moment from "moment-timezone";
 import { Database } from "../db/dbConnector.ts";
 import { GameRecordQuerier, type RecentGameQuery } from "../db/GameRecordQuerier.ts";
 import { type GameRecord, type GameRecordPartial } from "../model/GameRecord.ts";
-import { IMonth, Month } from "../model/Month.ts";
-import { Records } from "../model/Records.ts";
-import { Result, Role, RoleResult } from "../model/Result.ts";
+import { IMonth, type Month } from "../model/Month.ts";
+import { type Records } from "../model/Records.ts";
+import { type Result, type Role, type RoleResult } from "../model/Result.ts";
 import { WebsocketManager } from "../websocket/WebsocketManager.ts";
 
 export class GameRecordService {
@@ -42,16 +42,16 @@ export class GameRecordService {
 
     try {
       const allResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff);
-      const bidderResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.BIDDER);
-      const partnerResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.PARTNER);
-      const oppositionResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, Role.OPPOSITION);
+      const bidderResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, "bidder");
+      const partnerResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, "partner");
+      const oppositionResults = await this.getMonthResultsForRole(startDate, endDate, deltaCutoff, "opposition");
       const resultMap: Map<string, Partial<Result>> = new Map();
       for (const result of allResults) {
         resultMap.set(result.id, { id: result.id, all: result });
       }
-      bidderResults.forEach(this.mapRoleResult(resultMap, Role.BIDDER));
-      partnerResults.forEach(this.mapRoleResult(resultMap, Role.PARTNER));
-      oppositionResults.forEach(this.mapRoleResult(resultMap, Role.OPPOSITION));
+      bidderResults.forEach(this.mapRoleResult(resultMap, "bidder"));
+      partnerResults.forEach(this.mapRoleResult(resultMap, "partner"));
+      oppositionResults.forEach(this.mapRoleResult(resultMap, "opposition"));
       const results = Array.from(resultMap.values());
       res.send(results);
     } catch (error) {
@@ -80,11 +80,11 @@ export class GameRecordService {
   private getRoleResultSetter = (role: Role) => {
     return (partial: Partial<Result>, roleResult: RoleResult) => {
       switch (role) {
-        case Role.BIDDER:
+        case "bidder":
           return { ...partial, bidder: roleResult };
-        case Role.PARTNER:
+        case "partner":
           return { ...partial, partner: roleResult };
-        case Role.OPPOSITION:
+        case "opposition":
           return { ...partial, opposition: roleResult };
       }
     };

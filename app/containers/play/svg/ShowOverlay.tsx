@@ -96,7 +96,7 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   private handleShowTrump = () => {
     const { game, dispatchers } = this.props;
-    const trump = game.playState.hand.filter(([suit]) => suit === Suit.Trump) as TrumpCard[];
+    const trump = game.playState.hand.filter(([suit]) => suit === "T") as TrumpCard[];
     dispatchers.room.play(game.playerId).showTrump(trump);
   };
 

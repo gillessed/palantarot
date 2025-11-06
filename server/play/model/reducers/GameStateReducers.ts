@@ -3,9 +3,8 @@ import {
   type BoardReducer,
   type CompletedBoardState,
   type CompletedStateActions,
-  GameplayState,
   type ReducerResult,
-} from "../GameState";
+} from "../GameState.ts";
 import { BiddingGameStateReducer } from "./BiddingGameStateReducer.ts";
 import { DogRevealGameStateReducer } from "./DogRevealGameStateReducer.ts";
 import { NewGameStateReducer } from "./NewGameStateReducer.ts";
@@ -16,12 +15,12 @@ export type GameReducerMap = { [state: string]: BoardReducer<any, any, any> };
 
 export function buildGameStateReducer(): GameReducerMap {
   return {
-    [GameplayState.NewGame]: NewGameStateReducer,
-    [GameplayState.Bidding]: BiddingGameStateReducer,
-    [GameplayState.PartnerCall]: PartnerCallGameStateReducer,
-    [GameplayState.DogReveal]: DogRevealGameStateReducer,
-    [GameplayState.Playing]: PlayingGameStateReducer,
-    [GameplayState.Completed]: CompletedGameStateReducer,
+    ["new_game"]: NewGameStateReducer,
+    ["bidding"]: BiddingGameStateReducer,
+    ["partner_call"]: PartnerCallGameStateReducer,
+    ["dog_reveal"]: DogRevealGameStateReducer,
+    ["playing"]: PlayingGameStateReducer,
+    ["completed"]: CompletedGameStateReducer,
   };
 }
 

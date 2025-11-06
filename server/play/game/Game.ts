@@ -1,17 +1,11 @@
 import { type Action, type PlayerEvent } from "../model/GameEvents.ts";
 import { DefaultGameSettings, type GameSettings } from "../model/GameSettings.ts";
-import {
-  type BoardState,
-  GameplayState,
-  type NewGameBoardState,
-  type PlayerId,
-  type ReducerResult,
-} from "../model/GameState";
+import { type BoardState, type NewGameBoardState, type PlayerId, type ReducerResult } from "../model/GameState.ts";
 import { buildGameStateReducer, type GameReducerMap } from "../model/reducers/GameStateReducers.ts";
 
 export function createInitialState(publicHands: boolean): NewGameBoardState {
   return {
-    name: GameplayState.NewGame,
+    name: "new_game",
     players: [],
     ready: [],
     publicHands,

@@ -5,6 +5,7 @@
   "main": "build/server/index.js",
   "author": "gcole <gtc.cole@gmail.com>",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "vite serve",
     "server": "node server/server.ts",

@@ -1,15 +1,17 @@
-import { filter, isEqual, remove } from "lodash";
+import pkg from "lodash";
 import { type Bout, type Card, isBout, TheJoker, TheOne } from "./Card.ts";
 import { cardsContain, getCardPoint } from "./CardUtils.ts";
 import {
-  BidValue,
-  Call,
+  type BidValue,
+  type Call,
   type CompletedTrick,
   type JokerExchangeState,
-  Outcome,
+  type Outcome,
   type PlayerId,
   type ShowTrumpState,
-} from "./GameState";
+} from "./GameState.ts";
+
+const { filter, isEqual, remove } = pkg;
 
 export interface Earnings {
   pointsEarned: number;
@@ -25,7 +27,7 @@ export const getEarnings = (
 ): Earnings => {
   const cardsWon = [];
   // we only track cards lost for joker exchange
-  const cardsLost = [];
+  const cardsLost: Card[] = [];
   for (const trick of tricks) {
     if (biddingTeam.indexOf(trick.winner) > -1) {
       // bidding team won
@@ -58,7 +60,7 @@ export const getEarnings = (
   }
   const bouts = filter(cardsWon, (card): card is Bout => isBout(card));
   const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
-  if (bid !== BidValue.ONESIXTY) {
+  if (bid !== 160) {
     pointsEarned += dogPoints;
     bouts.push(...filter(dog, (card): card is Bout => isBout(card)));
   }
@@ -87,12 +89,12 @@ export const getOutcomes = (
   const tricks_won = tricks.filter((trick) => biddingTeam.indexOf(trick.winner) > -1).length;
   if (tricks_won === tricks.length) {
     for (const player of biddingTeam) {
-      outcomes[players.indexOf(player)] = [Outcome.SLAMMED];
+      outcomes[players.indexOf(player)] = ["slammed"];
     }
   } else if (tricks_won === 0) {
     for (const player_num of players.keys()) {
       if (biddingTeam.indexOf(players[player_num]) === -1) {
-        outcomes[player_num] = [Outcome.SLAMMED];
+        outcomes[player_num] = ["slammed"];
       }
     }
   }
@@ -102,7 +104,7 @@ export const getOutcomes = (
     if (outcomes[one_last] === undefined) {
       outcomes[one_last] = [];
     }
-    outcomes[one_last].push(Outcome.ONE_LAST);
+    outcomes[one_last].push("one_last");
   }
 
   return outcomes;
@@ -131,23 +133,23 @@ export const getFinalScore = (
   }
 
   for (const playerNum in calls) {
-    if (calls[playerNum].indexOf(Call.DECLARED_SLAM) > -1) {
+    if (calls[playerNum].indexOf("declared_slam") > -1) {
       let points = 200;
-      points *= outcomes[playerNum].indexOf(Outcome.SLAMMED) > -1 ? 1 : -1;
+      points *= outcomes[playerNum].indexOf("slammed") > -1 ? 1 : -1;
       points *= biddingTeam.indexOf(players[playerNum]) > -1 ? 1 : -1;
       pointsResult += points;
     }
   }
 
   for (const playerNum in outcomes) {
-    if (outcomes[playerNum].indexOf(Outcome.SLAMMED) > -1) {
+    if (outcomes[playerNum].indexOf("slammed") > -1) {
       pointsResult += biddingTeam.indexOf(players[playerNum]) > -1 ? 200 : -200;
       break;
     }
   }
 
   for (const playerNum in outcomes) {
-    if (outcomes[playerNum].indexOf(Outcome.ONE_LAST) > -1) {
+    if (outcomes[playerNum].indexOf("one_last") > -1) {
       pointsResult += biddingTeam.indexOf(players[playerNum]) > -1 ? 10 : -10;
       break;
     }

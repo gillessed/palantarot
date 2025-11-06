@@ -1,4 +1,4 @@
-import https, { ServerOptions } from "https";
+import https, { type ServerOptions } from "https";
 import http from "http";
 import fs from "fs";
 import { App } from "./App.ts";

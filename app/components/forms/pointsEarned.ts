@@ -1,12 +1,12 @@
-import { PlayerRoles } from './PlayerRoles';
+import type { PlayerRole } from "./PlayerRoles.ts";
 
 export function getPointsEarned(
   basePoints: number,
-  playerRole: string,
+  playerRole: PlayerRole,
   numberOfPlayers: number,
-  bidderCalledSelf: boolean,
+  bidderCalledSelf: boolean
 ) {
-  if (playerRole === PlayerRoles.BIDDER) {
+  if (playerRole === "bidder") {
     if (numberOfPlayers === 3) {
       return basePoints * 2;
     } else if (numberOfPlayers === 4) {
@@ -18,7 +18,7 @@ export function getPointsEarned(
         return basePoints * 2;
       }
     }
-  } else if (playerRole === PlayerRoles.PARTNER) {
+  } else if (playerRole === "partner") {
     return basePoints;
   } else {
     return -basePoints;

@@ -1,4 +1,4 @@
-import { RandomBotType } from "../../../bots/RandomBot.ts";
+import { RandomBotType } from "../../../shared/bots/RandomBot.ts";
 import { PlayService } from "../../api/PlayService.ts";
 import { Player } from "../../model/Player.ts";
 import { Multimap } from "../../utils/multimap.ts";
@@ -20,8 +20,8 @@ import type {
   PlayerReadyAction,
 } from "../model/GameEvents";
 import type { GameSettings } from "../model/GameSettings";
-import { type CompletedBoardState, type CompletedGameState, GameplayState, type PlayerId } from "../model/GameState.ts";
-import { PlayerStatus } from "../room/PlayerStatus.ts";
+import { type CompletedBoardState, type CompletedGameState, type PlayerId } from "../model/GameState.ts";
+import { type PlayerStatus } from "../room/PlayerStatus.ts";
 import { type ChatText, ServerChatAuthorId } from "./ChatText.ts";
 import { type NewRoomArgs } from "./NewRoomArgs.ts";
 import type {
@@ -112,12 +112,12 @@ export class Room {
       this.playerIdToSocketId.delete(playerId, socketId);
       this.socketIdToPlayerId.delete(socketId);
       if (this.playerIdToSocketId.count(playerId) === 0) {
-        this.players.set(playerId, PlayerStatus.Offline);
+        this.players.set(playerId, "Offline");
         this.broadcastMessage(
           RoomSocketMessages.playerStatusUpdated({
             roomId: this.id,
             playerId,
-            playerStatus: PlayerStatus.Offline,
+            playerStatus: "Offline",
             time: Date.now(),
           })
         );
@@ -132,7 +132,7 @@ export class Room {
     this.playerIdToSocketId.set(playerId, socketId);
     this.socketIdToPlayerId.set(socketId, playerId);
     this.playService.addSocketToRoom(this.id, socketId);
-    this.players.set(playerId, PlayerStatus.Online);
+    this.players.set(playerId, "Online");
     this.sendRoomStatus(playerId);
     this.playService.roomUpdated(this);
   };
@@ -153,7 +153,7 @@ export class Room {
     if (alreadyIn) {
       return;
     }
-    this.players.set(botId, PlayerStatus.Online);
+    this.players.set(botId, "Online");
     const joinGame: EnterGameAction = {
       type: "enter_game",
       player: botId,
@@ -169,7 +169,7 @@ export class Room {
 
   public handleRemoveBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
-    this.players.set(botId, PlayerStatus.Online);
+    this.players.set(botId, "Online");
     const unready: PlayerNotReadyAction = {
       type: "unmark_player_ready",
       player: botId,
@@ -307,7 +307,7 @@ export class Room {
   };
 
   private handleNewGame = async () => {
-    if (this.game.getState().name !== GameplayState.Completed) {
+    if (this.game.getState().name !== "completed") {
       return;
     }
 
@@ -326,7 +326,7 @@ export class Room {
 
   private handlePokeTimer(actions: Action[]) {
     const playerToPlay = getNextPlayer(this.game);
-    if (this.game.getState().name !== GameplayState.Playing || playerToPlay == null) {
+    if (this.game.getState().name !== "playing" || playerToPlay == null) {
       return;
     }
     const containsPlayAction = actions.some((action) => action.type === "play_card");

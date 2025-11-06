@@ -1,6 +1,6 @@
-import { Router, Request, Response } from "express";
-import { AuthRequest } from "../../app/services/auth/index.ts";
-import { Config } from "../config.ts";
+import { Router, type Request, type Response } from "express";
+import { type AuthRequest } from "../../shared/types/AuthRequest.ts";
+import { type Config } from "../config.ts";
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 

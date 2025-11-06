@@ -1,6 +1,6 @@
-import { isEqual, without } from "lodash";
-import { type Card, type TrumpCard } from "../../../server/play/model/Card";
-import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils";
+import pkg from "lodash";
+import { type Card, type TrumpCard } from "../../../server/play/model/Card.ts";
+import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils.ts";
 import {
   type AllowNotifyPlayerEvent,
   type BidAction,
@@ -22,14 +22,15 @@ import {
   type SetDogAction,
   type ShowDogToObservers,
   type ShowTrumpAction,
-} from "../../../server/play/model/GameEvents";
+} from "../../../server/play/model/GameEvents.ts";
 import {
   type Bid,
-  BidValue,
   type CompletedGameState,
-  GameplayState,
+  type GameplayState,
   type PlayerId,
-} from "../../../server/play/model/GameState";
+} from "../../../server/play/model/GameState.ts";
+
+const { isEqual, without } = pkg;
 
 export interface TrickCards {
   order: string[];
@@ -66,7 +67,7 @@ export interface ShowDetails {
 }
 
 export const BlankState: PlayState = {
-  state: GameplayState.NewGame,
+  state: "new_game",
   hand: [],
   dog: [],
   playerOrder: [],
@@ -115,11 +116,6 @@ function leaveGame(state: PlayState, action: LeaveGameAction): PlayState {
 }
 
 function dealtHand(state: PlayState, action: DealtHandTransition, playerId: PlayerId): PlayState {
-  const newState = {
-    ...state,
-    state: GameplayState.Bidding,
-    toBid: 0,
-  };
   if (action.playerId === playerId) {
     return {
       ...state,
@@ -138,7 +134,7 @@ function dealtHand(state: PlayState, action: DealtHandTransition, playerId: Play
 function playersSet(state: PlayState, action: PlayersSetTransition): PlayState {
   return {
     ...state,
-    state: GameplayState.Bidding,
+    state: "bidding",
     playerOrder: action.playerOrder,
     toBid: 0,
   };
@@ -161,7 +157,7 @@ function bid(state: PlayState, action: BidAction): PlayState {
     calls: action.calls ?? [],
   });
   const passCount = [...state.playerBids.values()].reduce((acc, value) => {
-    return acc + (value.bid === BidValue.PASS ? 1 : 0);
+    return acc + (value.bid === 0 ? 1 : 0);
   }, 0);
   if (state.playerOrder.length - passCount <= 1) {
     return {
@@ -172,7 +168,7 @@ function bid(state: PlayState, action: BidAction): PlayState {
   let newBidder = state.toBid ?? 0;
   do {
     newBidder = (newBidder + 1) % state.playerOrder.length;
-  } while (state.playerBids.get(state.playerOrder[newBidder])?.bid === BidValue.PASS);
+  } while (state.playerBids.get(state.playerOrder[newBidder])?.bid === 0);
   return {
     ...state,
     toBid: newBidder,
@@ -183,7 +179,7 @@ function bid(state: PlayState, action: BidAction): PlayState {
 function biddingCompleted(state: PlayState, action: BiddingCompletedTransition): PlayState {
   return {
     ...state,
-    state: GameplayState.PartnerCall,
+    state: "partner_call",
     winningBid: action.winning_bid,
   };
 }
@@ -191,7 +187,7 @@ function biddingCompleted(state: PlayState, action: BiddingCompletedTransition):
 function callPartner(state: PlayState, action: CallPartnerAction): PlayState {
   return {
     ...state,
-    state: GameplayState.PartnerCall,
+    state: "partner_call",
     partnerCard: action.card,
   };
 }
@@ -201,7 +197,7 @@ function dogRevealed(state: PlayState, action: DogRevealTransition, player: Play
   if (action.player === player) {
     return {
       ...state,
-      state: GameplayState.DogReveal,
+      state: "dog_reveal",
       hand: [...state.hand, ...action.dog].sort(compareCards()),
       partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
@@ -209,7 +205,7 @@ function dogRevealed(state: PlayState, action: DogRevealTransition, player: Play
   } else {
     return {
       ...state,
-      state: GameplayState.DogReveal,
+      state: "dog_reveal",
       partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
     };
@@ -249,7 +245,7 @@ function setDog(state: PlayState, action: SetDogAction): PlayState {
 function gameStarted(state: PlayState, action: GameStartTransition): PlayState {
   return {
     ...state,
-    state: GameplayState.Playing,
+    state: "playing",
     toPlay: action.first_player,
   };
 }
@@ -307,12 +303,12 @@ function completedTrick(state: PlayState, action: CompletedTrickTransition): Pla
 function gameComplete(state: PlayState, action: GameCompletedTransition): PlayState {
   return {
     ...state,
-    state: GameplayState.Completed,
+    state: "completed",
     endState: action.end_state,
   };
 }
 
-function gameAborted(state: PlayState, event: GameAbortedTransition): PlayState {
+function gameAborted(state: PlayState, _: GameAbortedTransition): PlayState {
   return {
     ...BlankState,
     playerOrder: state.playerOrder,

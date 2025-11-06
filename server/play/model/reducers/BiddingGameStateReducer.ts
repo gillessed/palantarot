@@ -7,23 +7,22 @@ import type {
   GameAbortedTransition,
   GameStartTransition,
   PlayerEvent,
-} from "../GameEvents";
+} from "../GameEvents.ts";
 import {
   type Bid,
   type BiddingBoardState,
   type BiddingStateActions,
   type BiddingStates,
-  BidValue,
-  Call,
+  BidPass,
+  type Call,
   type CurrentBids,
   type DogRevealAndExchangeBoardState,
-  GameplayState,
   type NewGameBoardState,
   type PartnerCallBoardState,
   type PlayerId,
   type PlayingBoardState,
   type ReducerResult,
-} from "../GameState";
+} from "../GameState.ts";
 import { showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
 import { getNewTrick, getStringForBid } from "./Utils.ts";
 
@@ -42,9 +41,9 @@ const getAllCalls = (players: PlayerId[], bidding: CurrentBids): { [player: numb
 const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
   if (state.bidders[0] !== bid.player) {
     throw GameErrors.biddingOutOfTurn(bid.player, state.bidders[0]);
-  } else if (bid.calls.indexOf(Call.RUSSIAN) !== -1 && bid.bid !== BidValue.TWENTY) {
+  } else if (bid.calls.indexOf("russian") !== -1 && bid.bid !== 20) {
     throw GameErrors.canOnlyCallRussianOnTwenties(bid);
-  } else if (bid.bid === BidValue.PASS || bid.bid === undefined) {
+  } else if (bid.bid === BidPass || bid.bid === undefined) {
     const bidders = state.bidders.slice(1);
     if (bidders.length == 1 && state.current_high.player === bidders[0]) {
       bidders.pop(); // all pass, only most recent bidder left -> bidding done.
@@ -74,7 +73,7 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
 const handleAllPasses = (state: BiddingBoardState, action: BidAction): ReducerResult<BiddingStates> => {
   const newState: NewGameBoardState = {
     publicHands: state.publicHands,
-    name: GameplayState.NewGame,
+    name: "new_game",
     players: state.players,
     ready: [],
   };
@@ -92,7 +91,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
     calls: action.calls || [],
   };
   const newBidState = updateBids(state.bidding, bid);
-  if (newBidState.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
+  if (newBidState.bidders.length > 0 && action.bid !== 160) {
     const newState: BiddingBoardState = {
       ...state,
       bidding: newBidState,
@@ -101,7 +100,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
     return simpleResult(newState, action, [bidMessage]);
   } else {
     // last bid
-    if (newBidState.current_high.bid === BidValue.PASS) {
+    if (newBidState.current_high.bid === BidPass) {
       // all passes
       return handleAllPasses(state, action);
     } else {
@@ -115,7 +114,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
       if (state.players.length === 5) {
         newState = {
           ...state,
-          name: GameplayState.PartnerCall,
+          name: "partner_call",
           bidder: newBidState.current_high.player,
           allBids: newBidState.bids,
           bidding: {
@@ -125,10 +124,10 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
         };
       } else {
         // 3 or 4 players
-        if (newBidState.current_high.bid <= BidValue.FORTY) {
+        if (newBidState.current_high.bid <= 40) {
           newState = {
             ...state,
-            name: GameplayState.DogReveal,
+            name: "dog_reveal",
             bidder: newBidState.current_high.player,
             allBids: newBidState.bids,
             bidding: {
@@ -148,7 +147,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
           const bidder = newBidState.current_high.player;
           newState = {
             ...state,
-            name: GameplayState.Playing,
+            name: "playing",
             bidder,
             allBids: newBidState.bids,
             bidding: {

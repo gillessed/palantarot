@@ -93,7 +93,7 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
           y={height / 2 + CardHeight / 2 + 50}
           text="160"
           onClick={this.handleBid160}
-          disabled={BidValue.ONESIXTY <= highestBid}
+          disabled={160 <= highestBid}
         />
         <ActionButton
           width={150}
@@ -134,7 +134,7 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
 
   private handleBid160 = () => {
     const playerId = this.props.game.playerId;
-    this.props.dispatchers.room.play(playerId).bid(BidValue.ONESIXTY);
+    this.props.dispatchers.room.play(playerId).bid(160);
   };
 
   private handlePass = () => {

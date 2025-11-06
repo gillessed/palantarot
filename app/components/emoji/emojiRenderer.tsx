@@ -51,13 +51,13 @@ function generateCardEmojis() {
   for (let num = 1; num <= 21; num++) {
     const trump: Emoji = {
       def: `t_${num}`,
-      render: getRender(num, Suit.Trump),
+      render: getRender(num, "T"),
     };
     Emojis.push(trump);
   }
   const joker: Emoji = {
     def: `t_j`,
-    render: getRender(TrumpValue.Joker, Suit.Trump),
+    render: getRender("Joker", "T"),
   };
   Emojis.push(joker);
 }
@@ -110,13 +110,13 @@ export function getEmojiStringFromCard(card: Card): string {
     case Suit.Spade:
       suitString = "s";
       break;
-    case Suit.Trump:
+    case "T":
       suitString = "t";
       break;
   }
   let valueString = "";
-  if (suit === Suit.Trump) {
-    if (value === TrumpValue.Joker) {
+  if (suit === "T") {
+    if (value === "Joker") {
       valueString = "j";
     } else {
       valueString = `${value}`;

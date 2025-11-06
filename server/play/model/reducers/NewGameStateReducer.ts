@@ -1,4 +1,4 @@
-import { map, without } from "lodash";
+import pkg from "lodash";
 import { type Card } from "../Card.ts";
 import { dealCards, shufflePlayers } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
@@ -11,18 +11,19 @@ import {
   type PlayerReadyAction,
   type PlayersSetTransition,
   type ShowDogToObservers,
-} from "../GameEvents";
+} from "../GameEvents.ts";
 import {
   type BiddingBoardState,
-  BidValue,
+  BidPass,
   DummyPlayer,
-  GameplayState,
   type NewGameActions,
   type NewGameBoardState,
   type NewGameStates,
   type ReducerResult,
-} from "../GameState";
+} from "../GameState.ts";
 import { simpleResult } from "./CommonReducers.ts";
+
+const { map, without } = pkg;
 
 const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) >= 0) {
@@ -80,7 +81,7 @@ const handleMarkPlayerReadyAction = (
 
     const bidState: BiddingBoardState = {
       publicHands: state.publicHands,
-      name: GameplayState.Bidding,
+      name: "bidding",
       players: playerOrder,
       hands,
       dog,
@@ -89,7 +90,7 @@ const handleMarkPlayerReadyAction = (
         bidders: playerOrder,
         current_high: {
           player: DummyPlayer,
-          bid: BidValue.PASS,
+          bid: BidPass,
           calls: [],
         },
       },

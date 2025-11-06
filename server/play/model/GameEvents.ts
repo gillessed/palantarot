@@ -2,8 +2,8 @@ import { type Card, type TrumpCard } from "./Card.ts";
 import { type GameSettings } from "./GameSettings.ts";
 import {
   type Bid,
-  BidValue,
-  Call,
+  type BidValue,
+  type Call,
   type CompletedGameState,
   type JokerExchangeState,
   type PlayerId,
@@ -17,9 +17,7 @@ export interface PlayerEvent {
   readonly exclude?: PlayerId[];
 }
 
-export enum ErrorCode {
-  DOES_NOT_EXIST = 100,
-}
+export type ErrorCode = "DOES_NOT_EXIST";
 
 export interface ErrorEvent extends PlayerEvent {
   readonly type: "error";

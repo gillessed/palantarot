@@ -3,12 +3,11 @@ import { GameErrors } from "../GameErrors.ts";
 import { type DeclareSlam, type PlayerEvent, type ShowTrumpAction } from "../GameEvents.ts";
 import {
   type BoardState,
-  Call,
   type CompletedBids,
   type DealtBoardState,
   type PlayerId,
   type ReducerResult,
-} from "../GameState";
+} from "../GameState.ts";
 
 export const simpleResult = <RESULT extends BoardState>(
   state: RESULT,
@@ -58,7 +57,7 @@ export const declareSlamActionReducer = <T extends DealtBoardState & { bidder: P
       ...state.bidding,
       calls: {
         ...state.bidding.calls,
-        [player_num]: [...state.bidding.calls[player_num], Call.DECLARED_SLAM],
+        [player_num]: [...state.bidding.calls[player_num], "declared_slam"],
       },
     },
   };

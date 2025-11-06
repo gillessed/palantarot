@@ -1,6 +1,6 @@
-import { Request, Response, Router } from "express";
+import { type Request, type Response, Router } from "express";
 import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
-import { SearchQuery } from "../model/Search.ts";
+import { type SearchQuery } from "../model/Search.ts";
 import { Database } from "./../db/dbConnector.ts";
 
 export class SearchService {

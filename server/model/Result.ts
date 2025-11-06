@@ -1,8 +1,4 @@
-export enum Role {
-  BIDDER = "BIDDER",
-  PARTNER = "PARTNER",
-  OPPOSITION = "OPPOSITION",
-}
+export type Role = "bidder" | "partner" | "opposition";
 
 export interface RoleResult {
   id: string;

@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Request } from "express";
+import express, { type Request } from "express";
 import logger from "morgan";
 import path from "path";
 import {
@@ -9,8 +9,8 @@ import {
   DynamicRoutesEnumerable,
   StaticRoutes,
   StatisRoutesEnumerable as StaticRoutesEnumerable,
-} from "../app/routes";
-import { DefaultTarotBotRegistry } from "../bots/TarotBot.ts";
+} from "../shared/routes.ts";
+import { DefaultTarotBotRegistry } from "../shared/bots/TarotBot.ts";
 import { AuthService, createRequestValidator } from "./api/AuthService.ts";
 import { GameRecordService } from "./api/GameRecordService.ts";
 import { PlayerService } from "./api/PlayerService.ts";
@@ -19,7 +19,7 @@ import { PlaySocketCloseListener } from "./api/PlaySocketCloseListener.ts";
 import { SearchService } from "./api/SearchService.ts";
 import { StatsService } from "./api/StatsService.ts";
 import { TarothonService } from "./api/TarothonService.ts";
-import { Config } from "./config.ts";
+import { type Config } from "./config.ts";
 import { Database } from "./db/dbConnector.ts";
 import { LobbySocketListener } from "./play/lobby/LobbySocketListener.ts";
 import { RoomSocketListener } from "./play/room/RoomSocketListener.ts";
