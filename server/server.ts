@@ -39,7 +39,7 @@ connect(config.database, (db: Database) => {
     server.on("error", onError);
     server.on("listening", onListen);
   } else {
-    const server = http.createServer(app.express);
+    const server = http.createServer(app.express as any);
     websocketManager.start(server);
     server.listen(port);
     server.on("error", onError);
