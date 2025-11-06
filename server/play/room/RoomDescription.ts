@@ -1,8 +1,8 @@
-import { Player } from "../../model/Player";
-import { type GameSettings } from "../model/GameSettings";
-import { GameplayState } from "../model/GameState";
-import { PlayerStatus } from "./PlayerStatus";
-import { Room } from "./Room";
+import { Player } from "../../model/Player.ts";
+import { type GameSettings } from "../model/GameSettings.ts";
+import { GameplayState } from "../model/GameState.ts";
+import { PlayerStatus } from "./PlayerStatus.ts";
+import { Room } from "./Room.ts";
 
 export type RoomDescriptions = { [key: string]: RoomDescription };
 

@@ -1,11 +1,11 @@
 import { type Request, type Response, Router } from "express";
-import { type TarotBotRegistry } from "../../bots/TarotBot";
-import { type Config } from "../config";
-import { AdminPasswordKey } from "../headers";
-import { Player } from "../model/Player";
-import { Database } from "./../db/dbConnector";
-import { PlayerQuerier } from "./../db/PlayerQuerier";
-import { type NewPlayer } from "./../model/Player";
+import { type TarotBotRegistry } from "../../shared/bots/TarotBot.ts";
+import { type Config } from "../config.ts";
+import { AdminPasswordKey } from "../headers.ts";
+import { Player } from "../model/Player.ts";
+import { Database } from "./../db/dbConnector.ts";
+import { PlayerQuerier } from "./../db/PlayerQuerier.ts";
+import { type NewPlayer } from "./../model/Player.ts";
 
 export class PlayerService {
   public router: Router;

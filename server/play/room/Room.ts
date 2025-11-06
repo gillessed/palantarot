@@ -1,15 +1,15 @@
-import { RandomBotType } from "../../../bots/RandomBot";
-import { PlayService } from "../../api/PlayService";
-import { Player } from "../../model/Player";
-import { Multimap } from "../../utils/multimap";
-import { promiseDelay } from "../../utils/promiseDelay";
-import { generateId } from "../../utils/randomString";
-import { JsonSocket } from "../../websocket/JsonSocket";
-import { type SocketMessage } from "../../websocket/SocketMessage";
-import { autologGame } from "../Autolog";
-import { autoplayNextCard } from "../bots/Autoplay";
-import { getNextPlayer, playForBot } from "../bots/BotPlayer";
-import { Game } from "../game/Game";
+import { RandomBotType } from "../../../bots/RandomBot.ts";
+import { PlayService } from "../../api/PlayService.ts";
+import { Player } from "../../model/Player.ts";
+import { Multimap } from "../../utils/multimap.ts";
+import { promiseDelay } from "../../utils/promiseDelay.ts";
+import { generateId } from "../../utils/randomString.ts";
+import { JsonSocket } from "../../websocket/JsonSocket.ts";
+import { type SocketMessage } from "../../websocket/SocketMessage.ts";
+import { autologGame } from "../Autolog.ts";
+import { autoplayNextCard } from "../bots/Autoplay.ts";
+import { getNextPlayer, playForBot } from "../bots/BotPlayer.ts";
+import { Game } from "../game/Game.ts";
 import type {
   Action,
   AllowNotifyPlayerEvent,
@@ -20,10 +20,10 @@ import type {
   PlayerReadyAction,
 } from "../model/GameEvents";
 import type { GameSettings } from "../model/GameSettings";
-import { type CompletedBoardState, type CompletedGameState, GameplayState, type PlayerId } from "../model/GameState";
-import { PlayerStatus } from "../room/PlayerStatus";
-import { type ChatText, ServerChatAuthorId } from "./ChatText";
-import { type NewRoomArgs } from "./NewRoomArgs";
+import { type CompletedBoardState, type CompletedGameState, GameplayState, type PlayerId } from "../model/GameState.ts";
+import { PlayerStatus } from "../room/PlayerStatus.ts";
+import { type ChatText, ServerChatAuthorId } from "./ChatText.ts";
+import { type NewRoomArgs } from "./NewRoomArgs.ts";
 import type {
   BotMessagePayload,
   EnterRoomMessagePayload,
@@ -31,7 +31,7 @@ import type {
   NotifyPlayerMessagePayload,
   RoomChatMessagePayload,
 } from "./RoomSocketMessages";
-import { RoomSocketMessages } from "./RoomSocketMessages";
+import { RoomSocketMessages } from "./RoomSocketMessages.ts";
 import type { RoomStatus } from "./RoomStatus";
 
 export class Room {

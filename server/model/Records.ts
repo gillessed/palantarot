@@ -1,4 +1,4 @@
-import { type GameRecord } from "./GameRecord";
+import { type GameRecord } from "./GameRecord.ts";
 
 export interface Records {
   scores: MonthlyScore[];

@@ -1,7 +1,7 @@
 import { map, without } from "lodash";
-import { type Card } from "../Card";
-import { dealCards, shufflePlayers } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
+import { type Card } from "../Card.ts";
+import { dealCards, shufflePlayers } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
 import {
   type DealtHandTransition,
   type EnterGameAction,
@@ -22,7 +22,7 @@ import {
   type NewGameStates,
   type ReducerResult,
 } from "../GameState";
-import { simpleResult } from "./CommonReducers";
+import { simpleResult } from "./CommonReducers.ts";
 
 const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) >= 0) {

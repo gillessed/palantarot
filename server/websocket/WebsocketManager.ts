@@ -1,9 +1,9 @@
 import http from "http";
 import https from "https";
 import WebSocket, { type MessageEvent } from "ws";
-import { JsonSocket } from "./JsonSocket";
-import { type SocketCloseListener, type SocketMessageListener } from "./SocketListener";
-import { isSocketConnectionMessage, type SocketMessage } from "./SocketMessage";
+import { JsonSocket } from "./JsonSocket.ts";
+import { type SocketCloseListener, type SocketMessageListener } from "./SocketListener.ts";
+import { isSocketConnectionMessage, type SocketMessage } from "./SocketMessage.ts";
 
 export class WebsocketManager {
   private server: WebSocket.Server | undefined;

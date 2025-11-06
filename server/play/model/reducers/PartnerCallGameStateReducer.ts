@@ -1,7 +1,7 @@
-import { Suit } from "../Card";
-import { cardsContain } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
-import { type CallPartnerAction, type DogRevealTransition, type GameStartTransition } from "../GameEvents";
+import { Suit } from "../Card.ts";
+import { cardsContain } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
+import { type CallPartnerAction, type DogRevealTransition, type GameStartTransition } from "../GameEvents.ts";
 import {
   BidValue,
   type DogRevealAndExchangeBoardState,
@@ -12,8 +12,8 @@ import {
   type PlayingBoardState,
   type ReducerResult,
 } from "../GameState";
-import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers";
-import { getNewTrick } from "./Utils";
+import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers.ts";
+import { getNewTrick } from "./Utils.ts";
 
 const handleCallPartnerAction = (
   state: PartnerCallBoardState,

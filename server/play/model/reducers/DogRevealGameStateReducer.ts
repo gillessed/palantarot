@@ -1,7 +1,7 @@
 import { isEqual } from "lodash";
-import { cardsWithout, getPlayerNum } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
-import { type GameStartTransition, type PlayerEvent, type SetDogAction } from "../GameEvents";
+import { cardsWithout, getPlayerNum } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
+import { type GameStartTransition, type PlayerEvent, type SetDogAction } from "../GameEvents.ts";
 import {
   type DogRevealAndExchangeBoardState,
   type DogRevealStateActions,
@@ -10,8 +10,8 @@ import {
   type PlayingBoardState,
   type ReducerResult,
 } from "../GameState";
-import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers";
-import { getNewTrick } from "./Utils";
+import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers.ts";
+import { getNewTrick } from "./Utils.ts";
 
 const handleSetDogAction = (
   state: DogRevealAndExchangeBoardState,

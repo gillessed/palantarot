@@ -1,6 +1,6 @@
-import { type Card, toCardString, type TrumpCard } from "./Card";
-import { type Action, type SetDogAction, type ShowTrumpAction } from "./GameEvents";
-import { type Bid, BidValue, type PlayerId } from "./GameState";
+import { type Card, toCardString, type TrumpCard } from "./Card.ts";
+import { type Action, type SetDogAction, type ShowTrumpAction } from "./GameEvents.ts";
+import { type Bid, BidValue, type PlayerId } from "./GameState.ts";
 
 export const GameErrors = {
   invalidActionForGameState: (action: Action, state: string) => {

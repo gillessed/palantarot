@@ -1,7 +1,17 @@
 import { chunk, differenceWith, filter, find, isEqual, shuffle } from "lodash";
-import { type Card, type RegSuit, RegValue, Suit, The21, TheJoker, TheOne, type TrumpCard, TrumpValue } from "./Card";
-import { GameErrors } from "./GameErrors";
-import { type PlayerId } from "./GameState";
+import {
+  type Card,
+  type RegSuit,
+  RegValue,
+  Suit,
+  The21,
+  TheJoker,
+  TheOne,
+  type TrumpCard,
+  TrumpValue,
+} from "./Card.ts";
+import { GameErrors } from "./GameErrors.ts";
+import { type PlayerId } from "./GameState.ts";
 
 /*
  * This file contains game code which is useful for both client and server.

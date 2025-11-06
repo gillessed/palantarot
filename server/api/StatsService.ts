@@ -1,11 +1,11 @@
 import { type Request, type Response, Router } from "express";
-import { PlayerQuerier } from "../db/PlayerQuerier";
-import { StatsQuerier } from "../db/StatsQuerier";
-import { type BidRequest, type BidStats } from "../model/Bid";
-import { type Deltas } from "../model/Delta";
-import { type Stats } from "../model/Stats";
-import { type Streak } from "../model/Streak";
-import { Database } from "./../db/dbConnector";
+import { PlayerQuerier } from "../db/PlayerQuerier.ts";
+import { StatsQuerier } from "../db/StatsQuerier.ts";
+import { type BidRequest, type BidStats } from "../model/Bid.ts";
+import { type Deltas } from "../model/Delta.ts";
+import { type Stats } from "../model/Stats.ts";
+import { type Streak } from "../model/Streak.ts";
+import { Database } from "./../db/dbConnector.ts";
 
 export class StatsService {
   public router: Router;

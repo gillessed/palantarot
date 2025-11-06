@@ -1,10 +1,10 @@
 import { type QueryResult } from "pg";
-import { type BidStats } from "../model/Bid";
-import { type Delta, type Deltas } from "../model/Delta";
-import { type Stat, type Stats } from "../model/Stats";
-import { type Streak } from "../model/Streak";
-import { Database } from "./dbConnector";
-import { Queries, QueryBuilder } from "./queryBuilder/QueryBuilder";
+import { type BidStats } from "../model/Bid.ts";
+import { type Delta, type Deltas } from "../model/Delta.ts";
+import { type Stat, type Stats } from "../model/Stats.ts";
+import { type Streak } from "../model/Streak.ts";
+import { Database } from "./dbConnector.ts";
+import { Queries, QueryBuilder } from "./queryBuilder/QueryBuilder.ts";
 
 export class StatsQuerier {
   private db: Database;

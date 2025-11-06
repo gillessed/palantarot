@@ -1,8 +1,8 @@
-import { ClientGame } from "../app/services/room/ClientGame";
-import { Card } from "../server/play/model/Card";
-import { Bid } from "../server/play/model/GameState";
-import { RandomBot, RandomBotType } from "./RandomBot";
-import { SimpleBot, SimpleBotType } from "./SimpleBot";
+import { type ClientGame } from "../types/ClientGame.ts";
+import { type Card } from "../../server/play/model/Card.ts";
+import { type Bid } from "../../server/play/model/GameState.ts";
+import { RandomBot, RandomBotType } from "./RandomBot.ts";
+import { SimpleBot, SimpleBotType } from "./SimpleBot.ts";
 
 export interface TarotBot {
   type: string;

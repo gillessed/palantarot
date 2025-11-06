@@ -1,5 +1,5 @@
-import { type Action, type PlayerEvent } from "../model/GameEvents";
-import { DefaultGameSettings, type GameSettings } from "../model/GameSettings";
+import { type Action, type PlayerEvent } from "../model/GameEvents.ts";
+import { DefaultGameSettings, type GameSettings } from "../model/GameSettings.ts";
 import {
   type BoardState,
   GameplayState,
@@ -7,7 +7,7 @@ import {
   type PlayerId,
   type ReducerResult,
 } from "../model/GameState";
-import { buildGameStateReducer, type GameReducerMap } from "../model/reducers/GameStateReducers";
+import { buildGameStateReducer, type GameReducerMap } from "../model/reducers/GameStateReducers.ts";
 
 export function createInitialState(publicHands: boolean): NewGameBoardState {
   return {

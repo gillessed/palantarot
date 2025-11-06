@@ -1,6 +1,6 @@
-import { actionName } from "../../app/services/redux/actionName";
+import { actionName } from "../../app/services/redux/actionName.ts";
 
-export interface SocketMessage<Payload = any> { 
+export interface SocketMessage<Payload = any> {
   type: string;
   payload: Payload;
 }
@@ -29,9 +29,9 @@ export const defineSocketMessage = <Payload>(type: string): SocketMessageDefinit
     }
   };
   return definition;
-}
+};
 
-const connectionMessageName = actionName('websocket')('socketConnectionMessage');
+const connectionMessageName = actionName("websocket")("socketConnectionMessage");
 export const socketConnectionMessage = defineSocketMessage<string>(connectionMessageName);
 
 export const isSocketConnectionMessage = (data: any): data is SocketMessage<string> => {
@@ -39,10 +39,5 @@ export const isSocketConnectionMessage = (data: any): data is SocketMessage<stri
     return false;
   }
   const { type, payload } = data;
-  return (
-    type === connectionMessageName
-    && payload != null
-    && typeof payload === 'string'
-    && payload.length > 0
-  );
-}
+  return type === connectionMessageName && payload != null && typeof payload === "string" && payload.length > 0;
+};

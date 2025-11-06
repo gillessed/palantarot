@@ -10,20 +10,20 @@ import {
   StaticRoutes,
   StatisRoutesEnumerable as StaticRoutesEnumerable,
 } from "../app/routes";
-import { DefaultTarotBotRegistry } from "../bots/TarotBot";
-import { AuthService, createRequestValidator } from "./api/AuthService";
-import { GameRecordService } from "./api/GameRecordService";
-import { PlayerService } from "./api/PlayerService";
-import { PlayService } from "./api/PlayService";
-import { PlaySocketCloseListener } from "./api/PlaySocketCloseListener";
-import { SearchService } from "./api/SearchService";
-import { StatsService } from "./api/StatsService";
-import { TarothonService } from "./api/TarothonService";
-import { Config } from "./config";
-import { Database } from "./db/dbConnector";
-import { LobbySocketListener } from "./play/lobby/LobbySocketListener";
-import { RoomSocketListener } from "./play/room/RoomSocketListener";
-import { WebsocketManager } from "./websocket/WebsocketManager";
+import { DefaultTarotBotRegistry } from "../bots/TarotBot.ts";
+import { AuthService, createRequestValidator } from "./api/AuthService.ts";
+import { GameRecordService } from "./api/GameRecordService.ts";
+import { PlayerService } from "./api/PlayerService.ts";
+import { PlayService } from "./api/PlayService.ts";
+import { PlaySocketCloseListener } from "./api/PlaySocketCloseListener.ts";
+import { SearchService } from "./api/SearchService.ts";
+import { StatsService } from "./api/StatsService.ts";
+import { TarothonService } from "./api/TarothonService.ts";
+import { Config } from "./config.ts";
+import { Database } from "./db/dbConnector.ts";
+import { LobbySocketListener } from "./play/lobby/LobbySocketListener.ts";
+import { RoomSocketListener } from "./play/room/RoomSocketListener.ts";
+import { WebsocketManager } from "./websocket/WebsocketManager.ts";
 
 const oneDayMs = 1000 * 60 * 60 * 24;
 const thirtyDaysMs = oneDayMs * 30;

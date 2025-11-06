@@ -1,5 +1,5 @@
-import { getPlayerNum } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
+import { getPlayerNum } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
 import type {
   BidAction,
   BiddingCompletedTransition,
@@ -24,8 +24,8 @@ import {
   type PlayingBoardState,
   type ReducerResult,
 } from "../GameState";
-import { showTrumpActionReducer, simpleResult } from "./CommonReducers";
-import { getNewTrick, getStringForBid } from "./Utils";
+import { showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
+import { getNewTrick, getStringForBid } from "./Utils.ts";
 
 const getAllCalls = (players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } => {
   const calls: { [player: number]: Call[] } = {};

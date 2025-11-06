@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import { integerComparator, type SortOrder, type Comparator } from "../utils/index";
+import { integerComparator, type SortOrder, type Comparator } from "../utils/index.ts";
 
 export interface Month {
   year: number;

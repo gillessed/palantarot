@@ -1,6 +1,6 @@
-import { cardsEqual, getPlayerNum, getTrumps } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
-import { type DeclareSlam, type PlayerEvent, type ShowTrumpAction } from "../GameEvents";
+import { cardsEqual, getPlayerNum, getTrumps } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
+import { type DeclareSlam, type PlayerEvent, type ShowTrumpAction } from "../GameEvents.ts";
 import {
   type BoardState,
   Call,

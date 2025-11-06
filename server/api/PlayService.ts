@@ -1,14 +1,14 @@
 import { type Request, type Response, Router } from "express";
-import { type TarotBotRegistry } from "../../bots/TarotBot";
-import { Database } from "../db/dbConnector";
-import { GameRecordQuerier } from "../db/GameRecordQuerier";
-import { PlayerQuerier } from "../db/PlayerQuerier";
-import { LobbySocketMessages } from "../play/lobby/LobbySocketMessages";
-import { type NewRoomArgs } from "../play/room/NewRoomArgs";
-import { Room } from "../play/room/Room";
-import { getRoomDescription, type RoomDescriptions } from "../play/room/RoomDescription";
-import { JsonSocket } from "../websocket/JsonSocket";
-import { WebsocketManager } from "../websocket/WebsocketManager";
+import { type TarotBotRegistry } from "../../shared/bots/TarotBot.ts";
+import { Database } from "../db/dbConnector.ts";
+import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
+import { PlayerQuerier } from "../db/PlayerQuerier.ts";
+import { LobbySocketMessages } from "../play/lobby/LobbySocketMessages.ts";
+import { type NewRoomArgs } from "../play/room/NewRoomArgs.ts";
+import { Room } from "../play/room/Room.ts";
+import { getRoomDescription, type RoomDescriptions } from "../play/room/RoomDescription.ts";
+import { JsonSocket } from "../websocket/JsonSocket.ts";
+import { WebsocketManager } from "../websocket/WebsocketManager.ts";
 
 export class PlayService {
   public router: Router;

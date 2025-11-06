@@ -1,7 +1,7 @@
-import { Request, Response, Router } from 'express';
-import { GameRecordQuerier } from '../db/GameRecordQuerier';
-import { SearchQuery } from '../model/Search';
-import { Database } from './../db/dbConnector';
+import { Request, Response, Router } from "express";
+import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
+import { SearchQuery } from "../model/Search.ts";
+import { Database } from "./../db/dbConnector.ts";
 
 export class SearchService {
   public router: Router;
@@ -10,7 +10,7 @@ export class SearchService {
   constructor(db: Database) {
     this.router = Router();
     this.gameDb = new GameRecordQuerier(db);
-    this.router.post('/', this.search);
+    this.router.post("/", this.search);
   }
 
   public search = async (req: Request, res: Response) => {
@@ -21,5 +21,5 @@ export class SearchService {
     } catch (error) {
       res.send({ error: `Error performing search: ${error}` });
     }
-  }
+  };
 }

@@ -1,7 +1,7 @@
-import { Game } from "../game/Game";
-import { getCardsAllowedToPlay, getPlayerNum } from "../model/CardUtils";
-import { type PlayCardAction } from "../model/GameEvents";
-import { GameplayState, type PlayingBoardState } from "../model/GameState";
+import { Game } from "../game/Game.ts";
+import { getCardsAllowedToPlay, getPlayerNum } from "../model/CardUtils.ts";
+import { type PlayCardAction } from "../model/GameEvents.ts";
+import { GameplayState, type PlayingBoardState } from "../model/GameState.ts";
 
 export function autoplayNextCard(game: Game, time: number): PlayCardAction {
   const anyState = game.getState();

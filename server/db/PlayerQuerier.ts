@@ -1,9 +1,9 @@
 import { type QueryResult } from "pg";
-import { RandomBotType } from "../../bots/RandomBot";
-import { type NewPlayer } from "../model/Player";
-import { Player } from "./../model/Player";
-import { Database } from "./dbConnector";
-import { QueryBuilder } from "./queryBuilder/QueryBuilder";
+import { RandomBotType } from "../../bots/RandomBot.ts";
+import { type NewPlayer } from "../model/Player.ts";
+import { Player } from "./../model/Player.ts";
+import { Database } from "./dbConnector.ts";
+import { QueryBuilder } from "./queryBuilder/QueryBuilder.ts";
 
 export class PlayerQuerier {
   private db: Database;

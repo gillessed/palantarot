@@ -1,4 +1,4 @@
-import { type GameSettings } from "../model/GameSettings";
+import { type GameSettings } from "../model/GameSettings.ts";
 
 export interface NewRoomArgs {
   color: string;

@@ -1,10 +1,10 @@
 import https, { ServerOptions } from "https";
 import http from "http";
 import fs from "fs";
-import { App } from "./App";
-import { connect, Database } from "./db/dbConnector";
-import { readConfig } from "./config";
-import { WebsocketManager } from "./websocket/WebsocketManager";
+import { App } from "./App.ts";
+import { connect, Database } from "./db/dbConnector.ts";
+import { readConfig } from "./config.ts";
+import { WebsocketManager } from "./websocket/WebsocketManager.ts";
 
 const config = readConfig();
 

@@ -1,6 +1,13 @@
-import { type Card, type TrumpCard } from "./Card";
-import { type GameSettings } from "./GameSettings";
-import { type Bid, BidValue, Call, type CompletedGameState, type JokerExchangeState, type PlayerId } from "./GameState";
+import { type Card, type TrumpCard } from "./Card.ts";
+import { type GameSettings } from "./GameSettings.ts";
+import {
+  type Bid,
+  BidValue,
+  Call,
+  type CompletedGameState,
+  type JokerExchangeState,
+  type PlayerId,
+} from "./GameState.ts";
 
 export interface PlayerEvent {
   readonly type: ActionType | TransitionType | OtherEventsType | "error";

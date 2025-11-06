@@ -1,4 +1,4 @@
-import { type Bid, Call, type PlayerId } from "../GameState";
+import { type Bid, Call, type PlayerId } from "../GameState.ts";
 
 export const getTrickPlayerOrder = (players: PlayerId[], firstPlayer: PlayerId) => {
   const trickOrder = [...players];

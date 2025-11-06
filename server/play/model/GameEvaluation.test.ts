@@ -1,8 +1,8 @@
-import { Bout, Card, Suit, RegValue, TheJoker, The21, TheOne, TrumpValue } from "./Card";
-import { getEarnings } from "./GameEvaluation";
-import { CompletedTrick, PlayerId } from "./GameState";
+import { Bout, Card, Suit, RegValue, TheJoker, The21, TheOne, TrumpValue } from "./Card.ts";
+import { getEarnings } from "./GameEvaluation.ts";
+import { CompletedTrick, PlayerId } from "./GameState.ts";
 
-test('getEarnings scores tricks won by the bidder', () => {
+test("getEarnings scores tricks won by the bidder", () => {
   const biddingTeam = ["bidder"];
   const tricks = [
     newTrick(
@@ -13,7 +13,7 @@ test('getEarnings scores tricks won by the bidder', () => {
       [Suit.Spade, RegValue._2],
       [Suit.Spade, RegValue._3],
       [Suit.Spade, RegValue._4],
-      [Suit.Spade, RegValue._5],
+      [Suit.Spade, RegValue._5]
     ),
   ];
   const bid = 40;
@@ -23,7 +23,7 @@ test('getEarnings scores tricks won by the bidder', () => {
   expect(earnings.bouts.length).toBe(0);
 });
 
-test('getEarnings scores tricks won by the partner', () => {
+test("getEarnings scores tricks won by the partner", () => {
   const biddingTeam = ["bidder", "partner"];
   const tricks = [
     newTrick(
@@ -34,7 +34,7 @@ test('getEarnings scores tricks won by the partner', () => {
       [Suit.Spade, RegValue._2],
       [Suit.Spade, RegValue._3],
       [Suit.Spade, RegValue._4],
-      [Suit.Spade, RegValue.R],
+      [Suit.Spade, RegValue.R]
     ),
   ];
   const bid = 40;
@@ -44,7 +44,7 @@ test('getEarnings scores tricks won by the partner', () => {
   expect(earnings.bouts.length).toBe(0);
 });
 
-test('getEarnings ignores tricks won by the opposition', () => {
+test("getEarnings ignores tricks won by the opposition", () => {
   const biddingTeam = ["bidder", "partner"];
   const tricks = [
     newTrick(
@@ -55,7 +55,7 @@ test('getEarnings ignores tricks won by the opposition', () => {
       [Suit.Spade, RegValue._10],
       [Suit.Spade, RegValue._3],
       [Suit.Spade, RegValue._4],
-      [Suit.Spade, RegValue._5],
+      [Suit.Spade, RegValue._5]
     ),
   ];
   const bid = 40;
@@ -65,7 +65,7 @@ test('getEarnings ignores tricks won by the opposition', () => {
   expect(earnings.bouts.length).toBe(0);
 });
 
-test('getEarnings adds the points in the dog when the bid is 10', () => {
+test("getEarnings adds the points in the dog when the bid is 10", () => {
   expectGetEarningsWithDog(
     10,
     [
@@ -73,10 +73,12 @@ test('getEarnings adds the points in the dog when the bid is 10', () => {
       [Suit.Spade, RegValue._4],
       [Suit.Spade, RegValue._5],
     ],
-    1.5, []);
+    1.5,
+    []
+  );
 });
 
-test('getEarnings adds the points in the dog when the bid is 20', () => {
+test("getEarnings adds the points in the dog when the bid is 20", () => {
   expectGetEarningsWithDog(
     20,
     [
@@ -84,10 +86,12 @@ test('getEarnings adds the points in the dog when the bid is 20', () => {
       [Suit.Spade, RegValue._4],
       [Suit.Spade, RegValue._5],
     ],
-    1.5, []);
+    1.5,
+    []
+  );
 });
 
-test('getEarnings adds the points in the dog when the bid is 40', () => {
+test("getEarnings adds the points in the dog when the bid is 40", () => {
   expectGetEarningsWithDog(
     40,
     [
@@ -95,18 +99,20 @@ test('getEarnings adds the points in the dog when the bid is 40', () => {
       [Suit.Spade, RegValue._4],
       [Suit.Spade, RegValue._5],
     ],
-    1.5, []);
+    1.5,
+    []
+  );
 });
 
-test('getEarnings adds the points in the dog when the bid is 80', () => {
+test("getEarnings adds the points in the dog when the bid is 80", () => {
   expectGetEarningsWithDog(80, [TheOne, The21, TheJoker], 13.5, [TheOne, The21, TheJoker]);
 });
 
-test('getEarnings adds the points in the dog when the bid is 160', () => {
+test("getEarnings adds the points in the dog when the bid is 160", () => {
   expectGetEarningsWithDog(160, [TheOne, The21, TheJoker], 0, []);
 });
 
-test('getEarnings includes bouts from tricks', () => {
+test("getEarnings includes bouts from tricks", () => {
   const biddingTeam = ["bidder"];
   const tricks = [
     newTrick(
@@ -117,7 +123,7 @@ test('getEarnings includes bouts from tricks', () => {
       [Suit.Spade, RegValue._2],
       [Suit.Spade, RegValue._3],
       [Suit.Spade, RegValue._4],
-      [Suit.Spade, RegValue._5],
+      [Suit.Spade, RegValue._5]
     ),
   ];
   const bid = 40;
@@ -127,7 +133,7 @@ test('getEarnings includes bouts from tricks', () => {
   expect(earnings.bouts).toStrictEqual([The21]);
 });
 
-test('getEarnings includes bouts from joker exchange', () => {
+test("getEarnings includes bouts from joker exchange", () => {
   const biddingTeam = ["bidder"];
   const bid = 80;
   const tricks = [
@@ -139,7 +145,7 @@ test('getEarnings includes bouts from joker exchange', () => {
       [Suit.Spade, RegValue._2],
       [Suit.Spade, RegValue._3],
       [Suit.Spade, RegValue._4],
-      [Suit.Spade, RegValue._5],
+      [Suit.Spade, RegValue._5]
     ),
     newTrick(
       1,
@@ -149,7 +155,7 @@ test('getEarnings includes bouts from joker exchange', () => {
       [Suit.Heart, RegValue.R],
       [Suit.Heart, RegValue._3],
       [Suit.Heart, RegValue._4],
-      [Suit.Heart, RegValue._5],
+      [Suit.Heart, RegValue._5]
     ),
   ];
   const dog: Card[] = [];
@@ -173,5 +179,5 @@ function newTrick(trick_num: number, players: PlayerId[], winner: PlayerId, ...c
     cards,
     players,
     winner,
-  }
+  };
 }

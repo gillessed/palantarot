@@ -1,11 +1,11 @@
 import moment from "moment-timezone";
 import { type QueryResult } from "pg";
-import { type GameRecord, type GameRecordPartial, type HandData, type PlayerHand } from "../model/GameRecord";
-import { type MonthlyScore } from "../model/Records";
-import { Role, type RoleResult } from "../model/Result";
-import { PlayerPredicate, type SearchQuery } from "../model/Search";
-import { Database } from "./dbConnector";
-import { Queries, QueryBuilder, type UpsertBuilder } from "./queryBuilder/QueryBuilder";
+import { type GameRecord, type GameRecordPartial, type HandData, type PlayerHand } from "../model/GameRecord.ts";
+import { type MonthlyScore } from "../model/Records.ts";
+import { Role, type RoleResult } from "../model/Result.ts";
+import { PlayerPredicate, type SearchQuery } from "../model/Search.ts";
+import { Database } from "./dbConnector.ts";
+import { Queries, QueryBuilder, type UpsertBuilder } from "./queryBuilder/QueryBuilder.ts";
 
 export interface RecentGameQuery {
   count: number;

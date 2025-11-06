@@ -1,9 +1,9 @@
-import { PlayerRoles } from "../../app/components/forms/PlayerRoles";
-import { getPointsEarned } from "../../app/components/forms/pointsEarned";
-import { GameRecordQuerier } from "../db/GameRecordQuerier";
-import { type GameRecord as Results, type HandData, type PlayerHand } from "../model/GameRecord";
-import { Game } from "./game/Game";
-import { type CompletedBoardState, type CompletedGameState, GameplayState, Outcome } from "./model/GameState";
+import { PlayerRoles } from "../../app/components/forms/PlayerRoles.ts";
+import { getPointsEarned } from "../../app/components/forms/pointsEarned.ts";
+import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
+import { type GameRecord as Results, type HandData, type PlayerHand } from "../model/GameRecord.ts";
+import { Game } from "./game/Game.ts";
+import { type CompletedBoardState, type CompletedGameState, GameplayState, Outcome } from "./model/GameState.ts";
 
 export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): Promise<void> {
   if (!game.settings.autologEnabled || game.getState().name !== GameplayState.Completed || game.logged) {

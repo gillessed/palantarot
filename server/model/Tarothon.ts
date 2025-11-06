@@ -1,4 +1,4 @@
-import { type RoleResult } from "./Result";
+import { type RoleResult } from "./Result.ts";
 
 export interface NewTarothon {
   begin: string;

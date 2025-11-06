@@ -1,13 +1,13 @@
-import { type ClientGame } from "../../../app/services/room/ClientGame";
+import { type ClientGame } from "../../../app/services/room/ClientGame.ts";
 import {
   BlankState,
   type PlayState,
   type ShowDetails,
   type TrickCards,
 } from "../../../app/services/room/ClientGameEventHandler";
-import { type TarotBot } from "../../../bots/TarotBot";
-import { Game } from "../game/Game";
-import { type Card } from "../model/Card";
+import { type TarotBot } from "../../../bots/TarotBot.ts";
+import { Game } from "../game/Game.ts";
+import { type Card } from "../model/Card.ts";
 import {
   type Action,
   type BidAction,

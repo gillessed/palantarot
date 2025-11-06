@@ -1,6 +1,6 @@
 import { filter, isEqual, remove } from "lodash";
-import { type Bout, type Card, isBout, TheJoker, TheOne } from "./Card";
-import { cardsContain, getCardPoint } from "./CardUtils";
+import { type Bout, type Card, isBout, TheJoker, TheOne } from "./Card.ts";
+import { cardsContain, getCardPoint } from "./CardUtils.ts";
 import {
   BidValue,
   Call,

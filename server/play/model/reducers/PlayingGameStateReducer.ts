@@ -1,8 +1,8 @@
 import { compact, findIndex, isEqual } from "lodash";
-import { TheJoker } from "../Card";
-import { cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner } from "../CardUtils";
-import { GameErrors } from "../GameErrors";
-import { getBaseScore, getEarnings, getFinalScore, getOutcomes } from "../GameEvaluation";
+import { TheJoker } from "../Card.ts";
+import { cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner } from "../CardUtils.ts";
+import { GameErrors } from "../GameErrors.ts";
+import { getBaseScore, getEarnings, getFinalScore, getOutcomes } from "../GameEvaluation.ts";
 import {
   type Action,
   type CompletedTrickTransition,
@@ -18,8 +18,8 @@ import {
   type PlayingStates,
   type ReducerResult,
 } from "../GameState";
-import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from "./CommonReducers";
-import { getNewTrick } from "./Utils";
+import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
+import { getNewTrick } from "./Utils.ts";
 
 const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return (
