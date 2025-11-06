@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../../server/play/model/GameState';
-import { ChatText, ServerChatAuthorId } from '../../../../server/play/room/ChatText';
-import { ClientGame } from '../../../services/room/ClientGame';
-import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { ChatMessageListItem, isChatTextGroup } from '../../../services/room/RoomTypes';
-import './ChatList.scss';
-import { ChatMessage } from './ChatMessage';
-import { GameEventMessage } from './GameEventMessage';
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { PlayerId } from "../../../../server/play/model/GameState";
+import { ChatText, ServerChatAuthorId } from "../../../../server/play/room/ChatText";
+import { ClientGame } from "../../../services/room/ClientGame";
+import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
+import { ChatMessageListItem, isChatTextGroup } from "../../../services/room/RoomTypes";
+import "./ChatList.scss";
+import { ChatMessage } from "./ChatMessage";
+import { GameEventMessage } from "./GameEventMessage";
 
 interface Props {
   players: Map<PlayerId, Player>;
@@ -28,7 +28,7 @@ export class ChatList extends React.PureComponent<Props> {
 
   public render() {
     return (
-      <div className='sidebar-chat-list list-container' ref={this.setRef}>
+      <div className="sidebar-chat-list list-container" ref={this.setRef}>
         {this.renderMessages()}
       </div>
     );
@@ -38,7 +38,7 @@ export class ChatList extends React.PureComponent<Props> {
     if (element) {
       this.messageDiv = element;
     }
-  }
+  };
 
   private renderMessages() {
     const groupedChatText = ClientGameSelectors.getGroupedChatText(this.props.chat);
@@ -50,14 +50,7 @@ export class ChatList extends React.PureComponent<Props> {
     if (item.authorId === ServerChatAuthorId && !isChatTextGroup(item)) {
       return <GameEventMessage key={item.id} players={players} item={item} />;
     } else {
-      return (
-        <ChatMessage
-          key={item.id}
-          game={game}
-          item={item}
-          players={players}
-        />
-      )
+      return <ChatMessage key={item.id} game={game} item={item} players={players} />;
     }
     // switch (event.type) {
     //   case 'bid':
@@ -81,5 +74,5 @@ export class ChatList extends React.PureComponent<Props> {
     //     return <GameEventMessage key={index} message={callMessage} />;
     //   default: return null;
     // }
-  }
+  };
 }

@@ -1,8 +1,35 @@
 import { isEqual, without } from "lodash";
-import { Card, TrumpCard } from "../../../server/play/model/Card";
+import { type Card, type TrumpCard } from "../../../server/play/model/Card";
 import { cardsWithout, compareCards } from "../../../server/play/model/CardUtils";
-import { AllowNotifyPlayerEvent, BidAction, BiddingCompletedTransition, CallPartnerAction, CompletedTrickTransition, DealtHandTransition, DogRevealTransition, EnterGameAction, GameAbortedTransition, GameCompletedTransition, GameStartTransition, LeaveGameAction, PlayCardAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, SetDogAction, ShowDogToObservers, ShowTrumpAction } from "../../../server/play/model/GameEvents";
-import { Bid, BidValue, CompletedGameState, GameplayState, PlayerId } from "../../../server/play/model/GameState";
+import {
+  type AllowNotifyPlayerEvent,
+  type BidAction,
+  type BiddingCompletedTransition,
+  type CallPartnerAction,
+  type CompletedTrickTransition,
+  type DealtHandTransition,
+  type DogRevealTransition,
+  type EnterGameAction,
+  type GameAbortedTransition,
+  type GameCompletedTransition,
+  type GameStartTransition,
+  type LeaveGameAction,
+  type PlayCardAction,
+  type PlayerEvent,
+  type PlayerNotReadyAction,
+  type PlayerReadyAction,
+  type PlayersSetTransition,
+  type SetDogAction,
+  type ShowDogToObservers,
+  type ShowTrumpAction,
+} from "../../../server/play/model/GameEvents";
+import {
+  type Bid,
+  BidValue,
+  type CompletedGameState,
+  GameplayState,
+  type PlayerId,
+} from "../../../server/play/model/GameState";
 
 export interface TrickCards {
   order: string[];
@@ -92,7 +119,7 @@ function dealtHand(state: PlayState, action: DealtHandTransition, playerId: Play
     ...state,
     state: GameplayState.Bidding,
     toBid: 0,
-  }
+  };
   if (action.playerId === playerId) {
     return {
       ...state,
@@ -178,7 +205,7 @@ function dogRevealed(state: PlayState, action: DogRevealTransition, player: Play
       hand: [...state.hand, ...action.dog].sort(compareCards()),
       partner: selfCall ? state.winningBid?.player : undefined,
       dog: action.dog,
-    }
+    };
   } else {
     return {
       ...state,
@@ -210,7 +237,8 @@ function setDog(state: PlayState, action: SetDogAction): PlayState {
       ...state,
       dog: action.exclude != null ? action.dog : state.dog,
       allHands: newAllHands,
-    };  } else {
+    };
+  } else {
     return {
       ...state,
       hand: cardsWithout(state.hand, ...action.dog),
@@ -239,7 +267,7 @@ function playCard(state: PlayState, action: PlayCardAction, playerId: PlayerId):
   } else {
     newTrickCards = new Map(state.trick.cards);
     newTrickCards.set(action.player, action.card);
-    newOrder = [...state.trick.order ?? [], action.player];
+    newOrder = [...(state.trick.order ?? []), action.player];
   }
   const newTrick: TrickCards = {
     order: newOrder,
@@ -273,7 +301,7 @@ function completedTrick(state: PlayState, action: CompletedTrickTransition): Pla
     ...state,
     trick: { ...state.trick, completed: true, winner: action.winner },
     toPlay: action.winner,
-  }
+  };
 }
 
 function gameComplete(state: PlayState, action: GameCompletedTransition): PlayState {
@@ -300,43 +328,43 @@ function allowNotifyPlayer(state: PlayState, event: AllowNotifyPlayerEvent): Pla
 
 export function updateGameForEvent(state: PlayState, event: PlayerEvent, playerId: PlayerId): PlayState {
   switch (event.type) {
-    case 'mark_player_ready':
+    case "mark_player_ready":
       return markPlayerReady(state, event as PlayerReadyAction);
-    case 'unmark_player_ready':
+    case "unmark_player_ready":
       return unmarkPlayerReady(state, event as PlayerNotReadyAction);
-    case 'enter_game':
+    case "enter_game":
       return enterGame(state, event as EnterGameAction);
-    case 'leave_game':
+    case "leave_game":
       return leaveGame(state, event as LeaveGameAction);
-    case 'dealt_hand':
+    case "dealt_hand":
       return dealtHand(state, event as DealtHandTransition, playerId);
-    case 'players_set':
+    case "players_set":
       return playersSet(state, event as PlayersSetTransition);
-    case 'show_trump':
+    case "show_trump":
       return showTrump(state, event as ShowTrumpAction);
-    case 'bid':
+    case "bid":
       return bid(state, event as BidAction);
-    case 'bidding_completed':
+    case "bidding_completed":
       return biddingCompleted(state, event as BiddingCompletedTransition);
-    case 'call_partner':
+    case "call_partner":
       return callPartner(state, event as CallPartnerAction);
-    case 'dog_revealed':
+    case "dog_revealed":
       return dogRevealed(state, event as DogRevealTransition, playerId);
-    case 'show_dog_to_observers':
+    case "show_dog_to_observers":
       return dogRevealedToObservers(state, event as ShowDogToObservers);
-    case 'set_dog':
+    case "set_dog":
       return setDog(state, event as SetDogAction);
-    case 'game_started':
+    case "game_started":
       return gameStarted(state, event as GameStartTransition);
-    case 'play_card':
+    case "play_card":
       return playCard(state, event as PlayCardAction, playerId);
-    case 'completed_trick':
+    case "completed_trick":
       return completedTrick(state, event as CompletedTrickTransition);
-    case 'game_completed':
+    case "game_completed":
       return gameComplete(state, event as GameCompletedTransition);
-    case 'game_aborted':
+    case "game_aborted":
       return gameAborted(state, event as GameAbortedTransition);
-    case 'allow_notify_player':
+    case "allow_notify_player":
       return allowNotifyPlayer(state, event as AllowNotifyPlayerEvent);
     default:
       return state;

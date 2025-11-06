@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { Card } from '../../../../server/play/model/Card';
-import { SpectatorModeNone } from '../SpectatorMode';
-import { BottomLeftStatusLayout } from './BottomLeftStatus';
-import { HandCardPopup, HandCardSelectablePopup } from './CardSpec';
-import { HandSvg } from './HandSvg';
-import { getTitleLayout } from './PlayerTitleSvg';
-import { getTitleArrangementSpec } from './TitleArrangementSpec';
+import React from "react";
+import { Card } from "../../../../server/play/model/Card";
+import { SpectatorModeNone } from "../SpectatorMode";
+import { BottomLeftStatusLayout } from "./BottomLeftStatus";
+import { HandCardPopup, HandCardSelectablePopup } from "./CardSpec";
+import { HandSvg } from "./HandSvg";
+import { getTitleLayout } from "./PlayerTitleSvg";
+import { getTitleArrangementSpec } from "./TitleArrangementSpec";
 
 export namespace BottomHandSvg {
   export interface Props {
@@ -31,14 +31,14 @@ export class BottomHandSvg extends React.Component<BottomHandSvg.Props> {
         top={svgHeight - HandCardPopup}
         left={leftBound}
         right={rightBound}
-        alignment='center'
+        alignment="center"
         popup={HandCardSelectablePopup}
         cards={cards}
         selectedCards={selectedCards}
         dogCards={dogCards}
         selectableFilter={selectableFilter}
         onClick={onClick}
-    />
-    )
+      />
+    );
   }
 }

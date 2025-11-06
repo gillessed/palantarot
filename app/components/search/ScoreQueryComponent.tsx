@@ -1,9 +1,9 @@
-import { Button, Card, InputGroup, Classes } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import * as React from 'react';
-import { ScoreOperator, ScoreQuery } from '../../../server/model/Search';
-import { ScoreOperatorComponent } from './ScoreOperatorComponent';
-import classNames from 'classnames';
+import { Button, Card, InputGroup, Classes } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import React from "react";
+import { ScoreOperator, ScoreQuery } from "../../../server/model/Search";
+import { ScoreOperatorComponent } from "./ScoreOperatorComponent";
+import classNames from "classnames";
 
 export namespace ScoreQueryComponent {
   export interface Props {
@@ -20,29 +20,26 @@ export namespace ScoreQueryComponent {
 }
 
 export class ScoreQueryComponent extends React.PureComponent<ScoreQueryComponent.Props, ScoreQueryComponent.State> {
-  public state: ScoreQueryComponent.State = { scoreText: '' };
+  public state: ScoreQueryComponent.State = { scoreText: "" };
   public render() {
-    const inputClasses = classNames(Classes.INPUT_GROUP, 'score-value-input', {
-      ['pt-intent-danger']: !!this.state.scoreError,
+    const inputClasses = classNames(Classes.INPUT_GROUP, "score-value-input", {
+      ["pt-intent-danger"]: !!this.state.scoreError,
     });
     return (
-      <Card className='score-query-component'>
-        <div className='details'>
-          <ScoreOperatorComponent
-            value={this.props.scoreQuery.operator}
-            onChange={this.onChangeOperator}
-          />
+      <Card className="score-query-component">
+        <div className="details">
+          <ScoreOperatorComponent value={this.props.scoreQuery.operator} onChange={this.onChangeOperator} />
           <div className={inputClasses}>
-            <input 
-              type='number'
-              dir='auto'
+            <input
+              type="number"
+              dir="auto"
               value={this.props.scoreQuery.value}
               onChange={this.onChange}
-              pattern='\\d*'
+              pattern="\\d*"
             />
           </div>
         </div>
-        <Button icon={IconNames.TRASH} minimal onClick={this.onDelete}/>
+        <Button icon={IconNames.TRASH} minimal onClick={this.onDelete} />
       </Card>
     );
   }
@@ -53,7 +50,7 @@ export class ScoreQueryComponent extends React.PureComponent<ScoreQueryComponent
       operator,
     };
     this.props.onChange(newQuery, this.props.index);
-  }
+  };
 
   public onChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
@@ -61,7 +58,7 @@ export class ScoreQueryComponent extends React.PureComponent<ScoreQueryComponent
     try {
       numberValue = Number(value);
     } catch (e) {}
-    this.setState({ scoreText: value, scoreError: numberValue === null ? 'Input must be a number' : undefined }, () => {
+    this.setState({ scoreText: value, scoreError: numberValue === null ? "Input must be a number" : undefined }, () => {
       if (numberValue !== null) {
         const newQuery = {
           ...this.props.scoreQuery,
@@ -70,9 +67,9 @@ export class ScoreQueryComponent extends React.PureComponent<ScoreQueryComponent
         this.props.onChange(newQuery, this.props.index);
       }
     });
-  }
+  };
 
   public onDelete = () => {
     this.props.onDelete(this.props.index);
-  }
+  };
 }

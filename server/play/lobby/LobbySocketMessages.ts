@@ -1,5 +1,5 @@
-import { defineSocketMessage } from '../../websocket/SocketMessage';
-import { RoomDescription } from '../room/RoomDescription';
+import { defineSocketMessage } from "../../websocket/SocketMessage";
+import { type RoomDescription } from "../room/RoomDescription";
 
 export interface EnterLobbyMessagePayload {
   playerId: string;
@@ -7,8 +7,8 @@ export interface EnterLobbyMessagePayload {
 
 const name = (method: string) => `lobby::${method}`;
 
-const enterLobby = defineSocketMessage<EnterLobbyMessagePayload>(name('enterLobby'));
-const roomUpdated = defineSocketMessage<RoomDescription>(name('roomUpdated'));
+const enterLobby = defineSocketMessage<EnterLobbyMessagePayload>(name("enterLobby"));
+const roomUpdated = defineSocketMessage<RoomDescription>(name("roomUpdated"));
 
 export const LobbySocketMessages = {
   enterLobby,

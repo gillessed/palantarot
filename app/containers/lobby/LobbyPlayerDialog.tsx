@@ -1,10 +1,10 @@
-import { Button, Classes, Dialog, Intent } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import classNames from 'classnames';
-import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { PlayerSelect } from '../../components/forms/PlayerSelect';
-import { Palantoaster } from '../../components/toaster/Toaster';
+import { Button, Classes, Dialog, Intent } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import classNames from "classnames";
+import React from "react";
+import { Player } from "../../../server/model/Player";
+import { PlayerSelect } from "../../components/forms/PlayerSelect";
+import { Palantoaster } from "../../components/toaster/Toaster";
 
 interface Props {
   isOpen: boolean;
@@ -23,19 +23,14 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
     super(props);
     const validId = props.playerId != null && props.players.has(props.playerId);
     this.state = {
-      player: validId ? props.players.get(props.playerId ?? '') : undefined,
+      player: validId ? props.players.get(props.playerId ?? "") : undefined,
     };
   }
 
   public render() {
-    const contentClasses = classNames(Classes.DIALOG_BODY, 'lobby-select-container');
+    const contentClasses = classNames(Classes.DIALOG_BODY, "lobby-select-container");
     return (
-      <Dialog
-        isOpen={this.props.isOpen}
-        icon={IconNames.USER}
-        title='Who Are You?'
-        onClose={this.handleClose}
-      >
+      <Dialog isOpen={this.props.isOpen} icon={IconNames.USER} title="Who Are You?" onClose={this.handleClose}>
         <div className={contentClasses}>
           <PlayerSelect
             players={this.props.players}
@@ -48,19 +43,19 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
             <Button
               icon={IconNames.CONFIRM}
               intent={Intent.PRIMARY}
-              text='Confirm'
+              text="Confirm"
               onClick={this.handleConfirm}
               disabled={this.state.player == null}
             />
           </div>
         </div>
       </Dialog>
-    )
+    );
   }
 
   public handlePlayerSelected = (player?: Player) => {
     this.setState({ player });
-  }
+  };
 
   public handleConfirm = () => {
     if (this.state.player != null) {
@@ -68,7 +63,7 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
     } else {
       this.showErrror();
     }
-  }
+  };
 
   public handleClose = () => {
     if (this.props.playerId != null) {
@@ -76,12 +71,12 @@ export class LobbyPlayerDialog extends React.PureComponent<Props, State> {
     } else {
       this.showErrror();
     }
-  }
+  };
 
   private showErrror = () => {
     Palantoaster.show({
-      message: 'You must choose an identity to play.',
+      message: "You must choose an identity to play.",
       intent: Intent.DANGER,
     });
-  }
+  };
 }

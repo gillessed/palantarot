@@ -1,9 +1,9 @@
-import { Bid, Call, PlayerId } from "../GameState";
+import { type Bid, Call, type PlayerId } from "../GameState";
 
 export const getTrickPlayerOrder = (players: PlayerId[], firstPlayer: PlayerId) => {
   const trickOrder = [...players];
   while (trickOrder[0] !== firstPlayer) {
-    trickOrder.push(trickOrder.shift() as PlayerId)
+    trickOrder.push(trickOrder.shift() as PlayerId);
   }
   return trickOrder;
 };
@@ -19,7 +19,6 @@ export const getStringForBid = (bid: Bid) => {
   if (bid.calls.indexOf(Call.RUSSIAN) >= 0) {
     return `bid Russian ${bid.bid}`;
   } else if (bid.bid === 0) {
-    return 'passed';
-  } else
-    return `bid ${bid.bid}`;
-}
+    return "passed";
+  } else return `bid ${bid.bid}`;
+};

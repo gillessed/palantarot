@@ -1,31 +1,31 @@
-import { Button, Dialog, Intent, Spinner } from '@blueprintjs/core';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { GameRecord, PlayerHand } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { formatTimestamp } from '../../../server/utils/index';
-import { mergeContexts } from '../../app';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import history from '../../history';
-import { DynamicRoutes, StaticRoutes } from '../../routes';
-import { getSagaContext, SagaContextType, SagaRegistration } from '../../sagaProvider';
-import { deleteGameActions, DeleteGameService } from '../../services/deleteGame/index';
-import { Dispatchers } from '../../services/dispatchers';
-import { GameService } from '../../services/game';
-import { PlayersService } from '../../services/players';
-import { getPlayerName } from '../../services/players/playerName';
-import { ReduxState } from '../../services/rootReducer';
-import { SagaListener } from '../../services/sagaListener';
+import { Button, Dialog, Intent, Spinner } from "@blueprintjs/core";
+import React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { formatTimestamp } from "../../../server/utils/index";
+import { mergeContexts } from "../../App";
+import { SpinnerOverlay } from "../../components/spinnerOverlay/SpinnerOverlay";
+import { Palantoaster, TIntent } from "../../components/toaster/Toaster";
+import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
+import history from "../../history";
+import { DynamicRoutes, StaticRoutes } from "../../routes";
+import { getSagaContext, SagaContextType, SagaRegistration } from "../../sagaProvider";
+import { deleteGameActions, DeleteGameService } from "../../services/deleteGame/index";
+import { Dispatchers } from "../../services/dispatchers";
+import { GameService } from "../../services/game";
+import { PlayersService } from "../../services/players";
+import { getPlayerName } from "../../services/players/playerName";
+import { ReduxState } from "../../services/rootReducer";
+import { SagaListener } from "../../services/sagaListener";
 
 interface OwnProps {
   match: {
     params: {
       gameId: string;
     };
-  }
+  };
 }
 
 interface StateProps {
@@ -37,8 +37,8 @@ interface StateProps {
 type Props = OwnProps & StateProps;
 
 interface State {
-  page: number,
-  deleteDialogOpen: boolean,
+  page: number;
+  deleteDialogOpen: boolean;
 }
 
 class Internal extends React.PureComponent<Props, State> {
@@ -48,7 +48,7 @@ class Internal extends React.PureComponent<Props, State> {
     actionType: deleteGameActions.success,
     callback: () => {
       Palantoaster.show({
-        message: 'Game ' + this.props.match.params.gameId + ' Deleted Successfully',
+        message: "Game " + this.props.match.params.gameId + " Deleted Successfully",
         intent: TIntent.SUCCESS,
       });
       history.push(StaticRoutes.home());
@@ -58,7 +58,7 @@ class Internal extends React.PureComponent<Props, State> {
     actionType: deleteGameActions.error,
     callback: () => {
       Palantoaster.show({
-        message: 'Server Error: Game was not deleted correctly.',
+        message: "Server Error: Game was not deleted correctly.",
         intent: TIntent.DANGER,
       });
     },
@@ -89,7 +89,7 @@ class Internal extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div className='game-container page-container'>
+      <div className="game-container page-container">
         {this.renderContainer()}
         {this.renderDeleteDialog()}
       </div>
@@ -121,25 +121,25 @@ class Internal extends React.PureComponent<Props, State> {
       return (
         <div>
           {this.renderSlamBanner(game)}
-          <div className='game-banner'>
-            <div className='game-title-container'>
-              <div className='game-title-name'>
-                <h1 className='bp3-heading'> Game {game.id} </h1>
-                <Button icon='edit' onClick={this.onEditClicked} />
-                <Button icon='trash' onClick={this.onDeleteClicked} />
+          <div className="game-banner">
+            <div className="game-title-container">
+              <div className="game-title-name">
+                <h1 className="bp3-heading"> Game {game.id} </h1>
+                <Button icon="edit" onClick={this.onEditClicked} />
+                <Button icon="trash" onClick={this.onDeleteClicked} />
               </div>
-              <h6 className='bp3-heading'> {formatTimestamp(game.timestamp)} </h6>
+              <h6 className="bp3-heading"> {formatTimestamp(game.timestamp)} </h6>
             </div>
-            <div className={'game-point-display' + (game.points >= 0 ? ' game-win' : ' game-loss')}>
-              {game.points > 0 ? '+' + game.points : game.points}
+            <div className={"game-point-display" + (game.points >= 0 ? " game-win" : " game-loss")}>
+              {game.points > 0 ? "+" + game.points : game.points}
             </div>
           </div>
-          <div className='game-data-container'>
-            <div className='bidder-team-container'>
-              {this.renderHandData(players, 'Bidder', game.handData.bidder)}
-              {this.renderHandData(players, 'Partner', game.handData.partner)}
+          <div className="game-data-container">
+            <div className="bidder-team-container">
+              {this.renderHandData(players, "Bidder", game.handData.bidder)}
+              {this.renderHandData(players, "Partner", game.handData.partner)}
             </div>
-            <div className='opposition-team-container'>
+            <div className="opposition-team-container">
               {game.handData.opposition.map((handData: PlayerHand, index: number) => {
                 return this.renderHandData(players, `Opposition ${index + 1}`, handData);
               })}
@@ -150,57 +150,50 @@ class Internal extends React.PureComponent<Props, State> {
     } else {
       return <p>Hand data not loaded...</p>;
     }
-  }
+  };
 
   private renderSlamBanner = (game: GameRecord) => {
     if (game.slam) {
       return (
-        <div className='slam-banner'>
-          <h4 className='bp3-heading'>SLAM!!!</h4>
+        <div className="slam-banner">
+          <h4 className="bp3-heading">SLAM!!!</h4>
         </div>
       );
     }
-  }
+  };
 
-  private renderHandData = (
-    players: Map<string, Player>,
-    tag: string,
-    handData?: PlayerHand
-  ) => {
+  private renderHandData = (players: Map<string, Player>, tag: string, handData?: PlayerHand) => {
     if (handData) {
       const player = players.get(handData.id)!;
       const playerName = player ? `${getPlayerName(player)}` : `Unknown Player: ${handData.id}`;
       const points = handData.pointsEarned;
-      let containerStyle: string = 'player-container';
+      let containerStyle: string = "player-container";
       if (points > 0) {
-        containerStyle += ' winner-container';
+        containerStyle += " winner-container";
       } else {
-        containerStyle += ' loser-container';
+        containerStyle += " loser-container";
       }
       return (
         <div key={handData.id} className={containerStyle}>
-          <h4 className='bp3-heading'>{tag}</h4>
-          <div><Link to={DynamicRoutes.player(player.id)}>{playerName}</Link> ({points > 0 ? '+' + points : points})</div>
+          <h4 className="bp3-heading">{tag}</h4>
+          <div>
+            <Link to={DynamicRoutes.player(player.id)}>{playerName}</Link> ({points > 0 ? "+" + points : points})
+          </div>
         </div>
       );
     }
-  }
+  };
 
   private renderDeleteDialog() {
     return (
-      <Dialog
-        icon='inbox'
-        isOpen={this.state.deleteDialogOpen}
-        onClose={this.toggleDialog}
-        title='Dialog header'
-      >
-        <div className='bp3-dialog-body'>
+      <Dialog icon="inbox" isOpen={this.state.deleteDialogOpen} onClose={this.toggleDialog} title="Dialog header">
+        <div className="bp3-dialog-body">
           <p>Are you sure you want to delete Game {this.props.match.params.gameId}?</p>
         </div>
-        <div className='bp3-dialog-footer'>
-          <div className='bp3-dialog-footer-actions'>
-            <Button icon='delete' text='Delete' intent={Intent.DANGER} onClick={this.deleteGame} />
-            <Button icon='cross' text='Cancel' onClick={this.toggleDialog} />
+        <div className="bp3-dialog-footer">
+          <div className="bp3-dialog-footer-actions">
+            <Button icon="delete" text="Delete" intent={Intent.DANGER} onClick={this.deleteGame} />
+            <Button icon="cross" text="Cancel" onClick={this.toggleDialog} />
           </div>
         </div>
       </Dialog>
@@ -210,21 +203,21 @@ class Internal extends React.PureComponent<Props, State> {
   private deleteGame = () => {
     this.toggleDialog();
     this.dispatchers.deleteGame.request(this.props.match.params.gameId);
-  }
+  };
 
   private toggleDialog = () => {
     this.setState({
       deleteDialogOpen: !this.state.deleteDialogOpen,
     });
-  }
+  };
 
   private onEditClicked = () => {
     history.push(DynamicRoutes.edit(this.props.match.params.gameId));
-  }
+  };
 
   private onDeleteClicked = () => {
     this.toggleDialog();
-  }
+  };
 }
 
 const mapStateToProps = (state: ReduxState): StateProps => {
@@ -232,7 +225,7 @@ const mapStateToProps = (state: ReduxState): StateProps => {
     players: state.players,
     games: state.games,
     deleteGame: state.deleteGame,
-  }
-}
+  };
+};
 
 export const GameContainer = connect(mapStateToProps)(Internal);

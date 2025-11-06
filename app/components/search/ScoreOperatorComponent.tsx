@@ -1,6 +1,6 @@
-import { Classes } from '@blueprintjs/core';
-import * as React from 'react';
-import { ScoreOperator } from '../../../server/model/Search';
+import { Classes } from "@blueprintjs/core";
+import React from "react";
+import { ScoreOperator } from "../../../server/model/Search";
 
 export namespace ScoreOperatorComponent {
   export interface Props {
@@ -26,5 +26,5 @@ export class ScoreOperatorComponent extends React.PureComponent<ScoreOperatorCom
 
   public onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     this.props.onChange(event.currentTarget.value as ScoreOperator);
-  }
+  };
 }

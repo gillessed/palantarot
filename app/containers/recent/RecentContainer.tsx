@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { RecentGameQuery } from '../../../server/db/GameRecordQuerier';
-import { GameRecord } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { BidderWonValidator, DEFAULT_COUNT, GameTable } from '../../components/gameTable/GameTable';
-import { playersLoader } from '../../services/players/index';
-import { recentGamesLoader } from '../../services/recentGames/index';
-import { loadContainer } from '../LoadingContainer';
+import React from "react";
+import { RecentGameQuery } from "../../../server/db/GameRecordQuerier";
+import { GameRecord } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { BidderWonValidator, DEFAULT_COUNT, GameTable } from "../../components/gameTable/GameTable";
+import { playersLoader } from "../../services/players/index";
+import { recentGamesLoader } from "../../services/recentGames/index";
+import { loadContainer } from "../LoadingContainer";
 
 interface Props {
   players: Map<string, Player>;
@@ -19,13 +19,13 @@ class RecentContainerInternal extends React.PureComponent<Props, {}> {
     const pageState = {
       offset: this.props.offset,
       onOffsetChange: this.props.onOffsetChange,
-    }; 
+    };
     return (
-      <div className='recent-container page-container pt-ui-text-large'>
-        <div className='title'>
-          <h1 className='bp3-heading'>Recent Games</h1>
+      <div className="recent-container page-container pt-ui-text-large">
+        <div className="title">
+          <h1 className="bp3-heading">Recent Games</h1>
         </div>
-        <div className='recent-table-container table-container'>
+        <div className="recent-table-container table-container">
           <GameTable
             games={this.props.recentGames}
             players={this.props.players}
@@ -64,7 +64,7 @@ export class RecentContainer extends React.PureComponent<{}, State> {
         onOffsetChange={this.onOffsetChange}
         offset={this.state.offset}
       />
-    )
+    );
   }
 
   private onOffsetChange = (offset: number) => {
@@ -75,5 +75,5 @@ export class RecentContainer extends React.PureComponent<{}, State> {
       query = { count: DEFAULT_COUNT, offset: DEFAULT_COUNT * offset };
     }
     this.setState({ query, offset });
-  }
+  };
 }

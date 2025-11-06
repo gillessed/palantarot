@@ -1,97 +1,42 @@
-import { Button, IconName, Intent } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
-import * as React from "react";
-import { Link } from "react-router-dom";
+import { Group, Image, Space, Stack } from "@mantine/core";
+import {
+  IconGlass,
+  IconHelp,
+  IconHistory,
+  IconList,
+  IconPencil,
+  IconPlayCard,
+  IconRobot,
+  IconSearch,
+  IconStar,
+} from "@tabler/icons-react";
+import { memo } from "react";
+import { NavigationButton } from "../../components/NavigationButton";
 import { StaticRoutes } from "../../routes";
 
-export class HomeContainer extends React.PureComponent<{}, {}> {
-  public render() {
-    return (
-      <div className="home-container pt-ui-text-large">
-        <div className="logo dark">Palantarot</div>
-        <div className="subtitle dark">Where all the points are fake</div>
-        <div className="menu">
-          {this.renderMenuItem(
-            "Enter Score",
-            "manually-entered-data",
-            StaticRoutes.enter(),
-            Intent.SUCCESS
-          )}
-          {this.renderMenuItem("Results", "th", StaticRoutes.results())}
-          {this.renderMenuItem(
-            "Recent Games",
-            "history",
-            StaticRoutes.recent()
-          )}
-          {this.renderMenuItem(
-            "Advanced Search",
-            "search",
-            StaticRoutes.search()
-          )}
-          {this.renderMenuItem("Records", "glass", StaticRoutes.records())}
-          {this.renderMenuItem(
-            "Add New Player",
-            "add",
-            StaticRoutes.addPlayer()
-          )}
-          {this.renderMenuItem("Play Online", "play", StaticRoutes.lobby())}
-          {this.renderMenuItem(
-            "Tarothon",
-            "ninja",
-            StaticRoutes.tarothons(),
-            Intent.WARNING
-          )}
-          {this.renderMenuItem(
-            "Bots",
-            IconNames.CALCULATOR,
-            StaticRoutes.bots()
-          )}
-          {this.renderMenuItem(
-            "How to Play",
-            IconNames.HELP,
-            StaticRoutes.rules()
-          )}
-        </div>
-        <div className="info-overlay">
-          <span className="callout">
-            <span className="callout-text">Join us on our </span>
-            <img
-              className="slack-logo"
-              src="/static/images/Slack_Mark_Web.png"
-            />
-            <span className="callout-text">
-              <a href="https://join.slack.com/t/palantarot/shared_invite/MjQxOTUyMjE3NjAzLTE1MDU1MDcwNjMtMDBjMjIyNDYyNQ">
-                Slack Channel
-              </a>
-            </span>
-          </span>
-          <span className="callout">
-            <span className="callout-text">Contribute on </span>
-            <img
-              className="github-logo"
-              src="/static/images/GitHub-Mark-32px.png"
-            />
-            <span className="callout-text">
-              <a href="https://github.com/gillessed/palantarot">Github</a>
-            </span>
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  private renderMenuItem(
-    title: string,
-    logo: IconName,
-    to: string,
-    intent: Intent = Intent.PRIMARY
-  ) {
-    return (
-      <div className="menu-item">
-        <Link className="link" to={to}>
-          <Button icon={logo} intent={intent} large text={title} />
-        </Link>
-      </div>
-    );
-  }
-}
+export const HomeContainer = memo(function HomeContainer() {
+  return (
+    <Stack align="center" pos="relative" flex={1}>
+      <span className="subtitle dark">Where all the points are fake</span>
+      <Space h="xl" />
+      <Stack gap="xs">
+        <NavigationButton to={StaticRoutes.lobby()} icon={<IconPlayCard />} color="cyan" title="Play Online" />
+        <NavigationButton to={StaticRoutes.enter()} icon={<IconPencil />} color="green" title="Enter Score" />
+        <NavigationButton to={StaticRoutes.results()} icon={<IconHistory />} color="blue" title="Results" />
+        <NavigationButton to={StaticRoutes.recent()} icon={<IconList />} color="blue" title="Recent Games" />
+        <NavigationButton to={StaticRoutes.search()} icon={<IconSearch />} color="blue" title="Advanced Search" />
+        <NavigationButton to={StaticRoutes.records()} icon={<IconGlass />} color="blue" title="Records" />
+        <NavigationButton to={StaticRoutes.addPlayer()} icon={<IconGlass />} color="blue" title="Add New Player" />
+        <NavigationButton to={StaticRoutes.bots()} icon={<IconRobot />} color="blue" title="Bots" />
+        <NavigationButton to={StaticRoutes.tarothons()} icon={<IconStar />} color="blue" title="Tarothon" />
+        <NavigationButton to={StaticRoutes.rules()} icon={<IconHelp />} color="grape" title="Help" />
+      </Stack>
+      <Space h="xl" />
+      <Group gap={0}>
+        <span className="callout-text">Contribute on </span>
+        <Image src="/images/GitHub-Mark-32px.png" w={20} h={20} mr={3} ml={3} />
+        <a href="https://github.com/gillessed/palantarot">Github</a>
+      </Group>
+    </Stack>
+  );
+});

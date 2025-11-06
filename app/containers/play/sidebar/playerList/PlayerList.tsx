@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { defaultMemoize } from 'reselect';
-import { Player } from '../../../../../server/model/Player';
-import { PlayerId } from '../../../../../server/play/model/GameState';
-import { PlayerStatus } from '../../../../../server/play/room/PlayerStatus';
-import { Dispatchers } from '../../../../services/dispatchers';
-import { getPlayerName } from '../../../../services/players/playerName';
-import './PlayerList.scss';
-import { PlayerRow } from './PlayerRow';
+import React from "react";
+import { defaultMemoize } from "reselect";
+import { Player } from "../../../../../server/model/Player";
+import { PlayerId } from "../../../../../server/play/model/GameState";
+import { PlayerStatus } from "../../../../../server/play/room/PlayerStatus";
+import { Dispatchers } from "../../../../services/dispatchers";
+import { getPlayerName } from "../../../../services/players/playerName";
+import "./PlayerList.scss";
+import { PlayerRow } from "./PlayerRow";
 
 interface Props {
   selfId: string;
@@ -37,7 +37,7 @@ interface PlayerItem {
 
 const playerItemComparator = (p1: PlayerItem, p2: PlayerItem) => {
   return p1.name.localeCompare(p2.name);
-}
+};
 
 export class PlayerList extends React.PureComponent<Props, State> {
   public state: State = {
@@ -106,25 +106,18 @@ export class PlayerList extends React.PureComponent<Props, State> {
     const offlinePlayers = this.getOfflinePlayerItems(this.props);
     const bots = this.getBotPlayers(this.props);
     return (
-      <div className='sidebar-player-list list-container'>
-        <div className='unselectable sidebar-player-list-title'>Online</div>
+      <div className="sidebar-player-list list-container">
+        <div className="unselectable sidebar-player-list-title">Online</div>
         {onlinePlayers.map(this.renderPlayer)}
-        <div className='unselectable sidebar-player-list-title offline'>Offline</div>
+        <div className="unselectable sidebar-player-list-title offline">Offline</div>
         {offlinePlayers.map(this.renderPlayer)}
-        <div className='unselectable sidebar-player-list-title offline'>Bots</div>
+        <div className="unselectable sidebar-player-list-title offline">Bots</div>
         {bots.map(this.renderPlayer)}
       </div>
     );
   }
 
-  private renderPlayer = ({
-    id,
-    isYou,
-    isParticipant,
-    name,
-    status,
-    isBot,
-  }: PlayerItem) => {
+  private renderPlayer = ({ id, isYou, isParticipant, name, status, isBot }: PlayerItem) => {
     return (
       <PlayerRow
         key={id}
@@ -137,5 +130,5 @@ export class PlayerList extends React.PureComponent<Props, State> {
         dispatchers={this.props.dispatchers}
       />
     );
-  }
+  };
 }

@@ -1,13 +1,13 @@
-import { Checkbox, HTMLTable } from '@blueprintjs/core';
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { AggregatedStats, getAverages, StatEntry } from '../../../../server/model/Stats';
-import { chop } from '../../../../server/utils';
-import { playersLoader } from '../../../services/players/index';
-import { getPlayerName } from '../../../services/players/playerName';
-import { statsLoader } from '../../../services/stats/index';
-import { loadContainer } from '../../LoadingContainer';
-import { AllWinPercentagesTableHeader } from './AllWinPercentagesTableHeader';
+import { Checkbox, HTMLTable } from "@blueprintjs/core";
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { AggregatedStats, getAverages, StatEntry } from "../../../../server/model/Stats";
+import { chop } from "../../../../server/utils";
+import { playersLoader } from "../../../services/players/index";
+import { getPlayerName } from "../../../services/players/playerName";
+import { statsLoader } from "../../../services/stats/index";
+import { loadContainer } from "../../LoadingContainer";
+import { AllWinPercentagesTableHeader } from "./AllWinPercentagesTableHeader";
 
 interface Props {
   players: Map<string, Player>;
@@ -17,7 +17,7 @@ interface Props {
 interface State {
   filterPlayers: boolean;
   sort: number;
-  order: 'asc' | 'desc';
+  order: "asc" | "desc";
 }
 
 type Entry = string | number | undefined;
@@ -25,21 +25,7 @@ type Row = Array<Entry>;
 type Table = Array<Row>;
 
 class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
-
-  private headers = [
-    'Player',
-    'Win %',
-    'Avg',
-    'Rate',
-    'Win %',
-    'Avg',
-    'Rate',
-    'Win %',
-    'Avg',
-    'Rate',
-    'Win %',
-    'Avg',
-  ];
+  private headers = ["Player", "Win %", "Avg", "Rate", "Win %", "Avg", "Rate", "Win %", "Avg", "Rate", "Win %", "Avg"];
 
   private getStats = (): StatEntry[] => {
     const playerStats = new Map<string, AggregatedStats>();
@@ -60,15 +46,15 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
         });
       }
     });
-    return this.state.filterPlayers ?
-      playerAverages.filter((entry) => {
-        if (!entry.stats.allRoles) {
-          return false;
-        }
-        return entry.stats.allRoles!.totalCount >= 100;
-      })
+    return this.state.filterPlayers
+      ? playerAverages.filter((entry) => {
+          if (!entry.stats.allRoles) {
+            return false;
+          }
+          return entry.stats.allRoles!.totalCount >= 100;
+        })
       : playerAverages;
-  }
+  };
 
   private tableifyStats = (stats: StatEntry[]): Table => {
     const table: Table = [];
@@ -112,17 +98,17 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
       table.push(row);
     });
     return table;
-  }
+  };
 
-  private orderedComparator = (column: number, order: 'asc' | 'desc') => {
-    const mod = order === 'asc' ? 1 : -1;
+  private orderedComparator = (column: number, order: "asc" | "desc") => {
+    const mod = order === "asc" ? 1 : -1;
     return (r1: Row, r2: Row) => {
       const e1 = r1[column];
       const e2 = r2[column];
-      if ((typeof e1 === 'string') && (typeof e2 === 'string')) {
+      if (typeof e1 === "string" && typeof e2 === "string") {
         return e1.localeCompare(e2) * mod;
       }
-      if ((typeof e1 === 'number') && (typeof e2 === 'number')) {
+      if (typeof e1 === "number" && typeof e2 === "number") {
         return (e1 - e2) * mod;
       }
       if (e1 === undefined && e2 !== undefined) {
@@ -133,14 +119,14 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
       }
       return 0;
     };
-  }
+  };
 
   constructor(props: Props) {
     super(props);
     this.state = {
       filterPlayers: false,
       sort: 0,
-      order: 'asc',
+      order: "asc",
     };
   }
 
@@ -150,9 +136,9 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
     table.sort(this.orderedComparator(this.state.sort, this.state.order));
 
     return (
-      <div className='win-percentages-container table-container'>
+      <div className="win-percentages-container table-container">
         {this.renderFilter()}
-        <HTMLTable className='player-stats-table' bordered>
+        <HTMLTable className="player-stats-table" bordered>
           <thead>
             <tr>
               <th></th>
@@ -161,62 +147,52 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
               <th colSpan={3}>Partner</th>
               <th colSpan={3}>Opposition</th>
             </tr>
-            <tr>
-              {this.headers.map(this.renderHeader)}
-            </tr>
+            <tr>{this.headers.map(this.renderHeader)}</tr>
           </thead>
-          <tbody>
-            {table.map(this.renderRow)}
-          </tbody>
+          <tbody>{table.map(this.renderRow)}</tbody>
         </HTMLTable>
       </div>
     );
   }
 
   private renderHeader = (text: string, index: number) => {
-    let sort: 'asc' | 'desc' | undefined;
+    let sort: "asc" | "desc" | undefined;
     if (this.state.sort === index) {
       sort = this.state.order;
     }
     return (
-      <AllWinPercentagesTableHeader
-        key={index}
-        text={text}
-        index={index}
-        sort={sort}
-        onClick={this.onHeaderClicked}
-      />
+      <AllWinPercentagesTableHeader key={index} text={text} index={index} sort={sort} onClick={this.onHeaderClicked} />
     );
-  }
+  };
 
   private onHeaderClicked = (index: number) => {
     if (index === this.state.sort) {
       this.setState({
-        order: this.state.order === 'asc' ? 'desc' : 'asc',
+        order: this.state.order === "asc" ? "desc" : "asc",
       });
     } else {
       this.setState({
         sort: index,
-        order: 'asc',
+        order: "asc",
       });
     }
-  }
+  };
 
   private renderFilter = () => {
     return (
       <Checkbox
         checked={this.state.filterPlayers}
-        label='Filter out players who have played less than 100 games: '
+        label="Filter out players who have played less than 100 games: "
         onChange={this.onFilterRecordsChanged}
       />
     );
-  }
+  };
 
   private onFilterRecordsChanged = () => {
     this.setState({
       filterPlayers: !this.state.filterPlayers,
     });
-  }
+  };
 
   private renderRow = (row: Row) => {
     return (
@@ -235,21 +211,21 @@ class AllWinPercentagesTabInternal extends React.PureComponent<Props, State> {
         {this.renderCell(row[11])}
       </tr>
     );
-  }
+  };
 
   private renderCell = (entry: string | number | undefined, percent?: boolean) => {
-    if (typeof entry === 'string') {
+    if (typeof entry === "string") {
       return <td>{entry}</td>;
     } else if (entry !== undefined) {
       let value = `${chop(entry * (percent ? 100 : 1), 1)}`;
       if (percent) {
-        value += '%';
+        value += "%";
       }
-      return <td>{value}</td>
+      return <td>{value}</td>;
     } else {
-      return <td className='not-applicable'>N/A</td>;
+      return <td className="not-applicable">N/A</td>;
     }
-  }
+  };
 }
 
 const loaders = {

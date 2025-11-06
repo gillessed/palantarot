@@ -1,25 +1,47 @@
-import { getPlayerNum } from '../CardUtils';
-import { GameErrors } from '../GameErrors';
-import { BidAction, BiddingCompletedTransition, DogRevealTransition, GameAbortedTransition, GameStartTransition, PlayerEvent } from "../GameEvents";
-import { Bid, BiddingBoardState, BiddingStateActions, BiddingStates, BidValue, Call, CurrentBids, DogRevealAndExchangeBoardState, GameplayState, NewGameBoardState, PartnerCallBoardState, PlayerId, PlayingBoardState, ReducerResult } from "../GameState";
-import { showTrumpActionReducer, simpleResult } from './CommonReducers';
-import { getNewTrick, getStringForBid } from './Utils';
+import { getPlayerNum } from "../CardUtils";
+import { GameErrors } from "../GameErrors";
+import type {
+  BidAction,
+  BiddingCompletedTransition,
+  DogRevealTransition,
+  GameAbortedTransition,
+  GameStartTransition,
+  PlayerEvent,
+} from "../GameEvents";
+import {
+  type Bid,
+  type BiddingBoardState,
+  type BiddingStateActions,
+  type BiddingStates,
+  BidValue,
+  Call,
+  type CurrentBids,
+  type DogRevealAndExchangeBoardState,
+  GameplayState,
+  type NewGameBoardState,
+  type PartnerCallBoardState,
+  type PlayerId,
+  type PlayingBoardState,
+  type ReducerResult,
+} from "../GameState";
+import { showTrumpActionReducer, simpleResult } from "./CommonReducers";
+import { getNewTrick, getStringForBid } from "./Utils";
 
-const  getAllCalls = (players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } => {
+const getAllCalls = (players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } => {
   const calls: { [player: number]: Call[] } = {};
   for (const bid of bidding.bids) {
     const playerNum = getPlayerNum(players, bid.player);
     if (!calls[playerNum]) {
-      calls[playerNum] = []
+      calls[playerNum] = [];
     }
-    calls[playerNum].push(...bid.calls)
+    calls[playerNum].push(...bid.calls);
   }
   return calls;
-}
+};
 
 const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
   if (state.bidders[0] !== bid.player) {
-    throw GameErrors.biddingOutOfTurn(bid.player, state.bidders[0])
+    throw GameErrors.biddingOutOfTurn(bid.player, state.bidders[0]);
   } else if (bid.calls.indexOf(Call.RUSSIAN) !== -1 && bid.bid !== BidValue.TWENTY) {
     throw GameErrors.canOnlyCallRussianOnTwenties(bid);
   } else if (bid.bid === BidValue.PASS || bid.bid === undefined) {
@@ -31,10 +53,11 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
       bids: [...state.bids, bid],
       bidders,
       current_high: state.current_high,
-    }
+    };
   } else if (state.current_high.bid >= bid.bid) {
     throw GameErrors.bidTooLow(bid.bid, state.current_high.bid);
-  } else { // new bid is high
+  } else {
+    // new bid is high
     const bidders = [...state.bidders];
     bidders.push(bidders.shift()!);
     if (bidders.length == 1) {
@@ -44,7 +67,7 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
       bids: [...state.bids, bid],
       bidders,
       current_high: bid,
-    }
+    };
   }
 };
 
@@ -56,17 +79,17 @@ const handleAllPasses = (state: BiddingBoardState, action: BidAction): ReducerRe
     ready: [],
   };
   const abortTransition: GameAbortedTransition = {
-    type: 'game_aborted',
-    reason: 'Everybody passed!',
+    type: "game_aborted",
+    reason: "Everybody passed!",
   };
   const events = [action, abortTransition];
-  return { state: newState, events, serverMessages: ['Everyone passed'] };
-}
+  return { state: newState, events, serverMessages: ["Everyone passed"] };
+};
 
 const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerResult<BiddingStates> => {
   const bid: Bid = {
     ...action,
-    calls: action.calls || []
+    calls: action.calls || [],
   };
   const newBidState = updateBids(state.bidding, bid);
   if (newBidState.bidders.length > 0 && action.bid !== BidValue.ONESIXTY) {
@@ -76,13 +99,15 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
     };
     const bidMessage = `{${action.player}} bid ${getStringForBid(bid)}`;
     return simpleResult(newState, action, [bidMessage]);
-  } else { // last bid
-    if (newBidState.current_high.bid === BidValue.PASS) { // all passes
+  } else {
+    // last bid
+    if (newBidState.current_high.bid === BidValue.PASS) {
+      // all passes
       return handleAllPasses(state, action);
     } else {
       let newState: PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
       const biddingCompletedTransition: BiddingCompletedTransition = {
-        type: 'bidding_completed',
+        type: "bidding_completed",
         winning_bid: newBidState.current_high,
         privateTo: undefined,
       };
@@ -98,7 +123,8 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
             calls: getAllCalls(state.players, newBidState),
           },
         };
-      } else { // 3 or 4 players
+      } else {
+        // 3 or 4 players
         if (newBidState.current_high.bid <= BidValue.FORTY) {
           newState = {
             ...state,
@@ -111,13 +137,14 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
             },
           };
           const dogRevealTransition: DogRevealTransition = {
-            type: 'dog_revealed',
+            type: "dog_revealed",
             dog: state.dog,
             player: newBidState.current_high.player,
             privateTo: undefined,
           };
           events.push(dogRevealTransition);
-        } else { // 80 or 160 bid
+        } else {
+          // 80 or 160 bid
           const bidder = newBidState.current_high.player;
           newState = {
             ...state,
@@ -132,10 +159,10 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
             past_tricks: [],
           };
           const gameStartedTransition: GameStartTransition = {
-            type: 'game_started',
+            type: "game_started",
             first_player: state.players[0],
             privateTo: undefined,
-          }
+          };
           events.push(gameStartedTransition);
         }
       }
@@ -144,12 +171,18 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
       return { state: newState, events, serverMessages: [bidMessage, winnerMessage] };
     }
   }
-}
+};
 
-export const BiddingGameStateReducer = (state: BiddingBoardState, action: BiddingStateActions): ReducerResult<BiddingStates> => {
+export const BiddingGameStateReducer = (
+  state: BiddingBoardState,
+  action: BiddingStateActions
+): ReducerResult<BiddingStates> => {
   switch (action.type) {
-    case "show_trump": return showTrumpActionReducer(state, action);
-    case "bid": return handleBidAction(state, action);
-    default: throw GameErrors.invalidActionForGameState(action, state.name);
+    case "show_trump":
+      return showTrumpActionReducer(state, action);
+    case "bid":
+      return handleBidAction(state, action);
+    default:
+      throw GameErrors.invalidActionForGameState(action, state.name);
   }
 };

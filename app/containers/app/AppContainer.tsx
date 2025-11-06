@@ -1,76 +1,52 @@
-import * as React from 'react';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { StaticRoutes } from '../../routes';
-import { withRouter } from 'react-router-dom';
-import history from '../../history';
-import { Navbar, Classes, Alignment, Button } from '@blueprintjs/core';
-import classNames from 'classnames';
+import { Burger, Container, Group, Image, Menu, Title } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import classNames from "classnames";
+import { memo, useCallback } from "react";
+import { Link, Outlet, useNavigate } from "react-router";
+import { StaticRoutes } from "../../routes";
+import classes from "./AppContainer.module.css";
+import { IconPencil } from "@tabler/icons-react";
 
-type Props = RouteComponentProps<any>;
-
-class Internal extends React.PureComponent<Props, {}> {
-  public render() {
-    const navbarClasses = classNames('tarot-navbar', Classes.DARK);
-    return (
-      <div>
-        <Navbar className={navbarClasses} fixedToTop={true}>
-          <Navbar.Group align={Alignment.LEFT}>
-            <Navbar.Heading>
-              <Link className='bp3-minimal bp3-button brand-link' to='/'>
-                <img src='/static/images/joker.png' style={{ height: 40 }}/>
-                Palantarot V3
+export const AppContainer = memo(function AppContainer() {
+  const navigate = useNavigate();
+  const handleEnterScore = useCallback(() => {
+    navigate(StaticRoutes.enter());
+  }, [navigate]);
+  const [opened, { toggle, close }] = useDisclosure(false);
+  return (
+    <div>
+      <header className={classes.header}>
+        <Container size="md">
+          <div className={classes.inner}>
+            <Link to={StaticRoutes.home()} className={classNames(classes.link, "appLink")}>
+              <Image src="/images/joker.png" w="20" h="30" ml="sm" mr="sm" />
+              <Title order={4}>Palantarot</Title>
+            </Link>
+            <Group visibleFrom="sm">
+              <Link className="appLink" to={StaticRoutes.enter()}>
+                Enter Score
               </Link>
-            </Navbar.Heading>
-          </Navbar.Group>
-          <Navbar.Group align={Alignment.RIGHT}>
-            {this.renderEnter()}
-            {this.renderResults()}
-          </Navbar.Group>
-        </Navbar>
-        <div className='pt-app'>
-          <div>
-            {this.props.children}
+              <Link className="appLink" to={StaticRoutes.results()}>
+                Results
+              </Link>
+              <Link className="appLink" to={StaticRoutes.recent()}>
+                Recent Games
+              </Link>
+            </Group>
+            <Menu onClose={close}>
+              <Menu.Target>
+                <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item leftSection={<IconPencil />} onClick={handleEnterScore}>
+                  Enter score
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  private renderEnter() {
-    if (!this.props.location || this.props.location.pathname !== StaticRoutes.enter()) {
-      return (
-        <Button
-          icon='manually-entered-data'
-          minimal
-          onClick={this.onEnterPressed}
-        >
-          <span className='hide-on-small'>Enter Score</span>
-        </Button>
-      );
-    }
-  }
-
-  private onEnterPressed = () => {
-    history.push(StaticRoutes.enter());
-  }
-
-  private renderResults() {
-    if (!this.props.location || this.props.location.pathname !== StaticRoutes.results()) {
-      return (
-        <Button
-          icon='th'
-          minimal
-          onClick={this.onResultsPressed}
-        >
-          <span className='hide-on-small'>Results</span>
-        </Button>
-      );
-    }
-  }
-
-  private onResultsPressed = () => {
-    history.push(StaticRoutes.results())
-  }
-}
-
-export const AppContainer = withRouter<Props>(Internal);
+        </Container>
+      </header>
+      <Outlet />
+    </div>
+  );
+});

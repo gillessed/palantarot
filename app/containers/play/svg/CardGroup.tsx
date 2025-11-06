@@ -1,10 +1,10 @@
-import { Colors } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import * as React from 'react';
-import { Card } from '../../../../server/play/model/Card';
-import './CardGroup.scss';
-import { HandSvg } from './HandSvg';
-import { SvgBlueprintIcon } from './SvgBlueprintIcon';
+import { Colors } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import React from "react";
+import { Card } from "../../../../server/play/model/Card";
+import "./CardGroup.scss";
+import { HandSvg } from "./HandSvg";
+import { SvgBlueprintIcon } from "./SvgBlueprintIcon";
 
 export interface Props {
   title: string;
@@ -28,29 +28,36 @@ export class CardGroup extends React.PureComponent<Props> {
     const rectHeight = height - 2 * Padding - TitleHeight;
     return (
       <g>
-        <text
-          className='card-group-title'
-          x={x + Padding + TitleXOffset}
-          y={y + Padding + 5}
-        >
+        <text className="card-group-title" x={x + Padding + TitleXOffset} y={y + Padding + 5}>
           {title}
         </text>
-        <rect x={x + Padding} y={y + Padding + TitleHeight} width={rectWidth} height={rectHeight} className='card-group-rect' rx={10} />
-        {cards.length > 0 && <HandSvg
-          top={y + Padding + TitleHeight + RectanglePadding}
-          left={x + Padding + RectanglePadding}
-          width={rectWidth - 2 * RectanglePadding}
-          alignment='center'
-          cards={cards}
-          handCardHeight={rectHeight - 2 * RectanglePadding }
-        />}
-        {cards.length === 0 && showEmptyIcon && <SvgBlueprintIcon
-          x={x + Padding + rectWidth / 2 - 16}
-          y={y + Padding + TitleHeight + rectHeight / 2 - 16}
-          icon={IconNames.DISABLE}
-          fill={Colors.WHITE}
-        />}
+        <rect
+          x={x + Padding}
+          y={y + Padding + TitleHeight}
+          width={rectWidth}
+          height={rectHeight}
+          className="card-group-rect"
+          rx={10}
+        />
+        {cards.length > 0 && (
+          <HandSvg
+            top={y + Padding + TitleHeight + RectanglePadding}
+            left={x + Padding + RectanglePadding}
+            width={rectWidth - 2 * RectanglePadding}
+            alignment="center"
+            cards={cards}
+            handCardHeight={rectHeight - 2 * RectanglePadding}
+          />
+        )}
+        {cards.length === 0 && showEmptyIcon && (
+          <SvgBlueprintIcon
+            x={x + Padding + rectWidth / 2 - 16}
+            y={y + Padding + TitleHeight + rectHeight / 2 - 16}
+            icon={IconNames.DISABLE}
+            fill={Colors.WHITE}
+          />
+        )}
       </g>
-    )
+    );
   }
 }

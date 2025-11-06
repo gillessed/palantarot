@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { createSelector } from 'reselect';
-import { GameRecord, playerInGame } from '../../../server/model/GameRecord';
-import { IMonth } from '../../../server/model/Month';
-import { Player } from '../../../server/model/Player';
-import { getPointDeltas, PointDelta } from '../../../server/model/PointFlow';
-import { Aggregator, count } from '../../../server/utils/count';
-import { integerComparator } from '../../../server/utils/index';
-import { MonthPicker } from '../../components/monthPicker/MonthPicker';
-import { monthGamesLoader } from '../../services/monthGames/index';
-import { playersLoader } from '../../services/players/index';
-import { loadContainer } from '../LoadingContainer';
-import { PointFlowChart } from './PointFlowChart';
+import React from "react";
+import { createSelector } from "reselect";
+import { GameRecord, playerInGame } from "../../../server/model/GameRecord";
+import { IMonth } from "../../../server/model/Month";
+import { Player } from "../../../server/model/Player";
+import { getPointDeltas, PointDelta } from "../../../server/model/PointFlow";
+import { Aggregator, count } from "../../../server/utils/count";
+import { integerComparator } from "../../../server/utils/index";
+import { MonthPicker } from "../../components/monthPicker/MonthPicker";
+import { monthGamesLoader } from "../../services/monthGames/index";
+import { playersLoader } from "../../services/players/index";
+import { loadContainer } from "../LoadingContainer";
+import { PointFlowChart } from "./PointFlowChart";
 
 interface InternalProps {
   playerId: string;
@@ -20,7 +20,7 @@ interface InternalProps {
 }
 
 const pointDeltaAggregator: Aggregator<PointDelta, number, number> = {
-  name: 'pointDelta',
+  name: "pointDelta",
   initialValue: 0,
   extractor: (record: PointDelta) => record.points,
   aggretator: (aggregate: number, value: number) => aggregate + value,
@@ -40,26 +40,19 @@ class PointFlowLoaderInternal extends React.PureComponent<InternalProps> {
       const pointFlow: PointDelta[] = aggregateDeltas.map((aggregate) => {
         return {
           player: aggregate.id,
-          points: aggregate.values['pointDelta'],
+          points: aggregate.values["pointDelta"],
         };
       });
       return pointFlow;
-    },
+    }
   );
 
   public render() {
     if (this.props.monthGames.length === 0) {
-      return <h4 className='bp3-heading'>No games for this month.</h4>;
+      return <h4 className="bp3-heading">No games for this month.</h4>;
     } else {
-      const pointDeltas = this.getPointFlow(this.props)
-        .sort(integerComparator((delta) => delta.points, 'desc'));
-      return (
-        <PointFlowChart
-          players={this.props.players}
-          pointDeltas={pointDeltas}
-          divId={'point-flow-chart'}
-        />
-      );
+      const pointDeltas = this.getPointFlow(this.props).sort(integerComparator((delta) => delta.points, "desc"));
+      return <PointFlowChart players={this.props.players} pointDeltas={pointDeltas} divId={"point-flow-chart"} />;
     }
   }
 }
@@ -67,7 +60,7 @@ class PointFlowLoaderInternal extends React.PureComponent<InternalProps> {
 const loaders = {
   players: playersLoader,
   monthGames: monthGamesLoader,
-}
+};
 
 const PointFlowLoader = loadContainer(loaders)(PointFlowLoaderInternal);
 
@@ -89,23 +82,18 @@ export class PointFlowTab extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <div className='point-flow-container'>
-        <MonthPicker
-          titlePrefix="Point Flow"
-          month={this.state.month}
-          onMonthUpdated={this.onMonthUpdated}
-        />
-        <p> A positive (green) bar indicates you took points from them. Negative (red) means they took points from you. </p>
-        <PointFlowLoader
-          playerId={this.props.playerId}
-          monthGames={this.state.month}
-          month={this.state.month}
-        />
+      <div className="point-flow-container">
+        <MonthPicker titlePrefix="Point Flow" month={this.state.month} onMonthUpdated={this.onMonthUpdated} />
+        <p>
+          {" "}
+          A positive (green) bar indicates you took points from them. Negative (red) means they took points from you.{" "}
+        </p>
+        <PointFlowLoader playerId={this.props.playerId} monthGames={this.state.month} month={this.state.month} />
       </div>
     );
   }
 
   private onMonthUpdated = (month: IMonth) => {
     this.setState({ month });
-  }
+  };
 }

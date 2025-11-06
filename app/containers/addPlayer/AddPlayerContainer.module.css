@@ -1,4 +1,4 @@
-.add-player-container {
+.addPlayerContainer {
   margin: 0 auto;
   @media (max-width: 700px) {
     width: 90%;

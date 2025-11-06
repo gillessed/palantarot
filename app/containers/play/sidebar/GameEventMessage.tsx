@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { PlayerId } from '../../../../server/play/model/GameState';
-import { ChatText } from '../../../../server/play/room/ChatText';
-import { getPlayerName } from '../../../services/players/playerName';
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { PlayerId } from "../../../../server/play/model/GameState";
+import { ChatText } from "../../../../server/play/room/ChatText";
+import { getPlayerName } from "../../../services/players/playerName";
 
 interface Props {
   players: Map<PlayerId, Player>;
@@ -17,10 +17,6 @@ export class GameEventMessage extends React.PureComponent<Props> {
       const player = players.get(playerId);
       return getPlayerName(player);
     });
-    return (
-      <div className='game-event-message event-child'>
-        {replacedText}
-      </div>
-    );
-  }  
+    return <div className="game-event-message event-child">{replacedText}</div>;
+  }
 }

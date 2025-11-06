@@ -1,5 +1,5 @@
-import moment from 'moment-timezone';
-import { integerComparator, SortOrder, Comparator } from '../utils/index';
+import moment from "moment-timezone";
+import { integerComparator, type SortOrder, type Comparator } from "../utils/index";
 
 export interface Month {
   year: number;
@@ -33,7 +33,7 @@ export class IMonth implements Month {
     }
   }
 
-  public isValid(options?: { inPast: boolean }): { valid: boolean, error?: string } {
+  public isValid(options?: { inPast: boolean }): { valid: boolean; error?: string } {
     if (this.month < 0 || this.month > 11) {
       return { valid: false, error: `Month must be between 0-11: ${this.month}` };
     }
@@ -77,18 +77,12 @@ export class IMonth implements Month {
     return JSON.parse(string);
   }
 
-  public static comparator<T>(
-      map: (t: T) => IMonth,
-      order: SortOrder,
-  ): Comparator<T> {
+  public static comparator<T>(map: (t: T) => IMonth, order: SortOrder): Comparator<T> {
     return (t1: T, t2: T): number => {
       return integerComparator<IMonth>(
         (m: IMonth) => m.year,
         order,
-        integerComparator<IMonth>(
-          (m: IMonth) => m.month,
-          order
-        )
+        integerComparator<IMonth>((m: IMonth) => m.month, order)
       )(map(t1), map(t2));
     };
   }
@@ -97,8 +91,8 @@ export class IMonth implements Month {
     const month = `00${date.month + 1}`.slice(-2);
     const dateString = `${date.year}-${month}-01`;
     // Lock months to Western time.
-    return moment.tz(dateString, IMonth.westernTimezone).format('YYYY-MM-DDThh:mm:ssZ');
+    return moment.tz(dateString, IMonth.westernTimezone).format("YYYY-MM-DDThh:mm:ssZ");
   }
 
-  public static westernTimezone = 'America/Los_Angeles';
+  public static westernTimezone = "America/Los_Angeles";
 }

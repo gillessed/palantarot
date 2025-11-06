@@ -5,25 +5,37 @@ import { Multimap } from "../../utils/multimap";
 import { promiseDelay } from "../../utils/promiseDelay";
 import { generateId } from "../../utils/randomString";
 import { JsonSocket } from "../../websocket/JsonSocket";
-import { SocketMessage } from "../../websocket/SocketMessage";
+import { type SocketMessage } from "../../websocket/SocketMessage";
 import { autologGame } from "../Autolog";
 import { autoplayNextCard } from "../bots/Autoplay";
 import { getNextPlayer, playForBot } from "../bots/BotPlayer";
 import { Game } from "../game/Game";
-import { Action, AllowNotifyPlayerEvent, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction } from "../model/GameEvents";
-import { GameSettings } from "../model/GameSettings";
-import { CompletedBoardState, CompletedGameState, GameplayState, PlayerId } from "../model/GameState";
+import type {
+  Action,
+  AllowNotifyPlayerEvent,
+  EnterGameAction,
+  LeaveGameAction,
+  PlayerEvent,
+  PlayerNotReadyAction,
+  PlayerReadyAction,
+} from "../model/GameEvents";
+import type { GameSettings } from "../model/GameSettings";
+import { type CompletedBoardState, type CompletedGameState, GameplayState, type PlayerId } from "../model/GameState";
 import { PlayerStatus } from "../room/PlayerStatus";
-import { ChatText, ServerChatAuthorId } from "./ChatText";
-import { NewRoomArgs } from './NewRoomArgs';
-import { BotMessagePayload, EnterRoomMessagePayload, GameActionMessagePayload, NotifyPlayerMessagePayload, RoomChatMessagePayload, RoomSocketMessages } from "./RoomSocketMessages";
-import { RoomStatus } from "./RoomStatus";
+import { type ChatText, ServerChatAuthorId } from "./ChatText";
+import { type NewRoomArgs } from "./NewRoomArgs";
+import type {
+  BotMessagePayload,
+  EnterRoomMessagePayload,
+  GameActionMessagePayload,
+  NotifyPlayerMessagePayload,
+  RoomChatMessagePayload,
+} from "./RoomSocketMessages";
+import { RoomSocketMessages } from "./RoomSocketMessages";
+import type { RoomStatus } from "./RoomStatus";
 
 export class Room {
-  public static empty = (
-    playService: PlayService,
-    args: NewRoomArgs,
-  ) => {
+  public static empty = (playService: PlayService, args: NewRoomArgs) => {
     return new Room(
       playService,
       generateId(),
@@ -33,25 +45,44 @@ export class Room {
       Game.createNew(args.gameSettings),
       [],
       new Map(),
-      [],
+      []
     );
-  }
+  };
 
   private playerIdToSocketId: Multimap<string>;
   private socketIdToPlayerId: Map<string, PlayerId>;
   private pokeTimer: NodeJS.Timer | undefined;
 
+  private readonly playService: PlayService;
+  public readonly id: string;
+  public name: string;
+  public color: string;
+  public settings: GameSettings;
+  public game: Game;
+  public pastGames: CompletedGameState[];
+  public players: Map<PlayerId, PlayerStatus>;
+  public chat: ChatText[];
+
   constructor(
-    private readonly playService: PlayService,
-    public readonly id: string,
-    public name: string,
-    public color: string,
-    public settings: GameSettings,
-    public game: Game,
-    public pastGames: CompletedGameState[],
-    public players: Map<PlayerId, PlayerStatus>,
-    public chat: ChatText[],
+    playService: PlayService,
+    id: string,
+    name: string,
+    color: string,
+    settings: GameSettings,
+    game: Game,
+    pastGames: CompletedGameState[],
+    players: Map<PlayerId, PlayerStatus>,
+    chat: ChatText[]
   ) {
+    this.playService = playService;
+    this.id = id;
+    this.name = name;
+    this.color = color;
+    this.settings = settings;
+    this.game = game;
+    this.pastGames = pastGames;
+    this.players = players;
+    this.chat = chat;
     this.playerIdToSocketId = new Multimap();
     this.socketIdToPlayerId = new Map();
   }
@@ -61,7 +92,7 @@ export class Room {
   public handleMessage(socketId: string, socket: JsonSocket, untypedMessage: SocketMessage<any>) {
     try {
       RoomSocketMessages.enterRoom.handleMessage(untypedMessage, (message) => {
-        this.handleEnterRoomMessage(socketId, message)
+        this.handleEnterRoomMessage(socketId, message);
       });
       RoomSocketMessages.roomChat.handleMessage(untypedMessage, this.handlePlayerChatMessage);
       RoomSocketMessages.gameAction.handle(untypedMessage, this.handleGameActionMessage);
@@ -82,7 +113,14 @@ export class Room {
       this.socketIdToPlayerId.delete(socketId);
       if (this.playerIdToSocketId.count(playerId) === 0) {
         this.players.set(playerId, PlayerStatus.Offline);
-        this.broadcastMessage(RoomSocketMessages.playerStatusUpdated({ roomId: this.id, playerId, playerStatus: PlayerStatus.Offline, time: Date.now() }));
+        this.broadcastMessage(
+          RoomSocketMessages.playerStatusUpdated({
+            roomId: this.id,
+            playerId,
+            playerStatus: PlayerStatus.Offline,
+            time: Date.now(),
+          })
+        );
         this.playService.roomUpdated(this);
       }
     }
@@ -97,17 +135,17 @@ export class Room {
     this.players.set(playerId, PlayerStatus.Online);
     this.sendRoomStatus(playerId);
     this.playService.roomUpdated(this);
-  }
+  };
 
   public handlePlayerChatMessage = (message: SocketMessage<RoomChatMessagePayload>) => {
     this.chat.push(message.payload.chat);
     this.broadcastMessage(message);
-  }
+  };
 
   public handleGameActionMessage = ({ action }: GameActionMessagePayload) => {
     this.processGameActions([action]);
     this.handleBotPlayers();
-  }
+  };
 
   public handleAddBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
@@ -117,33 +155,33 @@ export class Room {
     }
     this.players.set(botId, PlayerStatus.Online);
     const joinGame: EnterGameAction = {
-      type: 'enter_game',
+      type: "enter_game",
       player: botId,
       time: new Date().getTime(),
     };
     const ready: PlayerReadyAction = {
-      type: 'mark_player_ready',
+      type: "mark_player_ready",
       player: botId,
       time: new Date().getTime(),
-    }
+    };
     this.processGameActions([joinGame, ready]);
-  }
+  };
 
   public handleRemoveBotMessage = (payload: BotMessagePayload) => {
     const { botId } = payload;
     this.players.set(botId, PlayerStatus.Online);
     const unready: PlayerNotReadyAction = {
-      type: 'unmark_player_ready',
+      type: "unmark_player_ready",
       player: botId,
       time: new Date().getTime(),
-    }
+    };
     const leaveGame: LeaveGameAction = {
-      type: 'leave_game',
+      type: "leave_game",
       player: botId,
       time: new Date().getTime(),
-    }
+    };
     this.processGameActions([unready, leaveGame]);
-  }
+  };
 
   public handleAutoplayMessage = () => {
     const action = autoplayNextCard(this.game, Date.now());
@@ -151,14 +189,14 @@ export class Room {
       this.processGameActions([action]);
       this.handleBotPlayers();
     }
-  }
+  };
 
   public handleNotifyPlayer = (message: SocketMessage<NotifyPlayerMessagePayload>) => {
     const sockets = this.getSocketsForPlayerId(message.payload.playerId);
     for (const socket of sockets) {
       socket.send(message);
     }
-  }
+  };
 
   /* Helpers */
 
@@ -171,7 +209,7 @@ export class Room {
       }
     }
     return sockets;
-  }
+  };
 
   private processGameActions = (actions: Action[]) => {
     for (const action of actions) {
@@ -186,7 +224,7 @@ export class Room {
             text: message,
             time: Date.now(),
             authorId: ServerChatAuthorId,
-          }
+          };
           this.chat.push(chat);
           this.broadcastMessage(RoomSocketMessages.roomChat({ roomId: this.id, chat }));
         }
@@ -194,28 +232,28 @@ export class Room {
     }
     this.handlePokeTimer(actions);
     this.playService.roomUpdated(this);
-  }
+  };
 
   private sendRoomStatus = (playerId: string) => {
     const sockets = this.getSocketsForPlayerId(playerId);
     for (const socket of sockets) {
       socket.send(RoomSocketMessages.roomStatus({ roomId: this.id, room: this.getRoomStatus(playerId) }));
     }
-  }
+  };
 
   private broadcastGameEvents = (gameEvents: PlayerEvent[]) => {
     for (const playerId of this.players.keys()) {
       const sockets = this.getSocketsForPlayerId(playerId);
       const filteredEvents = gameEvents.filter((gameEvent) => {
         const isPrivate = gameEvent.privateTo != null && gameEvent.privateTo !== playerId;
-        const isExcluded = ((gameEvent.exclude ?? []).indexOf(playerId) >= 0)
-        return (!isPrivate && !isExcluded);
+        const isExcluded = (gameEvent.exclude ?? []).indexOf(playerId) >= 0;
+        return !isPrivate && !isExcluded;
       });
       for (const socket of sockets) {
         socket.send(RoomSocketMessages.gameUpdates({ roomId: this.id, gameId: this.game.id, events: filteredEvents }));
       }
     }
-  }
+  };
 
   private broadcastMessage = (message: SocketMessage) => {
     for (const playerId of this.players.keys()) {
@@ -224,7 +262,7 @@ export class Room {
         socket.send(message);
       }
     }
-  }
+  };
 
   private getRoomStatus = (playerId: string): RoomStatus => {
     const players: { [key: string]: PlayerStatus } = {};
@@ -241,7 +279,7 @@ export class Room {
       gameEvents: this.game.getEvents(playerId, 0, 100000).events,
       chat: this.chat,
     };
-  }
+  };
 
   private handleBotPlayers = async () => {
     const playerList = await this.playService.playerQuerier.queryAllPlayers();
@@ -266,7 +304,7 @@ export class Room {
     }
     await autologGame(this.game, this.playService.gameQuerier);
     await this.handleNewGame();
-  }
+  };
 
   private handleNewGame = async () => {
     if (this.game.getState().name !== GameplayState.Completed) {
@@ -276,35 +314,39 @@ export class Room {
     const completedState = this.game.getState() as CompletedBoardState;
     this.pastGames.push(completedState.end_state);
     this.game = Game.createNew(this.settings);
-    this.broadcastMessage(RoomSocketMessages.newGame({
-      roomId: this.id,
-      gameId: this.game.id,
-      settings: this.game.settings,
-    }));
+    this.broadcastMessage(
+      RoomSocketMessages.newGame({
+        roomId: this.id,
+        gameId: this.game.id,
+        settings: this.game.settings,
+      })
+    );
     this.playService.roomUpdated(this);
-  }
+  };
 
   private handlePokeTimer(actions: Action[]) {
     const playerToPlay = getNextPlayer(this.game);
     if (this.game.getState().name !== GameplayState.Playing || playerToPlay == null) {
       return;
     }
-    const containsPlayAction = actions.some((action) => action.type === 'play_card');
+    const containsPlayAction = actions.some((action) => action.type === "play_card");
     if (containsPlayAction) {
       if (this.pokeTimer) {
         clearTimeout(this.pokeTimer);
       }
       this.pokeTimer = setTimeout(() => {
         const notifyEvent: AllowNotifyPlayerEvent = {
-          type: 'allow_notify_player',
+          type: "allow_notify_player",
           playerId: playerToPlay,
         };
-        this.game.appendEvent(notifyEvent)
-        this.broadcastMessage(RoomSocketMessages.gameUpdates({
-          roomId: this.id,
-          gameId: this.game.id,
-          events: [notifyEvent],
-        }));
+        this.game.appendEvent(notifyEvent);
+        this.broadcastMessage(
+          RoomSocketMessages.gameUpdates({
+            roomId: this.id,
+            gameId: this.game.id,
+            events: [notifyEvent],
+          })
+        );
       }, 10_000);
     }
   }

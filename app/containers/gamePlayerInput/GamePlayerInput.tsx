@@ -1,16 +1,16 @@
-import { Alignment, Checkbox, Dialog, FormGroup, Intent } from '@blueprintjs/core';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { NewPlayer, Player } from '../../../server/model/Player';
-import { AddPlayerForm } from '../../components/forms/AddPlayerForm';
-import { PlayerSelectContainer } from '../../components/forms/PlayerSelect';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import { AddPlayerService } from '../../services/addPlayer/index';
-import { Dispatchers } from '../../services/dispatchers';
-import { getPlayerName } from '../../services/players/playerName';
-import { ReduxState } from '../../services/rootReducer';
+import { Alignment, Checkbox, Dialog, FormGroup, Intent } from "@blueprintjs/core";
+import React from "react";
+import { connect } from "react-redux";
+import { NewPlayer, Player } from "../../../server/model/Player";
+import { AddPlayerForm } from "../../components/forms/AddPlayerForm";
+import { PlayerSelectContainer } from "../../components/forms/PlayerSelect";
+import { SpinnerOverlay } from "../../components/spinnerOverlay/SpinnerOverlay";
+import { Palantoaster, TIntent } from "../../components/toaster/Toaster";
+import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
+import { AddPlayerService } from "../../services/addPlayer/index";
+import { Dispatchers } from "../../services/dispatchers";
+import { getPlayerName } from "../../services/players/playerName";
+import { ReduxState } from "../../services/rootReducer";
 
 export interface PlayerState {
   role: string;
@@ -49,23 +49,23 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
     this.dispatchers = context.dispatchers;
     this.state = {
       openDialog: false,
-    }
+    };
   }
 
   public componentWillUpdate(nextProps: Props) {
     if (
-      nextProps.addPlayerService.source === nextProps.label
-      && nextProps.addPlayerService.error
-      && nextProps.addPlayerService.error !== this.props.addPlayerService.error
+      nextProps.addPlayerService.source === nextProps.label &&
+      nextProps.addPlayerService.error &&
+      nextProps.addPlayerService.error !== this.props.addPlayerService.error
     ) {
       Palantoaster.show({
         message: nextProps.addPlayerService.error.message,
         intent: TIntent.DANGER,
       });
     } else if (
-      nextProps.addPlayerService.source === nextProps.label
-      && nextProps.addPlayerService.newPlayer
-      && nextProps.addPlayerService.newPlayer !== this.props.addPlayerService.newPlayer
+      nextProps.addPlayerService.source === nextProps.label &&
+      nextProps.addPlayerService.newPlayer &&
+      nextProps.addPlayerService.newPlayer !== this.props.addPlayerService.newPlayer
     ) {
       const player = nextProps.addPlayerService.newPlayer;
       Palantoaster.show({
@@ -94,17 +94,17 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
   public render() {
     const label = (
       <p style={{ marginBottom: 0 }}>
-        {this.props.label} 
-        <a className='bp3-link add-player-link' onClick={this.openDialog}>
+        {this.props.label}
+        <a className="bp3-link add-player-link" onClick={this.openDialog}>
           Add Player
         </a>
       </p>
     );
     return (
-      <div className='player-input-container'>
+      <div className="player-input-container">
         <FormGroup
           label={label}
-          labelFor='player-selector-element'
+          labelFor="player-selector-element"
           helperText={this.props.player.error}
           intent={this.props.player.error ? Intent.DANGER : Intent.NONE}
         >
@@ -115,20 +115,20 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
             selectedPlayer={this.props.player.player}
           />
         </FormGroup>
-        <div className='player-selector-checkbox-row'>
+        <div className="player-selector-checkbox-row">
           <Checkbox
             alignIndicator={Alignment.LEFT}
             onChange={this.onShowedTrumpChanged}
             checked={this.props.player.showed}
           >
-            <span className='text player-selector-check-label'>Showed Trump</span>
+            <span className="text player-selector-check-label">Showed Trump</span>
           </Checkbox>
           <Checkbox
             alignIndicator={Alignment.LEFT}
             onChange={this.onOneLastChanged}
             checked={this.props.player.oneLast}
           >
-            <span className='text player-selector-check-label'>One Last</span>
+            <span className="text player-selector-check-label">One Last</span>
           </Checkbox>
         </div>
         {this.renderDialog()}
@@ -138,16 +138,9 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
 
   private renderDialog() {
     return (
-      <Dialog
-        icon='add'
-        isOpen={this.state.openDialog}
-        onClose={this.closeDialog}
-        title='Add Player'
-      >
-        <div className='bp3-dialog-body'>
-          <AddPlayerForm
-            onSubmit={this.onAddNewPlayer}
-          />
+      <Dialog icon="add" isOpen={this.state.openDialog} onClose={this.closeDialog} title="Add Player">
+        <div className="bp3-dialog-body">
+          <AddPlayerForm onSubmit={this.onAddNewPlayer} />
           {this.renderDialogSpinner()}
         </div>
       </Dialog>
@@ -160,7 +153,7 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
 
   private renderDialogSpinner() {
     if (this.props.addPlayerService.loading) {
-      return <SpinnerOverlay text='Adding Player...' />;
+      return <SpinnerOverlay text="Adding Player..." />;
     }
   }
 
@@ -168,34 +161,34 @@ class GamePlayerInputInternal extends React.PureComponent<Props, State> {
     this.setState({
       openDialog: false,
     });
-  }
+  };
 
   private openDialog = () => {
     this.setState({
       openDialog: true,
     });
-  }
+  };
 
   private onSelectPlayer = (player: Player | undefined) => {
     this.props.onChange({
       ...this.props.player,
       player,
     });
-  }
+  };
 
   private onShowedTrumpChanged = (e: any) => {
     this.props.onChange({
       ...this.props.player,
       showed: e.target.checked,
-    })
-  }
+    });
+  };
 
   private onOneLastChanged = (e: any) => {
     this.props.onChange({
       ...this.props.player,
       oneLast: e.target.checked,
-    })
-  }
+    });
+  };
 }
 
 const mapStateToProps = (state: ReduxState, ownProps: OwnProps) => {
@@ -203,6 +196,6 @@ const mapStateToProps = (state: ReduxState, ownProps: OwnProps) => {
     ...ownProps,
     addPlayerService: state.addPlayer,
   } as OwnProps & StateProps;
-}
+};
 
 export const GamePlayerInput = connect(mapStateToProps)(GamePlayerInputInternal);

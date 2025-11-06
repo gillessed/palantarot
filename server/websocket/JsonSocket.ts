@@ -1,14 +1,14 @@
-import WebSocket from 'ws';
-import { SocketMessage } from './SocketMessage';
+import WebSocket from "ws";
+import { type SocketMessage } from "./SocketMessage";
 
 export class JsonSocket {
   public handleClose?: () => void;
   public handleMessage?: (message: SocketMessage<any>) => void;
   public handleError?: (error: Error) => void;
 
-  constructor(
-    private readonly webSocket: WebSocket,
-  ) {
+  private readonly webSocket: WebSocket;
+  constructor(webSocket: WebSocket) {
+    this.webSocket = webSocket;
     webSocket.onmessage = this.handleWebSocketMessage;
     webSocket.onclose = this.handleWebSocketClose;
   }
@@ -16,7 +16,7 @@ export class JsonSocket {
   public send(message: SocketMessage<any>) {
     try {
       this.webSocket.send(JSON.stringify(message));
-    } catch (error) {
+    } catch (error: any) {
       if (this.handleError) {
         this.handleError(error);
       }
@@ -33,16 +33,16 @@ export class JsonSocket {
       if (this.handleMessage) {
         this.handleMessage(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       if (this.handleError) {
         this.handleError(error);
       }
     }
-  }
+  };
 
   private handleWebSocketClose = () => {
     if (this.handleClose) {
       this.handleClose();
     }
-  }
+  };
 }

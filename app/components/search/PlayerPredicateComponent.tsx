@@ -1,6 +1,6 @@
-import { Classes } from '@blueprintjs/core';
-import * as React from 'react';
-import { PlayerPredicate } from '../../../server/model/Search';
+import { Classes } from "@blueprintjs/core";
+import React from "react";
+import { PlayerPredicate } from "../../../server/model/Search";
 
 export namespace PlayerPredicateComponent {
   export interface Props {
@@ -25,5 +25,5 @@ export class PlayerPredicateComponent extends React.PureComponent<PlayerPredicat
 
   public onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     this.props.onChange(event.currentTarget.value as PlayerPredicate);
-  }
+  };
 }

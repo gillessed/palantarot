@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { ActionButton } from '../svg/ActionButton';
-import { PlayerOverlay } from '../svg/PlayerOverlay';
-import { StatusOverlay } from '../svg/StatusOverlay';
-import './NewGameStateView.scss';
-import { StateViewProps } from './StateViewProps';
+import React from "react";
+import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
+import { ActionButton } from "../svg/ActionButton";
+import { PlayerOverlay } from "../svg/PlayerOverlay";
+import { StatusOverlay } from "../svg/StatusOverlay";
+import "./NewGameStateView.scss";
+import { StateViewProps } from "./StateViewProps";
 
 type Props = StateViewProps;
 
@@ -14,17 +14,20 @@ export class NewGameStateView extends React.PureComponent<Props> {
     const isParticipant = ClientGameSelectors.isParticipant(game);
     const isReady = ClientGameSelectors.isReady(game);
     const isFull = ClientGameSelectors.isGameFull(game);
-    const status = game.playState.playerOrder.length < 3
-      ? `Waiting for more players to join: ${game.playState.playerOrder.length}`
-      : `Waiting for players to ready: ${game.playState.readiedPlayers.size} / ${game.playState.playerOrder.length}`
-    return (<g className='new-game-state-view'>
-      <StatusOverlay {...this.props} />
-      <PlayerOverlay {...this.props} />
-      {!isParticipant && !isFull && this.renderJoinGameAction()}
-      {!isParticipant && isFull && this.renderFullMessage()}
-      {isParticipant && !isReady && this.renderReadyActions()}
-      {isParticipant && isReady && this.renderUnreadyActions()}
-    </g>);
+    const status =
+      game.playState.playerOrder.length < 3
+        ? `Waiting for more players to join: ${game.playState.playerOrder.length}`
+        : `Waiting for players to ready: ${game.playState.readiedPlayers.size} / ${game.playState.playerOrder.length}`;
+    return (
+      <g className="new-game-state-view">
+        <StatusOverlay {...this.props} />
+        <PlayerOverlay {...this.props} />
+        {!isParticipant && !isFull && this.renderJoinGameAction()}
+        {!isParticipant && isFull && this.renderFullMessage()}
+        {isParticipant && !isReady && this.renderReadyActions()}
+        {isParticipant && isReady && this.renderUnreadyActions()}
+      </g>
+    );
   }
 
   private renderJoinGameAction() {
@@ -35,7 +38,7 @@ export class NewGameStateView extends React.PureComponent<Props> {
         height={100}
         x={width / 2}
         y={height / 2}
-        text='Join Game'
+        text="Join Game"
         onClick={this.handleJoinGame}
       />
     );
@@ -50,7 +53,7 @@ export class NewGameStateView extends React.PureComponent<Props> {
           height={100}
           x={width / 2 - 160}
           y={height / 2}
-          text='Ready'
+          text="Ready"
           onClick={this.handleMarkReady}
         />
         <ActionButton
@@ -58,7 +61,7 @@ export class NewGameStateView extends React.PureComponent<Props> {
           height={100}
           x={width / 2 + 160}
           y={height / 2}
-          text='Leave Game'
+          text="Leave Game"
           onClick={this.handleLeaveGame}
         />
       </>
@@ -73,7 +76,7 @@ export class NewGameStateView extends React.PureComponent<Props> {
         height={100}
         x={width / 2}
         y={height / 2}
-        text='Unready'
+        text="Unready"
         onClick={this.handleMarkUnready}
       />
     );
@@ -83,11 +86,11 @@ export class NewGameStateView extends React.PureComponent<Props> {
     const { width, height } = this.props;
     return (
       <text
-        className='new-game-full unselectable'
+        className="new-game-full unselectable"
         x={width / 2}
         y={height / 2}
-        textAnchor='middle'
-        dominantBaseline='central'
+        textAnchor="middle"
+        dominantBaseline="central"
       >
         This game is currently full
       </text>
@@ -98,11 +101,11 @@ export class NewGameStateView extends React.PureComponent<Props> {
     const { width, height } = this.props;
     return (
       <text
-        className='new-game-status unselectable'
+        className="new-game-status unselectable"
         x={width / 2}
         y={height / 2 - 100}
-        textAnchor='middle'
-        dominantBaseline='central'
+        textAnchor="middle"
+        dominantBaseline="central"
       >
         {status}
       </text>
@@ -112,20 +115,20 @@ export class NewGameStateView extends React.PureComponent<Props> {
   private handleJoinGame = () => {
     const player = this.props.game.playerId;
     this.props.dispatchers.room.play(player).enterGame();
-  }
+  };
 
   private handleLeaveGame = () => {
     const player = this.props.game.playerId;
     this.props.dispatchers.room.play(player).leaveGame();
-  }
+  };
 
   private handleMarkReady = () => {
     const player = this.props.game.playerId;
     this.props.dispatchers.room.play(player).markAsReady();
-  }
+  };
 
   private handleMarkUnready = () => {
     const player = this.props.game.playerId;
     this.props.dispatchers.room.play(player).markAsNotReady();
-  }
+  };
 }

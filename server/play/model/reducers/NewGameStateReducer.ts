@@ -1,10 +1,28 @@
 import { map, without } from "lodash";
-import { Card } from "../Card";
+import { type Card } from "../Card";
 import { dealCards, shufflePlayers } from "../CardUtils";
-import { GameErrors } from '../GameErrors';
-import { DealtHandTransition, EnterGameAction, LeaveGameAction, PlayerEvent, PlayerNotReadyAction, PlayerReadyAction, PlayersSetTransition, ShowDogToObservers } from "../GameEvents";
-import { BiddingBoardState, BidValue, DummyPlayer, GameplayState, NewGameActions, NewGameBoardState, NewGameStates, ReducerResult } from "../GameState";
-import { simpleResult } from './CommonReducers';
+import { GameErrors } from "../GameErrors";
+import {
+  type DealtHandTransition,
+  type EnterGameAction,
+  type LeaveGameAction,
+  type PlayerEvent,
+  type PlayerNotReadyAction,
+  type PlayerReadyAction,
+  type PlayersSetTransition,
+  type ShowDogToObservers,
+} from "../GameEvents";
+import {
+  type BiddingBoardState,
+  BidValue,
+  DummyPlayer,
+  GameplayState,
+  type NewGameActions,
+  type NewGameBoardState,
+  type NewGameStates,
+  type ReducerResult,
+} from "../GameState";
+import { simpleResult } from "./CommonReducers";
 
 const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) >= 0) {
@@ -18,7 +36,7 @@ const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction
     players: [...state.players, action.player],
   };
   return simpleResult(newState, action);
-}
+};
 
 const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) < 0) {
@@ -32,12 +50,15 @@ const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction
     players: without(state.players, action.player),
   };
   return simpleResult(newState, action);
-}
+};
 
-const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerReadyAction): ReducerResult<NewGameStates> => {
+const handleMarkPlayerReadyAction = (
+  state: NewGameBoardState,
+  action: PlayerReadyAction
+): ReducerResult<NewGameStates> => {
   if (state.ready.indexOf(action.player) >= 0) {
-    throw GameErrors.actionAlreadyHappened(action, state.ready)
-  } 
+    throw GameErrors.actionAlreadyHappened(action, state.ready);
+  }
   if (state.players.indexOf(action.player) < 0) {
     throw GameErrors.playerNotInGame(action.player, state.players);
   }
@@ -69,21 +90,21 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
         current_high: {
           player: DummyPlayer,
           bid: BidValue.PASS,
-          calls: []
+          calls: [],
         },
       },
       shows: [],
     };
 
     const setPlayersTransition: PlayersSetTransition = {
-      type: 'players_set',
+      type: "players_set",
       playerOrder,
       privateTo: undefined,
     };
 
     const dealTransitions: DealtHandTransition[] = map(hands).map((hand: Card[], player: number) => {
       const transition: DealtHandTransition = {
-        type: 'dealt_hand',
+        type: "dealt_hand",
         hand,
         privateTo: undefined,
         playerId: playerOrder[player],
@@ -98,46 +119,50 @@ const handleMarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerRea
           privateTo: playerOrder[player],
         };
       }
-    })
+    });
 
-    const events: PlayerEvent[] = [
-      action,
-      setPlayersTransition,
-      ...dealTransitions,
-    ];
+    const events: PlayerEvent[] = [action, setPlayersTransition, ...dealTransitions];
 
     if (publicHands) {
       const showDogEvent: ShowDogToObservers = {
-        type: 'show_dog_to_observers',
+        type: "show_dog_to_observers",
         dog,
         exclude: state.players,
       };
       events.push(showDogEvent);
     }
-    return { state: bidState, events, serverMessages: ['A new game has begun'] };
+    return { state: bidState, events, serverMessages: ["A new game has begun"] };
   }
-}
+};
 
-export const handleUnmarkPlayerReadyAction = (state: NewGameBoardState, action: PlayerNotReadyAction): ReducerResult<NewGameStates> => {
+export const handleUnmarkPlayerReadyAction = (
+  state: NewGameBoardState,
+  action: PlayerNotReadyAction
+): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) < 0) {
     throw GameErrors.playerNotInGame(action.player, state.players);
-  } 
+  }
   if (state.ready.indexOf(action.player) < 0) {
     throw GameErrors.playerNotReady(action.player, state.ready);
-  } 
+  }
   const newState: NewGameBoardState = {
     ...state,
     ready: without(state.ready, action.player),
   };
   return simpleResult(newState, action);
-}
+};
 
 export const NewGameStateReducer = (state: NewGameBoardState, action: NewGameActions): ReducerResult<NewGameStates> => {
   switch (action.type) {
-    case 'enter_game': return handleEnterGameAction(state, action);
-    case 'leave_game': return handleLeaveGameAction(state, action);
-    case 'mark_player_ready': return handleMarkPlayerReadyAction(state, action);
-    case 'unmark_player_ready': return handleUnmarkPlayerReadyAction(state, action);
-    default: throw GameErrors.invalidActionForGameState(action, state.name);
+    case "enter_game":
+      return handleEnterGameAction(state, action);
+    case "leave_game":
+      return handleLeaveGameAction(state, action);
+    case "mark_player_ready":
+      return handleMarkPlayerReadyAction(state, action);
+    case "unmark_player_ready":
+      return handleUnmarkPlayerReadyAction(state, action);
+    default:
+      throw GameErrors.invalidActionForGameState(action, state.name);
   }
 };

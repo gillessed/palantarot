@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { GameRecord } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { SearchQuery } from '../../../server/model/Search';
-import { BidderWonValidator, DEFAULT_COUNT, GameTable } from '../../components/gameTable/GameTable';
-import { playersLoader } from '../../services/players/index';
-import { searchLoader } from '../../services/search/index';
-import { loadContainer } from '../LoadingContainer';
+import React from "react";
+import { GameRecord } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { SearchQuery } from "../../../server/model/Search";
+import { BidderWonValidator, DEFAULT_COUNT, GameTable } from "../../components/gameTable/GameTable";
+import { playersLoader } from "../../services/players/index";
+import { searchLoader } from "../../services/search/index";
+import { loadContainer } from "../LoadingContainer";
 
 interface Props {
   players: Map<string, Player>;
@@ -33,14 +33,16 @@ class SearchResultsContainerInternal extends React.PureComponent<Props, State> {
     const offsetEnd = offsetStart + DEFAULT_COUNT;
     const gamesSlice = this.props.search.slice(offsetStart, offsetEnd);
     return (
-      <div className='seach-results-container page-container pt-ui-text-large'>
-        <div className='title'>
-          <h1 className='bp3-heading'>Search Results</h1>
-          {this.props.search.length > 0 &&
-            <h6 className='bp3-heading'>Showing {offsetStart + 1} to {offsetEnd} of {this.props.search.length} games. </h6>
-          }
+      <div className="seach-results-container page-container pt-ui-text-large">
+        <div className="title">
+          <h1 className="bp3-heading">Search Results</h1>
+          {this.props.search.length > 0 && (
+            <h6 className="bp3-heading">
+              Showing {offsetStart + 1} to {offsetEnd} of {this.props.search.length} games.{" "}
+            </h6>
+          )}
         </div>
-        <div className='recent-table-container table-container'>
+        <div className="recent-table-container table-container">
           <GameTable
             games={gamesSlice}
             players={this.props.players}
@@ -54,7 +56,7 @@ class SearchResultsContainerInternal extends React.PureComponent<Props, State> {
 
   private onOffsetChange = (offset: number) => {
     this.setState({ offset: offset });
-  }
+  };
 }
 
 const SearchResultsContainerLoader = loadContainer({
@@ -65,19 +67,14 @@ const SearchResultsContainerLoader = loadContainer({
 interface Props {
   location?: {
     state: SearchQuery;
-  }
+  };
 }
 
 export class SearchResultsContainer extends React.PureComponent<Props, State> {
-
   public render() {
     if (!this.props.location) {
       return null;
     }
-    return (
-      <SearchResultsContainerLoader
-        search={this.props.location.state}
-      />
-    );
+    return <SearchResultsContainerLoader search={this.props.location.state} />;
   }
 }

@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { BidRequest } from '../../../../server/model/Bid';
-import { Player } from '../../../../server/model/Player';
-import { playersLoader } from '../../../services/players/index';
-import { getPlayerName } from '../../../services/players/playerName';
-import { loadContainer } from '../../LoadingContainer';
-import { BidsGraph } from './BidsGraph';
+import React from "react";
+import { BidRequest } from "../../../../server/model/Bid";
+import { Player } from "../../../../server/model/Player";
+import { playersLoader } from "../../../services/players/index";
+import { getPlayerName } from "../../../services/players/playerName";
+import { loadContainer } from "../../LoadingContainer";
+import { BidsGraph } from "./BidsGraph";
 
 interface Props {
   playerId: string;
@@ -13,11 +13,7 @@ interface Props {
 
 class PlayerBidsTabInternal extends React.PureComponent<Props, {}> {
   public render() {
-    return (
-      <div className='bids-table-container table-container'>
-        {this.renderGraph()}
-      </div>
-    );
+    return <div className="bids-table-container table-container">{this.renderGraph()}</div>;
   }
 
   private renderGraph() {
@@ -28,7 +24,7 @@ class PlayerBidsTabInternal extends React.PureComponent<Props, {}> {
     };
     return (
       <div>
-        <h3 className='bp3-heading'> {title} </h3>
+        <h3 className="bp3-heading"> {title} </h3>
         <BidsGraph bids={request} />
       </div>
     );

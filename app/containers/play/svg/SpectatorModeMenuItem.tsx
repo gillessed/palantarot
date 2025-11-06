@@ -1,6 +1,6 @@
-import { Classes, MenuItem } from '@blueprintjs/core';
-import * as React from 'react';
-import { SpectatorMode } from '../SpectatorMode';
+import { Classes, MenuItem } from "@blueprintjs/core";
+import React from "react";
+import { SpectatorMode } from "../SpectatorMode";
 
 interface Props {
   selected: boolean;
@@ -25,5 +25,5 @@ export class SpectatorModeMenuItem extends React.PureComponent<Props> {
   private onClick = () => {
     const { spectatorMode, setSpectatorMode } = this.props;
     setSpectatorMode(spectatorMode);
-  }
+  };
 }

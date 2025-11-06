@@ -1,14 +1,14 @@
-import { Button, Checkbox, Classes, Dialog, Intent } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import classNames from 'classnames';
-import * as React from 'react';
-import { ColorResult, CompactPicker } from 'react-color';
-import { DefaultGameSettings } from '../../../server/play/model/GameSettings';
-import { NewRoomArgs } from '../../../server/play/room/NewRoomArgs';
-import { Dispatchers } from '../../services/dispatchers';
-import './CreateRoomDialog.scss';
+import { Button, Checkbox, Classes, Dialog, Intent } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import classNames from "classnames";
+import React from "react";
+import { ColorResult, CompactPicker } from "react-color";
+import { DefaultGameSettings } from "../../../server/play/model/GameSettings";
+import { NewRoomArgs } from "../../../server/play/room/NewRoomArgs";
+import { Dispatchers } from "../../services/dispatchers";
+import "./CreateRoomDialog.scss";
 
-const DefaultRoomColor = '#0F9960';
+const DefaultRoomColor = "#0F9960";
 
 interface Props {
   isOpen: boolean;
@@ -21,52 +21,44 @@ type State = NewRoomArgs;
 export class RoomCreationDialog extends React.PureComponent<Props, State> {
   public state: State = {
     color: DefaultRoomColor,
-    name: '',
+    name: "",
     gameSettings: { ...DefaultGameSettings },
   };
   public render() {
-    const contentClasses = classNames(Classes.DIALOG_BODY, 'lobby-select-container');
-    const inputClasses = classNames(Classes.INPUT, 'lobby-name-input');
+    const contentClasses = classNames(Classes.DIALOG_BODY, "lobby-select-container");
+    const inputClasses = classNames(Classes.INPUT, "lobby-name-input");
     return (
-      <Dialog
-        isOpen={this.props.isOpen}
-        icon={IconNames.NEW_OBJECT}
-        title='New Room'
-        onClose={this.props.onClose}
-      >
+      <Dialog isOpen={this.props.isOpen} icon={IconNames.NEW_OBJECT} title="New Room" onClose={this.props.onClose}>
         <div className={contentClasses}>
-          <div className='room-dialog-section-title'>Room Name</div>
+          <div className="room-dialog-section-title">Room Name</div>
           <input
             className={inputClasses}
-            type='text'
+            type="text"
             value={this.state.name}
             onChange={this.handleChangeName}
-            placeholder='Room name...'
+            placeholder="Room name..."
           />
-          <div className='room-dialog-section-title'>Room Background Color</div>
-          <div className='room-color-picker'>
-            <CompactPicker
-              color={this.state.color}
-              onChangeComplete={this.handleChangeColor}
-            />
+          <div className="room-dialog-section-title">Room Background Color</div>
+          <div className="room-color-picker">
+            <CompactPicker color={this.state.color} onChangeComplete={this.handleChangeColor} />
           </div>
-          <div className='room-dialog-section-title'>Game Settings</div>
+          <div className="room-dialog-section-title">Game Settings</div>
           <Checkbox
-            id='autolog-checkbox'
+            id="autolog-checkbox"
             checked={this.state.gameSettings.autologEnabled}
-            label='Autolog Enabled'
+            label="Autolog Enabled"
             onChange={this.handleAutologChange}
           />
           <Checkbox
-            id='baker-bengtson-checkbox'
+            id="baker-bengtson-checkbox"
             checked={this.state.gameSettings.bakerBengtsonVariant}
-            label='Baker-Bengtson Variant'
+            label="Baker-Bengtson Variant"
             onChange={this.handleBakerBengtsonChange}
           />
           <Checkbox
-            id='public-hands-checkbox'
+            id="public-hands-checkbox"
             checked={this.state.gameSettings.publicHands}
-            label='Reveal All Hands to Observers'
+            label="Reveal All Hands to Observers"
             onChange={this.handlePublicHandsChange}
           />
         </div>
@@ -75,41 +67,44 @@ export class RoomCreationDialog extends React.PureComponent<Props, State> {
             <Button
               icon={IconNames.CONFIRM}
               intent={Intent.PRIMARY}
-              text='Create'
+              text="Create"
               disabled={this.state.name.length === 0}
               onClick={this.handleSubmit}
             />
           </div>
         </div>
       </Dialog>
-    )
+    );
   }
 
   private handleAutologChange = () => {
     const gameSettings = { ...this.state.gameSettings, autologEnabled: !this.state.gameSettings.autologEnabled };
     this.setState({ gameSettings });
-  }
+  };
 
   private handleBakerBengtsonChange = () => {
-    const gameSettings = { ...this.state.gameSettings, bakerBengtsonVariant: !this.state.gameSettings.bakerBengtsonVariant };
+    const gameSettings = {
+      ...this.state.gameSettings,
+      bakerBengtsonVariant: !this.state.gameSettings.bakerBengtsonVariant,
+    };
     this.setState({ gameSettings });
-  }
+  };
 
   private handlePublicHandsChange = () => {
     const gameSettings = { ...this.state.gameSettings, publicHands: !this.state.gameSettings.publicHands };
     this.setState({ gameSettings });
-  }
+  };
 
   private handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ name: event.target.value });
-  }
+  };
 
   private handleSubmit = () => {
     this.props.onClose();
     this.props.dispatchers.lobby.newRoom({ ...this.state });
-  }
+  };
 
   private handleChangeColor = (result: ColorResult) => {
     this.setState({ color: result.hex });
-  }
+  };
 }

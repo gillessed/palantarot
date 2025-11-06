@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { Card } from '../../../../server/play/model/Card';
-import { CardHeight, CardWidth } from './CardSpec';
-import { CardSvg } from './CardSvg';
+import React from "react";
+import { Card } from "../../../../server/play/model/Card";
+import { CardHeight, CardWidth } from "./CardSpec";
+import { CardSvg } from "./CardSvg";
 
 interface Props {
   svgWidth: number;
@@ -16,15 +16,10 @@ export class DogSvg extends React.PureComponent<Props> {
   public render() {
     const { svgWidth, svgHeight, cards, emptyLength } = this.props;
     const length = cards ? cards.length : emptyLength ?? 0;
-    let left = svgWidth / 2 - Math.max(length - 1, 0) * CardSeparation / 2 - (CardWidth / 2);
+    let left = svgWidth / 2 - (Math.max(length - 1, 0) * CardSeparation) / 2 - CardWidth / 2;
     const cardSvgs = [];
     for (let i = 0; i < length; i++) {
-      cardSvgs.push(<CardSvg
-        key={i}
-        x={left}
-        y={(svgHeight - CardHeight) / 2}
-        card={cards ? cards[i] : undefined}
-      />);
+      cardSvgs.push(<CardSvg key={i} x={left} y={(svgHeight - CardHeight) / 2} card={cards ? cards[i] : undefined} />);
       left += CardSeparation;
     }
     return cardSvgs;

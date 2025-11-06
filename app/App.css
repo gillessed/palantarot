@@ -1,0 +1,157 @@
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  p {
+    font-size: 14px;
+    color: #182026;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+p,
+span.text,
+.bp3-label,
+td,
+li {
+  font-family: dinNextRegular;
+}
+
+span.bold {
+  font-family: blenderProBold;
+}
+
+span.underline {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: blenderProBold;
+}
+
+h6 {
+  font-family: blenderProMediumItalic;
+}
+
+th {
+  font-family: blenderProBold;
+  font-size: 18;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: blenderProBold;
+  margin-bottom: 20;
+  color: #f5f8fa;
+  @media (max-width: 700px) {
+    font-size: 48px;
+  }
+  @media (min-width: 700px) {
+    font-size: 82px;
+  }
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.logo.dark {
+  color: black;
+}
+
+.subtitle {
+  font-size: 12;
+  font-family: dinNextItalic;
+  margin-bottom: 50;
+  color: #f5f8fa;
+}
+
+.subtitle.dark {
+  color: black;
+}
+
+.page-container {
+  @media (max-width: 700px) {
+    margin: 10 auto;
+    width: 90%;
+  }
+  @media (min-width: 700px) {
+    margin: 60 auto;
+    width: 80%;
+  }
+}
+
+.table-container {
+  overflow-x: scroll;
+  -ms-overflow-style: none;
+  overflow: -moz-scrollbars-none;
+}
+.table-container::-webkit-scrollbar {
+  width: 0px;
+}
+
+.player-stats-table {
+  white-space: nowrap;
+  width: 100%;
+
+  thead tr th {
+    background-color: #ebf1f5;
+  }
+
+  td.averages {
+    font-family: blenderProBold;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  tbody tr td {
+    background-color: white;
+
+    &.not-applicable {
+      background-color: #ced9e0;
+    }
+
+    &.greater {
+      background-color: #3dcc91;
+    }
+
+    &.lesser {
+      background-color: #ff7373;
+    }
+  }
+}
+
+th.sortable {
+  cursor: pointer;
+}
+
+.unselectable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.appLink {
+  display: block;
+  line-height: 1;
+  padding: 8px 12px;
+  border-radius: var(--mantine-radius-sm);
+  text-decoration: none;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+
+  &:hover {
+    background-color: var(--mantine-color-gray-4);
+  }
+}

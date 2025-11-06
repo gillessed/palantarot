@@ -1,4 +1,4 @@
-import { Pool, PoolClient, ConnectionConfig, QueryResult } from "pg";
+import { Pool, type PoolClient, type ConnectionConfig, type QueryResult } from "pg";
 
 export class Database {
   private pool: Pool;
@@ -7,10 +7,7 @@ export class Database {
     this.pool = new Pool(options);
   }
 
-  public query = async (
-    query: string,
-    values?: any[]
-  ): Promise<QueryResult> => {
+  public query = async (query: string, values?: any[]): Promise<QueryResult> => {
     if (values && values.length) {
       return this.pool.query(query, values);
     } else {
@@ -25,12 +22,12 @@ export class Database {
 }
 
 export class Transaction {
-  constructor(public readonly client: PoolClient) {}
+  public readonly client: PoolClient;
+  constructor(client: PoolClient) {
+    this.client = client;
+  }
 
-  public query = async (
-    query: string,
-    values?: any[]
-  ): Promise<QueryResult> => {
+  public query = async (query: string, values?: any[]): Promise<QueryResult> => {
     try {
       if (values && values.length) {
         const result = await this.client.query(query, values);
@@ -52,13 +49,8 @@ export class Transaction {
   };
 }
 
-export function connect(
-  options: ConnectionConfig,
-  callback: (db: Database) => void
-) {
-  console.log(
-    `Connecting to postgres with options ${JSON.stringify(options, null, 2)}`
-  );
+export function connect(options: ConnectionConfig, callback: (db: Database) => void) {
+  console.log(`Connecting to postgres with options ${JSON.stringify(options, null, 2)}`);
   const db = new Database(options);
   callback(db);
 }

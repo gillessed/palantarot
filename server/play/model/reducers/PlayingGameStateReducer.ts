@@ -1,36 +1,65 @@
-import {compact, findIndex, isEqual} from "lodash";
-import {TheJoker} from "../Card";
-import {cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner} from '../CardUtils';
-import {GameErrors} from '../GameErrors';
-import {getBaseScore, getEarnings, getFinalScore, getOutcomes} from '../GameEvaluation';
-import {Action, CompletedTrickTransition, GameCompletedTransition, PlayCardAction} from "../GameEvents";
-import {CompletedBoardState, CompletedGameState, GameplayState, PlayingBoardState, PlayingStateActions, PlayingStates, ReducerResult} from "../GameState";
-import {declareSlamActionReducer, showTrumpActionReducer, simpleResult} from './CommonReducers';
-import {getNewTrick} from "./Utils";
+import { compact, findIndex, isEqual } from "lodash";
+import { TheJoker } from "../Card";
+import { cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner } from "../CardUtils";
+import { GameErrors } from "../GameErrors";
+import { getBaseScore, getEarnings, getFinalScore, getOutcomes } from "../GameEvaluation";
+import {
+  type Action,
+  type CompletedTrickTransition,
+  type GameCompletedTransition,
+  type PlayCardAction,
+} from "../GameEvents";
+import {
+  type CompletedBoardState,
+  type CompletedGameState,
+  GameplayState,
+  type PlayingBoardState,
+  type PlayingStateActions,
+  type PlayingStates,
+  type ReducerResult,
+} from "../GameState";
+import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from "./CommonReducers";
+import { getNewTrick } from "./Utils";
 
 const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
-  return state.past_tricks.length > 0 || state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1;
-}
+  return (
+    state.past_tricks.length > 0 ||
+    state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1
+  );
+};
 
-export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardAction): ReducerResult<PlayingStates> => {
+export const handlePlayCardAction = (
+  state: PlayingBoardState,
+  action: PlayCardAction
+): ReducerResult<PlayingStates> => {
   const player_num = getPlayerNum(state.players, action.player);
   const anyPlayerPlayedCard = !(state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
-  const allowedCards = getCardsAllowedToPlay(state.hands[player_num], state.current_trick.cards, anyPlayerPlayedCard, state.called);
+  const allowedCards = getCardsAllowedToPlay(
+    state.hands[player_num],
+    state.current_trick.cards,
+    anyPlayerPlayedCard,
+    state.called
+  );
 
   if (state.current_trick.players[state.current_trick.current_player] !== action.player) {
     throw GameErrors.playingOutOfTurn(action.player, state.current_trick.players[state.current_trick.current_player]);
   }
   if (!cardsContain(state.hands[player_num], action.card)) {
     throw GameErrors.cardNotInHand(action, state.hands[player_num]);
-  } 
+  }
   if (!cardsContain(allowedCards, action.card)) {
     throw GameErrors.cannotPlayCard(action.card, state.current_trick.cards, allowedCards);
-  } 
-  if (!isAfterFirstTurn(state, action) && player_num === 0 && state.called
-    && action.card[0] === state.called[0] && action.card[1] !== state.called[1]) {
+  }
+  if (
+    !isAfterFirstTurn(state, action) &&
+    player_num === 0 &&
+    state.called &&
+    action.card[0] === state.called[0] &&
+    action.card[1] !== state.called[1]
+  ) {
     throw GameErrors.cannotLeadCalledSuit(action.card, state.called);
   }
-  
+
   const hands = {
     ...state.hands,
     [player_num]: cardsWithout(state.hands[player_num], action.card),
@@ -46,7 +75,8 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       },
     };
     return simpleResult(newState, action);
-  } else { // last card in trick
+  } else {
+    // last card in trick
     const new_cards = [...state.current_trick.cards, action.card];
     const [winning_card, winner] = getWinner(new_cards, state.current_trick.players);
     const completed_trick = {
@@ -56,29 +86,32 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
       winner,
     };
     let jokerState;
-    if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) { // joker is not kept on last trick
+    if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) {
+      // joker is not kept on last trick
       jokerState = {
         player: completed_trick.players[findIndex(completed_trick.cards, (card) => isEqual(card, TheJoker))],
         owed_to: winner,
       };
     }
-    if (hands[0].length > 0) { // next trick!
+    if (hands[0].length > 0) {
+      // next trick!
       const newState: PlayingBoardState = {
         ...state,
         hands,
         jokerState: state.jokerState || jokerState,
         current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
         past_tricks: [...state.past_tricks, completed_trick],
-      }
+      };
       const completedTrickTransition: CompletedTrickTransition = {
-        type: 'completed_trick',
+        type: "completed_trick",
         winner,
         winning_card,
         jokerState,
         privateTo: undefined,
       };
       return { state: newState, events: [action, completedTrickTransition] };
-    } else { // end of game!
+    } else {
+      // end of game!
       const tricks = [...state.past_tricks, completed_trick];
       const biddingTeam = compact([state.bidder, state.partner]);
       const earnings = getEarnings(biddingTeam, tricks, state.bidding.winningBid.bid, state.dog, state.jokerState);
@@ -91,7 +124,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         baseScore,
         state.shows,
         state.bidding.calls,
-        outcomes,
+        outcomes
       );
       const endState: CompletedGameState = {
         players: state.players,
@@ -102,7 +135,7 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         calls: state.bidding.calls,
         shows: state.shows,
         outcomes,
-        ...finalScore
+        ...finalScore,
       };
       const newBoardState: CompletedBoardState = {
         ...state,
@@ -110,26 +143,33 @@ export const handlePlayCardAction = (state: PlayingBoardState, action: PlayCardA
         jokerState: state.jokerState || jokerState,
         past_tricks: tricks,
         end_state: endState,
-      }
+      };
       const completedTrickTransition: CompletedTrickTransition = {
-        type: 'completed_trick',
+        type: "completed_trick",
         winner,
         winning_card,
         jokerState,
         privateTo: undefined,
       };
       const completedGameTransition: GameCompletedTransition = {
-        type: 'game_completed',
+        type: "game_completed",
         end_state: endState,
         privateTo: undefined,
       };
-      const completedGameMessage = 'The game is over';
-      return { state: newBoardState, events: [action, completedTrickTransition, completedGameTransition], serverMessages: [completedGameMessage] };
+      const completedGameMessage = "The game is over";
+      return {
+        state: newBoardState,
+        events: [action, completedTrickTransition, completedGameTransition],
+        serverMessages: [completedGameMessage],
+      };
     }
   }
-}
+};
 
-export const PlayingGameStateReducer = (state: PlayingBoardState, action: PlayingStateActions): ReducerResult<PlayingStates> => {
+export const PlayingGameStateReducer = (
+  state: PlayingBoardState,
+  action: PlayingStateActions
+): ReducerResult<PlayingStates> => {
   switch (action.type) {
     case "declare_slam":
       if (isAfterFirstTurn(state, action)) {
@@ -141,7 +181,8 @@ export const PlayingGameStateReducer = (state: PlayingBoardState, action: Playin
         throw GameErrors.afterFirstTurn(action);
       }
       return showTrumpActionReducer(state, action);
-    case "play_card": return handlePlayCardAction(state, action);
+    case "play_card":
+      return handlePlayCardAction(state, action);
     default:
       throw GameErrors.invalidActionForGameState(action, state.name);
   }

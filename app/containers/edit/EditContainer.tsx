@@ -1,22 +1,22 @@
-import { Spinner } from '@blueprintjs/core';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { GameRecord } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { mergeContexts } from '../../app';
-import { GameForm } from '../../components/forms/GameForm';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Palantoaster, TIntent } from '../../components/toaster/Toaster';
-import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import history from '../../history';
-import { DynamicRoutes } from '../../routes';
-import { getSagaContext, SagaContextType, SagaRegistration } from '../../sagaProvider';
-import { Dispatchers } from '../../services/dispatchers';
-import { GameService } from '../../services/game';
-import { PlayersService } from '../../services/players';
-import { ReduxState } from '../../services/rootReducer';
-import { SagaListener } from '../../services/sagaListener';
-import { saveGameActions, SaveGameService } from '../../services/saveGame/index';
+import { Spinner } from "@blueprintjs/core";
+import React from "react";
+import { connect } from "react-redux";
+import { GameRecord } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { mergeContexts } from "../../App";
+import { GameForm } from "../../components/forms/GameForm";
+import { SpinnerOverlay } from "../../components/spinnerOverlay/SpinnerOverlay";
+import { Palantoaster, TIntent } from "../../components/toaster/Toaster";
+import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
+import history from "../../history";
+import { DynamicRoutes } from "../../routes";
+import { getSagaContext, SagaContextType, SagaRegistration } from "../../sagaProvider";
+import { Dispatchers } from "../../services/dispatchers";
+import { GameService } from "../../services/game";
+import { PlayersService } from "../../services/players";
+import { ReduxState } from "../../services/rootReducer";
+import { SagaListener } from "../../services/sagaListener";
+import { saveGameActions, SaveGameService } from "../../services/saveGame/index";
 
 interface OwnProps {
   match: {
@@ -41,7 +41,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     actionType: saveGameActions.success,
     callback: () => {
       Palantoaster.show({
-        message: 'Game ' + this.props.match.params.gameId + ' Updated Succesfully',
+        message: "Game " + this.props.match.params.gameId + " Updated Succesfully",
         intent: TIntent.SUCCESS,
       });
       history.push(DynamicRoutes.game(this.props.match.params.gameId));
@@ -51,7 +51,7 @@ export class Internal extends React.PureComponent<Props, {}> {
     actionType: saveGameActions.error,
     callback: () => {
       Palantoaster.show({
-        message: 'Server Error: Game was not updated correctly.',
+        message: "Server Error: Game was not updated correctly.",
         intent: TIntent.DANGER,
       });
     },
@@ -89,9 +89,9 @@ export class Internal extends React.PureComponent<Props, {}> {
 
   public render() {
     return (
-      <div className='enter-container page-container'>
-        <div className='title'>
-          <h1 className='bp3-heading'>Edit Game {this.props.match.params.gameId}</h1>
+      <div className="enter-container page-container">
+        <div className="title">
+          <h1 className="bp3-heading">Edit Game {this.props.match.params.gameId}</h1>
         </div>
         {this.renderContainer()}
       </div>
@@ -106,12 +106,7 @@ export class Internal extends React.PureComponent<Props, {}> {
       return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (players.value && game.value) {
       return (
-        <GameForm
-          game={game.value}
-          players={this.getPlayerList()!}
-          submitText='Update Game'
-          onSubmit={this.onSubmit}
-        />
+        <GameForm game={game.value} players={this.getPlayerList()!} submitText="Update Game" onSubmit={this.onSubmit} />
       );
     } else if (players.error) {
       return <p>Error loading players: {this.props.players.error}</p>;
@@ -123,7 +118,7 @@ export class Internal extends React.PureComponent<Props, {}> {
   private onSubmit = (newGame: GameRecord) => {
     // TODO: compare and block requests when there are no edits?
     this.dispatchers.saveGame.request(newGame);
-  }
+  };
 }
 
 const mapStateToProps = (state: ReduxState): StateProps => {
@@ -132,6 +127,6 @@ const mapStateToProps = (state: ReduxState): StateProps => {
     players: state.players,
     saveGame: state.saveGame,
   };
-}
+};
 
 export const EditContainer = connect(mapStateToProps)(Internal);

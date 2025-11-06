@@ -1,6 +1,6 @@
-import { Card, toCardString, TrumpCard } from "./Card";
-import { Action, SetDogAction, ShowTrumpAction } from "./GameEvents";
-import { Bid, BidValue, PlayerId } from "./GameState";
+import { type Card, toCardString, type TrumpCard } from "./Card";
+import { type Action, type SetDogAction, type ShowTrumpAction } from "./GameEvents";
+import { type Bid, BidValue, type PlayerId } from "./GameState";
 
 export const GameErrors = {
   invalidActionForGameState: (action: Action, state: string) => {
@@ -19,7 +19,9 @@ export const GameErrors = {
     return new Error(`Player ${player} cannot currently leave the game! They must unmark themselves as ready first.`);
   },
   playerNotReady: (player: PlayerId, players: PlayerId[]) => {
-    return new Error(`Player ${player} cannot unmark themselves as ready, because they weren't ready to start! ${players}`);
+    return new Error(
+      `Player ${player} cannot unmark themselves as ready, because they weren't ready to start! ${players}`
+    );
   },
   biddingOutOfTurn: (player: PlayerId, current: PlayerId) => {
     return new Error(`${player} cannot bid because it is currently ${current}'s turn.`);
@@ -37,7 +39,9 @@ export const GameErrors = {
     return new Error(`${player} cannot show trump twice!`);
   },
   invalidTrumpShow: (action: ShowTrumpAction, expected: TrumpCard[]) => {
-    return new Error(`Invalid trump show: Got ${action.cards.map(toCardString)}, expected ${expected.map(toCardString)}.`);
+    return new Error(
+      `Invalid trump show: Got ${action.cards.map(toCardString)}, expected ${expected.map(toCardString)}.`
+    );
   },
   notEnoughTrump: (trumps: number, needed: number) => {
     return new Error(`Not enough trump to show! You have ${trumps} but need ${needed}.`);
@@ -52,13 +56,19 @@ export const GameErrors = {
     return new Error(`Player ${taker} cannot exchange with the dog, as they are not ${bidder}!`);
   },
   setDogActionShouldBePrivate: (action: SetDogAction) => {
-    return new Error(`Setting dog should have 'privateTo' attribute set to the player, instead got ${action.privateTo}`);
+    return new Error(
+      `Setting dog should have 'privateTo' attribute set to the player, instead got ${action.privateTo}`
+    );
   },
   newDogWrongSize: (dog: Card[], expected: number) => {
     return new Error(`Proposed dog ${dog.map(toCardString)} does not have the expected number of cards, ${expected}.`);
   },
   newDogDoesntMatchHand: (dog: Card[], possible: Card[]) => {
-    return new Error(`Proposed dog ${dog.map(toCardString)} contains cards that are not in your hand or the dog: ${possible.map(toCardString)}.`);
+    return new Error(
+      `Proposed dog ${dog.map(toCardString)} contains cards that are not in your hand or the dog: ${possible.map(
+        toCardString
+      )}.`
+    );
   },
   afterFirstTurn: (action: Action) => {
     return new Error(`Cannot ${action.type}, as it is after this player's first turn.`);
@@ -67,12 +77,20 @@ export const GameErrors = {
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
   },
   cardNotInHand: (action: Action & { card: Card }, hand: Card[]) => {
-    return new Error(`Cannot conduct ${action.type} with ${toCardString(action.card)}, as requested card is not in the players hand! Hand contains ${hand.map(toCardString)}`);
+    return new Error(
+      `Cannot conduct ${action.type} with ${toCardString(
+        action.card
+      )}, as requested card is not in the players hand! Hand contains ${hand.map(toCardString)}`
+    );
   },
   cannotPlayCard: (card: Card, trick: Card[], allowable: Card[]) => {
-    return new Error(`Cannot play card ${toCardString(card)} into played cards ${trick.map(toCardString)}. You must play one of ${allowable.map(toCardString)}.`);
+    return new Error(
+      `Cannot play card ${toCardString(card)} into played cards ${trick.map(
+        toCardString
+      )}. You must play one of ${allowable.map(toCardString)}.`
+    );
   },
   cannotLeadCalledSuit: (card: Card, called: Card) => {
     return new Error(`Cannot play card ${toCardString(card)} first turn because you called ${toCardString(called)}.`);
   },
-}
+};

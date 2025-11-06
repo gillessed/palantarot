@@ -1,5 +1,5 @@
-import { PopoverInteractionKind, Position, Tooltip } from '@blueprintjs/core';
-import * as React from 'react';
+import { PopoverInteractionKind, Position, Tooltip } from "@blueprintjs/core";
+import React from "react";
 import { Card, RegValue, Suit, TrumpValue } from "../../../server/play/model/Card";
 import { getCardUrl } from "../../containers/play/svg/CardSvg";
 
@@ -28,7 +28,7 @@ function getRender(value: RegValue | TrumpValue, suit: Suit) {
 }
 
 function generateCardEmojis() {
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'V', 'C', 'D', 'R'] as RegValue[];
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "V", "C", "D", "R"] as RegValue[];
   for (const num of numbers) {
     const club: Emoji = {
       def: `c_${num}`.toLocaleLowerCase(),
@@ -67,13 +67,13 @@ export function parseMessageForEmojis(text: string) {
   const pieces = [];
   let lastPiece = 0;
   for (let i = 0; i < text.length; i++) {
-    if (text.charAt(i) !== ':' || i >= text.length - 2) {
+    if (text.charAt(i) !== ":" || i >= text.length - 2) {
       continue;
     }
     let emojiMatch = null;
     for (const emoji of Emojis) {
       const { def } = emoji;
-      if (text.substring(i + 1, i + 2 + def.length) === (def + ':')) {
+      if (text.substring(i + 1, i + 2 + def.length) === def + ":") {
         emojiMatch = emoji;
         break;
       }
@@ -96,18 +96,28 @@ export function parseMessageForEmojis(text: string) {
 
 export function getEmojiStringFromCard(card: Card): string {
   const [suit, value] = card;
-  let suitString = '';
+  let suitString = "";
   switch (suit) {
-    case Suit.Club: suitString = 'c'; break;
-    case Suit.Diamond: suitString = 'd'; break;
-    case Suit.Heart: suitString = 'h'; break;
-    case Suit.Spade: suitString = 's'; break;
-    case Suit.Trump: suitString = 't'; break;
+    case Suit.Club:
+      suitString = "c";
+      break;
+    case Suit.Diamond:
+      suitString = "d";
+      break;
+    case Suit.Heart:
+      suitString = "h";
+      break;
+    case Suit.Spade:
+      suitString = "s";
+      break;
+    case Suit.Trump:
+      suitString = "t";
+      break;
   }
-  let valueString = '';
+  let valueString = "";
   if (suit === Suit.Trump) {
     if (value === TrumpValue.Joker) {
-      valueString = 'j';
+      valueString = "j";
     } else {
       valueString = `${value}`;
     }

@@ -1,12 +1,18 @@
-import { GameErrors } from '../GameErrors';
-import { BoardReducer, CompletedBoardState, CompletedStateActions, GameplayState, ReducerResult } from "../GameState";
-import { BiddingGameStateReducer } from './BiddingGameStateReducer';
-import { DogRevealGameStateReducer } from './DogRevealGameStateReducer';
-import { NewGameStateReducer } from './NewGameStateReducer';
-import { PartnerCallGameStateReducer } from './PartnerCallGameStateReducer';
-import { PlayingGameStateReducer } from './PlayingGameStateReducer';
+import { GameErrors } from "../GameErrors";
+import {
+  type BoardReducer,
+  type CompletedBoardState,
+  type CompletedStateActions,
+  GameplayState,
+  type ReducerResult,
+} from "../GameState";
+import { BiddingGameStateReducer } from "./BiddingGameStateReducer";
+import { DogRevealGameStateReducer } from "./DogRevealGameStateReducer";
+import { NewGameStateReducer } from "./NewGameStateReducer";
+import { PartnerCallGameStateReducer } from "./PartnerCallGameStateReducer";
+import { PlayingGameStateReducer } from "./PlayingGameStateReducer";
 
-export type GameReducerMap = { [state: string]: BoardReducer<any, any, any> }
+export type GameReducerMap = { [state: string]: BoardReducer<any, any, any> };
 
 export function buildGameStateReducer(): GameReducerMap {
   return {
@@ -19,6 +25,9 @@ export function buildGameStateReducer(): GameReducerMap {
   };
 }
 
-export const CompletedGameStateReducer = (state: CompletedBoardState, action: CompletedStateActions): ReducerResult<CompletedBoardState> => {
+export const CompletedGameStateReducer = (
+  state: CompletedBoardState,
+  action: CompletedStateActions
+): ReducerResult<CompletedBoardState> => {
   throw GameErrors.invalidActionForGameState(action, state.name);
 };

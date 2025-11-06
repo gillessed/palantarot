@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { StatsService } from '../../../services/stats/index';
-import { SpinnerOverlay } from '../../../components/spinnerOverlay/SpinnerOverlay';
-import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from '../../../../server/model/Stats';
-import { IMonth } from '../../../../server/model/Month';
-import { chop } from '../../../../server/utils/index';
-import { PlayerWinPercentagesTableRow } from '../winPercentages/PlayerWinPercentagesTableRow';
-import { Spinner } from '@blueprintjs/core';
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { StatsService } from "../../../services/stats/index";
+import { SpinnerOverlay } from "../../../components/spinnerOverlay/SpinnerOverlay";
+import { AggregatedStats, AggregatedStat, StatAverage, getAverages } from "../../../../server/model/Stats";
+import { IMonth } from "../../../../server/model/Month";
+import { chop } from "../../../../server/utils/index";
+import { PlayerWinPercentagesTableRow } from "../winPercentages/PlayerWinPercentagesTableRow";
+import { Spinner } from "@blueprintjs/core";
 
 interface Props {
   player: Player;
@@ -14,11 +14,10 @@ interface Props {
 }
 
 export class PlayerStatsTab extends React.PureComponent<Props, {}> {
-
   public render() {
     const stats = this.props.stats;
     if (stats.loading) {
-      return <SpinnerOverlay size={Spinner.SIZE_LARGE}/>;
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else if (stats.value) {
       return this.renderContainer(stats.value);
     } else if (stats.error) {
@@ -31,12 +30,12 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
   public renderContainer(stats: AggregatedStats) {
     const playerStats = stats
       .filter((stat) => stat.playerId === this.props.player.id)
-      .sort(IMonth.comparator((stat: AggregatedStat) => stat.month, 'desc'));
+      .sort(IMonth.comparator((stat: AggregatedStat) => stat.month, "desc"));
     const averages = getAverages(playerStats);
 
     return (
-      <div className='table-container'>
-        <table className='player-stats-table pt-html-table pt-html-table-bordered'>
+      <div className="table-container">
+        <table className="player-stats-table pt-html-table pt-html-table-bordered">
           <thead>
             <tr>
               <th>Role</th>
@@ -62,7 +61,7 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
           </thead>
           <tbody>
             <tr>
-              <td className='averages'>Averages</td>
+              <td className="averages">Averages</td>
               {this.renderAveragePer(averages.allRoles)}
               {this.renderAverageWin(averages.allRoles)}
               {this.renderStatRate(averages.bidder)}
@@ -75,12 +74,9 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
               {this.renderAveragePer(averages.opposition)}
               {this.renderAverageWin(averages.opposition)}
             </tr>
-            {playerStats.map((stat) => 
-              <PlayerWinPercentagesTableRow
-                stat={stat}
-                averages={averages}
-                key={stat.month.getHumanReadableString()}
-              />)}
+            {playerStats.map((stat) => (
+              <PlayerWinPercentagesTableRow stat={stat} averages={averages} key={stat.month.getHumanReadableString()} />
+            ))}
           </tbody>
         </table>
       </div>
@@ -91,23 +87,23 @@ export class PlayerStatsTab extends React.PureComponent<Props, {}> {
     if (average && average.per !== undefined) {
       return <td>{chop(average.per * 100, 1)}%</td>;
     } else {
-      return <td className='not-applicable'>N/A</td>;
+      return <td className="not-applicable">N/A</td>;
     }
   }
-  
+
   private renderAverageWin(average?: StatAverage) {
     if (average && average.win !== undefined) {
       return <td>+{chop(average.win, 1)}</td>;
     } else {
-      return <td className='not-applicable'>N/A</td>;
+      return <td className="not-applicable">N/A</td>;
     }
   }
-  
+
   private renderStatRate(average?: StatAverage) {
     if (average && average.rate !== undefined) {
       return <td>{chop(average.rate * 100, 1)}%</td>;
     } else {
-      return <td className='not-applicable'>N/A</td>;
+      return <td className="not-applicable">N/A</td>;
     }
   }
 }

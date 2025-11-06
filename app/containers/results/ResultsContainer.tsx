@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { IMonth } from '../../../server/model/Month';
-import moment from 'moment';
-import { Button } from '@blueprintjs/core';
-import { ResultsTabs } from './ResultsTabs';
-import { pageCache } from '../pageCache/PageCache';
+import React from "react";
+import { IMonth } from "../../../server/model/Month";
+import moment from "moment";
+import { Button } from "@blueprintjs/core";
+import { ResultsTabs } from "./ResultsTabs";
+import { pageCache } from "../pageCache/PageCache";
 
 interface State {
-  month: IMonth,
+  month: IMonth;
 }
 
 class ResultsContainerInternal extends React.PureComponent<{}, State> {
@@ -19,26 +19,17 @@ class ResultsContainerInternal extends React.PureComponent<{}, State> {
 
   public render() {
     return (
-      <div className='results-container page-container'>
-        <div className='results-header'>
-          <Button
-            icon='chevron-left'
-            large
-            onClick={this.previousMonth}
-          />
-          <div className='title'>
-            <h1 className='bp3-heading' style={{textAlign: 'center'}}>
+      <div className="results-container page-container">
+        <div className="results-header">
+          <Button icon="chevron-left" large onClick={this.previousMonth} />
+          <div className="title">
+            <h1 className="bp3-heading" style={{ textAlign: "center" }}>
               Results for {this.state.month.getHumanReadableString()}
             </h1>
           </div>
-          <Button
-            icon='chevron-right'
-            large
-            onClick={this.nextMonth}
-            disabled={this.isCurrentMonth()}
-          />
+          <Button icon="chevron-right" large onClick={this.nextMonth} disabled={this.isCurrentMonth()} />
         </div>
-        <ResultsTabs results={this.state.month} month={this.state.month}/>
+        <ResultsTabs results={this.state.month} month={this.state.month} />
       </div>
     );
   }
@@ -51,7 +42,7 @@ class ResultsContainerInternal extends React.PureComponent<{}, State> {
     this.setState({
       month: this.state.month.previous(),
     });
-  }
+  };
 
   private nextMonth = () => {
     if (this.isCurrentMonth()) {
@@ -60,7 +51,7 @@ class ResultsContainerInternal extends React.PureComponent<{}, State> {
     this.setState({
       month: this.state.month.next(),
     });
-  }
+  };
 }
 
 export const ResultsContainer = pageCache(ResultsContainerInternal);

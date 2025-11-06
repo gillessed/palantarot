@@ -1,7 +1,7 @@
-import { PlayerEvent } from '../model/GameEvents';
-import { GameSettings } from '../model/GameSettings';
-import { ChatText } from './ChatText';
-import { PlayerStatus } from './PlayerStatus';
+import { type PlayerEvent } from "../model/GameEvents";
+import { type GameSettings } from "../model/GameSettings";
+import { type ChatText } from "./ChatText";
+import { PlayerStatus } from "./PlayerStatus";
 
 export interface RoomStatus {
   id: string;

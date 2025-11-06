@@ -1,12 +1,20 @@
-import { Button, Intent } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import * as React from 'react';
-import { Player } from '../../../server/model/Player';
-import { emptyPlayerQuery, emptySearchQuery, PlayerQuery, SearchQuery, emptyScoreQuery, ScoreQuery, isQueryEmpty } from '../../../server/model/Search';
-import { PlayerQueryComponent } from './PlayerQueryComponent';
-import { ScoreQueryComponent } from './ScoreQueryComponent';
-import { BidQueryComponent } from './BidQueryComponent';
-import { PlayerCountQueryComponent } from './PlayerCountQueryComponent';
+import { Button, Intent } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import React from "react";
+import { Player } from "../../../server/model/Player";
+import {
+  emptyPlayerQuery,
+  emptySearchQuery,
+  PlayerQuery,
+  SearchQuery,
+  emptyScoreQuery,
+  ScoreQuery,
+  isQueryEmpty,
+} from "../../../server/model/Search";
+import { PlayerQueryComponent } from "./PlayerQueryComponent";
+import { ScoreQueryComponent } from "./ScoreQueryComponent";
+import { BidQueryComponent } from "./BidQueryComponent";
+import { PlayerCountQueryComponent } from "./PlayerCountQueryComponent";
 
 export namespace SearchForm {
   export interface Props {
@@ -26,42 +34,39 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
 
   public render() {
     return (
-      <div className='search-form'>
-        <div className='section-header'>
+      <div className="search-form">
+        <div className="section-header">
           <h2> Players </h2>
           <Button icon={IconNames.PLUS} minimal onClick={this.onNewPlayerQuery} />
         </div>
         {this.state.query.playerQueries.map(this.renderPlayerQueries)}
-        <div className='section-header'>
+        <div className="section-header">
           <h2> Score </h2>
           <Button icon={IconNames.PLUS} minimal onClick={this.onNewScoreQuery} />
         </div>
         {this.state.query.scoreQueries.map(this.renderScoreQueries)}
-        <div className='section-header'>
+        <div className="section-header">
           <h2> Bid Amount </h2>
         </div>
-        <div className='bid-query-container'>
-          <BidQueryComponent
-            bidQuery={this.state.query.bidQuery}
-            onChange={this.handleBidQueryChanged}
-          />
+        <div className="bid-query-container">
+          <BidQueryComponent bidQuery={this.state.query.bidQuery} onChange={this.handleBidQueryChanged} />
         </div>
-        <div className='section-header'>
+        <div className="section-header">
           <h2> Number of Players </h2>
         </div>
-        <div className='bid-query-container'>
+        <div className="bid-query-container">
           <PlayerCountQueryComponent
             numberOfPlayers={this.state.query.numberOfPlayers}
             onChange={this.handlePlayerCountQueryChanged}
           />
         </div>
-        <div className='section-header'>
+        <div className="section-header">
           <h2> Date Range </h2>
         </div>
         <span>Not ready yet...</span>
-        <div className='button-row'>
+        <div className="button-row">
           <Button
-            text='Search'
+            text="Search"
             onClick={this.handleSearch}
             disabled={isQueryEmpty(this.state.query)}
             large
@@ -81,7 +86,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         playerQueries: [...this.state.query.playerQueries, emptyPlayerQuery(firstPlayer.value.id)],
       },
     });
-  }
+  };
 
   public renderPlayerQueries = (query: PlayerQuery, index: number) => {
     return (
@@ -94,7 +99,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         onDelete={this.handleDeletePlayerQuery}
       />
     );
-  }
+  };
 
   public handlePlayerQueryChange = (query: PlayerQuery, index: number) => {
     const newQueries = [...this.state.query.playerQueries];
@@ -105,7 +110,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         playerQueries: newQueries,
       },
     });
-  }
+  };
 
   public handleDeletePlayerQuery = (index: number) => {
     const newQueries = [...this.state.query.playerQueries];
@@ -116,7 +121,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         playerQueries: newQueries,
       },
     });
-  }
+  };
 
   public onNewScoreQuery = () => {
     this.setState({
@@ -125,7 +130,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         scoreQueries: [...this.state.query.scoreQueries, emptyScoreQuery()],
       },
     });
-  }
+  };
 
   public renderScoreQueries = (query: ScoreQuery, index: number) => {
     return (
@@ -137,7 +142,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         onDelete={this.handleDeleteScoreQuery}
       />
     );
-  }
+  };
 
   public handleScoreQueryChange = (query: ScoreQuery, index: number) => {
     const newQueries = [...this.state.query.scoreQueries];
@@ -148,7 +153,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         scoreQueries: newQueries,
       },
     });
-  }
+  };
 
   public handleDeleteScoreQuery = (index: number) => {
     const newQueries = [...this.state.query.scoreQueries];
@@ -159,7 +164,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         scoreQueries: newQueries,
       },
     });
-  }
+  };
 
   public handleBidQueryChanged = (bidQuery: number[]) => {
     this.setState({
@@ -168,7 +173,7 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         bidQuery,
       },
     });
-  }
+  };
 
   public handlePlayerCountQueryChanged = (numberOfPlayers: number[]) => {
     this.setState({
@@ -177,9 +182,9 @@ export class SearchForm extends React.PureComponent<SearchForm.Props, SearchForm
         numberOfPlayers,
       },
     });
-  }
+  };
 
   public handleSearch = () => {
     this.props.onSubmit(this.state.query);
-  }
+  };
 }

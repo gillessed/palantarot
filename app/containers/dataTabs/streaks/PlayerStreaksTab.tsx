@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { loadContainer } from '../../LoadingContainer';
-import { streaksLoader } from '../../../services/streaks/index';
-import { Streak } from '../../../../server/model/Streak';
-import { createSelector } from 'reselect';
+import React from "react";
+import { loadContainer } from "../../LoadingContainer";
+import { streaksLoader } from "../../../services/streaks/index";
+import { Streak } from "../../../../server/model/Streak";
+import { createSelector } from "reselect";
 
 interface Props {
   playerId: string;
@@ -10,7 +10,6 @@ interface Props {
 }
 
 class PlayerStreaksTabInternal extends React.PureComponent<Props, {}> {
-
   private winStreakSelector = createSelector(
     (props: Props) => `${props.playerId}`,
     (props: Props) => props.streaks,
@@ -35,17 +34,17 @@ class PlayerStreaksTabInternal extends React.PureComponent<Props, {}> {
     const winStreak = this.winStreakSelector(this.props);
     const lossStreak = this.lossStreakSelector(this.props);
     return (
-      <div className='player-streaks-container'>
-        <h3 className='bp3-heading'> Longest Streaks </h3>
+      <div className="player-streaks-container">
+        <h3 className="bp3-heading"> Longest Streaks </h3>
         <p>
-          <span className='bold'>Longest Win Streak: </span>
+          <span className="bold">Longest Win Streak: </span>
           {winStreak && winStreak.gameCount}
-          {!winStreak && 'N/A'}
+          {!winStreak && "N/A"}
         </p>
         <p>
-          <span className='bold'>Longest Loss Streak: </span>
+          <span className="bold">Longest Loss Streak: </span>
           {lossStreak && lossStreak.gameCount}
-          {!lossStreak && 'N/A'}
+          {!lossStreak && "N/A"}
         </p>
       </div>
     );

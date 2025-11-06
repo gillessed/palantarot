@@ -1,18 +1,17 @@
-import { Button, HTMLTable, Icon, Intent } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import classNames from 'classnames';
-import * as React from 'react';
-import { Role } from '../../../../server/model/Result';
-import { CompletedGameState, Outcome, PlayerId } from '../../../../server/play/model/GameState';
-import { getPlayerName } from '../../../services/players/playerName';
-import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { ActionButton } from '../svg/ActionButton';
-import { getCardUrl } from '../svg/CardSvg';
-import { StatusOverlay } from '../svg/StatusOverlay';
-import { TrickSvg } from '../svg/TrickSvg';
-import './CompletedGameStateView.scss';
-import { StateViewProps } from './StateViewProps';
-
+import { Button, HTMLTable, Icon, Intent } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import classNames from "classnames";
+import React from "react";
+import { Role } from "../../../../server/model/Result";
+import { CompletedGameState, Outcome, PlayerId } from "../../../../server/play/model/GameState";
+import { getPlayerName } from "../../../services/players/playerName";
+import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
+import { ActionButton } from "../svg/ActionButton";
+import { getCardUrl } from "../svg/CardSvg";
+import { StatusOverlay } from "../svg/StatusOverlay";
+import { TrickSvg } from "../svg/TrickSvg";
+import "./CompletedGameStateView.scss";
+import { StateViewProps } from "./StateViewProps";
 
 type Props = StateViewProps;
 
@@ -24,7 +23,7 @@ type Result = {
   player: PlayerId;
   role: Role;
   points: number;
-}
+};
 const InsetX = 300;
 
 export class CompletedStateView extends React.PureComponent<Props, State> {
@@ -38,7 +37,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     const { playerId } = game;
     const { scoreViewOpen } = this.state;
     const isParticipant = ClientGameSelectors.isParticipant(game);
-    let text = 'The game is over. ';
+    let text = "The game is over. ";
     let won: boolean | null = null;
     if (endState) {
       if (endState.bidderWon) {
@@ -48,80 +47,71 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
       }
     }
     if (won === true) {
-      text += 'You have won.';
+      text += "You have won.";
     } else if (won === false) {
-      text += 'You have lost.';
+      text += "You have lost.";
     }
 
-    const buttony = Math.max(
-      height * 0.85,
-      height * 0.6 + 300);
+    const buttony = Math.max(height * 0.85, height * 0.6 + 300);
 
-    return (<g className='playing-state-view'>
-      <StatusOverlay {...this.props} />
-      <TrickSvg {...this.props} />
-      {endState && isParticipant && <text
-        className='completed-game-message'
-        x={width / 2}
-        y={buttony - 80}
-        textAnchor='middle'
-      >
-        {text}
-      </text>}
-      {endState && <ActionButton
-        x={width / 2 - 130}
-        y={buttony}
-        width={240}
-        height={80}
-        text='Show Score'
-        onClick={this.openScoreView}
-      />}
-      {endState && <ActionButton
-        x={width / 2 + 130}
-        y={buttony}
-        width={240}
-        height={80}
-        text='Go To Next Game'
-        onClick={this.goToNextGame}
-      />}
-      {endState && scoreViewOpen && this.renderEndState(endState)}
-      {/* TODO: (gcole) render other end state: all passes. */}
-    </g>);
+    return (
+      <g className="playing-state-view">
+        <StatusOverlay {...this.props} />
+        <TrickSvg {...this.props} />
+        {endState && isParticipant && (
+          <text className="completed-game-message" x={width / 2} y={buttony - 80} textAnchor="middle">
+            {text}
+          </text>
+        )}
+        {endState && (
+          <ActionButton
+            x={width / 2 - 130}
+            y={buttony}
+            width={240}
+            height={80}
+            text="Show Score"
+            onClick={this.openScoreView}
+          />
+        )}
+        {endState && (
+          <ActionButton
+            x={width / 2 + 130}
+            y={buttony}
+            width={240}
+            height={80}
+            text="Go To Next Game"
+            onClick={this.goToNextGame}
+          />
+        )}
+        {endState && scoreViewOpen && this.renderEndState(endState)}
+        {/* TODO: (gcole) render other end state: all passes. */}
+      </g>
+    );
   }
 
   private renderEndState = (endState: CompletedGameState) => {
     const { width, height } = this.props;
-    const InsetY = InsetX / width * height;
+    const InsetY = (InsetX / width) * height;
     const iw = Math.max(1200, width - 2 * InsetX);
     const ih = Math.max(600, height - 2 * InsetY);
     const ix = (width - iw) / 2;
     const iy = (height - ih) / 2;
     return (
-      <foreignObject
-        x={ix}
-        y={iy}
-        width={iw}
-        height={ih}
-      >
-        <div className='score-view'>
+      <foreignObject x={ix} y={iy} width={iw} height={ih}>
+        <div className="score-view">
           <Button
-            className='close-button'
+            className="close-button"
             intent={Intent.PRIMARY}
             icon={IconNames.SMALL_CROSS}
             onClick={this.closeScoreView}
           />
           {this.renderScoreTable(endState)}
-          <div className='dog-and-results'>
-            <div className='dog-view'>
-              <span className='dog-text unselectable'>Dog</span>
-              <div className='dog-cards'>
+          <div className="dog-and-results">
+            <div className="dog-view">
+              <span className="dog-text unselectable">Dog</span>
+              <div className="dog-cards">
                 {endState.dog.map((card) => {
-                  return (
-                    <img
-                      key={`${card[0]}|${card[1]}`}
-                      src={getCardUrl(card)}
-                    />
-                  );
+                  return <img key={`${card[0]}|${card[1]}`} src={getCardUrl(card)} />;
                 })}
               </div>
             </div>
@@ -130,7 +120,7 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
         </div>
       </foreignObject>
     );
-  }
+  };
 
   private renderScoreTable(endState: CompletedGameState) {
     const thresholds = [56, 51, 41, 36];
@@ -140,16 +130,16 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
         oneLastPlayer = endState.players[i];
       }
     }
-    const oneLastPoints = oneLastPlayer === undefined ? 0
-      : oneLastPlayer === endState.bidder ? 10
-        : oneLastPlayer === endState.partner ? 10
-          : -10;
+    const oneLastPoints =
+      oneLastPlayer === undefined
+        ? 0
+        : oneLastPlayer === endState.bidder
+        ? 10
+        : oneLastPlayer === endState.partner
+        ? 10
+        : -10;
     return (
-      <HTMLTable
-        bordered
-        striped
-        className='score-table'
-      >
+      <HTMLTable bordered striped className="score-table">
         <thead>
           <tr>
             <th></th>
@@ -204,22 +194,27 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     const playerOrder: string[] = [state.bidder];
     const rest = new Set(state.players);
     rest.delete(state.bidder);
-    const multiplier = state.players.length === 3 ? 2 :
-      state.players.length === 4 ? 3 :
-        state.players.length === 5 && state.partner !== state.bidder ? 2 :
-          4;
+    const multiplier =
+      state.players.length === 3
+        ? 2
+        : state.players.length === 4
+        ? 3
+        : state.players.length === 5 && state.partner !== state.bidder
+        ? 2
+        : 4;
     if (state.partner && state.partner !== state.bidder) {
       playerOrder.push(state.partner);
       rest.delete(state.partner);
     }
     playerOrder.push(...rest);
     for (const player of playerOrder) {
-      const role = player === state.bidder ? Role.BIDDER :
-        player === state.partner ? Role.PARTNER :
-          Role.OPPOSITION;
-      const points = role === Role.BIDDER ? multiplier * state.pointsResult :
-        role === Role.PARTNER ? state.pointsResult :
-          -state.pointsResult;
+      const role = player === state.bidder ? Role.BIDDER : player === state.partner ? Role.PARTNER : Role.OPPOSITION;
+      const points =
+        role === Role.BIDDER
+          ? multiplier * state.pointsResult
+          : role === Role.PARTNER
+          ? state.pointsResult
+          : -state.pointsResult;
       results.push({
         player,
         role,
@@ -227,41 +222,29 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
       });
     }
     return (
-      <div className='results-view'>
-        <div className='result-view-internal'>
+      <div className="results-view">
+        <div className="result-view-internal">
           {results.map((result, index) => {
-            const pointsClasses = classNames('points-earned unselectable', {
-              'plus': result.points >= 0,
-              'minus': result.points < 0,
+            const pointsClasses = classNames("points-earned unselectable", {
+              plus: result.points >= 0,
+              minus: result.points < 0,
             });
             const player = players.get(result.player);
             const playerName = getPlayerName(player);
             return (
               <React.Fragment key={index}>
-                <div className='result-separator' key={`separator-${index}`} />
-                <div className='player-result' key={`result-${index}`}>
-                  {result.role === Role.BIDDER && <Icon
-                    icon={IconNames.CROWN}
-                    iconSize={30}
-                    color='#FFC940'
-                  />}
-                  {result.role === Role.PARTNER && <Icon
-                    icon={IconNames.PERSON}
-                    iconSize={30}
-                    color='#FFC940'
-                  />}
-                  {result.role === Role.OPPOSITION && <Icon
-                    icon={IconNames.PEOPLE}
-                    iconSize={30}
-                    color='#C274C2'
-                  />}
-                  <span className='unselectable'>{playerName}</span>
+                <div className="result-separator" key={`separator-${index}`} />
+                <div className="player-result" key={`result-${index}`}>
+                  {result.role === Role.BIDDER && <Icon icon={IconNames.CROWN} iconSize={30} color="#FFC940" />}
+                  {result.role === Role.PARTNER && <Icon icon={IconNames.PERSON} iconSize={30} color="#FFC940" />}
+                  {result.role === Role.OPPOSITION && <Icon icon={IconNames.PEOPLE} iconSize={30} color="#C274C2" />}
+                  <span className="unselectable">{playerName}</span>
                   <span className={pointsClasses}>{result.points}</span>
                 </div>
-              </React.Fragment >
+              </React.Fragment>
             );
           })}
-          <div className='result-separator' />
+          <div className="result-separator" />
         </div>
       </div>
     );
@@ -271,22 +254,22 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     this.setState({
       scoreViewOpen: false,
     });
-  }
+  };
 
   private openScoreView = () => {
     this.setState({
       scoreViewOpen: true,
     });
-  }
+  };
 
   private goToNextGame = () => {
     this.props.dispatchers.room.goToNextGame();
-  }
+  };
 }
 
 function getPointsEearned(dif: number) {
   const negative = dif < 0;
   const x = Math.abs(dif) + 9.9;
-  const y = x - x % 10;
+  const y = x - (x % 10);
   return negative ? -y : y;
 }

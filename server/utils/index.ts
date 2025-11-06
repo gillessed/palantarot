@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import moment from "moment-timezone";
 
 export function objectToMap<T>(object: any) {
   if (!object) {
@@ -11,18 +11,18 @@ export function objectToMap<T>(object: any) {
   return map;
 }
 
-export function mapToObject<T>(map: Map<string, T>): {[key: string]: T} {
+export function mapToObject<T>(map: Map<string, T>): { [key: string]: T } {
   if (!map) {
     return {};
   }
-  const object: {[key: string]: T} = {};
+  const object: { [key: string]: T } = {};
   map.forEach((value: T, key: string) => {
     object[key] = value;
   });
   return object;
 }
 
-export function mapFromCollection(collection: any[], keyName: string): Map<string, any> {
+export function mapFromCollection<T>(collection: T[], keyName: keyof T): Map<string, T> {
   const map = new Map<string, any>();
   for (const item of collection) {
     map.set(item[keyName], item);
@@ -31,11 +31,11 @@ export function mapFromCollection(collection: any[], keyName: string): Map<strin
 }
 
 export function camelCaseToTitle(str: string) {
-  return str.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+  return str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 }
 
 export function curry<ARG1, ARG2, RESULT>(
-  func: (arg1: ARG1, arg2: ARG2) => RESULT,
+  func: (arg1: ARG1, arg2: ARG2) => RESULT
 ): (arg1: ARG1) => (arg2: ARG2) => RESULT {
   return (arg1: ARG1) => {
     return (arg2: ARG2) => {
@@ -48,17 +48,17 @@ export function encodeQueryData(data: { [key: string]: any }) {
   const ret = [];
   for (const d in data) {
     if (!data[d]) continue;
-    ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+    ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
   }
-  return '?' + ret.join('&');
+  return "?" + ret.join("&");
 }
 
 export function randomString(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 export function formatTimestamp(timestamp: string) {
-    return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
+  return moment(timestamp).format("YYYY-MM-DD HH:mm:ss");
 }
 
 export function pTimeout(ms: number) {
@@ -68,7 +68,6 @@ export function pTimeout(ms: number) {
     }, ms);
   });
 }
-
 
 interface MaxObj<T> {
   obj: T;
@@ -85,25 +84,21 @@ export function arrayMax<T>(array: T[], max: (t: T) => number): T | undefined {
   return maxObj ? maxObj.obj : undefined;
 }
 
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = "asc" | "desc";
 export type Comparator<T> = (t1: T, T2: T) => number;
 
-export function integerComparator<T>(
-    map: (t: T) => number,
-    order: SortOrder,
-    fallback?: Comparator<T>,
-): Comparator<T> {
+export function integerComparator<T>(map: (t: T) => number, order: SortOrder, fallback?: Comparator<T>): Comparator<T> {
   return (t1: T, t2: T) => {
     const n1 = map(t1);
     const n2 = map(t2);
     if (n1 < n2) {
-      if (order === 'asc') {
+      if (order === "asc") {
         return -1;
       } else {
         return 1;
       }
     } else if (n1 > n2) {
-      if (order === 'asc') {
+      if (order === "asc") {
         return 1;
       } else {
         return -1;

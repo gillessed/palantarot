@@ -1,19 +1,34 @@
 import { filter, isEqual, remove } from "lodash";
-import { isBout, Bout, Card, Suit, TheJoker, TheOne, TrumpValue } from "./Card";
-import { cardsContain, getCardPoint } from './CardUtils';
-import { BidValue, Call, CompletedTrick, JokerExchangeState, Outcome, PlayerId, ShowTrumpState } from "./GameState";
+import { type Bout, type Card, isBout, TheJoker, TheOne } from "./Card";
+import { cardsContain, getCardPoint } from "./CardUtils";
+import {
+  BidValue,
+  Call,
+  type CompletedTrick,
+  type JokerExchangeState,
+  Outcome,
+  type PlayerId,
+  type ShowTrumpState,
+} from "./GameState";
 
 export interface Earnings {
   pointsEarned: number;
   bouts: Bout[];
 }
 
-export const getEarnings = (biddingTeam: PlayerId[], tricks: CompletedTrick[], bid: BidValue, dog: Card[], jokerState?: JokerExchangeState): Earnings => {
+export const getEarnings = (
+  biddingTeam: PlayerId[],
+  tricks: CompletedTrick[],
+  bid: BidValue,
+  dog: Card[],
+  jokerState?: JokerExchangeState
+): Earnings => {
   const cardsWon = [];
   // we only track cards lost for joker exchange
   const cardsLost = [];
   for (const trick of tricks) {
-    if (biddingTeam.indexOf(trick.winner) > -1) { // bidding team won
+    if (biddingTeam.indexOf(trick.winner) > -1) {
+      // bidding team won
       cardsWon.push(...trick.cards);
     } else {
       cardsLost.push(...trick.cards);
@@ -23,14 +38,16 @@ export const getEarnings = (biddingTeam: PlayerId[], tricks: CompletedTrick[], b
   let pointsEarned = cardsWon.map(getCardPoint).reduce((a, b) => a + b, 0);
 
   if (jokerState) {
-    if ((biddingTeam.indexOf(jokerState.player) > -1) !== (biddingTeam.indexOf(jokerState.owed_to) > -1)) {
-      if (biddingTeam.indexOf(jokerState.player) > -1) { // joker played by bidder/partner, need to swap it back
+    if (biddingTeam.indexOf(jokerState.player) > -1 !== biddingTeam.indexOf(jokerState.owed_to) > -1) {
+      if (biddingTeam.indexOf(jokerState.player) > -1) {
+        // joker played by bidder/partner, need to swap it back
         if (cardsWon.length > 0) {
           cardsWon.push(TheJoker);
           // trade half point card for 4.5 point card
           pointsEarned += 4;
         }
-      } else { // joker played by opposition, need to swap it back
+      } else {
+        // joker played by opposition, need to swap it back
         if (cardsLost.length > 0) {
           remove(cardsWon, (card) => isEqual(card, TheJoker));
           // trade 4.5 point card for half point card
@@ -43,13 +60,13 @@ export const getEarnings = (biddingTeam: PlayerId[], tricks: CompletedTrick[], b
   const dogPoints = dog.map(getCardPoint).reduce((a, b) => a + b, 0);
   if (bid !== BidValue.ONESIXTY) {
     pointsEarned += dogPoints;
-    bouts.push(...filter(dog, (card): card is Bout => isBout(card)))
+    bouts.push(...filter(dog, (card): card is Bout => isBout(card)));
   }
   return {
     pointsEarned,
     bouts,
-  }
-}
+  };
+};
 
 export const getBaseScore = (bid: BidValue, earnings: Earnings): number => {
   const neededToWin = [56, 51, 41, 36][earnings.bouts.length];
@@ -58,27 +75,24 @@ export const getBaseScore = (bid: BidValue, earnings: Earnings): number => {
   const bidderWon = earnings.pointsEarned >= neededToWin;
   baseScore *= bidderWon ? 1 : -1;
   return baseScore;
-}
-
+};
 
 export const getOutcomes = (
   players: PlayerId[],
   biddingTeam: PlayerId[],
-  tricks: CompletedTrick[],
+  tricks: CompletedTrick[]
 ): { [player: number]: Outcome[] } => {
   const outcomes: { [player: number]: Outcome[] } = {};
 
-  const tricks_won = tricks
-    .filter((trick) => biddingTeam.indexOf(trick.winner) > -1)
-    .length;
+  const tricks_won = tricks.filter((trick) => biddingTeam.indexOf(trick.winner) > -1).length;
   if (tricks_won === tricks.length) {
     for (const player of biddingTeam) {
-      outcomes[players.indexOf(player)] = [Outcome.SLAMMED]
+      outcomes[players.indexOf(player)] = [Outcome.SLAMMED];
     }
   } else if (tricks_won === 0) {
     for (const player_num of players.keys()) {
       if (biddingTeam.indexOf(players[player_num]) === -1) {
-        outcomes[player_num] = [Outcome.SLAMMED]
+        outcomes[player_num] = [Outcome.SLAMMED];
       }
     }
   }
@@ -86,13 +100,13 @@ export const getOutcomes = (
   if (cardsContain(tricks[tricks.length - 1].cards, TheOne)) {
     const one_last = players.indexOf(tricks[tricks.length - 1].winner);
     if (outcomes[one_last] === undefined) {
-      outcomes[one_last] = []
+      outcomes[one_last] = [];
     }
     outcomes[one_last].push(Outcome.ONE_LAST);
   }
 
   return outcomes;
-}
+};
 
 export interface FinalScore {
   pointsEarned: number;
@@ -108,7 +122,7 @@ export const getFinalScore = (
   baseScore: number,
   shows: ShowTrumpState,
   calls: { [player: number]: Call[] },
-  outcomes: { [player: number]: Outcome[] },
+  outcomes: { [player: number]: Outcome[] }
 ): FinalScore => {
   let bidderWon = Math.sign(baseScore) > 0;
   let pointsResult = baseScore;
@@ -144,5 +158,5 @@ export const getFinalScore = (
     bouts: earnings.bouts,
     bidderWon,
     pointsResult,
-  }
-}
+  };
+};

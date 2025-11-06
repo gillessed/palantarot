@@ -1,6 +1,6 @@
-import { Classes } from '@blueprintjs/core';
-import * as React from 'react';
-import { PlayerOperator } from '../../../server/model/Search';
+import { Classes } from "@blueprintjs/core";
+import React from "react";
+import { PlayerOperator } from "../../../server/model/Search";
 
 export namespace PlayerOperatorComponent {
   export interface Props {
@@ -23,5 +23,5 @@ export class PlayerOperatorComponent extends React.PureComponent<PlayerOperatorC
 
   public onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     this.props.onChange(event.currentTarget.value as PlayerOperator);
-  }
+  };
 }

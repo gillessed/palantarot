@@ -1,18 +1,18 @@
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { GameplayState } from '../../../../server/play/model/GameState';
-import { getPlayerName } from '../../../services/players/playerName';
-import { ClientGame } from '../../../services/room/ClientGame';
-import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
-import './CurrentStateStatus.scss';
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { GameplayState } from "../../../../server/play/model/GameState";
+import { getPlayerName } from "../../../services/players/playerName";
+import { ClientGame } from "../../../services/room/ClientGame";
+import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
+import { isSpectatorModeObserver, SpectatorMode } from "../SpectatorMode";
+import "./CurrentStateStatus.scss";
 
 interface Props {
   width: number;
   height: number;
   players: Map<string, Player>;
   game: ClientGame;
-  spectatorMode: SpectatorMode
+  spectatorMode: SpectatorMode;
 }
 
 export class CurrentStateStatus extends React.PureComponent<Props> {
@@ -33,8 +33,11 @@ export class CurrentStateStatus extends React.PureComponent<Props> {
       case GameplayState.DogReveal:
         const revealId = game.playState.winningBid?.player ?? "";
         const revealName = getPlayerName(players.get(revealId));
-        text = `${revealName} is dropping their dog`; break;
-      case GameplayState.Playing: text = this.getPlayingStatus(); break;
+        text = `${revealName} is dropping their dog`;
+        break;
+      case GameplayState.Playing:
+        text = this.getPlayingStatus();
+        break;
     }
     if (text === null) {
       return null;
@@ -45,11 +48,9 @@ export class CurrentStateStatus extends React.PureComponent<Props> {
     const sy = isSpectatorModeObserver(spectatorMode) ? height - statusHeight : 0;
     return (
       <foreignObject x={sx} y={sy} width={statusWidth} height={statusHeight}>
-        <div className='current-state-status unselectable'>
-          {text}
-        </div>
+        <div className="current-state-status unselectable">{text}</div>
       </foreignObject>
-    )
+    );
   }
 
   private getPlayingStatus(): string | JSX.Element {
@@ -57,16 +58,16 @@ export class CurrentStateStatus extends React.PureComponent<Props> {
     const trickCards = ClientGameSelectors.getTrickCards(game.playState.trick);
     const playerName = getPlayerName(players.get(game.playState.toPlay ?? ""));
     const playerCount = game.playState.playerOrder.length;
-    const totalTrickCount = playerCount === 3 ? 24
-      : playerCount === 4 ? 18
-      : playerCount === 5 ? 15
-      : 0;
-    const innerText = (trickCards.length === 0 || game.playState.trick.completed)
-      ? "turn to lead" : "turn to play";
+    const totalTrickCount = playerCount === 3 ? 24 : playerCount === 4 ? 18 : playerCount === 5 ? 15 : 0;
+    const innerText = trickCards.length === 0 || game.playState.trick.completed ? "turn to lead" : "turn to play";
     return (
       <>
-        <p>{playerName}'s {innerText}</p>
-        <p>Trick {game.playState.completedTricks.length + 1}/{totalTrickCount}</p>
+        <p>
+          {playerName}'s {innerText}
+        </p>
+        <p>
+          Trick {game.playState.completedTricks.length + 1}/{totalTrickCount}
+        </p>
       </>
     );
   }

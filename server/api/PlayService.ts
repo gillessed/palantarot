@@ -1,14 +1,14 @@
-import { Request, Response, Router } from 'express';
-import { TarotBotRegistry } from '../../bots/TarotBot';
-import { Database } from '../db/dbConnector';
-import { GameRecordQuerier } from '../db/GameRecordQuerier';
-import { PlayerQuerier } from '../db/PlayerQuerier';
-import { LobbySocketMessages } from '../play/lobby/LobbySocketMessages';
-import { NewRoomArgs } from '../play/room/NewRoomArgs';
-import { Room } from '../play/room/Room';
-import { getRoomDescription, RoomDescriptions } from '../play/room/RoomDescription';
-import { JsonSocket } from '../websocket/JsonSocket';
-import { WebsocketManager } from '../websocket/WebsocketManager';
+import { type Request, type Response, Router } from "express";
+import { type TarotBotRegistry } from "../../bots/TarotBot";
+import { Database } from "../db/dbConnector";
+import { GameRecordQuerier } from "../db/GameRecordQuerier";
+import { PlayerQuerier } from "../db/PlayerQuerier";
+import { LobbySocketMessages } from "../play/lobby/LobbySocketMessages";
+import { type NewRoomArgs } from "../play/room/NewRoomArgs";
+import { Room } from "../play/room/Room";
+import { getRoomDescription, type RoomDescriptions } from "../play/room/RoomDescription";
+import { JsonSocket } from "../websocket/JsonSocket";
+import { WebsocketManager } from "../websocket/WebsocketManager";
 
 export class PlayService {
   public router: Router;
@@ -19,12 +19,9 @@ export class PlayService {
   private rooms: Map<string, Room>;
   private socketIdToRoomId: Map<string, string>;
   private lobbySocketIds: Set<string>;
+  public readonly botRegistry: TarotBotRegistry;
 
-  constructor(
-    db: Database,
-    websocketManager: WebsocketManager,
-    public readonly botRegistry: TarotBotRegistry,
-  ) {
+  constructor(db: Database, websocketManager: WebsocketManager, botRegistry: TarotBotRegistry) {
     this.router = Router();
     this.gameQuerier = new GameRecordQuerier(db);
     this.playerQuerier = new PlayerQuerier(db);
@@ -33,12 +30,12 @@ export class PlayService {
     this.lobbySocketIds = new Set();
 
     this.websocketManager = websocketManager;
-    this.router.post('/new_room', this.newRoom);
-    this.router.get('/rooms', this.listRooms);
+    this.botRegistry = botRegistry;
+    this.router.post("/new_room", this.newRoom);
+    this.router.get("/rooms", this.listRooms);
   }
 
-
-  public newRoom = async (req: Request, res: Response) => {
+  public newRoom = async (req: Request, _: Response) => {
     const args: NewRoomArgs = req.body;
     const room = Room.empty(this, args);
     this.rooms.set(room.id, room);
@@ -72,13 +69,13 @@ export class PlayService {
   public socketClosed(socketId: string) {
     this.lobbySocketIds.delete(socketId);
     const roomId = this.socketIdToRoomId.get(socketId);
-    console.log('socket closing in room ', socketId, roomId);
-    this.rooms.get(roomId ?? '')?.socketClosed(socketId);
+    console.log("socket closing in room ", socketId, roomId);
+    this.rooms.get(roomId ?? "")?.socketClosed(socketId);
     this.socketIdToRoomId.delete(socketId);
   }
 
   public addSocketToRoom(roomId: string, socketId: string) {
-    console.log('adding socket to room', socketId, roomId);
+    console.log("adding socket to room", socketId, roomId);
     this.socketIdToRoomId.set(socketId, roomId);
   }
 

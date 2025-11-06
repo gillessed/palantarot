@@ -1,34 +1,32 @@
-import { combineReducers } from 'redux';
-import { addPlayerReducer, AddPlayerService } from './addPlayer/index';
-import { addTarothonReducer, AddTarothonService } from './addTarothon/index';
-import { authReducer, AuthService } from './auth/index';
-import { bidsReducer, BidsService } from './bids/index';
-import { deleteGameReducer, DeleteGameService } from './deleteGame/index';
-import { deleteTarothonReducer, DeleteTarothonService } from './deleteTarothon/index';
-import { deltasReducer, DeltasService } from './deltas/index';
-import { gameReducer, GameService } from './game';
-import { gamePlayerReducer } from './gamePlayer/GamePlayerReducer';
-import { GamePlayer } from './gamePlayer/GamePlayerTypes';
-import { lobbyReducer } from './lobby/LobbyReducer';
-import { LobbyService } from './lobby/LobbyTypes';
-import { monthGamesReducer, MonthGamesService } from './monthGames/index';
-import { playersReducer, PlayersService } from './players';
-import { recentGamesReducer, RecentGamesService } from './recentGames';
-import { recordsReducer, RecordsService } from './records/index';
-import { refreshReducer } from './refresh/RefreshReducer';
-import { RefreshState } from './refresh/RefreshTypes';
-import { resultsReducer, ResultsService } from './results';
-import { roomReducer } from './room/RoomReducer';
-import { ClientRoom } from './room/RoomTypes';
-import { saveGameReducer, SaveGameService } from './saveGame/index';
-import { searchReducer, SearchService } from './search/index';
-import { statsReducer, StatsService } from './stats/index';
-import { streaksReducer, StreaksService } from './streaks/index';
-import { tarothonDataReducer, TarothonDataService } from './tarothonData';
-import { tarothonsReducer, TarothonsService } from './tarothons/index';
+import { combineReducers } from "redux";
+import { addTarothonReducer, AddTarothonService } from "./addTarothon/index";
+import { authReducer, AuthService } from "./auth/index";
+import { bidsReducer, BidsService } from "./bids/index";
+import { deleteGameReducer, DeleteGameService } from "./deleteGame/index";
+import { deleteTarothonReducer, DeleteTarothonService } from "./deleteTarothon/index";
+import { deltasReducer, DeltasService } from "./deltas/index";
+import { gameReducer, GameService } from "./game";
+import { gamePlayerReducer } from "./gamePlayer/GamePlayerReducer";
+import { GamePlayer } from "./gamePlayer/GamePlayerTypes";
+import { lobbyReducer } from "./lobby/LobbyReducer";
+import { LobbyService } from "./lobby/LobbyTypes";
+import { monthGamesReducer, MonthGamesService } from "./monthGames/index";
+import { playersReducer, PlayersService } from "./players";
+import { recentGamesReducer, RecentGamesService } from "./recentGames";
+import { recordsReducer, RecordsService } from "./records/index";
+import { refreshReducer } from "./refresh/RefreshReducer";
+import { RefreshState } from "./refresh/RefreshTypes";
+import { resultsReducer, ResultsService } from "./results";
+import { roomReducer } from "./room/RoomReducer";
+import { ClientRoom } from "./room/RoomTypes";
+import { saveGameReducer, SaveGameService } from "./saveGame/index";
+import { searchReducer, SearchService } from "./search/index";
+import { statsReducer, StatsService } from "./stats/index";
+import { streaksReducer, StreaksService } from "./streaks/index";
+import { tarothonDataReducer, TarothonDataService } from "./tarothonData";
+import { tarothonsReducer, TarothonsService } from "./tarothons/index";
 
 export interface ReduxState {
-  addPlayer: AddPlayerService;
   addTarothon: AddTarothonService;
   auth: AuthService;
   bids: BidsService;
@@ -54,7 +52,6 @@ export interface ReduxState {
 }
 
 export const rootReducer = combineReducers({
-  addPlayer: addPlayerReducer,
   addTarothon: addTarothonReducer,
   auth: authReducer,
   bids: bidsReducer,

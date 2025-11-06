@@ -1,12 +1,12 @@
-import { Icon } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { ChatText } from '../../../../server/play/room/ChatText';
-import { parseMessageForEmojis } from '../../../components/emoji/emojiRenderer';
-import { getPlayerName } from '../../../services/players/playerName';
-import { ClientGame } from '../../../services/room/ClientGame';
-import { ChatMessageListItem, isChatTextGroup } from '../../../services/room/RoomTypes';
+import { Icon } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { ChatText } from "../../../../server/play/room/ChatText";
+import { parseMessageForEmojis } from "../../../components/emoji/emojiRenderer";
+import { getPlayerName } from "../../../services/players/playerName";
+import { ClientGame } from "../../../services/room/ClientGame";
+import { ChatMessageListItem, isChatTextGroup } from "../../../services/room/RoomTypes";
 
 interface Props {
   game: ClientGame;
@@ -17,7 +17,7 @@ interface Props {
 export class ChatMessage extends React.PureComponent<Props> {
   private renderTextLine(text: string, index: number) {
     return (
-      <div className='message-body' key={index}>
+      <div className="message-body" key={index}>
         {parseMessageForEmojis(text)}
       </div>
     );
@@ -32,17 +32,18 @@ export class ChatMessage extends React.PureComponent<Props> {
     const authorName = getPlayerName(player);
 
     return (
-      <div className='play-message-container event-child'>
-        <div className='message-author'>
+      <div className="play-message-container event-child">
+        <div className="message-author">
           <Icon
             icon={isParticipant ? IconNames.PERSON : IconNames.EYE_OPEN}
-            color={isYou ? '#0F9960' : isParticipant ? '#137CBD' : '#F5F8FA'}
+            color={isYou ? "#0F9960" : isParticipant ? "#137CBD" : "#F5F8FA"}
           />
-          <div className='message-author-text'>{authorName}</div>
+          <div className="message-author-text">{authorName}</div>
         </div>
-        {isChatTextGroup(item) && item.chat.map((chat: ChatText, index: number) => {
-          return this.renderTextLine(chat.text, index);
-        })}
+        {isChatTextGroup(item) &&
+          item.chat.map((chat: ChatText, index: number) => {
+            return this.renderTextLine(chat.text, index);
+          })}
         {!isChatTextGroup(item) && this.renderTextLine(item.text, 0)}
       </div>
     );

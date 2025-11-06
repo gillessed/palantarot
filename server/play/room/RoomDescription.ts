@@ -1,5 +1,5 @@
 import { Player } from "../../model/Player";
-import { GameSettings } from "../model/GameSettings";
+import { type GameSettings } from "../model/GameSettings";
 import { GameplayState } from "../model/GameState";
 import { PlayerStatus } from "./PlayerStatus";
 import { Room } from "./Room";

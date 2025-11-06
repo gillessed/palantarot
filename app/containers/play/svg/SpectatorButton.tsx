@@ -1,11 +1,17 @@
-import { Button, Intent, Menu, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { ClientGame } from '../../../services/room/ClientGame';
-import { ClientGameSelectors } from '../../../services/room/ClientGameSelectors';
-import { isSpectatorModeNone, isSpectatorModeObserver, SpectatorMode, SpectatorModeNone, SpectatorModeObserver } from '../SpectatorMode';
-import { SpectatorModeMenuItem } from './SpectatorModeMenuItem';
+import { Button, Intent, Menu, Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { ClientGame } from "../../../services/room/ClientGame";
+import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
+import {
+  isSpectatorModeNone,
+  isSpectatorModeObserver,
+  SpectatorMode,
+  SpectatorModeNone,
+  SpectatorModeObserver,
+} from "../SpectatorMode";
+import { SpectatorModeMenuItem } from "./SpectatorModeMenuItem";
 
 interface Props {
   width: number;
@@ -25,14 +31,8 @@ export class SpectatorButton extends React.PureComponent<Props> {
     }
     return (
       <foreignObject x={width - 40} y={height - 40} width={40} height={40}>
-        <Popover
-          interactionKind={PopoverInteractionKind.CLICK}
-          position={Position.TOP}
-        >
-          <Button
-            icon={IconNames.EYE_OPEN}
-            intent={Intent.PRIMARY}
-          />
+        <Popover interactionKind={PopoverInteractionKind.CLICK} position={Position.TOP}>
+          <Button icon={IconNames.EYE_OPEN} intent={Intent.PRIMARY} />
           <Menu>
             <SpectatorModeMenuItem
               spectatorMode={SpectatorModeNone}

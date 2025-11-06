@@ -1,13 +1,15 @@
-declare module 'apisauce' {
-  import { AxiosInstance, AxiosRequestConfig } from 'axios';
+declare module "*.module.css";
+
+declare module "apisauce" {
+  import { AxiosInstance, AxiosRequestConfig } from "axios";
 
   export type PROBLEM_CODE =
-    'CLIENT_ERROR' |
-    'SERVER_ERROR' |
-    'TIMEOUT_ERROR' |
-    'CONNECTION_ERROR' |
-    'NETWORK_ERROR' |
-    'CANCEL_ERROR';
+    | "CLIENT_ERROR"
+    | "SERVER_ERROR"
+    | "TIMEOUT_ERROR"
+    | "CONNECTION_ERROR"
+    | "NETWORK_ERROR"
+    | "CANCEL_ERROR";
 
   interface ApiErrorResponse<T> {
     ok: false;

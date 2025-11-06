@@ -1,31 +1,31 @@
-import { Intent, Spinner } from '@blueprintjs/core';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Player } from '../../../server/model/Player';
-import { Action } from '../../../server/play/model/GameEvents';
-import { SpinnerOverlay } from '../../components/spinnerOverlay/SpinnerOverlay';
-import { Palantoaster } from '../../components/toaster/Toaster';
-import { DispatchContext, DispatchersContextType } from '../../dispatchProvider';
-import history from '../../history';
-import { StaticRoutes } from '../../routes';
-import { Dispatchers } from '../../services/dispatchers';
-import { GamePlayer } from '../../services/gamePlayer/GamePlayerTypes';
-import { playersLoader } from '../../services/players/index';
-import { ClientRoom } from '../../services/room/RoomTypes';
-import { ReduxState } from '../../services/rootReducer';
-import { registerDebugPlayers, unregisterDebugPlayers } from '../../utils/mockPlayers';
-import { loadContainer } from '../LoadingContainer';
-import './PlayContainer.scss';
-import { PlaySvgContainer } from './PlaySvgContainer';
-import { PlaySidebar } from './sidebar/PlaySidebar';
+import { Intent, Spinner } from "@blueprintjs/core";
+import React from "react";
+import { connect } from "react-redux";
+import { Player } from "../../../server/model/Player";
+import { Action } from "../../../server/play/model/GameEvents";
+import { SpinnerOverlay } from "../../components/spinnerOverlay/SpinnerOverlay";
+import { Palantoaster } from "../../components/toaster/Toaster";
+import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
+import history from "../../history";
+import { StaticRoutes } from "../../routes";
+import { Dispatchers } from "../../services/dispatchers";
+import { GamePlayer } from "../../services/gamePlayer/GamePlayerTypes";
+import { playersLoader } from "../../services/players/index";
+import { ClientRoom } from "../../services/room/RoomTypes";
+import { ReduxState } from "../../services/rootReducer";
+import { registerDebugPlayers, unregisterDebugPlayers } from "../../utils/mockPlayers";
+import { loadContainer } from "../LoadingContainer";
+import "./PlayContainer.scss";
+import { PlaySvgContainer } from "./PlaySvgContainer";
+import { PlaySidebar } from "./sidebar/PlaySidebar";
 
 interface OwnProps {
   players: Map<string, Player>;
   match: {
     params: {
       roomId: string;
-    }
-  }
+    };
+  };
 }
 
 interface StoreProps {
@@ -34,7 +34,7 @@ interface StoreProps {
 }
 
 type Props = OwnProps & StoreProps;
-export type PlayActionDispatcher = (action: Omit<Action, 'time' | 'player'>) => void;
+export type PlayActionDispatcher = (action: Omit<Action, "time" | "player">) => void;
 
 export class PlayContainerInternal extends React.PureComponent<Props> {
   private previousTitle: string;
@@ -52,7 +52,7 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
       history.push(StaticRoutes.lobby());
       Palantoaster.show({
         intent: Intent.DANGER,
-        message: 'You have not chosen a player id.',
+        message: "You have not chosen a player id.",
       });
       return;
     }
@@ -84,23 +84,12 @@ export class PlayContainerInternal extends React.PureComponent<Props> {
   public render() {
     const { players, room, gamePlayer } = this.props;
     if (room == null || gamePlayer == null) {
-      return (
-        <SpinnerOverlay size={Spinner.SIZE_LARGE} />
-      );
+      return <SpinnerOverlay size={Spinner.SIZE_LARGE} />;
     } else {
       return (
-        <div className='play-container'>
-          <PlaySvgContainer
-            players={players}
-            room={room}
-            dispatchers={this.dispatchers}
-          />
-          <PlaySidebar
-            players={players}
-            room={room}
-            playerId={gamePlayer.playerId}
-            dispatchers={this.dispatchers}
-          />
+        <div className="play-container">
+          <PlaySvgContainer players={players} room={room} dispatchers={this.dispatchers} />
+          <PlaySidebar players={players} room={room} playerId={gamePlayer.playerId} dispatchers={this.dispatchers} />
         </div>
       );
     }
@@ -112,7 +101,7 @@ const mapStateToProps = (state: ReduxState): StoreProps => {
     room: state.room,
     gamePlayer: state.gamePlayer,
   };
-}
+};
 
 const connectRedux = connect<StoreProps, {}, OwnProps>(mapStateToProps);
 

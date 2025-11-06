@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { RecentGameQuery } from '../../../server/db/GameRecordQuerier';
-import { GameRecord } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { DEFAULT_COUNT, GameOutcome, GameTable } from '../../components/gameTable/GameTable';
-import { Dispatchers } from '../../services/dispatchers';
-import { playersLoader } from '../../services/players/index';
-import { recentGamesLoader } from '../../services/recentGames/index';
-import { loadContainer } from '../LoadingContainer';
+import React from "react";
+import { RecentGameQuery } from "../../../server/db/GameRecordQuerier";
+import { GameRecord } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { DEFAULT_COUNT, GameOutcome, GameTable } from "../../components/gameTable/GameTable";
+import { Dispatchers } from "../../services/dispatchers";
+import { playersLoader } from "../../services/players/index";
+import { recentGamesLoader } from "../../services/recentGames/index";
+import { loadContainer } from "../LoadingContainer";
 
 interface InternalProps {
   playerId: string;
@@ -28,7 +28,7 @@ class PlayerRecentGamesTabInternal extends React.PureComponent<InternalProps, {}
       onOffsetChange: this.props.onOffsetChange,
     };
     return (
-      <div className='player-games-table-container table-container'>
+      <div className="player-games-table-container table-container">
         <GameTable
           players={this.props.players}
           games={this.props.recentGames}
@@ -44,16 +44,18 @@ class PlayerRecentGamesTabInternal extends React.PureComponent<InternalProps, {}
       return GameOutcome.UNKNOWN;
     }
     let playerOnBidderTeam = false;
-    if (game.handData.bidder.id === this.props.playerId ||
-      (game.handData.partner && game.handData.partner.id === this.props.playerId)) {
+    if (
+      game.handData.bidder.id === this.props.playerId ||
+      (game.handData.partner && game.handData.partner.id === this.props.playerId)
+    ) {
       playerOnBidderTeam = true;
     }
-    if (playerOnBidderTeam === (game.points >= 0)) {
+    if (playerOnBidderTeam === game.points >= 0) {
       return GameOutcome.WIN;
     } else {
       return GameOutcome.LOSS;
     }
-  }
+  };
 }
 
 const loaders = {
@@ -89,7 +91,7 @@ export class PlayerRecentGamesTab extends React.PureComponent<Props, State> {
         recentGames={this.state.query}
         offset={this.state.offset}
       />
-    )
+    );
   }
 
   private onOffsetChange = (offset: number) => {
@@ -100,5 +102,5 @@ export class PlayerRecentGamesTab extends React.PureComponent<Props, State> {
       query = { count: DEFAULT_COUNT, offset: DEFAULT_COUNT * offset, player: this.props.playerId };
     }
     this.setState({ query, offset });
-  }
+  };
 }

@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { loadContainer } from '../../LoadingContainer';
-import { streaksLoader } from '../../../services/streaks/index';
-import { Streak } from '../../../../server/model/Streak';
-import { Player } from '../../../../server/model/Player';
-import { playersLoader } from '../../../services/players/index';
-import { integerComparator } from '../../../../server/utils';
-import { HTMLTable } from '@blueprintjs/core';
-import { DynamicRoutes } from '../../../routes';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { loadContainer } from "../../LoadingContainer";
+import { streaksLoader } from "../../../services/streaks/index";
+import { Streak } from "../../../../server/model/Streak";
+import { Player } from "../../../../server/model/Player";
+import { playersLoader } from "../../../services/players/index";
+import { integerComparator } from "../../../../server/utils";
+import { HTMLTable } from "@blueprintjs/core";
+import { DynamicRoutes } from "../../../routes";
+import { Link } from "react-router-dom";
 
 interface Props {
   players: Map<string, Player>;
@@ -15,19 +15,18 @@ interface Props {
 }
 
 class AllStreaksTabInternal extends React.PureComponent<Props, {}> {
-
   public render() {
-    const sortedStreaks = [...this.props.streaks].sort(integerComparator((streak) => streak.gameCount, 'desc'));
+    const sortedStreaks = [...this.props.streaks].sort(integerComparator((streak) => streak.gameCount, "desc"));
     const wins = sortedStreaks.filter((streak) => streak.win);
     const losses = sortedStreaks.filter((streak) => !streak.win);
     return (
-      <div className='all-streaks-container'>
-        <div className='win-streaks-table-container table-container'>
-          <h3 className='bp3-heading'> Win Streaks </h3>
+      <div className="all-streaks-container">
+        <div className="win-streaks-table-container table-container">
+          <h3 className="bp3-heading"> Win Streaks </h3>
           {this.renderStreakTable(wins)}
         </div>
-        <div className='win-streaks-table-container table-container'>
-          <h3 className='bp3-heading'> Loss Streaks </h3>
+        <div className="win-streaks-table-container table-container">
+          <h3 className="bp3-heading"> Loss Streaks </h3>
           {this.renderStreakTable(losses)}
         </div>
       </div>
@@ -36,7 +35,7 @@ class AllStreaksTabInternal extends React.PureComponent<Props, {}> {
 
   private renderStreakTable(streaks: Streak[]) {
     return (
-      <HTMLTable className='slam-count-table' bordered>
+      <HTMLTable className="slam-count-table" bordered>
         <thead>
           <tr>
             <th>Player</th>
@@ -44,9 +43,7 @@ class AllStreaksTabInternal extends React.PureComponent<Props, {}> {
             <th>Last Game ID</th>
           </tr>
         </thead>
-        <tbody>
-          {streaks.map(this.renderStreakRow)}
-        </tbody>
+        <tbody>{streaks.map(this.renderStreakRow)}</tbody>
       </HTMLTable>
     );
   }
@@ -61,13 +58,11 @@ class AllStreaksTabInternal extends React.PureComponent<Props, {}> {
         </td>
         <td>{streak.gameCount}</td>
         <td>
-          <Link to={DynamicRoutes.game(streak.lastGameId)}>
-            {streak.lastGameId}
-          </Link>
+          <Link to={DynamicRoutes.game(streak.lastGameId)}>{streak.lastGameId}</Link>
         </td>
       </tr>
     );
-  }
+  };
 }
 
 export const AllStreaksTab = loadContainer({

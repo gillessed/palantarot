@@ -1,14 +1,13 @@
-import * as React from 'react';
-import { Player } from '../../../../server/model/Player';
-import { Records } from '../../../../server/model/Records';
-import { RoleResult } from '../../../../server/model/Result';
-import { Checkbox } from '@blueprintjs/core';
-import { ScoreTable } from '../../../components/scoreTable/ScoreTable';
-import { RecordsSelectors } from '../../../services/records/selectors';
-import { playersLoader } from '../../../services/players/index';
-import { recordsLoader } from '../../../services/records';
-import { loadContainer } from '../../LoadingContainer';
-
+import React from "react";
+import { Player } from "../../../../server/model/Player";
+import { Records } from "../../../../server/model/Records";
+import { RoleResult } from "../../../../server/model/Result";
+import { Checkbox } from "@blueprintjs/core";
+import { ScoreTable } from "../../../components/scoreTable/ScoreTable";
+import { RecordsSelectors } from "../../../services/records/selectors";
+import { playersLoader } from "../../../services/players/index";
+import { recordsLoader } from "../../../services/records";
+import { loadContainer } from "../../LoadingContainer";
 
 interface Props {
   players: Map<string, Player>;
@@ -20,7 +19,6 @@ interface State {
 }
 
 class AllTimeTabInternal extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -36,17 +34,14 @@ class AllTimeTabInternal extends React.PureComponent<Props, State> {
       });
     }
     return (
-      <div className='all-time-tab-container tab-container'>
+      <div className="all-time-tab-container tab-container">
         <Checkbox
           checked={this.state.filterRecords}
-          label='Filter players who have played less than 100 games: '
+          label="Filter players who have played less than 100 games: "
           onChange={this.onFilterRecordsChanged}
         />
-        <div className='all-time-table-container table-container'>
-          <ScoreTable
-            results={results}
-            players={this.props.players}
-          />
+        <div className="all-time-table-container table-container">
+          <ScoreTable results={results} players={this.props.players} />
         </div>
       </div>
     );
@@ -56,7 +51,7 @@ class AllTimeTabInternal extends React.PureComponent<Props, State> {
     this.setState({
       filterRecords: !this.state.filterRecords,
     });
-  }
+  };
 }
 
 const loaders = {

@@ -1,12 +1,22 @@
 import { isEqual } from "lodash";
-import { cardsWithout, getPlayerNum } from '../CardUtils';
-import { GameErrors } from '../GameErrors';
-import { GameStartTransition, PlayerEvent, SetDogAction } from "../GameEvents";
-import { DogRevealAndExchangeBoardState, DogRevealStateActions, DogRevealStates, GameplayState, PlayingBoardState, ReducerResult } from "../GameState";
-import { declareSlamActionReducer, showTrumpActionReducer } from './CommonReducers';
-import { getNewTrick } from './Utils';
+import { cardsWithout, getPlayerNum } from "../CardUtils";
+import { GameErrors } from "../GameErrors";
+import { type GameStartTransition, type PlayerEvent, type SetDogAction } from "../GameEvents";
+import {
+  type DogRevealAndExchangeBoardState,
+  type DogRevealStateActions,
+  type DogRevealStates,
+  GameplayState,
+  type PlayingBoardState,
+  type ReducerResult,
+} from "../GameState";
+import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers";
+import { getNewTrick } from "./Utils";
 
-const handleSetDogAction = (state: DogRevealAndExchangeBoardState, action: SetDogAction): ReducerResult<DogRevealStates> => {
+const handleSetDogAction = (
+  state: DogRevealAndExchangeBoardState,
+  action: SetDogAction
+): ReducerResult<DogRevealStates> => {
   if (action.player !== state.bidder) {
     throw GameErrors.cannotSetDogIfNotBidder(action.player, state.bidder);
   }
@@ -21,7 +31,7 @@ const handleSetDogAction = (state: DogRevealAndExchangeBoardState, action: SetDo
   const playerHand = state.hands[playerNum];
   const cards = [...playerHand, ...state.dog];
   const newPlayerHand = cardsWithout(cards, ...action.dog);
-  
+
   if (newPlayerHand.length !== playerHand.length) {
     throw GameErrors.newDogDoesntMatchHand(action.dog, cards);
   }
@@ -32,13 +42,13 @@ const handleSetDogAction = (state: DogRevealAndExchangeBoardState, action: SetDo
     dog: action.dog,
     hands: {
       ...state.hands,
-      [playerNum]: newPlayerHand
+      [playerNum]: newPlayerHand,
     },
     current_trick: getNewTrick(state.players, state.players[0], 0),
     past_tricks: [],
   };
   const gameStartedTransition: GameStartTransition = {
-    type: 'game_started',
+    type: "game_started",
     first_player: state.players[0],
     privateTo: undefined,
   };
@@ -48,20 +58,27 @@ const handleSetDogAction = (state: DogRevealAndExchangeBoardState, action: SetDo
     const setDogForObservers: SetDogAction = {
       player: action.player,
       time: action.time,
-      type: 'set_dog',
+      type: "set_dog",
       dog: action.dog,
       exclude: state.players,
     };
     events.push(setDogForObservers);
   }
   return { state: newState, events };
-}
+};
 
-export const DogRevealGameStateReducer = (state: DogRevealAndExchangeBoardState, action: DogRevealStateActions): ReducerResult<DogRevealStates> => {
+export const DogRevealGameStateReducer = (
+  state: DogRevealAndExchangeBoardState,
+  action: DogRevealStateActions
+): ReducerResult<DogRevealStates> => {
   switch (action.type) {
-    case "declare_slam": return declareSlamActionReducer(state, action);
-    case "show_trump": return showTrumpActionReducer(state, action);
-    case "set_dog": return handleSetDogAction(state, action);
-    default: throw GameErrors.invalidActionForGameState(action, state.name);
+    case "declare_slam":
+      return declareSlamActionReducer(state, action);
+    case "show_trump":
+      return showTrumpActionReducer(state, action);
+    case "set_dog":
+      return handleSetDogAction(state, action);
+    default:
+      throw GameErrors.invalidActionForGameState(action, state.name);
   }
 };

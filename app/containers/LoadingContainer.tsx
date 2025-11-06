@@ -1,15 +1,15 @@
-import { Spinner } from '@blueprintjs/core';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { mergeContexts } from '../app';
-import { SpinnerOverlay } from '../components/spinnerOverlay/SpinnerOverlay';
-import { DispatchContext, DispatchersContextType } from '../dispatchProvider';
-import { SagaContext, SagaContextType, SagaRegistration } from '../sagaProvider';
-import { Dispatchers } from '../services/dispatchers';
-import { DefaultArgToKey, Loader, Loaders } from '../services/loader';
-import { Loadable } from '../services/redux/loadable';
-import { refreshSelector } from '../services/refresh/RefreshTypes';
-import { ReduxState } from '../services/rootReducer';
+import { Spinner } from "@blueprintjs/core";
+import React from "react";
+import { connect } from "react-redux";
+import { mergeContexts } from "../App";
+import { SpinnerOverlay } from "../components/spinnerOverlay/SpinnerOverlay";
+import { DispatchContext, DispatchersContextType } from "../dispatchProvider";
+import { SagaContext, SagaContextType, SagaRegistration } from "../sagaProvider";
+import { Dispatchers } from "../services/dispatchers";
+import { DefaultArgToKey, Loader, Loaders } from "../services/loader";
+import { Loadable } from "../services/redux/loadable";
+import { refreshSelector } from "../services/refresh/RefreshTypes";
+import { ReduxState } from "../services/rootReducer";
 
 export interface LoaderOptions {
   hideSpinnerOnReload?: boolean;
@@ -26,34 +26,29 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options?: LoaderOptions) {
   type LOADABLES = {
-    [K in keyof T]: T[K] extends Loader<ReduxState, infer ARG, infer RESULT>
-    ? Loadable<ARG, RESULT>
-    : never;
+    [K in keyof T]: T[K] extends Loader<ReduxState, infer ARG, infer RESULT> ? Loadable<ARG, RESULT> : never;
   };
   type RESULTS = {
-    [K in keyof LOADABLES]:
-    LOADABLES[K] extends Loadable<any, infer RESULT> ? RESULT :
-    never;
-  } & OtherProps
+    [K in keyof LOADABLES]: LOADABLES[K] extends Loadable<any, infer RESULT> ? RESULT : never;
+  } & OtherProps;
   type ARGS = {
-    [K in keyof LOADABLES]:
-    LOADABLES[K] extends Loadable<void, any> ? undefined :
-    LOADABLES[K] extends Loadable<infer ARG, any> ? ARG :
-    never;
-  }
+    [K in keyof LOADABLES]: LOADABLES[K] extends Loadable<void, any>
+      ? undefined
+      : LOADABLES[K] extends Loadable<infer ARG, any>
+      ? ARG
+      : never;
+  };
   type PROP_KEYS = {
     [K in keyof ARGS]: ARGS[K] extends undefined ? never : K;
   }[keyof ARGS];
   type PROPS = Pick<ARGS, PROP_KEYS>;
   type PROP_HOLDER = { args: ARGS };
-  return function <COMPONENT_PROPS extends RESULTS & OtherProps>(
-    Component: React.ComponentClass<COMPONENT_PROPS>,
-  ) {
+  return function <COMPONENT_PROPS extends RESULTS & OtherProps>(Component: React.ComponentClass<COMPONENT_PROPS>) {
     type OWN_PROPS = Omit<COMPONENT_PROPS, keyof RESULTS>;
     type INNER_PROPS = OWN_PROPS & LOADABLES & PROP_HOLDER & { refreshCounter: number };
 
     const raw = class extends React.PureComponent<INNER_PROPS, {}> {
-      public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);;
+      public static contextTypes = mergeContexts(SagaContextType, DispatchersContextType);
       private dispatchers: Dispatchers;
       private sagas: SagaRegistration;
 
@@ -89,7 +84,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options
         for (const key of Object.keys(this.props.args)) {
           loaders[key].load(this.dispatchers, this.props.args[key], true);
         }
-      }
+      };
 
       public render() {
         const showSpinner = options?.hideSpinnerOnReload !== true;
@@ -112,30 +107,42 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options
         }
         if (errors.length > 0) {
           return errors.map((error, index) => {
-            return (<p key={index}>{error.message}</p>);
+            return <p key={index}>{error.message}</p>;
           });
         } else if (undefinedKeys.length) {
           return (
-            <div style={{ position: 'relative', minHeight: 200 }}>
+            <div style={{ position: "relative", minHeight: 200 }}>
               <SpinnerOverlay size={Spinner.SIZE_LARGE} />
             </div>
           );
         } else {
           if (hasLoading) {
             return (
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: "relative" }}>
                 {showSpinner && <SpinnerOverlay size={Spinner.SIZE_LARGE} />}
-                <Component {...ownProps} dispatchers={this.dispatchers} sagas={this.sagas} loading={hasLoading} reload={this.reloadAll} />
+                <Component
+                  {...ownProps}
+                  dispatchers={this.dispatchers}
+                  sagas={this.sagas}
+                  loading={hasLoading}
+                  reload={this.reloadAll}
+                />
               </div>
             );
           } else {
             return (
-              <Component {...ownProps} dispatchers={this.dispatchers} sagas={this.sagas} loading={hasLoading} reload={this.reloadAll} />
+              <Component
+                {...ownProps}
+                dispatchers={this.dispatchers}
+                sagas={this.sagas}
+                loading={hasLoading}
+                reload={this.reloadAll}
+              />
             );
           }
         }
       }
-    }
+    };
     const mapStateToProps = (state: ReduxState, ownProps: OWN_PROPS & ARGS) => {
       const mappedState: any = {};
       const args: any = {};
@@ -149,7 +156,7 @@ export function loadContainer<T extends Loaders<ReduxState>>(loaders: T, options
       mappedState.args = args;
       mappedState.refreshCounter = refreshSelector(state);
       return mappedState;
-    }
+    };
     return connect<LOADABLES & PROP_HOLDER, {}, PROPS & OWN_PROPS>(mapStateToProps)(raw);
-  }
+  };
 }

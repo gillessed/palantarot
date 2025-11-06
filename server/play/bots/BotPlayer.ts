@@ -1,16 +1,40 @@
-import { ClientGame } from "../../../app/services/room/ClientGame";
-import { BlankState, PlayState, ShowDetails, TrickCards } from "../../../app/services/room/ClientGameEventHandler";
-import { TarotBot } from "../../../bots/TarotBot";
+import { type ClientGame } from "../../../app/services/room/ClientGame";
+import {
+  BlankState,
+  type PlayState,
+  type ShowDetails,
+  type TrickCards,
+} from "../../../app/services/room/ClientGameEventHandler";
+import { type TarotBot } from "../../../bots/TarotBot";
 import { Game } from "../game/Game";
-import { Card } from "../model/Card";
-import { Action, BidAction, CallPartnerAction, PlayCardAction, SetDogAction, ShowTrumpAction } from "../model/GameEvents";
-import { Bid, BiddingBoardState, CompletedTrick, DogRevealAndExchangeBoardState, GameplayState, PartnerCallBoardState, PlayerId, PlayingBoardState, Trick } from "../model/GameState";
+import { type Card } from "../model/Card";
+import {
+  type Action,
+  type BidAction,
+  type CallPartnerAction,
+  type PlayCardAction,
+  type SetDogAction,
+  type ShowTrumpAction,
+} from "../model/GameEvents";
+import {
+  type Bid,
+  type BiddingBoardState,
+  type CompletedTrick,
+  type DogRevealAndExchangeBoardState,
+  GameplayState,
+  type PartnerCallBoardState,
+  type PlayerId,
+  type PlayingBoardState,
+  type Trick,
+} from "../model/GameState";
 
 export function getNextPlayer(game: Game): PlayerId | null {
   const state = game.getState();
   switch (state.name) {
-    case GameplayState.NewGame: return null;
-    case GameplayState.Completed: return null;
+    case GameplayState.NewGame:
+      return null;
+    case GameplayState.Completed:
+      return null;
     case GameplayState.Bidding:
       const bidState = state as BiddingBoardState;
       return bidState.bidding.bidders[0];
@@ -30,21 +54,23 @@ export function getNextPlayer(game: Game): PlayerId | null {
 export function playForBot(game: Game, botId: string, bot: TarotBot): Action | null {
   const clientGame = convertStateToInGame(game, botId);
   switch (clientGame.playState.state) {
-    case GameplayState.NewGame: return null;
-    case GameplayState.Completed: return null;
+    case GameplayState.NewGame:
+      return null;
+    case GameplayState.Completed:
+      return null;
     case GameplayState.Bidding:
       const bid = bot.bid(clientGame);
       const bidAction: BidAction = {
         ...bid,
         player: botId,
-        type: 'bid',
+        type: "bid",
         time: Date.now(),
       };
       return bidAction;
     case GameplayState.PartnerCall:
       const call = bot.pickPartner(clientGame);
       const callAction: CallPartnerAction = {
-        type: 'call_partner',
+        type: "call_partner",
         player: botId,
         time: Date.now(),
         card: call,
@@ -53,7 +79,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
     case GameplayState.DogReveal:
       const dogCards = bot.dropDog(clientGame);
       const setDogAction: SetDogAction = {
-        type: 'set_dog',
+        type: "set_dog",
         player: botId,
         privateTo: botId,
         time: Date.now(),
@@ -62,8 +88,8 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
       return setDogAction;
     case GameplayState.Playing:
       const card = bot.playCard(clientGame);
-      const playCardAction: PlayCardAction = { 
-        type: 'play_card',
+      const playCardAction: PlayCardAction = {
+        type: "play_card",
         player: botId,
         time: Date.now(),
         card,
@@ -161,7 +187,7 @@ function convertPlayBoardState(game: Game, botId: string, playerIndex: number, s
 function getShows(game: Game, botId: string) {
   const showDetails: ShowDetails[] = [];
   game.getEvents(botId).events.forEach((event) => {
-    if (event.type === 'show_trump') {
+    if (event.type === "show_trump") {
       const trumpEvent = event as ShowTrumpAction;
       showDetails.push({
         player: trumpEvent.player,

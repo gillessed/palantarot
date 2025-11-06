@@ -1,12 +1,12 @@
-import { HTMLTable } from '@blueprintjs/core';
-import * as React from 'react';
-import { Delta, Deltas } from '../../../../server/model/Delta';
-import { Player } from '../../../../server/model/Player';
-import { DeltaIcon } from '../../../components/deltaIcon/DeltaIcon';
-import { deltasLoader } from '../../../services/deltas/index';
-import { playersLoader } from '../../../services/players/index';
-import { getPlayerName } from '../../../services/players/playerName';
-import { loadContainer } from '../../LoadingContainer';
+import { HTMLTable } from "@blueprintjs/core";
+import React from "react";
+import { Delta, Deltas } from "../../../../server/model/Delta";
+import { Player } from "../../../../server/model/Player";
+import { DeltaIcon } from "../../../components/deltaIcon/DeltaIcon";
+import { deltasLoader } from "../../../services/deltas/index";
+import { playersLoader } from "../../../services/players/index";
+import { getPlayerName } from "../../../services/players/playerName";
+import { loadContainer } from "../../LoadingContainer";
 
 interface Props {
   players: Map<string, Player>;
@@ -17,17 +17,17 @@ class DeltasTableInternal extends React.PureComponent<Props, {}> {
   public render() {
     return (
       <>
-        <h3 className='bp3-heading'> Highest Deltas </h3>,
-        {this.renderDeltaTable(this.props.deltas.maximums, 'Highest Deltas')}
-        <h3 className='bp3-heading'> Lowest Deltas </h3>,
-        {this.renderDeltaTable(this.props.deltas.minimums, 'Lowest Deltas')}
+        <h3 className="bp3-heading"> Highest Deltas </h3>,
+        {this.renderDeltaTable(this.props.deltas.maximums, "Highest Deltas")}
+        <h3 className="bp3-heading"> Lowest Deltas </h3>,
+        {this.renderDeltaTable(this.props.deltas.minimums, "Lowest Deltas")}
       </>
     );
   }
 
   private renderDeltaTable(deltaList: Delta[], title: string) {
     return (
-      <HTMLTable className='deltas-table' bordered>
+      <HTMLTable className="deltas-table" bordered>
         <thead>
           <tr>
             <th>Player</th>
@@ -36,9 +36,7 @@ class DeltasTableInternal extends React.PureComponent<Props, {}> {
             <th>Games Played</th>
           </tr>
         </thead>
-        <tbody>
-          {deltaList.map((delta, index) => this.renderDelta(delta, index))}
-        </tbody>
+        <tbody>{deltaList.map((delta, index) => this.renderDelta(delta, index))}</tbody>
       </HTMLTable>
     );
   }
@@ -49,12 +47,14 @@ class DeltasTableInternal extends React.PureComponent<Props, {}> {
     return (
       <tr key={index}>
         <td>{playerName}</td>
-        <td><DeltaIcon delta={delta.delta} /></td>
+        <td>
+          <DeltaIcon delta={delta.delta} />
+        </td>
         <td>{delta.date}</td>
         <td>{delta.gameCount}</td>
       </tr>
     );
-  }
+  };
 }
 
 export const DeltasTable = loadContainer({

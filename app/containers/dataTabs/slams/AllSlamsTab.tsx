@@ -1,13 +1,13 @@
-import { HTMLTable } from '@blueprintjs/core';
-import * as React from 'react';
-import { GameRecord } from '../../../../server/model/GameRecord';
-import { Player } from '../../../../server/model/Player';
-import { Records } from '../../../../server/model/Records';
-import { integerComparator } from '../../../../server/utils/index';
-import { GameTable } from '../../../components/gameTable/GameTable';
-import { playersLoader } from '../../../services/players/index';
-import { recordsLoader } from '../../../services/records';
-import { loadContainer } from '../../LoadingContainer';
+import { HTMLTable } from "@blueprintjs/core";
+import React from "react";
+import { GameRecord } from "../../../../server/model/GameRecord";
+import { Player } from "../../../../server/model/Player";
+import { Records } from "../../../../server/model/Records";
+import { integerComparator } from "../../../../server/utils/index";
+import { GameTable } from "../../../components/gameTable/GameTable";
+import { playersLoader } from "../../../services/players/index";
+import { recordsLoader } from "../../../services/records";
+import { loadContainer } from "../../LoadingContainer";
 
 interface SlamRecords {
   slammed: SlamRecord[];
@@ -26,7 +26,6 @@ interface Props {
 }
 
 class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -37,17 +36,14 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
   public render() {
     const slamRecords = this.countSlams(this.props.records.slamGames);
     return (
-      <div className='slam-tab-container tab-container'>
-        <h3 className='bp3-heading'> Slam Count </h3>
+      <div className="slam-tab-container tab-container">
+        <h3 className="bp3-heading"> Slam Count </h3>
         {this.renderSlamCountTable(slamRecords.slammed)}
-        <h3 className='bp3-heading'> Been Slammed Count </h3>
+        <h3 className="bp3-heading"> Been Slammed Count </h3>
         {this.renderSlamCountTable(slamRecords.beenSlammed)}
-        <h3 className='bp3-heading'> Slam Games </h3>
-        <div className='slam-table-container table-container'>
-          <GameTable
-            players={this.props.players}
-            games={this.props.records.slamGames}
-          />
+        <h3 className="bp3-heading"> Slam Games </h3>
+        <div className="slam-table-container table-container">
+          <GameTable players={this.props.players} games={this.props.records.slamGames} />
         </div>
       </div>
     );
@@ -55,17 +51,15 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
 
   private renderSlamCountTable(slams: SlamRecord[]) {
     return (
-      <div className='slam-count-table-container'>
-        <HTMLTable className='slam-count-table' bordered>
+      <div className="slam-count-table-container">
+        <HTMLTable className="slam-count-table" bordered>
           <thead>
             <tr>
               <th>Player</th>
               <th># of Slams</th>
             </tr>
           </thead>
-          <tbody>
-            {slams.map((record) => this.renderSlamCountRow(record))}
-          </tbody>
+          <tbody>{slams.map((record) => this.renderSlamCountRow(record))}</tbody>
         </HTMLTable>
       </div>
     );
@@ -91,14 +85,16 @@ class AllSlamsTabInternal extends React.PureComponent<Props, {}> {
       }
       game.handData.opposition.forEach((hand) => beenSlammedPlayers.push(hand.id));
     });
-    const slamCounts = this.countPlayers(slamPlayers)
-      .sort(integerComparator((record: SlamRecord) => record.count, 'desc'));
-    const beenSlammedCounts = this.countPlayers(beenSlammedPlayers)
-      .sort(integerComparator((record: SlamRecord) => record.count, 'desc'));
+    const slamCounts = this.countPlayers(slamPlayers).sort(
+      integerComparator((record: SlamRecord) => record.count, "desc")
+    );
+    const beenSlammedCounts = this.countPlayers(beenSlammedPlayers).sort(
+      integerComparator((record: SlamRecord) => record.count, "desc")
+    );
     return {
       slammed: slamCounts,
       beenSlammed: beenSlammedCounts,
-    }
+    };
   }
 
   private countPlayers(players: string[]): SlamRecord[] {
