@@ -1,6 +1,6 @@
 import { Alignment, Button, ButtonGroup, Checkbox, Intent } from '@blueprintjs/core';
 import classNames from 'classnames';
-import React from 'react';
+import React, { memo, useState } from 'react';
 import { createSelector } from 'reselect';
 import { GameRecord, PlayerHand } from '../../../server/model/GameRecord';
 import { Player } from '../../../server/model/Player';
@@ -16,6 +16,7 @@ interface Props {
   game?: GameRecord;
   submitText: string;
   onSubmit: (newGame: GameRecord) => void;
+  loading?: boolean;
 }
 
 interface State {
@@ -28,7 +29,9 @@ interface State {
   pointsError?: string;
 }
 
-export class GameForm extends React.PureComponent<Props, State> {
+export const GameForm = memo(function GameForm({ onSubmit, players, submitText, game, loading, recentPlayers}: Props) {
+  const [numberOfPlayers, setNumberOfPlayers] = useState<number>(game?.numberOfPlayers ?? 5);
+  const [bidderCalledSelf, setBidderCalledSelf] = useState<boolean>(false);
 
   constructor(props: Props) {
     super(props);
@@ -37,6 +40,24 @@ export class GameForm extends React.PureComponent<Props, State> {
     } else {
       this.state = this.getEmptyState();
     }
+  }
+
+  private getEmptyState(): State {
+    const numberOfPlayers = 5;
+    const players: {[key: string]: PlayerState} = {};
+    this.getActivePlayersForValues(numberOfPlayers, false).forEach((role: string) => {
+      players[role] = {
+        role,
+        showed: false,
+        oneLast: false,
+      };
+    });
+
+    return {
+      numberOfPlayers,
+      bidderCalledSelf: false,
+      players,
+    };
   }
 
   private getSelectedPlayers = createSelector(
@@ -83,24 +104,6 @@ export class GameForm extends React.PureComponent<Props, State> {
       player,
       showed: hand.showedTrump,
       oneLast: hand.oneLast,
-    };
-  }
-
-  private getEmptyState(): State {
-    const numberOfPlayers = 5;
-    const players: {[key: string]: PlayerState} = {};
-    this.getActivePlayersForValues(numberOfPlayers, false).forEach((role: string) => {
-      players[role] = {
-        role,
-        showed: false,
-        oneLast: false,
-      };
-    });
-
-    return {
-      numberOfPlayers,
-      bidderCalledSelf: false,
-      players,
     };
   }
 
@@ -489,4 +492,4 @@ export class GameForm extends React.PureComponent<Props, State> {
     ];
     return values.reduce((previous, current) => (current !== undefined) ? previous : previous + 1, 0);
   }
-}
+});

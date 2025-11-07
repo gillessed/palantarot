@@ -9,7 +9,11 @@ import { Records } from "../../server/model/Records";
 import { SearchQuery } from "../../server/model/Search";
 import { Stats } from "../../server/model/Stats";
 import { Streak } from "../../server/model/Streak";
-import { NewTarothon, Tarothon, TarothonData } from "../../server/model/Tarothon";
+import {
+  NewTarothon,
+  Tarothon,
+  TarothonData,
+} from "../../server/model/Tarothon";
 import { GameSettings } from "../../server/play/model/GameSettings";
 import { NewRoomArgs } from "../../server/play/room/NewRoomArgs";
 import { RoomDescriptions } from "../../server/play/room/RoomDescription";
@@ -131,7 +135,7 @@ export class ServerApi {
 
   public wrapGet = <RESP>(url: string) => {
     return this.api
-      .get<RESP | { error: string }>(url, { headers: { [AdminPasswordKey]: getAdminPassword() } })
+      .get<RESP | { error: string }>(url, { headers: this.getHeaders() })
       .then((response: any): RESP => {
         if (response.ok) {
           const data = response.data! as any;
@@ -151,7 +155,9 @@ export class ServerApi {
 
   public wrapPost = <RESP>(url: string, body: any) => {
     return this.api
-      .post<RESP | { error: string }>(url, body, { headers: { [AdminPasswordKey]: getAdminPassword() } })
+      .post<RESP | { error: string }>(url, body, {
+        headers: { [AdminPasswordKey]: getAdminPassword() },
+      })
       .then((response: any): RESP => {
         if (response.ok) {
           const data = response.data! as any;
@@ -168,4 +174,13 @@ export class ServerApi {
         }
       });
   };
+
+  private getHeaders() {
+    const headers: Record<string, string> = {};
+    const adminPassword = getAdminPassword();
+    if (adminPassword != null && adminPassword.length > 0) {
+      headers[AdminPasswordKey] = adminPassword;
+    }
+    return headers;
+  }
 }

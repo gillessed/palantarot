@@ -1,26 +1,15 @@
-import { useMemo, useState } from "react";
+import { useCallback } from "react";
 import { NewPlayer, Player } from "../../server/model/Player";
 import { useApi } from "../apiProvider";
-import { Async, asyncError, asyncLoaded, asyncLoading, asyncUnloaded } from "../utils/Async";
+import { useAsync } from "./useAsync";
 
 const AddPlayerPath = "/players/add";
 
 export function useAddPlayer(onComplete?: (result: Player) => void) {
   const api = useApi();
-  const [addedPlayer, setAddedPlayer] = useState<Async<Player>>(asyncUnloaded());
-
-  const addPlayer = useMemo(() => {
-    return async function (newPlayer: NewPlayer) {
-      setAddedPlayer(asyncLoading());
-      try {
-        const result = await api.wrapPost<Player>(AddPlayerPath, newPlayer);
-        setAddedPlayer(asyncLoaded(result));
-        onComplete?.(result);
-      } catch (error) {
-        setAddedPlayer(asyncError(error));
-      }
-    };
+  const loader = useCallback(async (newPlayer: NewPlayer) => {
+    return api.wrapPost<Player>(AddPlayerPath, newPlayer);
   }, [api]);
 
-  return { addedPlayer, addPlayer };
+  return useAsync(loader, onComplete);
 }
