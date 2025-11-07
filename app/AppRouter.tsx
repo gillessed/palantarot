@@ -1,9 +1,9 @@
 import { memo } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { AppContainer } from "./containers/app/AppContainer";
-import { StaticRoutes } from "./routes";
 import { HomeContainer } from "./containers/home/HomeContainer";
 import { EnterContainer } from "./containers/enter/EnterContainer";
+import { StaticRoutes } from "../shared/routes";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },

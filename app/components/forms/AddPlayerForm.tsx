@@ -1,24 +1,15 @@
-import { Button, FormGroup, Intent, Menu, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import React from 'react';
-import { RandomBotType } from '../../../bots/RandomBot';
-import { DefaultTarotBotRegistry } from '../../../bots/TarotBot';
-import { NewPlayer } from '../../../server/model/Player';
-import { TextInput } from './Elements';
+import { Button, Fieldset, Select } from "@mantine/core";
+import { IconCirclePlus } from "@tabler/icons-react";
+import { memo, useCallback, useMemo, useState } from "react";
+import { NewPlayer } from "../../../server/model/Player";
+import { RandomBotType } from "../../../shared/bots/RandomBot";
+import { DefaultTarotBotRegistry } from "../../../shared/bots/TarotBot";
+import { TextInput } from "./Elements";
 
 interface Props {
   isBot?: boolean;
   onSubmit: (newPlayer: NewPlayer) => void;
 }
-
-interface State {
-  firstName: string;
-  firstNameError?: string;
-  lastName: string;
-  lastNameError?: string;
-  botType?: string;
-}
-
 
 const fieldValidator = (emptyMessage: string) => {
   return (value: string) => {
@@ -30,88 +21,68 @@ const fieldValidator = (emptyMessage: string) => {
       return undefined;
     }
   };
-}
+};
 
-export class AddPlayerForm extends React.PureComponent<Props, State> {
+export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot }: Props) {
+  const firstNameValidator = useMemo(() => fieldValidator("Please enter a first name."), []);
+  const lastNameValidator = useMemo(() => fieldValidator("Please enter a last name."), []);
+  const [firstName, setFirstName] = useState("");
+  const [firstNameError, setFirstNameError] = useState<string | undefined>();
+  const [lastName, setLastName] = useState("");
+  const [lastNameError, setLastNameError] = useState<string | undefined>();
+  const [botType, setBotType] = useState(RandomBotType);
 
-  private firstNameValidator = fieldValidator('Please enter a first name.');
-  private lastNameValidator = fieldValidator('Please enter a last name.');
+  const handleFirstNameChange = useCallback(
+    (value: string, error?: string) => {
+      setFirstName(value);
+      setFirstNameError(error);
+    },
+    [setFirstName, setFirstNameError]
+  );
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      firstName: '',
-      firstNameError: ' ',
-      lastName: '',
-      lastNameError: ' ',
-      botType: props.isBot ? RandomBotType : undefined,
-    };
-  }
+  const handleLastNameChange = useCallback(
+    (value: string, error?: string) => {
+      setLastName(value);
+      setLastNameError(error);
+    },
+    [setLastName, setLastNameError]
+  );
 
-  public render() {
-    const { isBot } = this.props;
-    return (
-      <div className="add-player-form">
-        <TextInput
-          label="First Name: "
-          classNames={['bp3-add-player-input']}
-          onChange={this.onFirstNameChange}
-          validator={this.firstNameValidator}
-        />
+  const submitEnabled = firstNameError == null && lastNameError == null;
 
-        <TextInput
-          label="Last Name: "
-          classNames={['bp3-add-player-input']}
-          onChange={this.onLastNameChange}
-          validator={this.lastNameValidator}
-        />
-
-        {isBot && <FormGroup
-          label='Bot Type'
-          labelFor='text-input'
-        >
-          <Popover interactionKind={PopoverInteractionKind.CLICK} position={Position.BOTTOM}>
-            <Button text={this.state.botType} rightIcon={IconNames.CARET_DOWN} fill />
-            <Menu>
-              {Object.keys(DefaultTarotBotRegistry).map((botType) => {
-                return (
-                  <MenuItem key={botType} text={botType} onClick={() => this.setState({ botType })}/>
-                );
-              })}
-            </Menu>
-          </Popover>
-        </FormGroup>}
-
-        <div className="add-player-button-container">
-          <Button text='Add Player' onClick={this.onClickButton} disabled={!this.submitEnabled()} large intent={Intent.SUCCESS} icon='add' />
-        </div>
-      </div>
-    );
-  }
-
-  private onFirstNameChange = (value: string, error?: string) => {
-    this.setState({
-      firstName: value,
-      firstNameError: error,
-    });
-  }
-
-  private onLastNameChange = (value: string, error?: string) => {
-    this.setState({
-      lastName: value,
-      lastNameError: error,
-    });
-  }
-
-  private submitEnabled = () => {
-    return !this.state.firstNameError && !this.state.lastNameError;
-  }
-
-  private onClickButton = () => {
-    if (this.submitEnabled()) {
-      const { firstName, lastName, botType } = this.state;
-      const { isBot } = this.props;
-      this.props.onSubmit({ firstName, lastName, botType, isBot });
+  const handleSubmit = useCallback(() => {
+    if (submitEnabled) {
+      onSubmit({ firstName, lastName, botType, isBot });
     }
-  }
-}
+  }, [submitEnabled, onSubmit, isBot, firstName, lastName, botType]);
+
+  const botTypes = Array.from(Object.keys(DefaultTarotBotRegistry));
+  const handleBotTypeChanges = useCallback(
+    (newBotType: string | null) => {
+      if (newBotType != null) {
+        setBotType(newBotType);
+      }
+    },
+    [setBotType]
+  );
+
+  return (
+    <div className="add-player-form">
+      <TextInput label="First Name: " onChange={handleFirstNameChange} validator={firstNameValidator} />
+
+      <TextInput label="Last Name: " onChange={handleLastNameChange} validator={lastNameValidator} />
+
+      {isBot && (
+        <Fieldset legend="Bot Type">
+          <Select data={botTypes} value={botType} onChange={handleBotTypeChanges} />
+        </Fieldset>
+      )}
+
+      <div className="add-player-button-container">
+        <Button leftSection={<IconCirclePlus />} onClick={handleSubmit} disabled={!submitEnabled} color="green">
+          Add Player
+        </Button>
+      </div>
+    </div>
+  );
+});

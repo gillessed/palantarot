@@ -1,201 +1,126 @@
-import { Alignment, Checkbox, Dialog, FormGroup, Intent } from "@blueprintjs/core";
-import React from "react";
-import { connect } from "react-redux";
-import { NewPlayer, Player } from "../../../server/model/Player";
+import { Checkbox, Dialog, Fieldset, Group, Modal, Stack } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { memo, useCallback, useEffect } from "react";
+import { Player } from "../../../server/model/Player";
+import type { PlayerId } from "../../../server/play/model/GameState";
 import { AddPlayerForm } from "../../components/forms/AddPlayerForm";
-import { PlayerSelectContainer } from "../../components/forms/PlayerSelect";
+import type { PlayerRole } from "../../components/forms/PlayerRoles";
+import { PlayerSelect } from "../../components/forms/PlayerSelect";
 import { SpinnerOverlay } from "../../components/spinnerOverlay/SpinnerOverlay";
-import { Palantoaster, TIntent } from "../../components/toaster/Toaster";
-import { DispatchContext, DispatchersContextType } from "../../dispatchProvider";
-import { AddPlayerService } from "../../services/addPlayer/index";
-import { Dispatchers } from "../../services/dispatchers";
-import { getPlayerName } from "../../services/players/playerName";
-import { ReduxState } from "../../services/rootReducer";
+import { useAddPlayer } from "../../services/useAddPlayer";
+import classes from "./GamePlayerInput.module.css";
 
 export interface PlayerState {
-  role: string;
+  role: PlayerRole;
   player?: Player;
-  error?: string;
   showed: boolean;
   oneLast: boolean;
 }
 
-interface OwnProps {
-  role: string;
-  player: PlayerState;
+interface Props {
+  role: PlayerRole;
+  playerState: PlayerState;
   label: string;
+  error?: string;
   recentPlayers?: Player[];
-  selectedPlayers?: Player[];
+  selectedPlayers?: Set<PlayerId>;
   players: Player[];
-  onChange: (player: PlayerState) => void;
+  onChange: (role: PlayerRole, player: PlayerState) => void;
 }
 
-interface StateProps {
-  addPlayerService: AddPlayerService;
-}
+export const GamePlayerInput = memo(function GamePlayerInput({
+  role,
+  onChange,
+  playerState,
+  label,
+  error,
+  recentPlayers,
+  selectedPlayers,
+  players,
+}: Props) {
+  const [dialogOpen, { close: closeDialog, open: openDialog }] = useDisclosure(false);
 
-type Props = OwnProps & StateProps;
-
-interface State {
-  openDialog: boolean;
-}
-
-class GamePlayerInputInternal extends React.PureComponent<Props, State> {
-  public static contextTypes = DispatchersContextType;
-  private dispatchers: Dispatchers;
-
-  constructor(props: Props, context: DispatchContext) {
-    super(props, context);
-    this.dispatchers = context.dispatchers;
-    this.state = {
-      openDialog: false,
+  useEffect(() => {
+    return () => {
+      onChange(role, {
+        role: role,
+        player: undefined,
+        showed: false,
+        oneLast: false,
+      });
     };
-  }
+  }, [role, onChange]);
 
-  public componentWillUpdate(nextProps: Props) {
-    if (
-      nextProps.addPlayerService.source === nextProps.label &&
-      nextProps.addPlayerService.error &&
-      nextProps.addPlayerService.error !== this.props.addPlayerService.error
-    ) {
-      Palantoaster.show({
-        message: nextProps.addPlayerService.error.message,
-        intent: TIntent.DANGER,
-      });
-    } else if (
-      nextProps.addPlayerService.source === nextProps.label &&
-      nextProps.addPlayerService.newPlayer &&
-      nextProps.addPlayerService.newPlayer !== this.props.addPlayerService.newPlayer
-    ) {
-      const player = nextProps.addPlayerService.newPlayer;
-      Palantoaster.show({
-        message: `Added player ${getPlayerName(player)}.`,
-        intent: TIntent.SUCCESS,
-      });
-      this.props.onChange({
-        ...this.props.player,
+  const handleSelectPlayer = useCallback(
+    (player: Player | undefined) => {
+      onChange(role, {
+        ...playerState,
         player,
       });
-      this.closeDialog();
-      this.dispatchers.addPlayer.clear();
-    }
-  }
+    },
+    [onChange, role, playerState]
+  );
 
-  public componentWillUnmount() {
-    this.props.onChange({
-      role: this.props.role,
-      player: undefined,
-      error: undefined,
-      showed: false,
-      oneLast: false,
-    });
-  }
+  const handleShowedTrumpChanged = useCallback(
+    (e: any) => {
+      onChange(role, {
+        ...playerState,
+        showed: e.target.checked,
+      });
+    },
+    [onChange, role, playerState]
+  );
 
-  public render() {
-    const label = (
-      <p style={{ marginBottom: 0 }}>
-        {this.props.label}
-        <a className="bp3-link add-player-link" onClick={this.openDialog}>
-          Add Player
-        </a>
-      </p>
-    );
-    return (
-      <div className="player-input-container">
-        <FormGroup
-          label={label}
-          labelFor="player-selector-element"
-          helperText={this.props.player.error}
-          intent={this.props.player.error ? Intent.DANGER : Intent.NONE}
-        >
-          <PlayerSelectContainer
-            recentPlayers={this.props.recentPlayers}
-            onPlayerSelected={this.onSelectPlayer}
-            selectedPlayers={this.props.selectedPlayers}
-            selectedPlayer={this.props.player.player}
-          />
-        </FormGroup>
-        <div className="player-selector-checkbox-row">
-          <Checkbox
-            alignIndicator={Alignment.LEFT}
-            onChange={this.onShowedTrumpChanged}
-            checked={this.props.player.showed}
-          >
-            <span className="text player-selector-check-label">Showed Trump</span>
-          </Checkbox>
-          <Checkbox
-            alignIndicator={Alignment.LEFT}
-            onChange={this.onOneLastChanged}
-            checked={this.props.player.oneLast}
-          >
-            <span className="text player-selector-check-label">One Last</span>
-          </Checkbox>
+  const handleOneLastChanged = useCallback(
+    (e: any) => {
+      onChange(role, {
+        ...playerState,
+        oneLast: e.target.checked,
+      });
+    },
+    [onChange, role, playerState]
+  );
+
+  const handlePlayerAdded = useCallback(
+    (player: Player) => {
+      closeDialog();
+      handleSelectPlayer(player);
+    },
+    [closeDialog]
+  );
+  const { request: addPlayer } = useAddPlayer(handlePlayerAdded);
+
+  const labelComponent = (
+    <p style={{ marginBottom: 0 }}>
+      {label}:
+      <span className={classes.addPlayerLink} onClick={openDialog}>
+        Add Player
+      </span>
+    </p>
+  );
+
+  return (
+    <Stack bg="gray.1" bdrs={10} pl={10} pr={10} pb={10} mb={10}>
+      <Fieldset legend={labelComponent} bg="gray.1" bd="none" m={0} p={0}>
+        <PlayerSelect
+          players={players}
+          recentPlayers={recentPlayers}
+          onPlayerSelected={handleSelectPlayer}
+          selectedPlayers={selectedPlayers}
+          selectedPlayer={playerState.player}
+        />
+      </Fieldset>
+      <Group>
+        <Checkbox label="Showed Trump" onChange={handleShowedTrumpChanged} checked={playerState.showed} />
+        <Checkbox label="One Last" onChange={handleOneLastChanged} checked={playerState.oneLast} />
+      </Group>
+      {error}
+      <Modal opened={dialogOpen} onClose={closeDialog} title="Add Player">
+        <div>
+          <AddPlayerForm onSubmit={addPlayer} />
+          <SpinnerOverlay text="Adding Player..." />
         </div>
-        {this.renderDialog()}
-      </div>
-    );
-  }
-
-  private renderDialog() {
-    return (
-      <Dialog icon="add" isOpen={this.state.openDialog} onClose={this.closeDialog} title="Add Player">
-        <div className="bp3-dialog-body">
-          <AddPlayerForm onSubmit={this.onAddNewPlayer} />
-          {this.renderDialogSpinner()}
-        </div>
-      </Dialog>
-    );
-  }
-
-  private onAddNewPlayer(newPlayer: NewPlayer) {
-    this.dispatchers.addPlayer.request({ newPlayer, source: this.props.label });
-  }
-
-  private renderDialogSpinner() {
-    if (this.props.addPlayerService.loading) {
-      return <SpinnerOverlay text="Adding Player..." />;
-    }
-  }
-
-  private closeDialog = () => {
-    this.setState({
-      openDialog: false,
-    });
-  };
-
-  private openDialog = () => {
-    this.setState({
-      openDialog: true,
-    });
-  };
-
-  private onSelectPlayer = (player: Player | undefined) => {
-    this.props.onChange({
-      ...this.props.player,
-      player,
-    });
-  };
-
-  private onShowedTrumpChanged = (e: any) => {
-    this.props.onChange({
-      ...this.props.player,
-      showed: e.target.checked,
-    });
-  };
-
-  private onOneLastChanged = (e: any) => {
-    this.props.onChange({
-      ...this.props.player,
-      oneLast: e.target.checked,
-    });
-  };
-}
-
-const mapStateToProps = (state: ReduxState, ownProps: OwnProps) => {
-  return {
-    ...ownProps,
-    addPlayerService: state.addPlayer,
-  } as OwnProps & StateProps;
-};
-
-export const GamePlayerInput = connect(mapStateToProps)(GamePlayerInputInternal);
+      </Modal>
+    </Stack>
+  );
+});

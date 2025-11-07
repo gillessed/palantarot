@@ -9,11 +9,7 @@ import { Records } from "../../server/model/Records";
 import { SearchQuery } from "../../server/model/Search";
 import { Stats } from "../../server/model/Stats";
 import { Streak } from "../../server/model/Streak";
-import {
-  NewTarothon,
-  Tarothon,
-  TarothonData,
-} from "../../server/model/Tarothon";
+import { NewTarothon, Tarothon, TarothonData } from "../../server/model/Tarothon";
 import { GameSettings } from "../../server/play/model/GameSettings";
 import { NewRoomArgs } from "../../server/play/room/NewRoomArgs";
 import { RoomDescriptions } from "../../server/play/room/RoomDescription";
@@ -21,11 +17,11 @@ import { mapFromCollection } from "../../server/utils";
 import { pTimeout } from "../../server/utils/index";
 import { getAdminPassword } from "../admin";
 import history from "../history";
-import { StaticRoutes } from "../routes";
 import { AuthRequest } from "../services/auth/index";
 import { Month } from "./../../server/model/Month";
 import { NewPlayer, Player } from "./../../server/model/Player";
 import { Result } from "./../../server/model/Result";
+import { StaticRoutes } from "../../shared/routes";
 
 export class ServerApi {
   private api: ApisauceInstance;
@@ -134,23 +130,21 @@ export class ServerApi {
   // Helpers
 
   public wrapGet = <RESP>(url: string) => {
-    return this.api
-      .get<RESP | { error: string }>(url, { headers: this.getHeaders() })
-      .then((response: any): RESP => {
-        if (response.ok) {
-          const data = response.data! as any;
-          if (data.error) {
-            throw new Error(data.error);
-          } else {
-            return data;
-          }
-        } else if (response.status === 403) {
-          history.push(StaticRoutes.login());
-          throw new Error("Unauthorized");
+    return this.api.get<RESP | { error: string }>(url, { headers: this.getHeaders() }).then((response: any): RESP => {
+      if (response.ok) {
+        const data = response.data! as any;
+        if (data.error) {
+          throw new Error(data.error);
         } else {
-          throw new Error(response.problem);
+          return data;
         }
-      });
+      } else if (response.status === 403) {
+        history.push(StaticRoutes.login());
+        throw new Error("Unauthorized");
+      } else {
+        throw new Error(response.problem);
+      }
+    });
   };
 
   public wrapPost = <RESP>(url: string, body: any) => {

@@ -3,9 +3,9 @@ import { useDisclosure } from "@mantine/hooks";
 import classNames from "classnames";
 import { memo, useCallback } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
-import { StaticRoutes } from "../../routes";
 import classes from "./AppContainer.module.css";
 import { IconPencil } from "@tabler/icons-react";
+import { StaticRoutes } from "../../../shared/routes";
 
 export const AppContainer = memo(function AppContainer() {
   const navigate = useNavigate();

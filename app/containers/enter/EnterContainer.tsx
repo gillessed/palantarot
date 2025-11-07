@@ -28,7 +28,7 @@ export const EnterContainer = memo(function EnterContainer() {
   );
 
   return (
-    <Container w="lg">
+    <Container size="lg">
       <AsyncView<typeof loaders> loaders={loaders} args={args} Component={EnterScoreView} />
     </Container>
   );

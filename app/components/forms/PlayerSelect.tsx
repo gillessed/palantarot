@@ -1,201 +1,154 @@
-import { Button, MenuItem } from "@blueprintjs/core";
-import { ItemRenderer, Select } from "@blueprintjs/select";
-import classNames from "classnames";
-import React from "react";
-import { createSelector } from "reselect";
+import { Combobox, InputBase, useCombobox } from "@mantine/core";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Player } from "../../../server/model/Player";
-import { loadContainer } from "../../containers/LoadingContainer";
-import { playersLoader } from "../../services/players/index";
+import type { PlayerId } from "../../../server/play/model/GameState";
+import { mapFromCollection } from "../../../server/utils";
 import { getPlayerName } from "../../services/players/playerName";
-import { findMatches } from "../../utils/stringMatch";
+import { findMatches, type Item } from "../../utils/stringMatch";
+import { PlayerSelectOption } from "./PlayerSelectOption";
 
-const PlayerSelectInput = Select.ofType<PlayerSelect.Item>();
-
-export namespace PlayerSelect {
-  export interface Props {
-    players: Map<string, Player>;
-    recentPlayers?: Player[];
-    selectedPlayers?: Player[];
-    unselectedLabel?: string;
-    onPlayerSelected: (player?: Player) => void;
-    selectedPlayer?: Player;
-  }
-
-  export interface State {
-    selectedPlayer: Player | null;
-  }
-
-  export interface Item {
-    text: string;
-    activatible?: boolean;
-    selects?: Player | null;
-    recent?: boolean;
-    queryText: string;
-    hightlights?: [number, number][];
-  }
+interface Props {
+  players: Player[];
+  recentPlayers?: Player[];
+  selectedPlayers?: Set<PlayerId> | undefined;
+  unselectedLabel?: string;
+  onPlayerSelected: (player?: Player) => void;
+  selectedPlayer?: Player;
 }
 
-const NO_FILTER_ITEM: PlayerSelect.Item = {
+const NoFilterItemId = "no_filter_item";
+const NoFilterITem: Item = {
+  id: NoFilterItemId,
   text: "Search for a player...",
   queryText: "",
 };
 
-const PopoverProps = {
-  usePortal: false,
-};
+const UnselectedItemId = "unselected_item";
+const MoreItemId = "more_items";
+const OptionCountMax = 13;
 
-export class PlayerSelect extends React.PureComponent<PlayerSelect.Props, PlayerSelect.State> {
-  private unselectedItem: PlayerSelect.Item;
-  constructor(props: PlayerSelect.Props) {
-    super(props);
-    this.state = {
-      selectedPlayer: this.props.selectedPlayer || null,
-    };
-    this.unselectedItem = {
-      text: this.props.unselectedLabel || "",
+export const PlayerSelect = memo(function PlayerSelect({
+  selectedPlayer,
+  players,
+  recentPlayers,
+  unselectedLabel,
+  onPlayerSelected,
+  selectedPlayers,
+}: Props) {
+  const unselectedItem: Item = useMemo(() => {
+    return {
+      id: UnselectedItemId,
+      text: unselectedLabel ?? "",
       activatible: true,
       selects: null,
       queryText: "",
     };
-  }
+  }, [unselectedLabel]);
 
-  private getItemList = createSelector(
-    (playerMap: Map<string, Player>) => playerMap,
-    (playerMap: Map<string, Player>) => {
-      const players: Array<Player> = Array.from(playerMap.values());
-      const items: PlayerSelect.Item[] = players.map((p) => {
-        const text = getPlayerName(p);
-        return {
-          text,
-          queryText: text.toLowerCase(),
-          activatible: true,
-          selects: p,
-          recent: !!(this.props.recentPlayers && this.props.recentPlayers.find((rp) => rp.id === p.id)),
-        };
-      });
-      items.sort((p1, p2) => {
-        if (p1.recent && !p2.recent) {
-          return -1;
-        } else if (p2.recent && !p1.recent) {
-          return 1;
-        }
-        return p1.text.localeCompare(p2.text);
-      });
-      return items;
-    }
-  );
+  const combobox = useCombobox({
+    onDropdownClose: () => combobox.resetSelectedOption(),
+  });
 
-  public render() {
-    const itemList = this.getItemList(this.props.players);
-    let filterText = this.props.unselectedLabel;
-    if (this.state.selectedPlayer) {
-      filterText = `${this.state.selectedPlayer.firstName} ${this.state.selectedPlayer.lastName}`;
-    } else {
-      filterText = "Select Player";
-    }
-    return (
-      <div className="player-select-container">
-        <PlayerSelectInput
-          resetOnClose
-          resetOnSelect
-          items={itemList}
-          itemRenderer={this.renderItem}
-          itemListPredicate={this.queryPlayers}
-          onItemSelect={this.onPlayerSelected}
-          noResults={<MenuItem disabled={true} text="No results." />}
-          popoverProps={PopoverProps}
-        >
-          <Button text={filterText} rightIcon="caret-down" fill />
-        </PlayerSelectInput>
-      </div>
-    );
-  }
+  const [query, setQuery] = useState("");
 
-  private queryPlayers = (query: string, items: PlayerSelect.Item[]): PlayerSelect.Item[] => {
+  const itemList = useMemo(() => {
+    const items: Item[] = players.map((p) => {
+      const text = getPlayerName(p);
+      return {
+        id: p.id,
+        text,
+        queryText: text.toLowerCase(),
+        activatible: true,
+        selects: p,
+        recent: !!(recentPlayers && recentPlayers.find((rp) => rp.id === p.id)),
+      };
+    });
+    items.sort((p1, p2) => {
+      if (p1.recent && !p2.recent) {
+        return -1;
+      } else if (p2.recent && !p1.recent) {
+        return 1;
+      }
+      return p1.text.localeCompare(p2.text);
+    });
+    return items;
+  }, [players, recentPlayers]);
+
+  const itemMap = useMemo(() => {
+    return mapFromCollection(itemList, "id");
+  }, [itemList]);
+
+  const filteredItems = useMemo(() => {
     if (query === "") {
-      const start = this.props.unselectedLabel ? [this.unselectedItem, NO_FILTER_ITEM] : [NO_FILTER_ITEM];
-      start.push(...items.filter((item) => item.recent));
+      const start = unselectedLabel != null ? [unselectedItem, NoFilterITem] : [NoFilterITem];
+      start.push(...itemList.filter((item) => item.recent));
       return start;
     }
-    const filtered = findMatches(query, items);
-    if (this.props.unselectedLabel) {
-      filtered.unshift(this.unselectedItem);
+    const filtered = findMatches(query, itemList);
+    if (unselectedLabel != null) {
+      filtered.unshift(unselectedItem);
     }
-    if (filtered.length === 1 && this.props.unselectedLabel) {
+    if (filtered.length === 1 && unselectedLabel != null) {
       return [];
-    } else if (filtered.length > 13) {
-      const slice = filtered.slice(0, 13);
+    } else if (filtered.length > OptionCountMax) {
+      const slice = filtered.slice(0, OptionCountMax);
       slice.push({
-        text: `${filtered.length - 13} more...`,
+        id: MoreItemId,
+        text: `${filtered.length - OptionCountMax} more...`,
         queryText: "",
       });
       return slice;
     } else {
       return filtered;
     }
-  };
+  }, [query, itemList, unselectedLabel, unselectedItem]);
 
-  private renderItem: ItemRenderer<PlayerSelect.Item> = (item, { handleClick, modifiers }) => {
-    const recent = !!item.recent;
-    const selectedPlayers = this.props.selectedPlayers;
-    const selects = item.selects;
-    const selected = !!(selectedPlayers && selects && selectedPlayers.find((sp) => sp.id === selects.id));
-    const classes = classNames("player-select-item", {
-      recent: recent && !selected,
-      selected: selected,
-    });
-    const label = selected ? "Selected" : recent ? "Recent" : undefined;
-    const text = item.hightlights ? this.renderHightlights(item.text, item.hightlights) : item.text;
+  const handleOptionSelected = useCallback(
+    (value: string) => {
+      const item = itemMap.get(value);
+      if (item?.selects != null) {
+        onPlayerSelected(item?.selects);
+      }
+      combobox.closeDropdown();
+    },
+    [itemMap, combobox]
+  );
+
+  const options = filteredItems.map((item) => {
     return (
-      <MenuItem
-        className={classes}
-        disabled={item.selects === undefined}
+      <PlayerSelectOption
+        item={item}
         key={item.text}
-        text={text}
-        label={label}
-        onClick={handleClick}
+        selectedPlayers={selectedPlayers}
+        selectedPlayer={selectedPlayer}
       />
     );
-  };
+  });
 
-  private renderHightlights = (text: string, highlights: [number, number][]) => {
-    const nodes: JSX.Element[] = [];
-    let startText = highlights[0][0] > 0 ? text.substring(0, highlights[0][0]) : undefined;
-    if (startText !== undefined) {
-      nodes.push(<span key="start">{startText}</span>);
-    }
-    for (let hightlightIndex = 0; hightlightIndex < highlights.length; hightlightIndex++) {
-      const highlighted = text.substring(highlights[hightlightIndex][0], highlights[hightlightIndex][1] + 1);
-      nodes.push(
-        <span className="highlighted" key={`h-${hightlightIndex}`}>
-          {highlighted}
-        </span>
-      );
-      if (hightlightIndex < highlights.length - 1) {
-        const unhighlighted = text.substring(highlights[hightlightIndex][1] + 1, highlights[hightlightIndex + 1][0]);
-        nodes.push(<span key={`u-${hightlightIndex}`}>{unhighlighted}</span>);
-      } else if (highlights[hightlightIndex][1] < text.length) {
-        const unhighlighted = text.substring(highlights[hightlightIndex][1] + 1, text.length);
-        nodes.push(<span key={`u-${hightlightIndex}`}>{unhighlighted}</span>);
-      }
-    }
-    return <span className="hightlighted-match">{nodes}</span>;
-  };
+  return (
+    <Combobox store={combobox} withinPortal={false} onOptionSubmit={handleOptionSelected}>
+      <Combobox.Target>
+        <InputBase
+          rightSection={<Combobox.Chevron />}
+          value={query}
+          onChange={(event) => {
+            combobox.openDropdown();
+            combobox.updateSelectedOptionIndex();
+            setQuery(event.currentTarget.value);
+          }}
+          onClick={() => combobox.openDropdown()}
+          onFocus={() => combobox.openDropdown()}
+          onBlur={() => {
+            combobox.closeDropdown();
+          }}
+          placeholder="Search value"
+          rightSectionPointerEvents="none"
+        />
+      </Combobox.Target>
 
-  private onPlayerSelected = (item: PlayerSelect.Item) => {
-    if (item.selects !== undefined) {
-      this.setState(
-        {
-          selectedPlayer: item.selects,
-        },
-        () => {
-          this.props.onPlayerSelected(item.selects || undefined);
-        }
-      );
-    }
-  };
-}
-
-export const PlayerSelectContainer = loadContainer({
-  players: playersLoader,
-})(PlayerSelect);
+      <Combobox.Dropdown>
+        <Combobox.Options>{options}</Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
+  );
+});

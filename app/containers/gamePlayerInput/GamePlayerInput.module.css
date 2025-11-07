@@ -1,0 +1,6 @@
+.addPlayerLink {
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 5px;
+  color: var(--mantine-color-blue-7);
+}

@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { memo } from "react";
 import { NavigationButton } from "../../components/NavigationButton";
-import { StaticRoutes } from "../../routes";
+import { StaticRoutes } from "../../../shared/routes";
 
 export const HomeContainer = memo(function HomeContainer() {
   return (

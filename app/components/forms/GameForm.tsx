@@ -1,14 +1,16 @@
-import { Alignment, Button, ButtonGroup, Checkbox, Intent } from '@blueprintjs/core';
-import classNames from 'classnames';
-import React, { memo, useState } from 'react';
-import { createSelector } from 'reselect';
-import { GameRecord, PlayerHand } from '../../../server/model/GameRecord';
-import { Player } from '../../../server/model/Player';
-import { GamePlayerInput, PlayerState } from '../../containers/gamePlayerInput/GamePlayerInput';
-import { getPlayerName } from '../../services/players/playerName';
-import { PointsInput, SelectInput } from './Elements';
-import { OppositionRoles, PlayerRoles } from './PlayerRoles';
-import { getPointsEarned } from './pointsEarned';
+import { Button, Checkbox, Group, Paper, Space, Stack } from "@mantine/core";
+import { IconDownload, IconUsers } from "@tabler/icons-react";
+import classNames from "classnames";
+import { memo, useCallback, useMemo, useState } from "react";
+import { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import type { PlayerId } from "../../../server/play/model/GameState";
+import { GamePlayerInput, PlayerState } from "../../containers/gamePlayerInput/GamePlayerInput";
+import { getPlayerName } from "../../services/players/playerName";
+import { filterFalsy } from "../../utils/filterFalsy";
+import { PointsInput, SelectInput } from "./Elements";
+import { OppositionRoles, type PlayerRole } from "./PlayerRoles";
+import { getPointsEarned } from "./pointsEarned";
 
 interface Props {
   recentPlayers?: Player[];
@@ -19,477 +21,441 @@ interface Props {
   loading?: boolean;
 }
 
-interface State {
-  numberOfPlayers: number;
-  bidderCalledSelf: boolean;
-  players: {[key: string]: PlayerState},
-  bidAmount?: number;
-  bidAmountError?: string;
-  points?: number;
-  pointsError?: string;
+type PlayerStateMap = Map<PlayerRole, PlayerState>;
+type PlayerErrorMap = Map<PlayerRole, string>;
+
+function getEmptyPlayerState(role: PlayerRole): PlayerState {
+  return {
+    role,
+    showed: false,
+    oneLast: false,
+  };
 }
 
-export const GameForm = memo(function GameForm({ onSubmit, players, submitText, game, loading, recentPlayers}: Props) {
-  const [numberOfPlayers, setNumberOfPlayers] = useState<number>(game?.numberOfPlayers ?? 5);
-  const [bidderCalledSelf, setBidderCalledSelf] = useState<boolean>(false);
+const DefaultPlayerCount = 5;
+const DefaultCalledSelf = false;
+const DefaultPlayerStateMap: PlayerStateMap = new Map(
+  getActivePlayersForValues(DefaultPlayerCount, DefaultCalledSelf).map((role) => {
+    return [role, getEmptyPlayerState(role)];
+  })
+);
 
-  constructor(props: Props) {
-    super(props);
-    if (this.props.game) {
-      this.state = this.getStateFromGame(this.props.game);
-    } else {
-      this.state = this.getEmptyState();
+const BidValues = ["10", "20", "40", "80", "160"].map((item) => ({ value: item, label: item }));
+
+function getPlayerStateFromHand(players: Player[], role: PlayerRole, hand: PlayerHand): PlayerState {
+  const player = players.find((player) => hand.id === player.id);
+  return {
+    role,
+    player,
+    showed: hand.showedTrump,
+    oneLast: hand.oneLast,
+  };
+}
+
+function getPlayerStateMapFromGame(players: Player[], game: GameRecord) {
+  const handData = game.handData!;
+  const playerState: PlayerStateMap = new Map();
+  playerState.set("bidder", getPlayerStateFromHand(players, "bidder", handData.bidder));
+  if (handData.partner != null) {
+    playerState.set("partner", getPlayerStateFromHand(players, "partner", handData.partner));
+  }
+  handData.opposition.forEach((handData: PlayerHand, index: number) => {
+    playerState.set(OppositionRoles[index], getPlayerStateFromHand(players, OppositionRoles[index], handData));
+  });
+  return playerState;
+}
+
+function getActivePlayersForValues(numberOfPlayers: number, bidderCalledSelf: boolean): PlayerRole[] {
+  const activePlayers: PlayerRole[] = ["bidder", "player_1", "player_2"];
+  if (numberOfPlayers === 5 && !bidderCalledSelf) {
+    activePlayers.push("partner");
+  }
+  if (numberOfPlayers >= 4) {
+    activePlayers.push("player_3");
+  }
+  if (numberOfPlayers === 5 && bidderCalledSelf) {
+    activePlayers.push("player_4");
+  }
+  return activePlayers;
+}
+
+function validatePoints(value: string, bidAmount: number | undefined) {
+  const number = +value;
+  if (isNaN(number)) {
+    return "Points must be a number.";
+  }
+  if (!Number.isInteger(number) || number % 10 !== 0) {
+    return "Points must be divisible by 10.";
+  }
+  // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
+  // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
+  if (bidAmount) {
+    const bound = bidAmount + 60 + 400 + 20 + 10;
+    if (number > bound || number < -bound) {
+      return "Points exceed theoretical bound on possible game outcome.";
     }
+  } else {
+    return "Must select a bid amount.";
   }
+}
 
-  private getEmptyState(): State {
-    const numberOfPlayers = 5;
-    const players: {[key: string]: PlayerState} = {};
-    this.getActivePlayersForValues(numberOfPlayers, false).forEach((role: string) => {
-      players[role] = {
-        role,
-        showed: false,
-        oneLast: false,
-      };
-    });
-
-    return {
-      numberOfPlayers,
-      bidderCalledSelf: false,
-      players,
-    };
+function bidValidator(value: string) {
+  if (!value) {
+    return "Must select a bid amount.";
   }
+}
 
-  private getSelectedPlayers = createSelector(
-    (state: State) => state.players,
-    (players: {[key: string]: PlayerState }) => {
-      const selectedPlayers: Player[] = [];
-      for (const playerKey of Object.keys(players)) {
-        const state = players[playerKey];
-        if (state && state.player) {
-          selectedPlayers.push(state.player);
+export const GameForm = memo(function GameForm({ onSubmit, players, submitText, game, loading, recentPlayers }: Props) {
+  const [numberOfPlayers, setNumberOfPlayers] = useState<number>(game?.numberOfPlayers ?? DefaultPlayerCount);
+  const [bidderCalledSelf, setBidderCalledSelf] = useState<boolean>(
+    game != null ? game.numberOfPlayers === 5 && game.partnerId == null : DefaultCalledSelf
+  );
+  const [playersState, setPlayersState] = useState<PlayerStateMap>(
+    game != null ? getPlayerStateMapFromGame(players, game) : DefaultPlayerStateMap
+  );
+  const [bidAmount, setBidAmount] = useState<number | undefined>(game?.bidAmount);
+  const [bidAmountError, setBidAmountError] = useState<string | undefined>();
+  const [points, setPoints] = useState<number | undefined>(game?.points);
+  const [pointsError, setPointsError] = useState<string | undefined>();
+
+  const updateActivePlayers = useCallback(
+    (numberOfPlayers: number, bidderCalledSelf: boolean) => {
+      const newPlayers: PlayerStateMap = new Map();
+      for (const role of getActivePlayersForValues(numberOfPlayers, bidderCalledSelf)) {
+        const currentState = playersState.get(role);
+        if (currentState != null) {
+          newPlayers.set(role, currentState);
+        } else {
+          newPlayers.set(role, getEmptyPlayerState(role));
         }
       }
-      return selectedPlayers;
-    }
-  )
+      setPlayersState(playersState);
+      setNumberOfPlayers(numberOfPlayers);
+      setBidderCalledSelf(bidderCalledSelf);
+    },
+    [playersState, setPlayersState, setNumberOfPlayers, setBidderCalledSelf]
+  );
 
-  private getStateFromGame(game: GameRecord): State {
-    const numberOfPlayers: number = game.numberOfPlayers;
-    const bidderCalledSelf: boolean = numberOfPlayers === 5 && !game.partnerId;
-    const bidAmount: number = game.bidAmount;
-    const points: number = game.points;
-    const handData = game.handData!;
-    const players: {[key: string]: PlayerState} = {};
-    players[PlayerRoles.BIDDER] = this.getPlayerStateFromHand(PlayerRoles.BIDDER, handData.bidder);
-    if (handData.partner) {
-      players[PlayerRoles.PARTNER] = this.getPlayerStateFromHand(PlayerRoles.PARTNER, handData.partner);
+  const setPlayerCount = useCallback(
+    (count: number) => {
+      if (numberOfPlayers !== count) {
+        const calledSelf = count === 5 ? bidderCalledSelf : false;
+        updateActivePlayers(count, calledSelf);
+      }
+    },
+    [updateActivePlayers, numberOfPlayers, bidderCalledSelf]
+  );
+
+  const setPlayerCount3 = useMemo(() => () => setPlayerCount(3), [setPlayerCount]);
+  const setPlayerCount4 = useMemo(() => () => setPlayerCount(4), [setPlayerCount]);
+  const setPlayerCount5 = useMemo(() => () => setPlayerCount(5), [setPlayerCount]);
+
+  const handleSetSelfCalled = useCallback(
+    (e: any) => {
+      updateActivePlayers(numberOfPlayers, e.target.checked);
+    },
+    [updateActivePlayers, numberOfPlayers]
+  );
+  const selectedPlayers = useMemo(() => {
+    const playerSet = new Set<PlayerId>();
+    for (const value of playersState.values()) {
+      if (value.player != null) {
+        playerSet.add(value.player.id);
+      }
     }
-    handData.opposition.forEach((handData: PlayerHand, index: number) => {
-      players[OppositionRoles[index]] = this.getPlayerStateFromHand(OppositionRoles[index], handData);
+    return playerSet;
+  }, [playersState]);
+
+  const activePlayerStates = useMemo(() => {
+    return filterFalsy(
+      getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).map((role: PlayerRole) => {
+        return playersState.get(role);
+      })
+    );
+  }, [numberOfPlayers, bidderCalledSelf]);
+
+  const playerErrors = useMemo(() => {
+    const sorted = activePlayerStates.sort((r1, r2) => {
+      if (r1.player === undefined && r2.player === undefined) {
+        return 0;
+      } else if (r1.player === undefined) {
+        return -1;
+      } else if (r2.player === undefined) {
+        return 1;
+      } else {
+        return `${r1.player.id}`.localeCompare(`${r2.player.id}`);
+      }
     });
-    return {
-      numberOfPlayers,
-      bidderCalledSelf,
+    const playerErrors: PlayerErrorMap = new Map();
+    for (const [index, playerState] of sorted.entries()) {
+      const duplicate =
+        playerState.player != null &&
+        ((index > 0 && playerState.player === sorted[index - 1].player) ||
+          (index < sorted.length - 1 && playerState.player === sorted[index + 1].player));
+      if (duplicate) {
+        const player = playerState.player!;
+        const error = `Player ${getPlayerName(player)} appears more than once.`;
+        playerErrors.set(playerState.role, error);
+      }
+    }
+
+    const oneLastPlayers = activePlayerStates.filter((playerState) => playerState.oneLast);
+    if (oneLastPlayers.length > 1) {
+      for (const playerState of activePlayerStates) {
+        if (playerState.oneLast && playerErrors.get(playerState.role) == null) {
+          playerErrors.set(playerState.role, "Multiple players played one last.");
+        }
+      }
+    }
+
+    const showedPlayers = activePlayerStates.filter((playerState) => playerState.showed);
+    if (showedPlayers.length > 2) {
+      for (const playerState of activePlayerStates) {
+        if (playerState.showed && playerErrors.get(playerState.role) == null) {
+          playerErrors.set(playerState.role, "More than two people showed.");
+        }
+      }
+    }
+
+    return playerErrors;
+  }, [playersState]);
+
+  const handlePlayerChanged = useCallback((role: PlayerRole, playerState: PlayerState) => {
+    const newPlayersState = new Map(playersState);
+    newPlayersState.set(role, playerState);
+    setPlayersState(newPlayersState);
+  }, []);
+
+  const handlePointsChanged = useCallback(
+    (points?: string, error?: string) => {
+      setPoints(points ? +points : undefined);
+      setPointsError(error);
+    },
+    [setPoints, setPointsError]
+  );
+
+  const handleBidChanged = useCallback(
+    (bid?: string, error?: string) => {
+      const bidAmount = bid ? +bid : undefined;
+      const pointsError = validatePoints(`${points}`, bidAmount);
+      setBidAmount(bidAmount);
+      setBidAmountError(error);
+      setPointsError(pointsError);
+    },
+    [points, setBidAmount, setBidAmountError, setPointsError]
+  );
+
+  const pointsValidator = useCallback(
+    (value: string) => {
+      return validatePoints(value, bidAmount);
+    },
+    [bidAmount]
+  );
+
+  const calledSelfClasses = classNames({
+    "hide-called-self": numberOfPlayers !== 5,
+  });
+
+  const errorCount = useMemo(() => {
+    return filterFalsy([bidAmountError, pointsError, ...playerErrors.values()]).length;
+  }, [bidAmountError, pointsError, playerErrors]);
+
+  const missingValues = useMemo(() => {
+    const values: Array<any | undefined> = [
       bidAmount,
       points,
-      players,
-    };
-  }
-
-  private getPlayerStateFromHand(role: string, hand: PlayerHand): PlayerState {
-    const player = this.props.players.find((player) => hand.id === player.id);
-    return {
-      role,
-      player,
-      showed: hand.showedTrump,
-      oneLast: hand.oneLast,
-    };
-  }
-
-  private getActivePlayers = (): string[] => {
-    return this.getActivePlayersForValues(this.state.numberOfPlayers, this.state.bidderCalledSelf);
-  }
-
-  private getActivePlayersForValues(numberOfPlayers: number, bidderCalledSelf: boolean): string[] {
-    const activePlayers = [
-      PlayerRoles.BIDDER,
-      PlayerRoles.PLAYER1,
-      PlayerRoles.PLAYER2,
+      Array.from(playersState.values()).map((playerState) => playerState.player),
     ];
-    if (numberOfPlayers === 5 && !bidderCalledSelf) {
-      activePlayers.push(PlayerRoles.PARTNER);
-    }
-    if (numberOfPlayers >= 4) {
-      activePlayers.push(PlayerRoles.PLAYER3);
-    }
-    if (numberOfPlayers === 5 && bidderCalledSelf) {
-      activePlayers.push(PlayerRoles.PLAYER4);
-    }
-    return activePlayers;
-  }
+    return values.reduce((previous, current) => (current != null ? previous : previous + 1), 0);
+  }, [bidAmount, points, playersState]);
 
-  public render() {
-    const calledSelfClasses = classNames({
-      'hide-called-self': this.state.numberOfPlayers !== 5,
-    });
-    return (
-      <div className='game-form'>
-        {this.renderPlayerNumberButtonRow()}
-        <div className='card-container'>
-          <div className='bp3-card' style={{marginTop: 50}}>
-            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-              <h3 className='bp3-heading'>Bidder's Team</h3>
+  const submitActive = errorCount === 0 && missingValues === 0;
+
+  const handleSubmit = useCallback(() => {
+    const playerHands: Map<PlayerRole, PlayerHand> = new Map();
+    const activePlayers = getActivePlayersForValues(numberOfPlayers, bidderCalledSelf);
+    for (const role of activePlayers) {
+      const player = playersState.get(role);
+      if (player == null) {
+        continue;
+      }
+      playerHands.set(role, {
+        id: player.player!.id,
+        handId: "",
+        pointsEarned: getPointsEarned(points!, role, numberOfPlayers, bidderCalledSelf),
+        showedTrump: player.showed,
+        oneLast: player.oneLast,
+      });
+    }
+    const handData = {
+      bidder: playerHands.get("bidder")!,
+      partner: playerHands.get("partner"),
+      opposition: filterFalsy(
+        OppositionRoles.map((role) => {
+          return playerHands.get(role);
+        })
+      ),
+    };
+    const bidderId = playersState.get("bidder")?.player?.id!;
+    const partnerId = playersState.get("partner")?.player?.id;
+
+    const newGame: GameRecord = {
+      id: game ? game.id : "",
+      bidderId,
+      partnerId,
+      timestamp: game?.timestamp ?? "",
+      numberOfPlayers,
+      bidAmount: bidAmount!,
+      points: points!,
+      slam: points! >= 270,
+      handData,
+    };
+    onSubmit(newGame);
+  }, [onSubmit, game, bidAmount, points, numberOfPlayers, bidderCalledSelf, playersState]);
+
+  return (
+    <Stack align="center">
+      <Button.Group className="player-select-bar">
+        <Button
+          rightSection={<IconUsers />}
+          color={numberOfPlayers === 3 ? "blue.5" : "blue.3"}
+          onClick={setPlayerCount3}
+        >
+          3
+        </Button>
+        <Button
+          rightSection={<IconUsers />}
+          color={numberOfPlayers === 4 ? "blue.5" : "blue.3"}
+          onClick={setPlayerCount4}
+        >
+          4
+        </Button>
+        <Button
+          rightSection={<IconUsers />}
+          color={numberOfPlayers === 5 ? "blue.5" : "blue.3"}
+          onClick={setPlayerCount5}
+        >
+          5
+        </Button>
+      </Button.Group>
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap={20}>
+        <Group justify="center">
+          <Paper miw={400} bg="gray.4" pr={20} pl={20} pb={10}>
+            <Group justify="space-between">
+              <h3>Bidder's Team</h3>
 
               <Checkbox
                 className={calledSelfClasses}
-                alignIndicator={Alignment.RIGHT}
-                onChange={this.onCalledSelfPressed}
-                checked={this.state.bidderCalledSelf}
-              >
-                <span className='text'>Called Self</span>
-              </Checkbox>
-            </div>
-
-            {this.renderPlayerSelector(PlayerRoles.BIDDER)}
-
-            <SelectInput
-              classNames={['pt-game-bid-select']}
-              label='Bid Amount:'
-              initialValue={this.state.bidAmount === undefined ? '' : `${this.state.bidAmount}`}
-              values={['10', '20', '40', '80', '160'].map(item => ({value: item, display: item}))}
-              onChange={this.onBidChanged}
-              validator={(value: string) => {
-                if (!value) {
-                  return 'Must select a bid amount.';
-                }
-              }}
+                onChange={handleSetSelfCalled}
+                checked={bidderCalledSelf}
+                label="Called Self"
+              />
+            </Group>
+            <GamePlayerInput
+              role="bidder"
+              recentPlayers={recentPlayers}
+              players={players}
+              playerState={playersState.get("bidder")!}
+              error={playerErrors.get("bidder")}
+              selectedPlayers={selectedPlayers}
+              label="Bidder"
+              onChange={handlePlayerChanged}
             />
+            <Stack bg="white" mb={10} bdrs={10} align="center" pb={10}>
+              <SelectInput
+                w={150}
+                label="Bid Amount:"
+                initialValue={bidAmount == null ? "" : `${bidAmount}`}
+                values={BidValues}
+                onChange={handleBidChanged}
+                validator={bidValidator}
+              />
+              <PointsInput
+                w={150}
+                label="Points:"
+                initialValue={points === undefined ? "" : `${points}`}
+                initialError={pointsError === undefined ? "" : pointsError}
+                onChange={handlePointsChanged}
+                validator={pointsValidator}
+                points={points}
+              />
+            </Stack>
 
-            <PointsInput
-              label='Points:'
-              initialValue={this.state.points === undefined ? '' : `${this.state.points}`}
-              initialError={this.state.pointsError === undefined ? '' : this.state.pointsError}
-              classNames={['pt-game-points-input']}
-              onChange={this.onPointsChanged}
-              validator={(value: string) => this.validatePoints(value, this.state.bidAmount)}
-              points={this.state.points}
+            {!bidderCalledSelf && numberOfPlayers === 5 && (
+              <GamePlayerInput
+                role="partner"
+                recentPlayers={recentPlayers}
+                players={players}
+                playerState={playersState.get("partner")!}
+                error={playerErrors.get("partner")}
+                selectedPlayers={selectedPlayers}
+                label="Partner"
+                onChange={handlePlayerChanged}
+              />
+            )}
+          </Paper>
+        </Group>
+
+        <Paper miw={400} bg="gray.4" pr={20} pl={20} pb={10}>
+          <h3 className="bp3-heading">Opposition</h3>
+          <GamePlayerInput
+            role="player_1"
+            recentPlayers={recentPlayers}
+            players={players}
+            playerState={playersState.get("player_1")!}
+            error={playerErrors.get("player_1")}
+            selectedPlayers={selectedPlayers}
+            label="Player 1"
+            onChange={handlePlayerChanged}
+          />
+          <GamePlayerInput
+            role="player_2"
+            recentPlayers={recentPlayers}
+            players={players}
+            playerState={playersState.get("player_2")!}
+            error={playerErrors.get("player_2")}
+            selectedPlayers={selectedPlayers}
+            label="Player 2"
+            onChange={handlePlayerChanged}
+          />
+          {numberOfPlayers >= 4 && (
+            <GamePlayerInput
+              role="player_3"
+              recentPlayers={recentPlayers}
+              players={players}
+              playerState={playersState.get("player_3")!}
+              error={playerErrors.get("player_3")}
+              selectedPlayers={selectedPlayers}
+              label="Player 3"
+              onChange={handlePlayerChanged}
             />
-            
-            {this.renderPartnerSelector()}
-          </div>
-
-          <div className='bp3-card' style={{marginTop: 50}}>
-            <h3 className='bp3-heading'>Opposition</h3>
-            {this.renderOppositionSelectors()}
-          </div>
-        </div>
-        {this.renderSubmitButton()}
-      </div>
-    );
-  }
-
-  private renderPlayerSelector(playerRole: string) {
-    const selectedPlayers = this.getSelectedPlayers(this.state);
-    return (
-      <GamePlayerInput
-        key={playerRole}
-        role={playerRole}
-        recentPlayers={this.props.recentPlayers}
-        players={this.props.players}
-        player={this.state.players[playerRole]}
-        selectedPlayers={selectedPlayers}
-        label={`${playerRole}:`}
-        onChange={(player: PlayerState) => {
-          const newPlayers ={...this.state.players};
-          newPlayers[playerRole] = player;
-          this.setState({
-            players: newPlayers,
-          }, () => this.validatePlayers());
-        }}
-      />
-    );
-  }
-
-  private renderSubmitButton() {
-    const active = this.errorCount() === 0 && this.missingValues() === 0;
-    return (
-      <div className='enter-score-button-container'>
+          )}
+          {numberOfPlayers >= 5 && bidderCalledSelf && (
+            <GamePlayerInput
+              role="player_4"
+              recentPlayers={recentPlayers}
+              players={players}
+              playerState={playersState.get("player_4")!}
+              error={playerErrors.get("player_4")}
+              selectedPlayers={selectedPlayers}
+              label="Player 4"
+              onChange={handlePlayerChanged}
+            />
+          )}
+        </Paper>
+      </Group>
+      <div className="enter-score-button-container">
         <Button
-          className='enter-score-button'
-          icon='manually-entered-data'
-          large
-          intent={Intent.SUCCESS}
-          disabled={!active}
-          text={this.props.submitText}
-          onClick={this.onSubmitPress}
-        />
+          loading={loading}
+          className="enter-score-button"
+          rightSection={<IconDownload />}
+          color="green"
+          disabled={!submitActive}
+          onClick={handleSubmit}
+        >
+          {submitText}
+        </Button>
       </div>
-    );
-  }
-
-  private onSubmitPress = () => {
-    const playerHands: {[key: string]: PlayerHand} = {};
-    const activePlayers = this.getActivePlayers();
-    activePlayers.forEach((playerName) => {
-      const player = this.state.players[playerName];
-      playerHands[playerName] = {
-        id: player.player!.id,
-        handId: '',
-        pointsEarned: getPointsEarned(
-          this.state.points!,
-          playerName,
-          this.state.numberOfPlayers,
-          this.state.bidderCalledSelf,
-        ),
-        showedTrump: player.showed,
-        oneLast: player.oneLast,
-      };
-    });
-    const handData = {
-      bidder: playerHands[PlayerRoles.BIDDER],
-      partner: playerHands[PlayerRoles.PARTNER],
-      opposition: OppositionRoles.map((playerName: string) => {
-        return playerHands[playerName];
-      }).filter(hand => hand),
-    }
-    const bidderId = this.state.players[PlayerRoles.BIDDER].player!.id;
-    let partnerId = '';
-    if (this.state.players[PlayerRoles.PARTNER]) {
-      partnerId = this.state.players[PlayerRoles.PARTNER].player!.id;
-    }
-
-    const newGame: GameRecord = {
-      id: this.props.game ? this.props.game.id : '',
-      bidderId,
-      partnerId,
-      timestamp: this.props.game ? this.props.game.timestamp : '',
-      numberOfPlayers: this.state.numberOfPlayers,
-      bidAmount: this.state.bidAmount!,
-      points: this.state.points!,
-      slam: this.state.points! >= 270,
-      handData,
-    };
-    this.props.onSubmit(newGame);
-  }
-
-  private renderPlayerNumberButtonRow() {
-    return (
-      <div className='player-selector-container bp3-ui-text-large'>
-        <ButtonGroup className='player-select-bar' large>
-          <Button icon='people' active={!!this.numberButtonEnabled(3)} onClick={this.setPlayerCount3}>
-            <span className='text'>3<span className='text hide-on-small'> Players</span></span>
-          </Button>
-          <Button icon='people' active={!!this.numberButtonEnabled(4)} onClick={this.setPlayerCount4}>
-            <span className='text'>4<span className='text hide-on-small'> Players</span></span>
-          </Button>
-          <Button icon='people' active={!!this.numberButtonEnabled(5)} onClick={this.setPlayerCount5}>
-            <span className='text'>5<span className='text hide-on-small'> Players</span></span>
-          </Button>
-        </ButtonGroup>
-      </div>
-    );
-  }
-
-  private renderPartnerSelector() {
-    if (!this.state.bidderCalledSelf && this.state.numberOfPlayers === 5) {
-      return this.renderPlayerSelector(PlayerRoles.PARTNER);
-    }
-  }
-
-  private renderOppositionSelectors() {
-    const opposition = [
-      this.renderPlayerSelector(PlayerRoles.PLAYER1),
-      this.renderPlayerSelector(PlayerRoles.PLAYER2),
-    ];
-    if (this.state.numberOfPlayers >= 4) {
-      opposition.push(this.renderPlayerSelector(PlayerRoles.PLAYER3));
-      if (this.state.numberOfPlayers === 5 && this.state.bidderCalledSelf) {
-        opposition.push(this.renderPlayerSelector(PlayerRoles.PLAYER4));
-      }
-    }
-    return opposition;
-  }
-
-  private numberButtonEnabled(count: number) {
-    if (count === this.state.numberOfPlayers) {
-      return 'pt-active';
-    } else {
-      return '';
-    }
-  }
-
-  private setPlayerCount(count: number) {
-    return () => {
-      if (this.state.numberOfPlayers !== count) {
-        const calledSelf = count === 5 ? this.state.bidderCalledSelf : false;
-        this.updateActivePlayers(count, calledSelf);
-      }
-    };
-  }
-
-  private setPlayerCount3 = this.setPlayerCount(3);
-  private setPlayerCount4 = this.setPlayerCount(4);
-  private setPlayerCount5 = this.setPlayerCount(5);
-
-  private onPointsChanged = (points?: string, error?: string,) => {
-    this.setState({
-      points: points ? +points : undefined,
-      pointsError: error,
-    });
-  }
-
-  private onBidChanged = (bid?: string, error?: string,) => {
-    const bidAmount = bid ? +bid : undefined;
-    const pointsError = this.validatePoints(this.state.points + '', bidAmount);
-    this.setState({
-      bidAmount,
-      bidAmountError: error,
-      pointsError,
-    });
-  }
-
-  private onCalledSelfPressed = (e: any) => {
-    this.updateActivePlayers(this.state.numberOfPlayers, e.target.checked);
-  }
-
-  private updateActivePlayers = (numberOfPlayers: number, bidderCalledSelf: boolean) => {
-    const newPlayers: {[key: string]: PlayerState} = {};
-    this.getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).forEach((role: string) => {
-      if (this.state.players[role]) {
-        newPlayers[role] = this.state.players[role];
-      } else {
-        newPlayers[role] = {
-          role,
-          showed: false,
-          oneLast: false,
-        };
-      }
-    });
-    this.setState({
-      numberOfPlayers,
-      bidderCalledSelf,
-      players: newPlayers,
-    }, () =>this.validatePlayers());
-  }
-
-  private getActivePlayerStates = () => {
-    return this.getActivePlayers().map((role: string) => {
-      return this.state.players[role];
-    })
-  }
-
-  private validatePoints = (value: string, bidAmount: number | undefined) => {
-    const number = +value;
-    if (isNaN(number)) {
-      return 'Points must be a number.';
-    }
-    if (!Number.isInteger(number) || number % 10 !== 0) {
-      return 'Points must be divisible by 10.';
-    }
-    // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
-    // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
-    if (bidAmount) {
-      const bound = bidAmount + 60 + 400 + 20 + 10;
-      if (number > bound || number < -bound) {
-        return 'Points exceed theoretical bound on possible game outcome.';
-      }
-    } else {
-      return 'Must select a bid amount.';
-    }
-  }
-
-  private validatePlayers = () => {
-    const players = this.getActivePlayerStates();
-    const sorted = players
-      .sort((r1, r2) => {
-        if (r1.player === undefined && r2.player === undefined) {
-          return 0;
-        } else if (r1.player === undefined) {
-          return -1;
-        } else if (r2.player === undefined) {
-          return 1;
-        } else {
-          return `${r1.player.id}`.localeCompare(`${r2.player.id}`);
-        }
-      });
-    const newPlayersArray = sorted
-      .map((item, index) => {
-        if (item.player === undefined) {
-          return {duplicate: false, state: item};
-        }
-        if (index > 0 && item.player === sorted[index - 1].player) {
-          return {duplicate: true, state: item};
-        }
-        if (index < sorted.length - 1 && item.player === sorted[index + 1].player) {
-          return {duplicate: true, state: item};
-        }
-        return {duplicate: false, state: item};
-      })
-      .map((item) => {
-        if (item.duplicate) {
-          const player = item.state.player!;
-          const error = `Player ${getPlayerName(player)} appears more than once.`;
-          return {
-            ...item.state,
-            error
-          };
-        } else {
-          return {
-            ...item.state,
-            error: undefined,
-          };
-        }
-      });
-    this.validateOnes(newPlayersArray);
-    this.validateShows(newPlayersArray);
-    const newPlayers: {[key: string]: PlayerState} = {};
-    newPlayersArray.forEach((newPlayer) => newPlayers[newPlayer.role] = newPlayer);
-    this.setState({
-      players: newPlayers,
-    });
-  }
-
-  private validateOnes(newPlayersArray: PlayerState[]) {
-    const oneLastPlayers = newPlayersArray
-      .filter(player => player.oneLast);
-    if (oneLastPlayers.length > 1) {
-      oneLastPlayers
-        .forEach(player => {
-          if (player.error === undefined) {
-            player.error = "Multiple players played one last.";
-          }
-        });
-    }
-  }
-
-  private validateShows(newPlayersArray: PlayerState[]) {
-    const showedPlayers = newPlayersArray
-        .filter(player => player.showed);
-    if (showedPlayers.length > 2) {
-      showedPlayers
-        .forEach(player => {
-          if (player.error === undefined) {
-            player.error = "More than two people showed.";
-          }
-        });
-    }
-  }
-
-  private errorCount = (): number => {
-    return [
-      this.state.bidAmountError,
-      this.state.pointsError,
-      ...this.getActivePlayers().map((name) => this.state.players[name].error),
-    ].reduce((previous, current) => current ? previous + 1: previous, 0);
-  }
-
-  private missingValues = (): number => {
-    const values: Array<any | undefined> = [
-      this.state.bidAmount,
-      this.state.points,
-      ...this.getActivePlayers().map((name) => this.state.players[name].player),
-    ];
-    return values.reduce((previous, current) => (current !== undefined) ? previous : previous + 1, 0);
-  }
+    </Stack>
+  );
 });
