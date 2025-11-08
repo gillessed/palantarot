@@ -1,4 +1,4 @@
-import { Button, Fieldset, Select } from "@mantine/core";
+import { Button, Fieldset, Select, Stack } from "@mantine/core";
 import { IconCirclePlus } from "@tabler/icons-react";
 import { memo, useCallback, useMemo, useState } from "react";
 import { NewPlayer } from "../../../server/model/Player";
@@ -7,6 +7,7 @@ import { DefaultTarotBotRegistry } from "../../../shared/bots/TarotBot";
 import { TextInput } from "./Elements";
 
 interface Props {
+  loading?: boolean;
   isBot?: boolean;
   onSubmit: (newPlayer: NewPlayer) => void;
 }
@@ -23,7 +24,7 @@ const fieldValidator = (emptyMessage: string) => {
   };
 };
 
-export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot }: Props) {
+export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot, loading }: Props) {
   const firstNameValidator = useMemo(() => fieldValidator("Please enter a first name."), []);
   const lastNameValidator = useMemo(() => fieldValidator("Please enter a last name."), []);
   const [firstName, setFirstName] = useState("");
@@ -67,7 +68,7 @@ export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot }: Pr
   );
 
   return (
-    <div className="add-player-form">
+    <Stack align="center">
       <TextInput label="First Name: " onChange={handleFirstNameChange} validator={firstNameValidator} />
 
       <TextInput label="Last Name: " onChange={handleLastNameChange} validator={lastNameValidator} />
@@ -79,10 +80,10 @@ export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot }: Pr
       )}
 
       <div className="add-player-button-container">
-        <Button leftSection={<IconCirclePlus />} onClick={handleSubmit} disabled={!submitEnabled} color="green">
+        <Button loading={loading} rightSection={<IconCirclePlus />} onClick={handleSubmit} disabled={!submitEnabled} color="green">
           Add Player
         </Button>
       </div>
-    </div>
+    </Stack>
   );
 });

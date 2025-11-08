@@ -100,8 +100,8 @@ export const GamePlayerInput = memo(function GamePlayerInput({
   );
 
   return (
-    <Stack bg="gray.1" bdrs={10} pl={10} pr={10} pb={10} mb={10}>
-      <Fieldset legend={labelComponent} bg="gray.1" bd="none" m={0} p={0}>
+    <Stack bd="1px solid gray.4" bdrs={10} pl={10} pr={10} pb={10} mb={10}>
+      <Fieldset legend={labelComponent} bd="none" m={0} p={0}>
         <PlayerSelect
           players={players}
           recentPlayers={recentPlayers}

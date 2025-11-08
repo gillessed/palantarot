@@ -16,6 +16,7 @@
     "@mantine/charts": "^8.3.6",
     "@mantine/core": "^8.3.6",
     "@mantine/hooks": "^8.3.6",
+    "@mantine/notifications": "^8.3.6",
     "@tabler/icons-react": "^3.35.0",
     "@vitejs/plugin-react": "^5.1.0",
     "apisauce": "^3.2.1",

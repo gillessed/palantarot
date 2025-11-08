@@ -1,27 +1,19 @@
-import { Button, HTMLTable } from "@blueprintjs/core";
-import React from "react";
+import React, { memo } from "react";
 import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { GameTableRow } from "./GameTableRow";
+import { GameTablePager, PageState } from "./GameTablePager";
+import { Stack, Table } from "@mantine/core";
 
 export const DEFAULT_COUNT = 20;
 
-export interface PageState {
-  offset: number;
-  onOffsetChange: (offset: number) => void;
-}
-
-export enum GameOutcome {
-  WIN,
-  LOSS,
-  UNKNOWN,
-}
+export type GameOutcome = "win" | "loss" | "unknown";
 
 export const BidderWonValidator = (game: GameRecord) => {
   if (game.points >= 0) {
-    return GameOutcome.WIN;
+    return "win";
   } else {
-    return GameOutcome.LOSS;
+    return "loss";
   }
 };
 
@@ -32,77 +24,26 @@ interface Props {
   pageState?: PageState;
 }
 
-export class GameTable extends React.PureComponent<Props, {}> {
-  public render() {
-    return (
-      <div className="game-table-container">
-        {this.renderPager()}
-        {this.renderTable()}
-      </div>
-    );
-  }
-
-  private renderPager() {
-    if (this.props.pageState) {
-      const { offset } = this.props.pageState;
-      let pagerText;
-      if (this.props.games.length >= 1) {
-        const fromGame = this.props.games[this.props.games.length - 1].id;
-        const toGame = this.props.games[0].id;
-        pagerText = `${fromGame} - ${toGame} (Page ${offset + 1})`;
-      } else {
-        pagerText = "No games";
-      }
-      const nextDisabled = offset === 0;
-      return (
-        <div className="pager-container">
-          <Button
-            icon="chevron-left"
-            onClick={this.onPreviousClicked}
-            disabled={this.props.games.length < DEFAULT_COUNT}
-          />
-          <Button icon="chevron-right" onClick={this.onNextClicked} disabled={nextDisabled} />
-          <span className="text"> {pagerText} </span>
-        </div>
-      );
-    }
-  }
-
-  private renderTable() {
-    return (
-      <HTMLTable className="game-table" bordered interactive>
-        <thead>
-          <tr>
-            <th>Bidder</th>
-            <th>Partner</th>
-            <th>Bid</th>
-            <th>Points</th>
-            <th>Players</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>{this.props.games.map(this.renderGameTableRow)}</tbody>
-      </HTMLTable>
-    );
-  }
-
-  private renderGameTableRow = (game: GameRecord) => {
-    let outcome = GameOutcome.UNKNOWN;
-    if (this.props.winLossValidator) {
-      outcome = this.props.winLossValidator(game);
-    }
-    return <GameTableRow key={game.id} players={this.props.players} game={game} outcome={outcome} />;
-  };
-
-  private onPreviousClicked = () => {
-    if (this.props.pageState) {
-      this.props.pageState.onOffsetChange(this.props.pageState.offset + 1);
-    }
-  };
-
-  private onNextClicked = () => {
-    if (this.props.pageState) {
-      this.props.pageState.onOffsetChange(this.props.pageState.offset - 1);
-    }
-  };
-}
+export const GameTable = memo(function GameTable({players, games, pageState, winLossValidator}: Props) {
+  return (
+    <Stack mt={20}>
+      {pageState != null && <GameTablePager games={games} pageState={pageState}/>}
+      <Table withTableBorder highlightOnHover>
+        <Table.Th>
+          <Table.Tr>
+            <Table.Th>Bidder</Table.Th>
+            <Table.Th>Partner</Table.Th>
+            <Table.Th>Bid</Table.Th>
+            <Table.Th>Points</Table.Th>
+            <Table.Th>Players</Table.Th>
+            <Table.Th>Time</Table.Th>
+          </Table.Tr>
+        </Table.Th>
+        <tbody>{games.map((game) => {
+          const outcome = winLossValidator?.(game) ?? "unknown";
+          return <GameTableRow key={game.id} players={players} game={game} outcome={outcome} />;
+        })}</tbody>
+      </Table>
+    </Stack>
+  );
+});

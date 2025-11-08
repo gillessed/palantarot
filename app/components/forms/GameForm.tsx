@@ -340,7 +340,7 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
       </Button.Group>
       <Group justify="space-between" align="flex-start" wrap="wrap" gap={20}>
         <Group justify="center">
-          <Paper miw={400} bg="gray.4" pr={20} pl={20} pb={10}>
+          <Paper miw={400} withBorder pr={20} pl={20} pb={10}>
             <Group justify="space-between">
               <h3>Bidder's Team</h3>
 
@@ -396,7 +396,7 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
           </Paper>
         </Group>
 
-        <Paper miw={400} bg="gray.4" pr={20} pl={20} pb={10}>
+        <Paper miw={400} withBorder pr={20} pl={20} pb={10}>
           <h3 className="bp3-heading">Opposition</h3>
           <GamePlayerInput
             role="player_1"

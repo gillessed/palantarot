@@ -1,14 +1,9 @@
-import { useCallback } from "react";
 import { RecentGameQuery } from "../../server/db/GameRecordQuerier";
 import { GameRecord } from "../../server/model/GameRecord";
-import { useApi } from "../apiProvider";
-import { AsyncLoader } from "./useAsync";
+import { AsyncLoader } from "./AsyncLoader";
+import { LoaderContext } from "./useLoaderContext";
 
 const RecentGamesPath = "/game/recent";
-
-export function useRecentGamesLoader(): AsyncLoader<GameRecord[], RecentGameQuery> {
-  const api = useApi();
-  return useCallback(async (query: RecentGameQuery) => {
+export const RecentGamesLoader: AsyncLoader<GameRecord[], RecentGameQuery> = async ({ api }: LoaderContext, query: RecentGameQuery) => {
     return api.wrapPost<GameRecord[]>(RecentGamesPath, query);
-  }, [api]);
 }

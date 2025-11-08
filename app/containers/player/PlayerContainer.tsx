@@ -1,55 +1,37 @@
-import React from "react";
-import { IMonth } from "../../../server/model/Month";
-import { PlayersService } from "../../services/players/index";
-import { Tab, Tabs } from "@blueprintjs/core";
-import { PlayerGraphTab } from "./PlayerGraphTab";
-import { PlayerBanner } from "./PlayerBanner";
-import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
-import { WinPercentagesTab } from "../dataTabs/winPercentages/WinPercentagesTab";
-import { pageCache } from "../pageCache/PageCache";
-import { MonthWinsTab } from "../dataTabs/monthWins/MonthWinsTab";
-import { DeltasTab } from "../dataTabs/deltas/DeltasTab";
-import { BidsTab } from "../dataTabs/bids/BidsTab";
-import { StreaksTab } from "../dataTabs/streaks/StreaksTab";
-import { PointFlow } from "../../../server/model/PointFlow";
-import { PointFlowTab } from "../pointFlow/PointFlowTab";
+import { Container } from "@mantine/core";
+import { memo } from "react";
+import { useParams } from "react-router";
+import { AsyncView } from "../../components/asyncView/AsyncView";
+import { PlayersLoader } from "../../services/PlayersLoader";
+import { PlayerView } from "./PlayerView";
 
-interface Props {
-  match: {
-    params: {
-      playerId: string;
-    };
-  };
+// load results
+const Loaders = {
+  players: PlayersLoader
 }
 
-class PlayerContainerInternal extends React.PureComponent<Props, {}> {
-  public render() {
-    const playerId = this.props.match.params.playerId;
-    const recentGamesTab = <PlayerRecentGamesTab playerId={playerId} />;
-    const graphTab = <PlayerGraphTab playerId={playerId} />;
-    const monthlyTab = <MonthWinsTab playerId={playerId} />;
-    const winPercentagesTab = <WinPercentagesTab playerId={playerId} />;
-    const deltasTab = <DeltasTab playerId={playerId} />;
-    const bidsTab = <BidsTab playerId={playerId} />;
-    const streaksTab = <StreaksTab playerId={playerId} />;
-    const pointFlowTab = <PointFlowTab playerId={playerId} />;
+type LoadersType = typeof Loaders;
+type AdditionalArgs = {
+  playerId: string;
+}
 
-    return (
-      <div className="player-view-container page-container">
-        <PlayerBanner playerId={this.props.match.params.playerId} results={IMonth.now()} />
-        <Tabs id="PlayerTabs" className="player-tabs" renderActiveTabPanelOnly={true}>
-          <Tab id="PlayerRecentGamesTab" title="Recent Games" panel={recentGamesTab} />
-          <Tab id="PlayerGraphsTab" title="Graphs" panel={graphTab} />
-          <Tab id="PlayerMonthlyWinsTab" title="Monthly" panel={monthlyTab} />
-          <Tab id="PlayerWinPercentagesTab" title="Win Percentages" panel={winPercentagesTab} />
-          <Tab id="PlayerDeltasTab" title="Deltas" panel={deltasTab} />
-          <Tab id="PlayerBidsTab" title="Bids" panel={bidsTab} />
-          <Tab id="PlayerStreaksTab" title="Streaks" panel={streaksTab} />
-          <Tab id="PointFlowTab" title="Point Flow" panel={pointFlowTab} />
-        </Tabs>
-      </div>
-    );
+const args = { players: undefined };
+
+export const PlayerContainer = memo(function PlayerContainer({}) {
+  const { playerId } = useParams();
+
+  if (playerId == null) {
+    throw Error("Player does not have id");
   }
-}
 
-export const PlayerContainer = pageCache(PlayerContainerInternal);
+  return (
+    <Container size="lg">
+      <AsyncView<LoadersType, AdditionalArgs>
+        loaders={Loaders}
+        args={args}
+        Component={PlayerView}
+        additionalArgs={{ playerId }}
+      />
+    </Container>
+  );
+});

@@ -1,9 +1,11 @@
 import { memo } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
-import { AppContainer } from "./containers/app/AppContainer";
-import { HomeContainer } from "./containers/home/HomeContainer";
-import { EnterContainer } from "./containers/enter/EnterContainer";
 import { StaticRoutes } from "../shared/routes";
+import { AddPlayerContainer } from "./containers/addPlayer/AddPlayerContainer";
+import { AppContainer } from "./containers/app/AppContainer";
+import { EnterContainer } from "./containers/enter/EnterContainer";
+import { HomeContainer } from "./containers/home/HomeContainer";
+import { PlayerContainer } from "./containers/player/PlayerContainer";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -13,6 +15,8 @@ const router = createBrowserRouter([
     children: [
       { path: StaticRoutes.home(), Component: HomeContainer },
       { path: StaticRoutes.enter(), Component: EnterContainer },
+      { path: StaticRoutes.addPlayer(), Component: AddPlayerContainer },
+      { path: StaticRoutes.player(), Component: PlayerContainer },
     ],
   },
 ]);

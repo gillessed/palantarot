@@ -1,10 +1,10 @@
-import classNames from "classnames";
-import React from "react";
+import { Table } from "@mantine/core";
+import { memo, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router";
 import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { formatTimestamp } from "../../../server/utils/index";
-import history from "../../history";
-import { DynamicRoutes } from "../../routes";
+import { DynamicRoutes } from "../../../shared/routes";
 import { GameOutcome } from "./GameTable";
 
 interface Props {
@@ -13,34 +13,48 @@ interface Props {
   outcome: GameOutcome;
 }
 
-export class GameTableRow extends React.PureComponent<Props, {}> {
-  public render() {
-    const game = this.props.game;
-    const bidder = this.props.players.get(game.bidderId);
-    const bidderName = bidder ? `${bidder.firstName} ${bidder.lastName}` : `Unknown Player: ${game.bidderId}`;
-    let partnerName = "";
-    if (game.partnerId) {
-      const partner = this.props.players.get(game.partnerId);
-      partnerName = partner ? `${partner.firstName} ${partner.lastName}` : `Unknown Player: ${game.partnerId}`;
-    }
-    const classes = classNames({
-      ["outcome-unknown"]: this.props.outcome === GameOutcome.UNKNOWN,
-      ["outcome-win"]: this.props.outcome === GameOutcome.WIN,
-      ["outcome-loss"]: this.props.outcome === GameOutcome.LOSS,
-    });
-    return (
-      <tr onClick={this.onClick} className={classes}>
-        <td>{bidderName}</td>
-        <td>{partnerName}</td>
-        <td>{game.bidAmount}</td>
-        <td>{game.points}</td>
-        <td>{game.numberOfPlayers}</td>
-        <td>{formatTimestamp(game.timestamp)}</td>
-      </tr>
-    );
-  }
+export const GameTableRow = memo(function GameTable({
+  players,
+  game,
+  outcome,
+}: Props) {
+  const navigate = useNavigate();
 
-  private onClick = () => {
-    history.push(DynamicRoutes.game(this.props.game.id));
-  };
-}
+  const handleClick = useCallback(() => {
+    navigate(DynamicRoutes.game(game.id));
+  }, [game.id, navigate]);
+
+  const bidder = players.get(game.bidderId);
+  const bidderName = bidder
+    ? `${bidder.firstName} ${bidder.lastName}`
+    : `Unknown Player: ${game.bidderId}`;
+  const partner =
+    game.partnerId == null ? undefined : players.get(game.partnerId);
+  const partnerName =
+    partner != null
+      ? `${partner.firstName} ${partner.lastName}`
+      : `Unknown Player: ${game.partnerId}`;
+
+  // const classes = classNames({
+  //   ["outcome-unknown"]: this.props.outcome === GameOutcome.UNKNOWN,
+  //   ["outcome-win"]: this.props.outcome === GameOutcome.WIN,
+  //   ["outcome-loss"]: this.props.outcome === GameOutcome.LOSS,
+  // });
+  const color = useMemo(() => {
+    switch(outcome) {
+      case "unknown": return "gray.1";
+      case "win": return "green.5";
+      case "loss": return "red.5";
+    }
+  }, [outcome])
+  return (
+    <Table.Tr onClick={handleClick} bg={color}>
+      <Table.Td>{bidderName}</Table.Td>
+      <Table.Td>{partnerName}</Table.Td>
+      <Table.Td>{game.bidAmount}</Table.Td>
+      <Table.Td>{game.points}</Table.Td>
+      <Table.Td>{game.numberOfPlayers}</Table.Td>
+      <Table.Td>{formatTimestamp(game.timestamp)}</Table.Td>
+    </Table.Tr>
+  );
+});

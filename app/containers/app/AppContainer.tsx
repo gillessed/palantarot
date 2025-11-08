@@ -16,7 +16,7 @@ export const AppContainer = memo(function AppContainer() {
   return (
     <div>
       <header className={classes.header}>
-        <Container size="md">
+        <Container size="lg">
           <div className={classes.inner}>
             <Link to={StaticRoutes.home()} className={classNames(classes.link, "appLink")}>
               <Image src="/images/joker.png" w="20" h="30" ml="sm" mr="sm" />

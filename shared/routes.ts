@@ -14,16 +14,17 @@ const StaticRoutesInternal = {
   login: () => '/login',
   rules: () => '/app/rules',
   bots: () => '/app/bots',
+  player: () => '/app/player/:playerId',
 }
 
 export const StaticRoutes = StaticRoutesInternal; 
 export const StatisRoutesEnumerable: { [key: string]: () => string } = StaticRoutesInternal;
 
 const DynamicRoutesInternal = {
+  player: (playerId: string) => StaticRoutes.player().replace(":playerId", playerId),
   game: (gameId: string) => `/app/game/${gameId}`,
   tarothon: (tarothonId: string) => `/app/tarothon/${tarothonId}`,
   editTarothon: (tarothonId: string) => `/app/edit-tarothon/${tarothonId}`,
-  player: (playerId: string) => `/app/player/${playerId}`,
   edit: (gameId: string) => `/app/edit/${gameId}`,
   play: (roomId: string) => `/play/${roomId}`,
 };

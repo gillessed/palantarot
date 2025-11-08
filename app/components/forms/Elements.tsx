@@ -1,4 +1,12 @@
-import { ActionIcon, Fieldset, Group, NumberInput, Select, type ComboboxItem } from "@mantine/core";
+import {
+  ActionIcon,
+  Fieldset,
+  Group,
+  NumberInput,
+  Select,
+  type ComboboxItem,
+  TextInput as MantineTextInput,
+} from "@mantine/core";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import React, { memo, useCallback, useEffect, useState } from "react";
 
@@ -15,49 +23,40 @@ interface InputState {
   error?: string;
 }
 
-export class TextInput extends React.PureComponent<InputProps, InputState> {
-  constructor(props: InputProps) {
-    super(props);
-    this.state = {
-      value: props.initialValue || "",
-      error: props.initialError || "",
-    };
-  }
+export const TextInput = memo(function TextInput({
+  initialError,
+  initialValue,
+  label,
+  onChange,
+  validator,
+}: InputProps) {
+  const [value, setValue] = useState(initialValue);
+  const [error, setError] = useState(initialError);
 
-  public componentWillReceiveProps(nextProps: InputProps) {
-    if (nextProps.initialError) {
-      this.setState({
-        error: nextProps.initialError,
-      });
-    }
-  }
+  useEffect(() => {
+    setError(initialError);
+  }, [setError, initialError]);
 
-  public render() {
-    return (
-      <div></div>
-      // <FormGroup label={this.props.label} labelFor="text-input">
-      //   <InputGroup
-      //     id="text-input"
-      //     value={this.state.value}
-      //     onChange={this.onChange}
-      //     intent={this.state.error ? Intent.DANGER : Intent.NONE}
-      //   />
-      // </FormGroup>
-    );
-  }
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = event.currentTarget.value;
+      const error = validator?.(newValue);
+      setValue(newValue);
+      setError(error);
+      onChange?.(newValue, error);
+    },
+    [setValue, setError, onChange]
+  );
 
-  private onChange = (event: any) => {
-    const newValue = event.target.value;
-    const error = this.props.validator ? this.props.validator(newValue) : undefined;
-    this.setState({
-      value: newValue,
-      error,
-    });
-    if (this.props.onChange) {
-      this.props.onChange(newValue, error);
-    }
-  };
-}
+  return (
+    <MantineTextInput
+      label={label}
+      error={error}
+      value={value}
+      onChange={handleChange}
+    />
+  );
+});
 
 interface PointsInputProps extends InputProps {
   points?: number;
@@ -109,7 +108,13 @@ export const PointsInput = memo(function PointsInput({
       <ActionIcon color="red" onClick={handleMinusPress} mt={28}>
         <IconMinus />
       </ActionIcon>
-      <NumberInput w={w} value={points} onChange={handleChange} error={error} label={label} />
+      <NumberInput
+        w={w}
+        value={points}
+        onChange={handleChange}
+        error={error}
+        label={label}
+      />
       <ActionIcon color="green" onClick={handlePlusPress} mt={28}>
         <IconPlus />
       </ActionIcon>
@@ -147,5 +152,14 @@ export const SelectInput = memo(function SelectInput({
     [setError, setValue, onChange]
   );
 
-  return <Select value={value} data={values} onChange={handleChange} label={label} w={w} error={error} />;
+  return (
+    <Select
+      value={value}
+      data={values}
+      onChange={handleChange}
+      label={label}
+      w={w}
+      error={error}
+    />
+  );
 });

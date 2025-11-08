@@ -1,5 +1,5 @@
-import { memo, useEffect, useState } from "react";
-import { AsyncLoader } from "../../services/useAsync";
+import { useEffect, useState } from "react";
+import { AsyncLoader } from "../../services/AsyncLoader";
 import {
   Async,
   asyncError,
@@ -11,6 +11,9 @@ import {
   isAsyncLoading,
 } from "../../utils/Async";
 import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
+import { useLoaderContext } from "../../services/useLoaderContext";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { Alert } from "@mantine/core";
 
 type LoaderMap = Record<string, AsyncLoader<any, any>>;
 
@@ -30,17 +33,32 @@ type LoadedState<Loaders extends LoaderMap> = {
     : never;
 };
 
-interface Props<Loaders extends LoaderMap> {
+type Props<
+  Loaders extends LoaderMap,
+  AdditionalArgs
+> = AdditionalArgs extends void
+  ? BaseProps<Loaders, AdditionalArgs>
+  : PropsWithArgs<Loaders, AdditionalArgs>;
+
+interface BaseProps<Loaders extends LoaderMap, AdditionalArgs> {
   loaders: LoaderProps<Loaders>;
   args: ArgMap<Loaders>;
-  Component: React.FC<LoadedState<Loaders>>;
-  // children: (state: LoadedState<Loaders>) => React.ReactNode,
+  Component: React.FC<LoadedState<Loaders> & AdditionalArgs>;
 }
 
-export const AsyncView = function AsyncView<Loaders extends LoaderMap>(
-  props: Props<Loaders>
-) {
-  const { Component , args, loaders } = props;
+interface PropsWithArgs<Loaders extends LoaderMap, AdditionalArgs>
+  extends BaseProps<Loaders, AdditionalArgs> {
+  additionalArgs: AdditionalArgs;
+}
+
+export const AsyncView = function AsyncView<
+  Loaders extends LoaderMap,
+  AdditionalArgs = void
+>(props: Props<Loaders, AdditionalArgs>) {
+  const { Component, args, loaders } = props;
+  const additionalArgs = ((props as PropsWithArgs<Loaders, AdditionalArgs>).additionalArgs ?? {}) as AdditionalArgs;
+
+  const loaderContext = useLoaderContext();
 
   const [state, setState] = useState<Async<LoadedState<Loaders>>>(
     asyncUnloaded()
@@ -55,7 +73,7 @@ export const AsyncView = function AsyncView<Loaders extends LoaderMap>(
           const key = entry[0];
           const loader = entry[1] as Loaders[typeof key];
           const doLoad = async () => {
-            const result = await loader(args[key]);
+            const result = await loader(loaderContext, args[key]);
             return { key, result };
           };
           promises.push(doLoad());
@@ -68,18 +86,29 @@ export const AsyncView = function AsyncView<Loaders extends LoaderMap>(
         const loadedStateTyped = loadedStateUntyped as LoadedState<Loaders>;
         setState(asyncLoaded(loadedStateTyped));
       } catch (error: any) {
-        setState(asyncError(error));
+        setState(asyncError(error.message));
       }
     }
     load();
-  }, [args, loaders, setState]);
+  }, [args, loaders, loaderContext, setState]);
 
   if (isAsyncLoading(state)) {
     return <SpinnerOverlay />;
   } else if (isAsyncError(state)) {
-    return <div>{state.error}</div>;
+    return (
+      <Alert
+        variant="light"
+        color="red"
+        title="Error"
+        icon={<IconInfoCircle />}
+      >
+        {state.error}
+      </Alert>
+    )
   } else if (isAsyncLoaded(state)) {
-    return <Component {...state.value} />;
+    if (additionalArgs != null) {
+      return <Component {...state.value} {...additionalArgs} />;
+    }
   }
   return null;
 };

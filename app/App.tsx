@@ -1,5 +1,6 @@
-import { MantineProvider } from "@mantine/core";
+import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
+import '@mantine/notifications/styles.css';
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore, Store } from "redux";
@@ -13,6 +14,12 @@ import { DispatchProvider } from "./dispatchProvider";
 import { dispatcherCreators } from "./services/dispatchers";
 import { ReduxState, rootReducer } from "./services/rootReducer";
 import { registerConsoleStore } from "./utils/consoleStore";
+
+const theme = createTheme({
+  headings: {
+    fontFamily: "blenderProBold",
+  },
+});
 
 function init() {
   const sagaMiddleware = createSagaMiddleware();
@@ -39,7 +46,7 @@ function init() {
     <Provider store={store}>
       <ApiProvider value={api}>
         <DispatchProvider value={dispatchers}>
-          <MantineProvider forceColorScheme="light">
+          <MantineProvider theme={theme} forceColorScheme="light">
             <AppRouter />
           </MantineProvider>
         </DispatchProvider>
