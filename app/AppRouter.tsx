@@ -10,6 +10,8 @@ import { RecentGamesContainer } from "./containers/recent/RecentGamesContainer";
 import { ResultsContainer } from "./containers/results/ResultsContainer";
 import { GameContainer } from "./containers/game/GameContainer";
 import { EditGameContainer } from "./containers/edit/EditGameContainer";
+import { BotsContainer } from "./containers/bot/BotsContainer";
+import { RulesContainer } from "./containers/rules/RulesContainer";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -25,6 +27,8 @@ const router = createBrowserRouter([
       { path: StaticRoutes.recent(), Component: RecentGamesContainer },
       { path: StaticRoutes.game(), Component: GameContainer },
       { path: StaticRoutes.edit(), Component: EditGameContainer },
+      { path: StaticRoutes.bots(), Component: BotsContainer },
+      { path: StaticRoutes.rules(), Component: RulesContainer },
     ],
   },
 ]);

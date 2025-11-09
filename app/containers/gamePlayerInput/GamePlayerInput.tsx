@@ -38,8 +38,7 @@ export const GamePlayerInput = memo(function GamePlayerInput({
   selectedPlayers,
   players,
 }: Props) {
-  const [dialogOpen, { close: closeDialog, open: openDialog }] =
-    useDisclosure(false);
+  const [dialogOpen, { close: closeDialog, open: openDialog }] = useDisclosure(false);
 
   const handleSelectPlayer = useCallback(
     (player: Player | undefined) => {
@@ -102,16 +101,8 @@ export const GamePlayerInput = memo(function GamePlayerInput({
         />
       </Fieldset>
       <Group>
-        <Checkbox
-          label="Showed Trump"
-          onChange={handleShowedTrumpChanged}
-          checked={playerState.showed}
-        />
-        <Checkbox
-          label="One Last"
-          onChange={handleOneLastChanged}
-          checked={playerState.oneLast}
-        />
+        <Checkbox label="Showed Trump" onChange={handleShowedTrumpChanged} checked={playerState.showed} />
+        <Checkbox label="One Last" onChange={handleOneLastChanged} checked={playerState.oneLast} />
       </Group>
       <Modal opened={dialogOpen} onClose={closeDialog} title="Add Player">
         <div>

@@ -7,15 +7,16 @@ interface Props {
   icon: React.ReactNode;
   to: string;
   color: MantineColor;
+  disabled?: boolean;
 }
 
-export const NavigationButton = memo(function NavigationButton({ title, icon, color, to }: Props) {
+export const NavigationButton = memo(function NavigationButton({ title, icon, color, to, disabled }: Props) {
   const navigate = useNavigate();
   const handleClick = useCallback(() => {
     navigate(to);
   }, [navigate, to]);
   return (
-    <Button leftSection={icon} color={color} onClick={handleClick} w={200} mb={0}>
+    <Button leftSection={icon} color={color} onClick={handleClick} w={200} mb={0} disabled={disabled}>
       {title}
     </Button>
   );

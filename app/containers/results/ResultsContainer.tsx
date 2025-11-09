@@ -63,12 +63,8 @@ export const ResultsContainer = memo(function ResultsContainer() {
     [navigate]
   );
 
-  const month = IMonth.n(
-    monthParam?.month ?? moment().month(),
-    monthParam?.year ?? moment().year()
-  );
-  const isCurrentMonth =
-    month.month === moment().month() && month.year === moment().year();
+  const month = IMonth.n(monthParam?.month ?? moment().month(), monthParam?.year ?? moment().year());
+  const isCurrentMonth = month.month === moment().month() && month.year === moment().year();
   const args = useMemo(() => ({ results: month, games: month, players: undefined }), [month]);
 
   const handleClickLeft = useCallback(() => {
@@ -90,18 +86,15 @@ export const ResultsContainer = memo(function ResultsContainer() {
             <IconChevronLeft />
           </ActionIcon>
           <Title order={1}>Results for {month.getHumanReadableString()}</Title>
-          <ActionIcon
-            size="lg"
-            onClick={handleClickRight}
-            disabled={isCurrentMonth}
-          >
+          <ActionIcon size="lg" onClick={handleClickRight} disabled={isCurrentMonth}>
             <IconChevronRight />
           </ActionIcon>
         </Group>
-        <AsyncView<LoaderType>
+        <AsyncView<LoaderType, { month: Month }>
           loaders={Loaders}
           args={args}
           Component={ResultsView}
+          additionalArgs={{ month }}
         />
       </Stack>
     </PageContainer>

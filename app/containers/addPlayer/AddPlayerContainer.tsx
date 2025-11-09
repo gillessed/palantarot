@@ -11,12 +11,15 @@ import { PageContainer } from "../PageContainer";
 
 export const AddPlayerContainer = memo(function AddPlayerContainer() {
   const navigate = useNavigate();
-  const onPlayerAdded = useCallback((result: Player) => {
-    navigate(DynamicRoutes.player(result.id));
-    showSuccessNotification(`${getPlayerName(result)} created.`);
-  }, [navigate]);
+  const onPlayerAdded = useCallback(
+    (result: Player) => {
+      navigate(DynamicRoutes.player(result.id));
+      showSuccessNotification(`${getPlayerName(result)} created.`);
+    },
+    [navigate]
+  );
   const { state: addingPlayer, request: addPlayer } = useAddPlayer(onPlayerAdded);
-  
+
   return (
     <PageContainer title="Add Player">
       <AddPlayerForm loading={isAsyncLoading(addingPlayer)} onSubmit={addPlayer} />

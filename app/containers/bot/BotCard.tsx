@@ -1,30 +1,24 @@
-import { Card, Icon } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
-import React from "react";
-import { Player } from "../../../server/model/Player";
-import "./BotCard.scss";
-import "./BotContainer.scss";
+import { memo } from "react";
+import type { Player } from "../../../server/model/Player";
+import { Group, Paper, Stack, Text } from "@mantine/core";
+import { IconCalculator } from "@tabler/icons-react";
 
 interface Props {
   bot: Player;
 }
-export class BotCard extends React.PureComponent<Props> {
-  public render() {
-    const { firstName, lastName, botType } = this.props.bot;
-    return (
-      <Card className="bot-card">
-        <div className="bot-card-content">
-          <div className="bot-icon">
-            <Icon icon={IconNames.CALCULATOR} iconSize={40} />
-          </div>
-          <div className="bot-card-details">
-            <div className="bot-name">
-              {firstName} {lastName}
-            </div>
-            <div className="bot-type">{botType}</div>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-}
+export const BotCard = memo(function BotCard({ bot }: Props) {
+  const { firstName, lastName, botType } = bot;
+  return (
+    <Paper withBorder>
+      <Group>
+        <IconCalculator size={40} />
+        <Stack>
+          <Text>
+            {firstName} {lastName}
+          </Text>
+          <Text>{botType}</Text>
+        </Stack>
+      </Group>
+    </Paper>
+  );
+});

@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import React from "react";
-import { Card, Suit, TrumpValue } from "../../../../server/play/model/Card";
+import { Card } from "../../../../server/play/model/Card";
+import { CardBackUrls, getCardUrl } from "../../../utils/getCardUrl";
 import { CardHeight, CardWidth } from "./CardSpec";
 import "./CardSvg.scss";
 
@@ -18,14 +19,6 @@ interface Props {
   onClick?: (card: Card) => void;
   clipHeight?: number;
 }
-
-export const SuitMap = {
-  ["T"]: "Trump",
-  [Suit.Club]: "Club",
-  [Suit.Diamond]: "Diamond",
-  [Suit.Heart]: "Heart",
-  [Suit.Spade]: "Spade",
-};
 
 interface State {
   hover: boolean;
@@ -45,16 +38,16 @@ export function getCardText(card: Card) {
     return "the joker";
   }
   switch (suit) {
-    case Suit.Club:
+    case "C":
       suitText = "clubs";
       break;
-    case Suit.Diamond:
+    case "D":
       suitText = "diamonds";
       break;
-    case Suit.Heart:
+    case "H":
       suitText = "hearts";
       break;
-    case Suit.Spade:
+    case "S":
       suitText = "spades";
       break;
     case "T":
@@ -63,18 +56,6 @@ export function getCardText(card: Card) {
   }
   return `the ${value} of ${suitText}`;
 }
-
-export function getCardUrl(card: Card) {
-  const [suit, number] = card;
-  return `/static/images/cards/${SuitMap[suit]} ${number}.png`;
-}
-
-export const CardBackUrls = {
-  Red: "/static/images/cards/Card Back Red.png",
-  Green: "/static/images/cards/Card Back Green.png",
-  Blue: "/static/images/cards/Card Back Blue.png",
-  Black: "/static/images/cards/Card Back Black.png",
-};
 
 export class CardSvg extends React.PureComponent<Props> {
   public state: State = {

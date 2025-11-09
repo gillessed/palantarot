@@ -1,11 +1,10 @@
-import { Alert, Stack, Tabs } from "@mantine/core";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { Stack, Tabs } from "@mantine/core";
 import { memo } from "react";
 import { Player } from "../../../server/model/Player";
-import { PlayerBanner } from "./PlayerBanner";
-import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
 import { Result } from "../../../server/model/Result";
 import { ErrorAlert } from "../../components/ErrorAlert";
+import { PlayerBanner } from "./PlayerBanner";
+import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
 
 interface Props {
   playerId: string;
@@ -13,18 +12,10 @@ interface Props {
   results: Result[];
 }
 
-export const PlayerView = memo(function PlayerView({
-  playerId,
-  players,
-  results,
-}: Props) {
+export const PlayerView = memo(function PlayerView({ playerId, players, results }: Props) {
   const player = players.get(playerId);
   if (player == null) {
-    return (
-      <ErrorAlert>
-        Could not find player id {playerId}
-      </ErrorAlert>
-    );
+    return <ErrorAlert>Could not find player id {playerId}</ErrorAlert>;
   }
 
   // const recentGamesTab = <PlayerRecentGamesTab playerId={playerId} />;
@@ -37,12 +28,12 @@ export const PlayerView = memo(function PlayerView({
   // const pointFlowTab = <PointFlowTab playerId={playerId} />;
 
   return (
-    <Stack>
+    <Stack mt={20}>
       <PlayerBanner player={player} results={results} />
       <Tabs defaultValue="recent-games" keepMounted={false}>
         <Tabs.List>
           <Tabs.Tab value="recent-games">Recent Games</Tabs.Tab>
-          <Tabs.Tab value="graphs">Graphs</Tabs.Tab>
+          <Tabs.Tab value="graph">Graph</Tabs.Tab>
           <Tabs.Tab value="monthly-wins">Monthly</Tabs.Tab>
           <Tabs.Tab value="win-percentages">Win Percentages</Tabs.Tab>
           <Tabs.Tab value="deltas">Deltas</Tabs.Tab>
