@@ -1,4 +1,4 @@
-import { Checkbox, Dialog, Fieldset, Group, Modal, Stack } from "@mantine/core";
+import { Checkbox, Fieldset, Group, Modal, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { memo, useCallback, useEffect } from "react";
 import { Player } from "../../../server/model/Player";
@@ -38,18 +38,8 @@ export const GamePlayerInput = memo(function GamePlayerInput({
   selectedPlayers,
   players,
 }: Props) {
-  const [dialogOpen, { close: closeDialog, open: openDialog }] = useDisclosure(false);
-
-  useEffect(() => {
-    return () => {
-      onChange(role, {
-        role: role,
-        player: undefined,
-        showed: false,
-        oneLast: false,
-      });
-    };
-  }, [role, onChange]);
+  const [dialogOpen, { close: closeDialog, open: openDialog }] =
+    useDisclosure(false);
 
   const handleSelectPlayer = useCallback(
     (player: Player | undefined) => {
@@ -108,13 +98,21 @@ export const GamePlayerInput = memo(function GamePlayerInput({
           onPlayerSelected={handleSelectPlayer}
           selectedPlayers={selectedPlayers}
           selectedPlayer={playerState.player}
+          error={error}
         />
       </Fieldset>
       <Group>
-        <Checkbox label="Showed Trump" onChange={handleShowedTrumpChanged} checked={playerState.showed} />
-        <Checkbox label="One Last" onChange={handleOneLastChanged} checked={playerState.oneLast} />
+        <Checkbox
+          label="Showed Trump"
+          onChange={handleShowedTrumpChanged}
+          checked={playerState.showed}
+        />
+        <Checkbox
+          label="One Last"
+          onChange={handleOneLastChanged}
+          checked={playerState.oneLast}
+        />
       </Group>
-      {error}
       <Modal opened={dialogOpen} onClose={closeDialog} title="Add Player">
         <div>
           <AddPlayerForm onSubmit={addPlayer} />

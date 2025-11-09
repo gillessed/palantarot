@@ -1,10 +1,10 @@
 import { memo, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router";
 import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
+import { StaticRoutes } from "../../../shared/routes";
 import { GameForm } from "../../components/forms/GameForm";
 import { useSaveGame } from "../../services/useSaveGame";
-import { useNavigate } from "react-router";
-import { StaticRoutes } from "../../../shared/routes";
 import { isAsyncLoading } from "../../utils/Async";
 
 interface Props {
@@ -38,7 +38,7 @@ export const EnterScoreView = memo(function EnterScoreView({ players, recentGame
   }, [players]);
 
   const recentPlayers = useMemo(() => {
-    if (recentGames.length >= 2) {
+    if (recentGames.length >= 1) {
       const playerSet = new Set<string>();
       recentGames
         .map((game) => getPlayersInGame(game))

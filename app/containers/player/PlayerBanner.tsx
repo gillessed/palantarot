@@ -3,6 +3,7 @@ import { memo } from "react";
 import { Player } from "../../../server/model/Player";
 import { Result } from "../../../server/model/Result";
 import { getPlayerName } from "../../services/players/playerName";
+import { ScoreBox } from "../../components/ScoreBox";
 
 interface Props {
   player: Player;
@@ -30,9 +31,6 @@ export const PlayerBanner = memo(function PlayerBanner({
   const playerResult = sortedResults.find((result) => result.id === player.id);
   const score = playerResult ? playerResult.all.points : 0;
   const rankString = rank ? `${rank} / ${playerCount}` : "N/A";
-  const scoreText = score > 0 ? "+" + score : score;
-  const scoreColor =
-    score == 0 ? "gray.6" : score > 0 ? "green" : "red";
   return (
     <Paper bg="gray.1" p={30}>
       <Group justify="space-between">
@@ -40,9 +38,7 @@ export const PlayerBanner = memo(function PlayerBanner({
           <Title order={1}> {playerName} </Title>
           <Text ff="blenderProMediumItalic"> Monthly Rank: {rankString} </Text>
         </Stack>
-        <Flex align="center" justify="center" bg={scoreColor} w={100} h={100}>
-          <Text ff="blenderProBold" size="48" c="white">{scoreText}</Text>
-        </Flex>
+        <ScoreBox score={score} size="lg" />
       </Group>
     </Paper>
   );

@@ -6,6 +6,10 @@ import { AppContainer } from "./containers/app/AppContainer";
 import { EnterContainer } from "./containers/enter/EnterContainer";
 import { HomeContainer } from "./containers/home/HomeContainer";
 import { PlayerContainer } from "./containers/player/PlayerContainer";
+import { RecentGamesContainer } from "./containers/recent/RecentGamesContainer";
+import { ResultsContainer } from "./containers/results/ResultsContainer";
+import { GameContainer } from "./containers/game/GameContainer";
+import { EditGameContainer } from "./containers/edit/EditGameContainer";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -17,6 +21,10 @@ const router = createBrowserRouter([
       { path: StaticRoutes.enter(), Component: EnterContainer },
       { path: StaticRoutes.addPlayer(), Component: AddPlayerContainer },
       { path: StaticRoutes.player(), Component: PlayerContainer },
+      { path: StaticRoutes.results(), Component: ResultsContainer },
+      { path: StaticRoutes.recent(), Component: RecentGamesContainer },
+      { path: StaticRoutes.game(), Component: GameContainer },
+      { path: StaticRoutes.edit(), Component: EditGameContainer },
     ],
   },
 ]);

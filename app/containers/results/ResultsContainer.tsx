@@ -1,57 +1,109 @@
-import React from "react";
-import { IMonth } from "../../../server/model/Month";
+import { ActionIcon, Group, Stack, Title } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import moment from "moment";
-import { Button } from "@blueprintjs/core";
-import { ResultsTabs } from "./ResultsTabs";
-import { pageCache } from "../pageCache/PageCache";
+import { memo, useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router";
+import { IMonth, Month } from "../../../server/model/Month";
+import { DynamicRoutes } from "../../../shared/routes";
+import { AsyncView } from "../../components/asyncView/AsyncView";
+import { PlayersLoader } from "../../services/PlayersLoader";
+import { ResultsLoader } from "../../services/ResultsLoader";
+import { PageContainer } from "../PageContainer";
+import { ResultsView } from "./ResultsView";
+import { GamesForMonthLoader } from "../../services/GamesForMonthLoader";
 
-interface State {
-  month: IMonth;
+const Loaders = {
+  results: ResultsLoader,
+  players: PlayersLoader,
+  games: GamesForMonthLoader,
+};
+type LoaderType = typeof Loaders;
+
+function parseNumberString(str: string | undefined): number | undefined {
+  if (str == null) {
+    return undefined;
+  }
+  const num = Number(str);
+  if (isNaN(num)) {
+    return undefined;
+  }
+  return Math.floor(num);
 }
 
-class ResultsContainerInternal extends React.PureComponent<{}, State> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      month: IMonth.now(),
-    };
-  }
+function useParamsMonth() {
+  const { month: monthParamString, year: yearParamString } = useParams();
+  return useMemo(() => {
+    const monthParam = parseNumberString(monthParamString);
+    const yearParam = parseNumberString(yearParamString);
+    if (monthParam == null || yearParam == null) {
+      return undefined;
+    }
+    if (monthParam < 1 || monthParam > 12) {
+      return undefined;
+    }
+    if (yearParam < 0 || yearParam > moment().year()) {
+      return undefined;
+    }
+    const month = IMonth.n(monthParam - 1, yearParam);
+    const now = IMonth.now();
+    if (IMonth.compare(now, month) < 0) {
+      return undefined;
+    }
+    return month;
+  }, [monthParamString, yearParamString]);
+}
 
-  public render() {
-    return (
-      <div className="results-container page-container">
-        <div className="results-header">
-          <Button icon="chevron-left" large onClick={this.previousMonth} />
-          <div className="title">
-            <h1 className="bp3-heading" style={{ textAlign: "center" }}>
-              Results for {this.state.month.getHumanReadableString()}
-            </h1>
-          </div>
-          <Button icon="chevron-right" large onClick={this.nextMonth} disabled={this.isCurrentMonth()} />
-        </div>
-        <ResultsTabs results={this.state.month} month={this.state.month} />
-      </div>
-    );
-  }
+export const ResultsContainer = memo(function ResultsContainer() {
+  const navigate = useNavigate();
+  const monthParam = useParamsMonth();
+  const goToMonth = useCallback(
+    ({ month: m, year: y }: Month) => {
+      navigate(DynamicRoutes.results(`${y}`, `${m + 1}`));
+    },
+    [navigate]
+  );
 
-  private isCurrentMonth() {
-    return moment().year() === this.state.month.year && moment().month() === this.state.month.month;
-  }
+  const month = IMonth.n(
+    monthParam?.month ?? moment().month(),
+    monthParam?.year ?? moment().year()
+  );
+  const isCurrentMonth =
+    month.month === moment().month() && month.year === moment().year();
+  const args = useMemo(() => ({ results: month, games: month, players: undefined }), [month]);
 
-  private previousMonth = () => {
-    this.setState({
-      month: this.state.month.previous(),
-    });
-  };
+  const handleClickLeft = useCallback(() => {
+    goToMonth(month.previous());
+  }, [navigate, month]);
 
-  private nextMonth = () => {
-    if (this.isCurrentMonth()) {
+  const handleClickRight = useCallback(() => {
+    if (isCurrentMonth) {
       return;
     }
-    this.setState({
-      month: this.state.month.next(),
-    });
-  };
-}
+    goToMonth(month.next());
+  }, [navigate, month, isCurrentMonth]);
 
-export const ResultsContainer = pageCache(ResultsContainerInternal);
+  return (
+    <PageContainer>
+      <Stack align="stretch">
+        <Group justify="center" mt={40} mb={15}>
+          <ActionIcon size="lg" onClick={handleClickLeft}>
+            <IconChevronLeft />
+          </ActionIcon>
+          <Title order={1}>Results for {month.getHumanReadableString()}</Title>
+          <ActionIcon
+            size="lg"
+            onClick={handleClickRight}
+            disabled={isCurrentMonth}
+          >
+            <IconChevronRight />
+          </ActionIcon>
+        </Group>
+        <AsyncView<LoaderType>
+          loaders={Loaders}
+          args={args}
+          Component={ResultsView}
+        />
+      </Stack>
+    </PageContainer>
+  );
+});

@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import { integerComparator, type SortOrder, type Comparator } from "../utils/index.ts";
+import { integerComparator, type Comparator, type SortOrder } from "../utils/index.ts";
 
 export interface Month {
   year: number;
@@ -7,6 +7,7 @@ export interface Month {
 }
 
 const _months: Map<string, IMonth> = new Map();
+const Identity = <T>(t: T) => t;
 
 export class IMonth implements Month {
   year: number;
@@ -57,6 +58,10 @@ export class IMonth implements Month {
     return { month: this.month, year: this.year };
   }
 
+  public is(month: Month) {
+    return this.month === month.month && this.year === month.year;
+  }
+
   public static n(m: number, y: number) {
     return IMonth.get(new IMonth({ month: m, year: y }));
   }
@@ -75,6 +80,14 @@ export class IMonth implements Month {
 
   public static fromString(string: string): Month {
     return JSON.parse(string);
+  }
+
+  public static compare(m1: Month, m2: Month): number {
+    return integerComparator<Month>(
+        (m: Month) => m.year,
+        "asc",
+        integerComparator<Month>((m: Month) => m.month, "asc")
+      )(m1, m2);
   }
 
   public static comparator<T>(map: (t: T) => IMonth, order: SortOrder): Comparator<T> {

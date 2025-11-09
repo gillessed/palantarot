@@ -5,25 +5,29 @@ import { ErrorAlert } from "../../components/ErrorAlert";
 import { GameLoader } from "../../services/GameLoader";
 import { PlayersLoader } from "../../services/PlayersLoader";
 import { PageContainer } from "../PageContainer";
-import { GameView } from "./GameView";
+import { EditGameView } from "./EditGameView";
 
 const Loaders = {
-  game: GameLoader,
   players: PlayersLoader,
-};
+  game: GameLoader,
+}
 type Loaders = typeof Loaders;
 
-export const GameContainer = memo(function GameContainer() {
+export const EditGameContainer = memo(function EditGameContainer() {
   const { gameId } = useParams();
   if (gameId == null) {
     return <ErrorAlert> No game id </ErrorAlert>;
   }
 
-  const args = useMemo(() => ({ players: undefined, game: gameId }), [gameId]);
+  const args = useMemo(() => ({ game: gameId, players: undefined}), [gameId]);
 
   return (
-    <PageContainer>
-      <AsyncView<Loaders> loaders={Loaders} args={args} Component={GameView} />
+    <PageContainer title={`Edit Game ${gameId}`}>
+      <AsyncView<Loaders>
+        loaders={Loaders}
+        args={args}
+        Component={EditGameView}
+        />
     </PageContainer>
-  );
+  )
 });

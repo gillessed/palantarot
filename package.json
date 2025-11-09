@@ -19,6 +19,7 @@
     "@mantine/notifications": "^8.3.6",
     "@tabler/icons-react": "^3.35.0",
     "@vitejs/plugin-react": "^5.1.0",
+    "add": "^2.0.6",
     "apisauce": "^3.2.1",
     "body-parser": "^1.17.1",
     "classnames": "^2.2.5",
@@ -49,7 +50,8 @@
     "reselect": "^3.0.1",
     "vite": "^7.2.0",
     "ws": "^7.4.6",
-    "yargs": "^16.2.0"
+    "yargs": "^16.2.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

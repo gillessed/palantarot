@@ -48,7 +48,7 @@ export const GameTableRow = memo(function GameTable({
     }
   }, [outcome])
   return (
-    <Table.Tr onClick={handleClick} bg={color}>
+    <Table.Tr onClick={handleClick} bg={color} style={{ cursor: "pointer" }}>
       <Table.Td>{bidderName}</Table.Td>
       <Table.Td>{partnerName}</Table.Td>
       <Table.Td>{game.bidAmount}</Table.Td>

@@ -9,7 +9,7 @@ import {
   type GameOutcome,
   GameTable,
 } from "../../components/gameTable/GameTable";
-import { RecentGamesLoader } from "../../services/useRecentGamesLoader";
+import { RecentGamesLoader } from "../../services/RecentGamesLoader";
 
 interface LoadedProps {
   recentGames: GameRecord[];

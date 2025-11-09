@@ -25,7 +25,7 @@ export function mapToObject<T>(map: Map<string, T>): { [key: string]: T } {
 export function mapFromCollection<T>(collection: T[], keyName: keyof T): Map<string, T> {
   const map = new Map<string, any>();
   for (const item of collection) {
-    map.set(item[keyName], item);
+    map.set(item[keyName] as string, item);
   }
   return map;
 }

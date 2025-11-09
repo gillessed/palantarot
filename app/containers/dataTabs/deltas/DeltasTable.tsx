@@ -2,7 +2,7 @@ import { HTMLTable } from "@blueprintjs/core";
 import React from "react";
 import { Delta, Deltas } from "../../../../server/model/Delta";
 import { Player } from "../../../../server/model/Player";
-import { DeltaIcon } from "../../../components/deltaIcon/DeltaIcon";
+import { DeltaIcon } from "../../../components/DeltaIcon";
 import { deltasLoader } from "../../../services/deltas/index";
 import { playersLoader } from "../../../services/players/index";
 import { getPlayerName } from "../../../services/players/playerName";

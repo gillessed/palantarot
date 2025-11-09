@@ -1,11 +1,14 @@
-import { Button, Checkbox, Group, Paper, Space, Stack } from "@mantine/core";
+import { Button, Checkbox, Group, Paper, Stack } from "@mantine/core";
 import { IconDownload, IconUsers } from "@tabler/icons-react";
 import classNames from "classnames";
 import { memo, useCallback, useMemo, useState } from "react";
 import { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
-import { GamePlayerInput, PlayerState } from "../../containers/gamePlayerInput/GamePlayerInput";
+import {
+  GamePlayerInput,
+  PlayerState,
+} from "../../containers/gamePlayerInput/GamePlayerInput";
 import { getPlayerName } from "../../services/players/playerName";
 import { filterFalsy } from "../../utils/filterFalsy";
 import { PointsInput, SelectInput } from "./Elements";
@@ -35,14 +38,23 @@ function getEmptyPlayerState(role: PlayerRole): PlayerState {
 const DefaultPlayerCount = 5;
 const DefaultCalledSelf = false;
 const DefaultPlayerStateMap: PlayerStateMap = new Map(
-  getActivePlayersForValues(DefaultPlayerCount, DefaultCalledSelf).map((role) => {
-    return [role, getEmptyPlayerState(role)];
-  })
+  getActivePlayersForValues(DefaultPlayerCount, DefaultCalledSelf).map(
+    (role) => {
+      return [role, getEmptyPlayerState(role)];
+    }
+  )
 );
 
-const BidValues = ["10", "20", "40", "80", "160"].map((item) => ({ value: item, label: item }));
+const BidValues = ["10", "20", "40", "80", "160"].map((item) => ({
+  value: item,
+  label: item,
+}));
 
-function getPlayerStateFromHand(players: Player[], role: PlayerRole, hand: PlayerHand): PlayerState {
+function getPlayerStateFromHand(
+  players: Player[],
+  role: PlayerRole,
+  hand: PlayerHand
+): PlayerState {
   const player = players.find((player) => hand.id === player.id);
   return {
     role,
@@ -55,17 +67,29 @@ function getPlayerStateFromHand(players: Player[], role: PlayerRole, hand: Playe
 function getPlayerStateMapFromGame(players: Player[], game: GameRecord) {
   const handData = game.handData!;
   const playerState: PlayerStateMap = new Map();
-  playerState.set("bidder", getPlayerStateFromHand(players, "bidder", handData.bidder));
+  playerState.set(
+    "bidder",
+    getPlayerStateFromHand(players, "bidder", handData.bidder)
+  );
   if (handData.partner != null) {
-    playerState.set("partner", getPlayerStateFromHand(players, "partner", handData.partner));
+    playerState.set(
+      "partner",
+      getPlayerStateFromHand(players, "partner", handData.partner)
+    );
   }
   handData.opposition.forEach((handData: PlayerHand, index: number) => {
-    playerState.set(OppositionRoles[index], getPlayerStateFromHand(players, OppositionRoles[index], handData));
+    playerState.set(
+      OppositionRoles[index],
+      getPlayerStateFromHand(players, OppositionRoles[index], handData)
+    );
   });
   return playerState;
 }
 
-function getActivePlayersForValues(numberOfPlayers: number, bidderCalledSelf: boolean): PlayerRole[] {
+function getActivePlayersForValues(
+  numberOfPlayers: number,
+  bidderCalledSelf: boolean
+): PlayerRole[] {
   const activePlayers: PlayerRole[] = ["bidder", "player_1", "player_2"];
   if (numberOfPlayers === 5 && !bidderCalledSelf) {
     activePlayers.push("partner");
@@ -87,16 +111,15 @@ function validatePoints(value: string, bidAmount: number | undefined) {
   if (!Number.isInteger(number) || number % 10 !== 0) {
     return "Points must be divisible by 10.";
   }
-  // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
-  // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
-  if (bidAmount) {
+  if (bidAmount != null) {
+    // Max points is bid + 60 + 400 (declared slam) + double show (20) + one last (10)
+    // Min points is -bid - 60 - 400 (reversed declared slam) - double show (20) - one last (10)
     const bound = bidAmount + 60 + 400 + 20 + 10;
     if (number > bound || number < -bound) {
       return "Points exceed theoretical bound on possible game outcome.";
     }
-  } else {
-    return "Must select a bid amount.";
   }
+  return undefined;
 }
 
 function bidValidator(value: string) {
@@ -105,15 +128,30 @@ function bidValidator(value: string) {
   }
 }
 
-export const GameForm = memo(function GameForm({ onSubmit, players, submitText, game, loading, recentPlayers }: Props) {
-  const [numberOfPlayers, setNumberOfPlayers] = useState<number>(game?.numberOfPlayers ?? DefaultPlayerCount);
+export const GameForm = memo(function GameForm({
+  onSubmit,
+  players,
+  submitText,
+  game,
+  loading,
+  recentPlayers,
+}: Props) {
+  const [numberOfPlayers, setNumberOfPlayers] = useState<number>(
+    game?.numberOfPlayers ?? DefaultPlayerCount
+  );
   const [bidderCalledSelf, setBidderCalledSelf] = useState<boolean>(
-    game != null ? game.numberOfPlayers === 5 && game.partnerId == null : DefaultCalledSelf
+    game != null
+      ? game.numberOfPlayers === 5 && game.partnerId == null
+      : DefaultCalledSelf
   );
   const [playersState, setPlayersState] = useState<PlayerStateMap>(
-    game != null ? getPlayerStateMapFromGame(players, game) : DefaultPlayerStateMap
+    game != null
+      ? getPlayerStateMapFromGame(players, game)
+      : DefaultPlayerStateMap
   );
-  const [bidAmount, setBidAmount] = useState<number | undefined>(game?.bidAmount);
+  const [bidAmount, setBidAmount] = useState<number | undefined>(
+    game?.bidAmount
+  );
   const [bidAmountError, setBidAmountError] = useState<string | undefined>();
   const [points, setPoints] = useState<number | undefined>(game?.points);
   const [pointsError, setPointsError] = useState<string | undefined>();
@@ -121,7 +159,10 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
   const updateActivePlayers = useCallback(
     (numberOfPlayers: number, bidderCalledSelf: boolean) => {
       const newPlayers: PlayerStateMap = new Map();
-      for (const role of getActivePlayersForValues(numberOfPlayers, bidderCalledSelf)) {
+      for (const role of getActivePlayersForValues(
+        numberOfPlayers,
+        bidderCalledSelf
+      )) {
         const currentState = playersState.get(role);
         if (currentState != null) {
           newPlayers.set(role, currentState);
@@ -146,9 +187,18 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
     [updateActivePlayers, numberOfPlayers, bidderCalledSelf]
   );
 
-  const setPlayerCount3 = useMemo(() => () => setPlayerCount(3), [setPlayerCount]);
-  const setPlayerCount4 = useMemo(() => () => setPlayerCount(4), [setPlayerCount]);
-  const setPlayerCount5 = useMemo(() => () => setPlayerCount(5), [setPlayerCount]);
+  const setPlayerCount3 = useMemo(
+    () => () => setPlayerCount(3),
+    [setPlayerCount]
+  );
+  const setPlayerCount4 = useMemo(
+    () => () => setPlayerCount(4),
+    [setPlayerCount]
+  );
+  const setPlayerCount5 = useMemo(
+    () => () => setPlayerCount(5),
+    [setPlayerCount]
+  );
 
   const handleSetSelfCalled = useCallback(
     (e: any) => {
@@ -168,11 +218,13 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
 
   const activePlayerStates = useMemo(() => {
     return filterFalsy(
-      getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).map((role: PlayerRole) => {
-        return playersState.get(role);
-      })
+      getActivePlayersForValues(numberOfPlayers, bidderCalledSelf).map(
+        (role: PlayerRole) => {
+          return playersState.get(role);
+        }
+      )
     );
-  }, [numberOfPlayers, bidderCalledSelf]);
+  }, [numberOfPlayers, bidderCalledSelf, playersState]);
 
   const playerErrors = useMemo(() => {
     const sorted = activePlayerStates.sort((r1, r2) => {
@@ -190,8 +242,10 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
     for (const [index, playerState] of sorted.entries()) {
       const duplicate =
         playerState.player != null &&
-        ((index > 0 && playerState.player === sorted[index - 1].player) ||
-          (index < sorted.length - 1 && playerState.player === sorted[index + 1].player));
+        ((index > 0 &&
+          playerState.player.id === sorted[index - 1].player?.id) ||
+          (index < sorted.length - 1 &&
+            playerState.player.id === sorted[index + 1].player?.id));
       if (duplicate) {
         const player = playerState.player!;
         const error = `Player ${getPlayerName(player)} appears more than once.`;
@@ -199,16 +253,23 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
       }
     }
 
-    const oneLastPlayers = activePlayerStates.filter((playerState) => playerState.oneLast);
+    const oneLastPlayers = activePlayerStates.filter(
+      (playerState) => playerState.oneLast
+    );
     if (oneLastPlayers.length > 1) {
       for (const playerState of activePlayerStates) {
         if (playerState.oneLast && playerErrors.get(playerState.role) == null) {
-          playerErrors.set(playerState.role, "Multiple players played one last.");
+          playerErrors.set(
+            playerState.role,
+            "Multiple players played one last."
+          );
         }
       }
     }
 
-    const showedPlayers = activePlayerStates.filter((playerState) => playerState.showed);
+    const showedPlayers = activePlayerStates.filter(
+      (playerState) => playerState.showed
+    );
     if (showedPlayers.length > 2) {
       for (const playerState of activePlayerStates) {
         if (playerState.showed && playerErrors.get(playerState.role) == null) {
@@ -218,13 +279,16 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
     }
 
     return playerErrors;
-  }, [playersState]);
+  }, [activePlayerStates]);
 
-  const handlePlayerChanged = useCallback((role: PlayerRole, playerState: PlayerState) => {
-    const newPlayersState = new Map(playersState);
-    newPlayersState.set(role, playerState);
-    setPlayersState(newPlayersState);
-  }, []);
+  const handlePlayerChanged = useCallback(
+    (role: PlayerRole, playerState: PlayerState) => {
+      const newPlayersState = new Map(playersState);
+      newPlayersState.set(role, playerState);
+      setPlayersState(newPlayersState);
+    },
+    [playersState]
+  );
 
   const handlePointsChanged = useCallback(
     (points?: string, error?: string) => {
@@ -237,12 +301,14 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
   const handleBidChanged = useCallback(
     (bid?: string, error?: string) => {
       const bidAmount = bid ? +bid : undefined;
-      const pointsError = validatePoints(`${points}`, bidAmount);
       setBidAmount(bidAmount);
       setBidAmountError(error);
-      setPointsError(pointsError);
+      if (points != null) {
+        const pointsError = validatePoints(`${points}`, bidAmount);
+        setPointsError(pointsError);
+      }
     },
-    [points, setBidAmount, setBidAmountError, setPointsError]
+    [points, bidAmount, setBidAmount, setBidAmountError, setPointsError]
   );
 
   const pointsValidator = useCallback(
@@ -252,28 +318,33 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
     [bidAmount]
   );
 
-  const calledSelfClasses = classNames({
-    "hide-called-self": numberOfPlayers !== 5,
-  });
-
   const errorCount = useMemo(() => {
-    return filterFalsy([bidAmountError, pointsError, ...playerErrors.values()]).length;
+    return filterFalsy([bidAmountError, pointsError, ...playerErrors.values()])
+      .length;
   }, [bidAmountError, pointsError, playerErrors]);
 
   const missingValues = useMemo(() => {
     const values: Array<any | undefined> = [
       bidAmount,
       points,
-      Array.from(playersState.values()).map((playerState) => playerState.player),
+      ...Array.from(playersState.values()).map(
+        (playerState) => playerState.player
+      ),
     ];
-    return values.reduce((previous, current) => (current != null ? previous : previous + 1), 0);
+    return values.reduce(
+      (previous, current) => (current != null ? previous : previous + 1),
+      0
+    );
   }, [bidAmount, points, playersState]);
 
   const submitActive = errorCount === 0 && missingValues === 0;
 
   const handleSubmit = useCallback(() => {
     const playerHands: Map<PlayerRole, PlayerHand> = new Map();
-    const activePlayers = getActivePlayersForValues(numberOfPlayers, bidderCalledSelf);
+    const activePlayers = getActivePlayersForValues(
+      numberOfPlayers,
+      bidderCalledSelf
+    );
     for (const role of activePlayers) {
       const player = playersState.get(role);
       if (player == null) {
@@ -282,7 +353,12 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
       playerHands.set(role, {
         id: player.player!.id,
         handId: "",
-        pointsEarned: getPointsEarned(points!, role, numberOfPlayers, bidderCalledSelf),
+        pointsEarned: getPointsEarned(
+          points!,
+          role,
+          numberOfPlayers,
+          bidderCalledSelf
+        ),
         showedTrump: player.showed,
         oneLast: player.oneLast,
       });
@@ -311,7 +387,15 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
       handData,
     };
     onSubmit(newGame);
-  }, [onSubmit, game, bidAmount, points, numberOfPlayers, bidderCalledSelf, playersState]);
+  }, [
+    onSubmit,
+    game,
+    bidAmount,
+    points,
+    numberOfPlayers,
+    bidderCalledSelf,
+    playersState,
+  ]);
 
   return (
     <Stack align="center">
@@ -345,7 +429,6 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
               <h3>Bidder's Team</h3>
 
               <Checkbox
-                className={calledSelfClasses}
                 onChange={handleSetSelfCalled}
                 checked={bidderCalledSelf}
                 label="Called Self"
@@ -444,18 +527,17 @@ export const GameForm = memo(function GameForm({ onSubmit, players, submitText, 
           )}
         </Paper>
       </Group>
-      <div className="enter-score-button-container">
-        <Button
-          loading={loading}
-          className="enter-score-button"
-          rightSection={<IconDownload />}
-          color="green"
-          disabled={!submitActive}
-          onClick={handleSubmit}
-        >
-          {submitText}
-        </Button>
-      </div>
+      <Button
+        mb={20}
+        loading={loading}
+        className="enter-score-button"
+        rightSection={<IconDownload />}
+        color="green"
+        disabled={!submitActive}
+        onClick={handleSubmit}
+      >
+        {submitText}
+      </Button>
     </Stack>
   );
 });

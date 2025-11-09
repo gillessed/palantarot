@@ -4,27 +4,26 @@ import { memo } from "react";
 import { Player } from "../../../server/model/Player";
 import { PlayerBanner } from "./PlayerBanner";
 import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
+import { Result } from "../../../server/model/Result";
+import { ErrorAlert } from "../../components/ErrorAlert";
 
 interface Props {
   playerId: string;
   players: Map<string, Player>;
+  results: Result[];
 }
 
 export const PlayerView = memo(function PlayerView({
   playerId,
   players,
+  results,
 }: Props) {
   const player = players.get(playerId);
   if (player == null) {
     return (
-      <Alert
-        variant="light"
-        color="red"
-        title="Error"
-        icon={<IconInfoCircle />}
-      >
+      <ErrorAlert>
         Could not find player id {playerId}
-      </Alert>
+      </ErrorAlert>
     );
   }
 
@@ -39,9 +38,9 @@ export const PlayerView = memo(function PlayerView({
 
   return (
     <Stack>
-      <PlayerBanner player={player} results={[]} />
-      <Tabs keepMounted={false}>
-        <Tabs.List defaultValue="recent-games">
+      <PlayerBanner player={player} results={results} />
+      <Tabs defaultValue="recent-games" keepMounted={false}>
+        <Tabs.List>
           <Tabs.Tab value="recent-games">Recent Games</Tabs.Tab>
           <Tabs.Tab value="graphs">Graphs</Tabs.Tab>
           <Tabs.Tab value="monthly-wins">Monthly</Tabs.Tab>

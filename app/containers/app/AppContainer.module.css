@@ -1,8 +1,10 @@
 .header {
-  height: 56px;
+  position: fixed;
+  background-color: white;
+  width: 100vw;
   background-color: var(--mantine-color-body);
   border-bottom: 1px solid var(--mantine-color-dark-4);
-  margin-bottom: 50px;
+  z-index: 10;
 }
 
 .link {

@@ -70,7 +70,6 @@ export const AddPlayerForm = memo(function AddPlayerForm({ onSubmit, isBot, load
   return (
     <Stack align="center">
       <TextInput label="First Name: " onChange={handleFirstNameChange} validator={firstNameValidator} />
-
       <TextInput label="Last Name: " onChange={handleLastNameChange} validator={lastNameValidator} />
 
       {isBot && (

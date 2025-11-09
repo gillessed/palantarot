@@ -14,6 +14,7 @@ interface Props {
   unselectedLabel?: string;
   onPlayerSelected: (player?: Player) => void;
   selectedPlayer?: Player;
+  error?: string;
 }
 
 const NoFilterItemId = "no_filter_item";
@@ -28,12 +29,13 @@ const MoreItemId = "more_items";
 const OptionCountMax = 13;
 
 export const PlayerSelect = memo(function PlayerSelect({
-  selectedPlayer,
   players,
   recentPlayers,
   unselectedLabel,
   onPlayerSelected,
   selectedPlayers,
+  selectedPlayer,
+  error,
 }: Props) {
   const unselectedItem: Item = useMemo(() => {
     return {
@@ -49,7 +51,7 @@ export const PlayerSelect = memo(function PlayerSelect({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(selectedPlayer ? getPlayerName(selectedPlayer) : "");
 
   const itemList = useMemo(() => {
     const items: Item[] = players.map((p) => {
@@ -107,7 +109,8 @@ export const PlayerSelect = memo(function PlayerSelect({
     (value: string) => {
       const item = itemMap.get(value);
       if (item?.selects != null) {
-        onPlayerSelected(item?.selects);
+        setQuery(getPlayerName(item.selects));
+        onPlayerSelected(item.selects);
       }
       combobox.closeDropdown();
     },
@@ -120,15 +123,27 @@ export const PlayerSelect = memo(function PlayerSelect({
         item={item}
         key={item.text}
         selectedPlayers={selectedPlayers}
-        selectedPlayer={selectedPlayer}
       />
     );
   });
+
+  const handleOpenSelect = useCallback(() => {
+    combobox.openDropdown();
+    setQuery("");
+  }, [combobox]);
+
+  const handleCloseSelect = useCallback(() => {
+    if (selectedPlayer != null) {
+      setQuery(getPlayerName(selectedPlayer));
+    }
+    combobox.closeDropdown();
+  }, [selectedPlayer, setQuery])
 
   return (
     <Combobox store={combobox} withinPortal={false} onOptionSubmit={handleOptionSelected}>
       <Combobox.Target>
         <InputBase
+          error={error} 
           rightSection={<Combobox.Chevron />}
           value={query}
           onChange={(event) => {
@@ -136,11 +151,9 @@ export const PlayerSelect = memo(function PlayerSelect({
             combobox.updateSelectedOptionIndex();
             setQuery(event.currentTarget.value);
           }}
-          onClick={() => combobox.openDropdown()}
-          onFocus={() => combobox.openDropdown()}
-          onBlur={() => {
-            combobox.closeDropdown();
-          }}
+          onClick={handleOpenSelect}
+          onFocus={handleOpenSelect}
+          onBlur={handleCloseSelect}
           placeholder="Search value"
           rightSectionPointerEvents="none"
         />

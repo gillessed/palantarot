@@ -1,6 +1,7 @@
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import '@mantine/notifications/styles.css';
+import '@mantine/charts/styles.css';
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore, Store } from "redux";
@@ -14,6 +15,7 @@ import { DispatchProvider } from "./dispatchProvider";
 import { dispatcherCreators } from "./services/dispatchers";
 import { ReduxState, rootReducer } from "./services/rootReducer";
 import { registerConsoleStore } from "./utils/consoleStore";
+import { Notifications } from "@mantine/notifications";
 
 const theme = createTheme({
   headings: {
@@ -47,6 +49,7 @@ function init() {
       <ApiProvider value={api}>
         <DispatchProvider value={dispatchers}>
           <MantineProvider theme={theme} forceColorScheme="light">
+            <Notifications autoClose={4000} position="top-center"/>
             <AppRouter />
           </MantineProvider>
         </DispatchProvider>

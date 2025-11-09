@@ -2,7 +2,6 @@ import { combineReducers } from "redux";
 import { addTarothonReducer, AddTarothonService } from "./addTarothon/index";
 import { authReducer, AuthService } from "./auth/index";
 import { bidsReducer, BidsService } from "./bids/index";
-import { deleteGameReducer, DeleteGameService } from "./deleteGame/index";
 import { deleteTarothonReducer, DeleteTarothonService } from "./deleteTarothon/index";
 import { deltasReducer, DeltasService } from "./deltas/index";
 import { gameReducer, GameService } from "./game";
@@ -30,7 +29,6 @@ export interface ReduxState {
   addTarothon: AddTarothonService;
   auth: AuthService;
   bids: BidsService;
-  deleteGame: DeleteGameService;
   deleteTarothon: DeleteTarothonService;
   deltas: DeltasService;
   games: GameService;
@@ -55,7 +53,6 @@ export const rootReducer = combineReducers({
   addTarothon: addTarothonReducer,
   auth: authReducer,
   bids: bidsReducer,
-  deleteGame: deleteGameReducer,
   deleteTarothon: deleteTarothonReducer,
   deltas: deltasReducer,
   games: gameReducer,

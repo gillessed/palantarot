@@ -1,11 +1,10 @@
 import {
   ActionIcon,
-  Fieldset,
   Group,
+  TextInput as MantineTextInput,
   NumberInput,
   Select,
-  type ComboboxItem,
-  TextInput as MantineTextInput,
+  type ComboboxItem
 } from "@mantine/core";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import React, { memo, useCallback, useEffect, useState } from "react";
@@ -16,11 +15,6 @@ interface InputProps {
   initialError?: string;
   onChange?: (value: string, error?: string) => void;
   validator?: (value: string) => string | undefined;
-}
-
-interface InputState {
-  value: string;
-  error?: string;
 }
 
 export const TextInput = memo(function TextInput({
@@ -45,7 +39,7 @@ export const TextInput = memo(function TextInput({
       setError(error);
       onChange?.(newValue, error);
     },
-    [setValue, setError, onChange]
+    [setValue, setError, onChange, validator]
   );
 
   return (
@@ -84,7 +78,7 @@ export const PointsInput = memo(function PointsInput({
       setError(error);
       onChange?.(newValue, error);
     },
-    [setError]
+    [setError, validator]
   );
 
   const handlePlusPress = useCallback(() => {
@@ -149,7 +143,7 @@ export const SelectInput = memo(function SelectInput({
       setValue(newValue);
       onChange?.(newValue, error);
     },
-    [setError, setValue, onChange]
+    [setError, setValue, onChange, validator]
   );
 
   return (

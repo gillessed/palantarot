@@ -29,7 +29,7 @@ export const GameTable = memo(function GameTable({players, games, pageState, win
     <Stack mt={20}>
       {pageState != null && <GameTablePager games={games} pageState={pageState}/>}
       <Table withTableBorder highlightOnHover>
-        <Table.Th>
+        <Table.Thead>
           <Table.Tr>
             <Table.Th>Bidder</Table.Th>
             <Table.Th>Partner</Table.Th>
@@ -38,7 +38,7 @@ export const GameTable = memo(function GameTable({players, games, pageState, win
             <Table.Th>Players</Table.Th>
             <Table.Th>Time</Table.Th>
           </Table.Tr>
-        </Table.Th>
+        </Table.Thead>
         <tbody>{games.map((game) => {
           const outcome = winLossValidator?.(game) ?? "unknown";
           return <GameTableRow key={game.id} players={players} game={game} outcome={outcome} />;

@@ -2,7 +2,6 @@ import { Store } from "redux";
 import { AddTarothonDispatcher } from "./addTarothon/index";
 import { AuthDispatcher } from "./auth/index";
 import { BidsDispatcher } from "./bids/index";
-import { DeleteGameDispatcher } from "./deleteGame/index";
 import { DeleteTarothonDispatcher } from "./deleteTarothon/index";
 import { DeltasDispatcher } from "./deltas/index";
 import { GameDispatcher } from "./game/index";
@@ -25,11 +24,9 @@ import { TarothonDataDispatcher } from "./tarothonData";
 import { TarothonsDispatcher } from "./tarothons/index";
 
 export interface Dispatchers {
-  addPlayer: AddNewPlayerDispatcher;
   addTarothon: AddTarothonDispatcher;
   auth: AuthDispatcher;
   bids: BidsDispatcher;
-  deleteGame: DeleteGameDispatcher;
   deleteTarothon: DeleteTarothonDispatcher;
   deltas: DeltasDispatcher;
   games: GameDispatcher;
@@ -60,7 +57,6 @@ export const dispatcherCreators = (store: Store<ReduxState>): Dispatchers => {
         isCached: CacheFunction.pageCache(),
       },
     }),
-    deleteGame: new DeleteGameDispatcher(store),
     deleteTarothon: new DeleteTarothonDispatcher(store),
     games: new GameDispatcher(store),
     deltas: new DeltasDispatcher(store, {
