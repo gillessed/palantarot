@@ -56,7 +56,8 @@ export const AsyncView = function AsyncView<
   AdditionalArgs = void
 >(props: Props<Loaders, AdditionalArgs>) {
   const { Component, args, loaders } = props;
-  const additionalArgs = ((props as PropsWithArgs<Loaders, AdditionalArgs>).additionalArgs ?? {}) as AdditionalArgs;
+  const additionalArgs = ((props as PropsWithArgs<Loaders, AdditionalArgs>)
+    .additionalArgs ?? {}) as AdditionalArgs;
 
   const loaderContext = useLoaderContext();
 
@@ -104,7 +105,7 @@ export const AsyncView = function AsyncView<
       >
         {state.error}
       </Alert>
-    )
+    );
   } else if (isAsyncLoaded(state)) {
     if (additionalArgs != null) {
       return <Component {...state.value} {...additionalArgs} />;

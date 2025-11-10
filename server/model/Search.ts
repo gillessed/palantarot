@@ -16,6 +16,12 @@ export const PlayerPredicates: PlayerPredicate[] = [
   "partner",
   "opponent",
 ];
+export const PlayerPredicateSelectData = [
+  { value: "in_game", label: "In game" },
+  { value: "bidder", label: "Bidder" },
+  { value: "partner", label: "Partner" },
+  { value: "opponent", label: "Opponent" },
+];
 export const isPlayerPredicate = (
   predicateString: string | null | undefined
 ): predicateString is PlayerPredicate => {
@@ -37,6 +43,12 @@ export interface PlayerQuery {
 }
 
 export type ScoreOperator = "=" | ">" | "<" | ">=" | "<=";
+export const ScoreOperators = ["=", ">", "<", ">=", "<="];
+export const isScoreOperator = (
+  operatorString: string | null | undefined
+): operatorString is ScoreOperator => {
+  return ScoreOperators.indexOf(operatorString as ScoreOperator) >= 0;
+};
 
 export interface ScoreQuery {
   value: number;

@@ -1,5 +1,9 @@
 import moment from "moment-timezone";
-import { integerComparator, type Comparator, type SortOrder } from "../utils/index.ts";
+import {
+  integerComparator,
+  type Comparator,
+  type SortOrder,
+} from "../utils/index.ts";
 
 export interface Month {
   year: number;
@@ -7,7 +11,6 @@ export interface Month {
 }
 
 const _months: Map<string, IMonth> = new Map();
-const Identity = <T>(t: T) => t;
 
 export class IMonth implements Month {
   year: number;
@@ -34,24 +37,39 @@ export class IMonth implements Month {
     }
   }
 
-  public isValid(options?: { inPast: boolean }): { valid: boolean; error?: string } {
+  public isValid(options?: { inPast: boolean }): {
+    valid: boolean;
+    error?: string;
+  } {
     if (this.month < 0 || this.month > 11) {
-      return { valid: false, error: `Month must be between 0-11: ${this.month}` };
+      return {
+        valid: false,
+        error: `Month must be between 0-11: ${this.month}`,
+      };
     }
     if (options && options.inPast && this.year > moment().year()) {
-      return { valid: false, error: `Year must be less than ${moment().year()}` };
+      return {
+        valid: false,
+        error: `Year must be less than ${moment().year()}`,
+      };
     }
     return { valid: true };
   }
 
   public previous(): IMonth {
     const previous = (this.month + 11) % 12;
-    return IMonth.get({ month: previous, year: previous == 11 ? this.year - 1 : this.year });
+    return IMonth.get({
+      month: previous,
+      year: previous == 11 ? this.year - 1 : this.year,
+    });
   }
 
   public next(): IMonth {
     const nextMonth = (this.month + 1) % 12;
-    return IMonth.get({ month: nextMonth, year: nextMonth == 0 ? this.year + 1 : this.year });
+    return IMonth.get({
+      month: nextMonth,
+      year: nextMonth == 0 ? this.year + 1 : this.year,
+    });
   }
 
   public simpleObject(): Month {
@@ -84,13 +102,16 @@ export class IMonth implements Month {
 
   public static compare(m1: Month, m2: Month): number {
     return integerComparator<Month>(
-        (m: Month) => m.year,
-        "asc",
-        integerComparator<Month>((m: Month) => m.month, "asc")
-      )(m1, m2);
+      (m: Month) => m.year,
+      "asc",
+      integerComparator<Month>((m: Month) => m.month, "asc")
+    )(m1, m2);
   }
 
-  public static comparator<T>(map: (t: T) => IMonth, order: SortOrder): Comparator<T> {
+  public static comparator<T>(
+    map: (t: T) => IMonth,
+    order: SortOrder
+  ): Comparator<T> {
     return (t1: T, t2: T): number => {
       return integerComparator<IMonth>(
         (m: IMonth) => m.year,
@@ -104,7 +125,9 @@ export class IMonth implements Month {
     const month = `00${date.month + 1}`.slice(-2);
     const dateString = `${date.year}-${month}-01`;
     // Lock months to Western time.
-    return moment.tz(dateString, IMonth.westernTimezone).format("YYYY-MM-DDThh:mm:ssZ");
+    return moment
+      .tz(dateString, IMonth.westernTimezone)
+      .format("YYYY-MM-DDThh:mm:ssZ");
   }
 
   public static westernTimezone = "America/Los_Angeles";

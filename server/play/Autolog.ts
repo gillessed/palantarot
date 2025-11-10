@@ -1,12 +1,26 @@
 import type { PlayerRole } from "../../app/components/forms/PlayerRoles.ts";
-import { getPointsEarned } from "../../app/components/forms/pointsEarned.ts";
+import { getPointsEarned } from "../../app/components/forms/getPointsEarned.ts";
 import { GameRecordQuerier } from "../db/GameRecordQuerier.ts";
-import { type HandData, type PlayerHand, type GameRecord as Results } from "../model/GameRecord.ts";
+import {
+  type HandData,
+  type PlayerHand,
+  type GameRecord as Results,
+} from "../model/GameRecord.ts";
 import { Game } from "./game/Game.ts";
-import { type CompletedBoardState, type CompletedGameState } from "./model/GameState.ts";
+import {
+  type CompletedBoardState,
+  type CompletedGameState,
+} from "./model/GameState.ts";
 
-export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): Promise<void> {
-  if (!game.settings.autologEnabled || game.getState().name !== "completed" || game.logged) {
+export async function autologGame(
+  game: Game,
+  gameQuerier: GameRecordQuerier
+): Promise<void> {
+  if (
+    !game.settings.autologEnabled ||
+    game.getState().name !== "completed" ||
+    game.logged
+  ) {
     return Promise.resolve();
   }
 
@@ -51,7 +65,11 @@ export async function autologGame(game: Game, gameQuerier: GameRecordQuerier): P
   return Promise.resolve();
 }
 
-export function getHandForPlayer(endState: CompletedGameState, playerRole: PlayerRole, playerId: string): PlayerHand {
+export function getHandForPlayer(
+  endState: CompletedGameState,
+  playerRole: PlayerRole,
+  playerId: string
+): PlayerHand {
   const playerIndex = endState.players.indexOf(playerId);
   const hand: PlayerHand = {
     id: playerId,

@@ -23,7 +23,11 @@ const bidderAccessor = (result: Result) => result.bidder;
 const partnerAccessor = (result: Result) => result.partner;
 const oppositionAccessor = (result: Result) => result.opposition;
 
-export const ResultsView = memo(function ResultsView({ results, players, games }: LoaderProps & OtherProps) {
+export const ResultsView = memo(function ResultsView({
+  results,
+  players,
+  games,
+}: LoaderProps & OtherProps) {
   if (results.length === 0) {
     return (
       <Center>
@@ -43,19 +47,35 @@ export const ResultsView = memo(function ResultsView({ results, players, games }
       </Tabs.List>
 
       <Tabs.Panel value="all-results">
-        <ResultsTable players={players} results={results} accessor={allAccessor} />
+        <ResultsTable
+          players={players}
+          results={results}
+          accessor={allAccessor}
+        />
       </Tabs.Panel>
       <Tabs.Panel value="bidder-results">
-        <ResultsTable players={players} results={results} accessor={bidderAccessor} />
+        <ResultsTable
+          players={players}
+          results={results}
+          accessor={bidderAccessor}
+        />
       </Tabs.Panel>
       <Tabs.Panel value="partner-results">
-        <ResultsTable players={players} results={results} accessor={partnerAccessor} />
+        <ResultsTable
+          players={players}
+          results={results}
+          accessor={partnerAccessor}
+        />
       </Tabs.Panel>
       <Tabs.Panel value="opponent-results">
-        <ResultsTable players={players} results={results} accessor={oppositionAccessor} />
+        <ResultsTable
+          players={players}
+          results={results}
+          accessor={oppositionAccessor}
+        />
       </Tabs.Panel>
       <Tabs.Panel value="graph">
-        <PointsGraph players={players} games={games} />
+        <PointsGraph players={players} games={games} withLegend />
       </Tabs.Panel>
     </Tabs>
   );

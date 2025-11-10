@@ -6,7 +6,7 @@ import { Player } from "../../../server/model/Player";
 import { getPointDeltas, PointDelta } from "../../../server/model/PointFlow";
 import { Aggregator, count } from "../../../server/utils/count";
 import { integerComparator } from "../../../server/utils/index";
-import { MonthPicker } from "../../components/monthPicker/MonthPicker";
+import { MonthPicker } from "../../components/MonthPicker";
 import { monthGamesLoader } from "../../services/monthGames/index";
 import { playersLoader } from "../../services/players/index";
 import { loadContainer } from "../LoadingContainer";
@@ -31,12 +31,16 @@ class PointFlowLoaderInternal extends React.PureComponent<InternalProps> {
     (props: InternalProps) => props.playerId,
     (props: InternalProps) => props.monthGames,
     (playerId: string, monthGames: GameRecord[]) => {
-      const filteredGames = monthGames.filter((game) => playerInGame(playerId, game));
+      const filteredGames = monthGames.filter((game) =>
+        playerInGame(playerId, game)
+      );
       const allPointDeltas: PointDelta[] = [];
       for (const game of filteredGames) {
         allPointDeltas.push(...getPointDeltas(playerId, game));
       }
-      const aggregateDeltas = count(allPointDeltas, (delta) => delta.player, [pointDeltaAggregator]);
+      const aggregateDeltas = count(allPointDeltas, (delta) => delta.player, [
+        pointDeltaAggregator,
+      ]);
       const pointFlow: PointDelta[] = aggregateDeltas.map((aggregate) => {
         return {
           player: aggregate.id,
@@ -51,8 +55,16 @@ class PointFlowLoaderInternal extends React.PureComponent<InternalProps> {
     if (this.props.monthGames.length === 0) {
       return <h4 className="bp3-heading">No games for this month.</h4>;
     } else {
-      const pointDeltas = this.getPointFlow(this.props).sort(integerComparator((delta) => delta.points, "desc"));
-      return <PointFlowChart players={this.props.players} pointDeltas={pointDeltas} divId={"point-flow-chart"} />;
+      const pointDeltas = this.getPointFlow(this.props).sort(
+        integerComparator((delta) => delta.points, "desc")
+      );
+      return (
+        <PointFlowChart
+          players={this.props.players}
+          pointDeltas={pointDeltas}
+          divId={"point-flow-chart"}
+        />
+      );
     }
   }
 }
@@ -83,12 +95,21 @@ export class PointFlowTab extends React.PureComponent<Props, State> {
   public render() {
     return (
       <div className="point-flow-container">
-        <MonthPicker titlePrefix="Point Flow" month={this.state.month} onMonthUpdated={this.onMonthUpdated} />
+        <MonthPicker
+          titlePrefix="Point Flow"
+          month={this.state.month}
+          onMonthUpdated={this.onMonthUpdated}
+        />
         <p>
           {" "}
-          A positive (green) bar indicates you took points from them. Negative (red) means they took points from you.{" "}
+          A positive (green) bar indicates you took points from them. Negative
+          (red) means they took points from you.{" "}
         </p>
-        <PointFlowLoader playerId={this.props.playerId} monthGames={this.state.month} month={this.state.month} />
+        <PointFlowLoader
+          playerId={this.props.playerId}
+          monthGames={this.state.month}
+          month={this.state.month}
+        />
       </div>
     );
   }

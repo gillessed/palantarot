@@ -7,7 +7,8 @@ import {
   isPlayerPredicate,
   PlayerOperators,
   PlayerPredicates,
-  PlayerQuery
+  PlayerPredicateSelectData,
+  PlayerQuery,
 } from "../../../server/model/Search";
 import { PlayerSelect } from "../forms/PlayerSelect";
 
@@ -33,6 +34,7 @@ export const PlayerQueryComponent = memo(function PlayerQueryComponent({
           ...playerQuery,
           player: player.id,
         };
+        console.log("new query:", newQuery);
         onChange(newQuery, index);
       }
     },
@@ -57,7 +59,9 @@ export const PlayerQueryComponent = memo(function PlayerQueryComponent({
 
   const handleChangePredicate = useCallback(
     (predicateString: string | null) => {
-      const predicate = isPlayerPredicate(predicateString) ? predicateString : "in_game";
+      const predicate = isPlayerPredicate(predicateString)
+        ? predicateString
+        : "in_game";
       const newQuery = {
         ...playerQuery,
         predicate,
@@ -87,7 +91,7 @@ export const PlayerQueryComponent = memo(function PlayerQueryComponent({
         <Select
           value={playerQuery.predicate}
           onChange={handleChangePredicate}
-          data={PlayerPredicates}
+          data={PlayerPredicateSelectData}
         />
       </Group>
       <ActionIcon variant="light" onClick={handleDelete}>

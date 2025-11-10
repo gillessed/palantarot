@@ -1,4 +1,4 @@
-import { Button, Center, Stack, Text } from "@mantine/core";
+import { Button, Center, Group, Stack, Text } from "@mantine/core";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Player } from "../../../server/model/Player";
 import {
@@ -43,7 +43,7 @@ export const SearchForm = memo(function SearchForm({ players }: Props) {
     (playerQuery: PlayerQuery, index: number) => {
       const newQueries = [...playerQueries];
       newQueries.splice(index, 1, playerQuery);
-      setPlayerQueries(playerQueries);
+      setPlayerQueries(newQueries);
     },
     [playerQueries, setPlayerQueries]
   );
@@ -52,7 +52,7 @@ export const SearchForm = memo(function SearchForm({ players }: Props) {
     (index: number) => {
       const newQueries = [...playerQueries];
       newQueries.splice(index, 1);
-      setPlayerQueries(playerQueries);
+      setPlayerQueries(newQueries);
     },
     [playerQueries, setPlayerQueries]
   );
@@ -115,18 +115,20 @@ export const SearchForm = memo(function SearchForm({ players }: Props) {
           onDelete={handleDeleteScoreQuery}
         />
       ))}
-      <SearchHeader title="Bid Amount" />
-      <div className="bid-query-container">
-        <BidQueryComponent bidQuery={bidQuery} onChange={setBidQuery} />
-      </div>
-      <SearchHeader title="Number of Players" />
-      <div className="bid-query-container">
-        <PlayerCountQueryComponent
-          numberOfPlayers={numberOfPlayers}
-          onChange={setNumberOfPlayers}
-        />
-      </div>
-      <SearchHeader title="Number of Players" />
+      <Group>
+        <Stack w={200}>
+          <SearchHeader title="Bid Amount" />
+          <BidQueryComponent bids={bidQuery} onChange={setBidQuery} />
+        </Stack>
+        <Stack w={200}>
+          <SearchHeader title="Number of Players" />
+          <PlayerCountQueryComponent
+            numberOfPlayers={numberOfPlayers}
+            onChange={setNumberOfPlayers}
+          />
+        </Stack>
+      </Group>
+      <SearchHeader title="Date" />
       <Text>Not ready yet...</Text>
       <Center>
         <Button
@@ -135,7 +137,7 @@ export const SearchForm = memo(function SearchForm({ players }: Props) {
           color="green"
           rightSection
         >
-          Search
+          Search (Still in progress)
         </Button>
       </Center>
     </Stack>

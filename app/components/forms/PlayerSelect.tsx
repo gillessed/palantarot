@@ -51,7 +51,9 @@ export const PlayerSelect = memo(function PlayerSelect({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
 
-  const [query, setQuery] = useState(selectedPlayer ? getPlayerName(selectedPlayer) : "");
+  const [query, setQuery] = useState(
+    selectedPlayer ? getPlayerName(selectedPlayer) : ""
+  );
 
   const itemList = useMemo(() => {
     const items: Item[] = players.map((p) => {
@@ -82,7 +84,10 @@ export const PlayerSelect = memo(function PlayerSelect({
 
   const filteredItems = useMemo(() => {
     if (query === "") {
-      const start = unselectedLabel != null ? [unselectedItem, NoFilterITem] : [NoFilterITem];
+      const start =
+        unselectedLabel != null
+          ? [unselectedItem, NoFilterITem]
+          : [NoFilterITem];
       start.push(...itemList.filter((item) => item.recent));
       return start;
     }
@@ -137,13 +142,17 @@ export const PlayerSelect = memo(function PlayerSelect({
       setQuery(getPlayerName(selectedPlayer));
     }
     combobox.closeDropdown();
-  }, [selectedPlayer, setQuery])
+  }, [selectedPlayer, setQuery]);
 
   return (
-    <Combobox store={combobox} withinPortal={false} onOptionSubmit={handleOptionSelected}>
+    <Combobox
+      store={combobox}
+      withinPortal={false}
+      onOptionSubmit={handleOptionSelected}
+    >
       <Combobox.Target>
         <InputBase
-          error={error} 
+          error={error}
           rightSection={<Combobox.Chevron />}
           value={query}
           onChange={(event) => {

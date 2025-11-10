@@ -13,7 +13,7 @@ import { getPlayerName } from "../../services/players/playerName";
 import { filterFalsy } from "../../utils/filterFalsy";
 import { PointsInput, SelectInput } from "./Elements";
 import { OppositionRoles, type PlayerRole } from "./PlayerRoles";
-import { getPointsEarned } from "./pointsEarned";
+import { getPointsEarned } from "./getPointsEarned";
 
 interface Props {
   recentPlayers?: Player[];

@@ -5,6 +5,7 @@ import { Result } from "../../../server/model/Result";
 import { ErrorAlert } from "../../components/ErrorAlert";
 import { PlayerBanner } from "./PlayerBanner";
 import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
+import { PlayerGraphTab } from "./PlayerGraphTab";
 
 interface Props {
   playerId: string;
@@ -12,7 +13,11 @@ interface Props {
   results: Result[];
 }
 
-export const PlayerView = memo(function PlayerView({ playerId, players, results }: Props) {
+export const PlayerView = memo(function PlayerView({
+  playerId,
+  players,
+  results,
+}: Props) {
   const player = players.get(playerId);
   if (player == null) {
     return <ErrorAlert>Could not find player id {playerId}</ErrorAlert>;
@@ -44,9 +49,11 @@ export const PlayerView = memo(function PlayerView({ playerId, players, results 
         <Tabs.Panel value="recent-games">
           <PlayerRecentGamesTab player={player} players={players} />
         </Tabs.Panel>
+        <Tabs.Panel value="graph">
+          <PlayerGraphTab playerId={player.id} players={players} />
+        </Tabs.Panel>
       </Tabs>
       {/* 
-          <Tab id="PlayerRecentGamesTab" title="Recent Games" panel={recentGamesTab} />
           <Tab id="PlayerGraphsTab" title="Graphs" panel={graphTab} />
           <Tab id="PlayerMonthlyWinsTab" title="Monthly" panel={monthlyTab} />
           <Tab id="PlayerWinPercentagesTab" title="Win Percentages" panel={winPercentagesTab} />

@@ -11,6 +11,7 @@ import { ResultsLoader } from "../../services/ResultsLoader";
 import { PageContainer } from "../PageContainer";
 import { ResultsView } from "./ResultsView";
 import { GamesForMonthLoader } from "../../services/GamesForMonthLoader";
+import { MonthPicker } from "../../components/MonthPicker";
 
 const Loaders = {
   results: ResultsLoader,
@@ -63,33 +64,19 @@ export const ResultsContainer = memo(function ResultsContainer() {
     [navigate]
   );
 
-  const month = IMonth.n(monthParam?.month ?? moment().month(), monthParam?.year ?? moment().year());
-  const isCurrentMonth = month.month === moment().month() && month.year === moment().year();
-  const args = useMemo(() => ({ results: month, games: month, players: undefined }), [month]);
-
-  const handleClickLeft = useCallback(() => {
-    goToMonth(month.previous());
-  }, [navigate, month]);
-
-  const handleClickRight = useCallback(() => {
-    if (isCurrentMonth) {
-      return;
-    }
-    goToMonth(month.next());
-  }, [navigate, month, isCurrentMonth]);
+  const month = IMonth.n(
+    monthParam?.month ?? moment().month(),
+    monthParam?.year ?? moment().year()
+  );
+  const args = useMemo(
+    () => ({ results: month, games: month, players: undefined }),
+    [month]
+  );
 
   return (
     <PageContainer>
-      <Stack align="stretch">
-        <Group justify="center" mt={40} mb={15}>
-          <ActionIcon size="lg" onClick={handleClickLeft}>
-            <IconChevronLeft />
-          </ActionIcon>
-          <Title order={1}>Results for {month.getHumanReadableString()}</Title>
-          <ActionIcon size="lg" onClick={handleClickRight} disabled={isCurrentMonth}>
-            <IconChevronRight />
-          </ActionIcon>
-        </Group>
+      <Stack align="stretch" pt={40}>
+        <MonthPicker month={month} onChanged={goToMonth} />
         <AsyncView<LoaderType, { month: Month }>
           loaders={Loaders}
           args={args}
