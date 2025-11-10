@@ -3,15 +3,16 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { StaticRoutes } from "../shared/routes";
 import { AddPlayerContainer } from "./containers/addPlayer/AddPlayerContainer";
 import { AppContainer } from "./containers/app/AppContainer";
+import { BotsContainer } from "./containers/bot/BotsContainer";
+import { EditGameContainer } from "./containers/edit/EditGameContainer";
 import { EnterContainer } from "./containers/enter/EnterContainer";
+import { GameContainer } from "./containers/game/GameContainer";
 import { HomeContainer } from "./containers/home/HomeContainer";
 import { PlayerContainer } from "./containers/player/PlayerContainer";
 import { RecentGamesContainer } from "./containers/recent/RecentGamesContainer";
 import { ResultsContainer } from "./containers/results/ResultsContainer";
-import { GameContainer } from "./containers/game/GameContainer";
-import { EditGameContainer } from "./containers/edit/EditGameContainer";
-import { BotsContainer } from "./containers/bot/BotsContainer";
 import { RulesContainer } from "./containers/rules/RulesContainer";
+import { SearchContainer } from "./containers/search/SearchContainer";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
       { path: StaticRoutes.edit(), Component: EditGameContainer },
       { path: StaticRoutes.bots(), Component: BotsContainer },
       { path: StaticRoutes.rules(), Component: RulesContainer },
+      { path: StaticRoutes.search(), Component: SearchContainer },
     ],
   },
 ]);

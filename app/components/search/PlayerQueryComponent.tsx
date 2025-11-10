@@ -1,68 +1,98 @@
-import React from "react";
-import { PlayerQuery, PlayerOperator, PlayerPredicate } from "../../../server/model/Search";
-import { PlayersService } from "../../services/players";
+import { ActionIcon, Group, Select } from "@mantine/core";
+import { IconTrash } from "@tabler/icons-react";
+import { memo, useCallback, useMemo } from "react";
 import { Player } from "../../../server/model/Player";
-import { Card, Classes, Button } from "@blueprintjs/core";
+import {
+  isPlayerOperator,
+  isPlayerPredicate,
+  PlayerOperators,
+  PlayerPredicates,
+  PlayerQuery
+} from "../../../server/model/Search";
 import { PlayerSelect } from "../forms/PlayerSelect";
-import { IconNames } from "@blueprintjs/icons";
-import { PlayerOperatorComponent } from "./PlayerOperatorComponent";
-import { PlayerPredicateComponent } from "./PlayerPredicateComponent";
 
-export namespace PlayerQueryComponent {
-  export interface Props {
-    index: number;
-    players: Map<string, Player>;
-    playerQuery: PlayerQuery;
-    onChange: (query: PlayerQuery, index: number) => void;
-    onDelete: (index: number) => void;
-  }
+interface Props {
+  index: number;
+  players: Map<string, Player>;
+  playerQuery: PlayerQuery;
+  onChange: (query: PlayerQuery, index: number) => void;
+  onDelete: (index: number) => void;
 }
 
-export class PlayerQueryComponent extends React.PureComponent<PlayerQueryComponent.Props> {
-  public render() {
-    return (
-      <Card className="player-query-component">
-        <div className="details">
-          <PlayerSelect
-            selectedPlayer={this.props.players.get(this.props.playerQuery.player)}
-            players={this.props.players}
-            onPlayerSelected={this.onPlayerSelected}
-          />
-          <PlayerOperatorComponent value={this.props.playerQuery.operator} onChange={this.onChangeOperator} />
-          <PlayerPredicateComponent value={this.props.playerQuery.predicate} onChange={this.onChangePredicate} />
-        </div>
-        <Button icon={IconNames.TRASH} minimal onClick={this.onDelete} />
-      </Card>
-    );
-  }
+export const PlayerQueryComponent = memo(function PlayerQueryComponent({
+  index,
+  players,
+  playerQuery,
+  onChange,
+  onDelete,
+}: Props) {
+  const handlePlayerSelected = useCallback(
+    (player?: Player) => {
+      if (player != null) {
+        const newQuery = {
+          ...playerQuery,
+          player: player.id,
+        };
+        onChange(newQuery, index);
+      }
+    },
+    [onChange, index]
+  );
 
-  public onPlayerSelected = (player?: Player) => {
-    if (player) {
+  const playerList = useMemo(() => {
+    return [...players.values()];
+  }, [players]);
+
+  const handleChangeOperator = useCallback(
+    (operatorString: string | null) => {
+      const operator = isPlayerOperator(operatorString) ? operatorString : "is";
       const newQuery = {
-        ...this.props.playerQuery,
-        player: player.id,
+        ...playerQuery,
+        operator,
       };
-      this.props.onChange(newQuery, this.props.index);
-    }
-  };
+      onChange(newQuery, index);
+    },
+    [playerQuery, index, onChange]
+  );
 
-  public onChangeOperator = (operator: PlayerOperator) => {
-    const newQuery = {
-      ...this.props.playerQuery,
-      operator,
-    };
-    this.props.onChange(newQuery, this.props.index);
-  };
+  const handleChangePredicate = useCallback(
+    (predicateString: string | null) => {
+      const predicate = isPlayerPredicate(predicateString) ? predicateString : "in_game";
+      const newQuery = {
+        ...playerQuery,
+        predicate,
+      };
+      onChange(newQuery, index);
+    },
+    [playerQuery, index, onChange]
+  );
 
-  public onChangePredicate = (predicate: PlayerPredicate) => {
-    const newQuery = {
-      ...this.props.playerQuery,
-      predicate,
-    };
-    this.props.onChange(newQuery, this.props.index);
-  };
+  const handleDelete = useCallback(() => {
+    onDelete(index);
+  }, [onDelete, index]);
 
-  public onDelete = () => {
-    this.props.onDelete(this.props.index);
-  };
-}
+  return (
+    <Group>
+      <Group>
+        <PlayerSelect
+          selectedPlayer={players.get(playerQuery.player)}
+          players={playerList}
+          onPlayerSelected={handlePlayerSelected}
+        />
+        <Select
+          value={playerQuery.operator}
+          onChange={handleChangeOperator}
+          data={PlayerOperators}
+        />
+        <Select
+          value={playerQuery.predicate}
+          onChange={handleChangePredicate}
+          data={PlayerPredicates}
+        />
+      </Group>
+      <ActionIcon variant="light" onClick={handleDelete}>
+        <IconTrash />
+      </ActionIcon>
+    </Group>
+  );
+});

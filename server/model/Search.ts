@@ -1,6 +1,4 @@
-import { generateId } from "../utils/randomString.ts";
 export interface SearchQuery {
-  id: string;
   playerQueries: PlayerQuery[];
   scoreQueries: ScoreQuery[];
   bidQuery: number[];
@@ -12,8 +10,25 @@ export interface SearchQuery {
 }
 
 export type PlayerPredicate = "in_game" | "bidder" | "partner" | "opponent";
+export const PlayerPredicates: PlayerPredicate[] = [
+  "in_game",
+  "bidder",
+  "partner",
+  "opponent",
+];
+export const isPlayerPredicate = (
+  predicateString: string | null | undefined
+): predicateString is PlayerPredicate => {
+  return PlayerPredicates.indexOf(predicateString as PlayerPredicate) >= 0;
+};
 
 export type PlayerOperator = "is" | "is not";
+export const PlayerOperators: PlayerOperator[] = ["is", "is not"];
+export const isPlayerOperator = (
+  operatorString: string | null | undefined
+): operatorString is PlayerOperator => {
+  return PlayerOperators.indexOf(operatorString as PlayerOperator) >= 0;
+};
 
 export interface PlayerQuery {
   player: string;
@@ -26,16 +41,6 @@ export type ScoreOperator = "=" | ">" | "<" | ">=" | "<=";
 export interface ScoreQuery {
   value: number;
   operator: ScoreOperator;
-}
-
-export function emptySearchQuery(): SearchQuery {
-  return {
-    id: generateId(),
-    playerQueries: [],
-    scoreQueries: [],
-    bidQuery: [],
-    numberOfPlayers: [],
-  };
 }
 
 export function emptyPlayerQuery(playerId: string): PlayerQuery {
@@ -54,7 +59,8 @@ export function emptyScoreQuery(): ScoreQuery {
 }
 
 export function isQueryEmpty(query: SearchQuery) {
-  const { playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange } = query;
+  const { playerQueries, numberOfPlayers, scoreQueries, bidQuery, dateRange } =
+    query;
   return (
     playerQueries.length === 0 &&
     numberOfPlayers.length === 0 &&
