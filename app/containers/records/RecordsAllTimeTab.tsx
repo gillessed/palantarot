@@ -1,14 +1,14 @@
 import { Checkbox, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { memo } from "react";
-import { Player } from "../../../../server/model/Player";
-import { Records } from "../../../../server/model/Records";
-import { RoleResult } from "../../../../server/model/Result";
-import { AsyncView } from "../../../components/asyncView/AsyncView";
-import { ScoreTable } from "../../../components/scoreTable/ScoreTable";
-import { PlayersLoader } from "../../../services/PlayersLoader";
-import { RecordsLoader } from "../../../services/RecordsLoader";
-import { useTotalScores } from "./useTotalScores";
+import { Player } from "../../../server/model/Player";
+import { Records } from "../../../server/model/Records";
+import { RoleResult } from "../../../server/model/Result";
+import { AsyncView } from "../../components/asyncView/AsyncView";
+import { ScoreTable } from "../../components/scoreTable/ScoreTable";
+import { PlayersLoader } from "../../services/PlayersLoader";
+import { RecordsLoader } from "../../services/RecordsLoader";
+import { useTotalScores } from "../../services/useTotalScores";
 
 interface Props {
   players: Map<string, Player>;
@@ -17,7 +17,7 @@ interface Props {
 
 const GamesPlayerFilter = (result: RoleResult) => result.gamesPlayed >= 100;
 
-const AllTimeTabLoaded = memo(function AllTimeTabLoaded({
+const RecordsAllTimeTabLoaded = memo(function RecordsAllTimeTabLoaded({
   players,
   records,
 }: Props) {
@@ -49,12 +49,12 @@ const Args = {
   records: undefined,
 };
 
-export const AllTimeTab = memo(function AllTimeTab() {
+export const RecordsAllTimeTab = memo(function RecordsAllTimeTab() {
   return (
     <AsyncView<Loaders>
       loaders={Loaders}
       args={Args}
-      Component={AllTimeTabLoaded}
+      Component={RecordsAllTimeTabLoaded}
     />
   );
 });

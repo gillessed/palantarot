@@ -6,6 +6,9 @@ import { ErrorAlert } from "../../components/ErrorAlert";
 import { PlayerBanner } from "./PlayerBanner";
 import { PlayerRecentGamesTab } from "./PlayerRecentGamesTab";
 import { PlayerGraphTab } from "./PlayerGraphTab";
+import { PlayerMonthlyWinsTab } from "./PlayerMonthlyWinsTab";
+import { PlayerWinPercentagesTab } from "./PlayerWinPercentagesTab";
+import { PlayerDeltasTab } from "./PlayerDeltasTab";
 
 interface Props {
   playerId: string;
@@ -22,15 +25,6 @@ export const PlayerView = memo(function PlayerView({
   if (player == null) {
     return <ErrorAlert>Could not find player id {playerId}</ErrorAlert>;
   }
-
-  // const recentGamesTab = <PlayerRecentGamesTab playerId={playerId} />;
-  // const graphTab = <PlayerGraphTab playerId={playerId} />;
-  // const monthlyTab = <MonthWinsTab playerId={playerId} />;
-  // const winPercentagesTab = <WinPercentagesTab playerId={playerId} />;
-  // const deltasTab = <DeltasTab playerId={playerId} />;
-  // const bidsTab = <BidsTab playerId={playerId} />;
-  // const streaksTab = <StreaksTab playerId={playerId} />;
-  // const pointFlowTab = <PointFlowTab playerId={playerId} />;
 
   return (
     <Stack mt={20}>
@@ -52,16 +46,21 @@ export const PlayerView = memo(function PlayerView({
         <Tabs.Panel value="graph">
           <PlayerGraphTab playerId={player.id} players={players} />
         </Tabs.Panel>
+        <Tabs.Panel value="monthly-wins">
+          <PlayerMonthlyWinsTab playerId={player.id} players={players} />
+        </Tabs.Panel>
+        <Tabs.Panel value="win-percentages">
+          <PlayerWinPercentagesTab playerId={player.id} />
+        </Tabs.Panel>
+        <Tabs.Panel value="deltas">
+          <PlayerDeltasTab playerId={player.id} players={players} />
+        </Tabs.Panel>
       </Tabs>
       {/* 
-          <Tab id="PlayerGraphsTab" title="Graphs" panel={graphTab} />
-          <Tab id="PlayerMonthlyWinsTab" title="Monthly" panel={monthlyTab} />
-          <Tab id="PlayerWinPercentagesTab" title="Win Percentages" panel={winPercentagesTab} />
-          <Tab id="PlayerDeltasTab" title="Deltas" panel={deltasTab} />
-          <Tab id="PlayerBidsTab" title="Bids" panel={bidsTab} />
-          <Tab id="PlayerStreaksTab" title="Streaks" panel={streaksTab} />
-          <Tab id="PointFlowTab" title="Point Flow" panel={pointFlowTab} />
-        */}
+        <Tab id="PlayerBidsTab" title="Bids" panel={<BidsTab playerId={playerId} />} />
+        <Tab id="PlayerStreaksTab" title="Streaks" panel={<StreaksTab playerId={playerId} />} />
+        <Tab id="PointFlowTab" title="Point Flow" panel={<PointFlowTab playerId={playerId} />} />
+      */}
     </Stack>
   );
 });

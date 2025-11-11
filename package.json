@@ -7,8 +7,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "vite serve",
-    "server": "node server/server.ts",
+    "dev:app": "vite serve",
+    "dev:server": "node server/server.ts",
     "build": "vite build",
     "tsversion": "tsc -v"
   },

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import type { MonthlyScore } from "../../../../server/model/Records";
-import type { RoleResult } from "../../../../server/model/Result";
-import { integerComparator } from "../../../../server/utils";
-import { count, type Aggregator } from "../../../../server/utils/count";
+import type { MonthlyScore } from "../../server/model/Records";
+import type { RoleResult } from "../../server/model/Result";
+import { integerComparator } from "../../server/utils";
+import { count, type Aggregator } from "../../server/utils/count";
 
 export function useTotalScores(
   monthlyScores: MonthlyScore[],

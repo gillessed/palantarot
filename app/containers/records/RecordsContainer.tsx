@@ -1,7 +1,9 @@
+import { Tabs } from "@mantine/core";
 import { memo } from "react";
 import { PageContainer } from "../PageContainer";
-import { Tabs } from "@mantine/core";
-import { AllTimeTab } from "../dataTabs/allTime/AllTimeTab";
+import { RecordsAllTimeTab } from "./RecordsAllTimeTab";
+import { RecordsWinPercentagesTab } from "./RecordsWinPercentagesTab";
+import { RecordsDeltasTab } from "./RecordsDeltasTab";
 
 export const RecordsContainer = memo(function RecordsContainer() {
   return (
@@ -17,7 +19,13 @@ export const RecordsContainer = memo(function RecordsContainer() {
           <Tabs.Tab value="Streaks">Streaks</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="all-time">
-          <AllTimeTab />
+          <RecordsAllTimeTab />
+        </Tabs.Panel>
+        <Tabs.Panel value="win-percentages">
+          <RecordsWinPercentagesTab />
+        </Tabs.Panel>
+        <Tabs.Panel value="deltas">
+          <RecordsDeltasTab />
         </Tabs.Panel>
       </Tabs>
     </PageContainer>

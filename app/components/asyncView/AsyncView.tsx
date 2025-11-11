@@ -1,5 +1,8 @@
+import { Alert } from "@mantine/core";
+import { IconInfoCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { AsyncLoader } from "../../services/AsyncLoader";
+import { useLoaderContext } from "../../services/useLoaderContext";
 import {
   Async,
   asyncError,
@@ -11,9 +14,6 @@ import {
   isAsyncLoading,
 } from "../../utils/Async";
 import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
-import { useLoaderContext } from "../../services/useLoaderContext";
-import { IconInfoCircle } from "@tabler/icons-react";
-import { Alert } from "@mantine/core";
 
 type LoaderMap = Record<string, AsyncLoader<any, any>>;
 
@@ -87,6 +87,7 @@ export const AsyncView = function AsyncView<
         const loadedStateTyped = loadedStateUntyped as LoadedState<Loaders>;
         setState(asyncLoaded(loadedStateTyped));
       } catch (error: any) {
+        console.error(error);
         setState(asyncError(error.message));
       }
     }
