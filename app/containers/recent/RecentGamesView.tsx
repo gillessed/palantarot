@@ -5,9 +5,8 @@ import { GameRecord } from "../../../server/model/GameRecord";
 import {
   BidderWonValidator,
   GameTable,
-} from "../../components/gameTable/GameTable";
-import { PageState } from "../../components/gameTable/GameTablePager";
-import { Group, Stack, Title } from "@mantine/core";
+} from "../../components/tables/GameTable";
+import { PageState } from "../../components/tables/GameTablePager";
 
 interface LoadersProps {
   players: Map<PlayerId, Player>;

@@ -4,12 +4,12 @@ import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
+import { RecentGamesLoader } from "../../services/RecentGamesLoader";
 import {
   DEFAULT_COUNT,
-  type GameOutcome,
   GameTable,
-} from "../../components/gameTable/GameTable";
-import { RecentGamesLoader } from "../../services/RecentGamesLoader";
+  type GameOutcome,
+} from "../../components/tables/GameTable";
 
 interface LoadedProps {
   recentGames: GameRecord[];
@@ -29,30 +29,33 @@ const PlayerRecentGamesTabLoaded = memo(function PlayerRecentGamesTabLoaded({
   onOffsetChange,
   recentGames,
 }: LoadedProps & AdditionalArgs) {
-  const gameWinLossValidator = useCallback((game: GameRecord): GameOutcome => {
-    if (!game.handData) {
-      return "unknown";
-    }
-    let playerOnBidderTeam = false;
-    if (
-      game.handData.bidder.id === player.id ||
-      (game.handData.partner && game.handData.partner.id === player.id)
-    ) {
-      playerOnBidderTeam = true;
-    }
-    if (playerOnBidderTeam === game.points >= 0) {
-      return "win";
-    } else {
-      return "loss";
-    }
-  }, []);
+  const gameWinLossValidator = useCallback(
+    (game: GameRecord): GameOutcome => {
+      if (!game.handData) {
+        return "unknown";
+      }
+      let playerOnBidderTeam = false;
+      if (
+        game.handData.bidder.id === player.id ||
+        (game.handData.partner && game.handData.partner.id === player.id)
+      ) {
+        playerOnBidderTeam = true;
+      }
+      if (playerOnBidderTeam === game.points >= 0) {
+        return "win";
+      } else {
+        return "loss";
+      }
+    },
+    [player.id]
+  );
 
   const pageState = useMemo(
     () => ({
       offset: offset,
       onOffsetChange: onOffsetChange,
     }),
-    []
+    [offset, onOffsetChange]
   );
 
   return (
@@ -85,28 +88,29 @@ function getQueryForOffset(offset: number, player: Player): RecentGameQuery {
       };
 }
 
-export const PlayerRecentGamesTab = memo(
-  function PlayerRecentGamesTab({ player, players }: ContainerProps) {
-    const [offset, setOffset] = useState(0);
+export const PlayerRecentGamesTab = memo(function PlayerRecentGamesTab({
+  player,
+  players,
+}: ContainerProps) {
+  const [offset, setOffset] = useState(0);
 
-    const args = useMemo(() => {
-      return {
-        recentGames: getQueryForOffset(offset, player),
-      };
-    }, [offset, player]);
+  const args = useMemo(() => {
+    return {
+      recentGames: getQueryForOffset(offset, player),
+    };
+  }, [offset, player]);
 
-    return (
-      <AsyncView<Loaders, AdditionalArgs>
-        loaders={Loaders}
-        args={args}
-        Component={PlayerRecentGamesTabLoaded}
-        additionalArgs={{
-          offset,
-          onOffsetChange: setOffset,
-          player,
-          players,
-        }}
-      />
-    );
-  }
-);
+  return (
+    <AsyncView<Loaders, AdditionalArgs>
+      loaders={Loaders}
+      args={args}
+      Component={PlayerRecentGamesTabLoaded}
+      additionalArgs={{
+        offset,
+        onOffsetChange: setOffset,
+        player,
+        players,
+      }}
+    />
+  );
+});

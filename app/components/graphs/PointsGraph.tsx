@@ -22,19 +22,17 @@ export const PointsGraph = memo(function PointsGraph({
   const { data, series } = usePointData(players, games, playerFilter);
 
   return (
-    <Center>
-      <LineChart
-        h={500}
-        data={data}
-        dataKey="game"
-        series={series}
-        withLegend={withLegend}
-        curveType="bump"
-        dotProps={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
-        activeDotProps={{ r: 8, strokeWidth: 1, fill: "#fff" }}
-        legendProps={{ verticalAlign: "bottom", height: 50 }}
-        gridAxis="xy"
-      />
-    </Center>
+    <LineChart
+      h={500}
+      data={data}
+      dataKey="game"
+      series={series}
+      withLegend={withLegend}
+      curveType="bump"
+      dotProps={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+      activeDotProps={{ r: 8, strokeWidth: 1, fill: "#fff" }}
+      legendProps={{ verticalAlign: "bottom", height: 50 }}
+      gridAxis="xy"
+    />
   );
 });

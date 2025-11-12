@@ -9,6 +9,9 @@ import { PlayerGraphTab } from "./PlayerGraphTab";
 import { PlayerMonthlyWinsTab } from "./PlayerMonthlyWinsTab";
 import { PlayerWinPercentagesTab } from "./PlayerWinPercentagesTab";
 import { PlayerDeltasTab } from "./PlayerDeltasTab";
+import { PlayerBidsTab } from "./PlayerBidsTab";
+import { PlayerStreaksTab } from "./PlayerStreaksTab";
+import { PlayerPointFlowTab } from "./PlayerPointFlowTab";
 
 interface Props {
   playerId: string;
@@ -54,6 +57,15 @@ export const PlayerView = memo(function PlayerView({
         </Tabs.Panel>
         <Tabs.Panel value="deltas">
           <PlayerDeltasTab playerId={player.id} players={players} />
+        </Tabs.Panel>
+        <Tabs.Panel value="bids">
+          <PlayerBidsTab playerId={player.id} />
+        </Tabs.Panel>
+        <Tabs.Panel value="streaks">
+          <PlayerStreaksTab playerId={player.id} />
+        </Tabs.Panel>
+        <Tabs.Panel value="flow">
+          <PlayerPointFlowTab playerId={player.id} players={players} />
         </Tabs.Panel>
       </Tabs>
       {/* 
