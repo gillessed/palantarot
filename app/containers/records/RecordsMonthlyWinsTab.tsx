@@ -7,6 +7,7 @@ import { AsyncView } from "../../components/asyncView/AsyncView";
 import { MonthWinnersTable } from "../../components/tables/MonthWinnersTable";
 import { RecordScorersTable } from "../../components/tables/RecordScorersTable";
 import { RecordsLoader } from "../../services/RecordsLoader";
+import { MedalsTable } from "../../components/tables/MedalsTable";
 
 interface LoadedProps {
   records: Records;
@@ -21,19 +22,15 @@ const RecordMonthlyWinsTabLoaded = memo(function RecordMonthlyWinsTabLoaded({
       <Title order={3} mt={20}>
         Month Records
       </Title>
-      <RecordScorersTable
-        playerId={playerId}
-        players={players}
-        records={records}
-      />
+      <RecordScorersTable players={players} records={records} />
       <Title order={3} mt={20}>
         Month Winners
       </Title>
-      <MonthWinnersTable
-        playerId={playerId}
-        players={players}
-        records={records}
-      />
+      <MonthWinnersTable players={players} records={records} />
+      <Title order={3} mt={20}>
+        Medals
+      </Title>
+      <MedalsTable players={players} records={records} />
     </Stack>
   );
 });
