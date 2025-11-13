@@ -1,11 +1,13 @@
 import { Button, Stack, Text } from "@mantine/core";
-import { IconUser } from "@tabler/icons-react";
+import { IconCirclePlus, IconUser } from "@tabler/icons-react";
 import { memo } from "react";
 import { Player } from "../../../server/model/Player";
 import {
   useGamePlayerId,
   useOpenGamePlayerDialog,
 } from "../../context/GamePlayerIdContext";
+import { LobbyContainer } from "./LobbyContainer";
+import { RoomsContainer } from "./RoomsContainer";
 
 interface Props {
   players: Map<string, Player>;
@@ -34,7 +36,15 @@ export const LobbyView = memo(function LobbyView({ players }: Props) {
       </Stack>
     );
   }
-  return null;
+
+  return (
+    <Stack>
+      <Button leftSection={<IconCirclePlus />} color="blue" w={150}>
+        New Room
+      </Button>
+      <RoomsContainer gamePlayerId={gamePlayerId} players={players} />
+    </Stack>
+  );
 });
 
 //   public render() {

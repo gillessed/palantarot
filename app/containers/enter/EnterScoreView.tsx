@@ -31,15 +31,6 @@ export const EnterScoreView = memo(function EnterScoreView({
   players,
   recentGames,
 }: Props) {
-  const playerList = useMemo(() => {
-    const list = Array.from(players.values());
-    return list.sort((p1: Player, p2: Player) => {
-      const n1 = `${p1.firstName}${p1.lastName}`;
-      const n2 = `${p2.firstName}${p2.lastName}`;
-      return n1.localeCompare(n2);
-    });
-  }, [players]);
-
   const recentPlayers = useMemo(() => {
     if (recentGames.length >= 1) {
       const playerSet = new Set<string>();
@@ -84,7 +75,7 @@ export const EnterScoreView = memo(function EnterScoreView({
   return (
     <GameForm
       recentPlayers={recentPlayers}
-      players={playerList}
+      players={players}
       submitText="Enter Score"
       onSubmit={handleSubmit}
       loading={isAsyncLoading(saveGameState)}

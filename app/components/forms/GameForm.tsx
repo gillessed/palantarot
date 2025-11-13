@@ -13,7 +13,7 @@ import { getPointsEarned } from "./getPointsEarned";
 
 interface Props {
   recentPlayers?: Player[];
-  players: Player[];
+  players: Map<PlayerId, Player>;
   game?: GameRecord;
   submitText: string;
   onSubmit: (newGame: GameRecord) => void;
@@ -47,11 +47,11 @@ const BidValues = ["10", "20", "40", "80", "160"].map((item) => ({
 }));
 
 function getPlayerStateFromHand(
-  players: Player[],
+  players: Map<PlayerId, Player>,
   role: PlayerRole,
   hand: PlayerHand
 ): PlayerState {
-  const player = players.find((player) => hand.id === player.id);
+  const player = players.get(hand.id);
   return {
     role,
     player,
@@ -60,7 +60,10 @@ function getPlayerStateFromHand(
   };
 }
 
-function getPlayerStateMapFromGame(players: Player[], game: GameRecord) {
+function getPlayerStateMapFromGame(
+  players: Map<PlayerId, Player>,
+  game: GameRecord
+) {
   const handData = game.handData!;
   const playerState: PlayerStateMap = new Map();
   playerState.set(

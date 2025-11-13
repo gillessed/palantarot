@@ -3,12 +3,12 @@ import { useDisclosure } from "@mantine/hooks";
 import { memo, useCallback } from "react";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
+import { useAddPlayer } from "../../services/apis/useAddPlayer";
+import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
 import { AddPlayerForm } from "./AddPlayerForm";
+import classes from "./GamePlayerInput.module.css";
 import type { PlayerRole } from "./PlayerRoles";
 import { PlayerSelect } from "./PlayerSelect";
-import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
-import { useAddPlayer } from "../../services/apis/useAddPlayer";
-import classes from "./GamePlayerInput.module.css";
 
 export interface PlayerState {
   role: PlayerRole;
@@ -24,7 +24,7 @@ interface Props {
   error?: string;
   recentPlayers?: Player[];
   selectedPlayers?: Set<PlayerId>;
-  players: Player[];
+  players: Map<PlayerId, Player>;
   onChange: (role: PlayerRole, player: PlayerState) => void;
 }
 

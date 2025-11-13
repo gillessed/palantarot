@@ -8,7 +8,6 @@ import { isAsyncLoading } from "../../utils/Async";
 import { useNavigate } from "react-router";
 import { DynamicRoutes } from "../../../shared/routes";
 import { showSuccessNotification } from "../../notifications/showSuccessNotification";
-import { usePlayersList } from "../../services/selectors/usePlayersList";
 
 interface Props {
   game: GameRecord;
@@ -19,7 +18,6 @@ export const EditGameView = memo(function EditGameView({
   game,
   players,
 }: Props) {
-  const playersList = usePlayersList(players);
   const navigate = useNavigate();
   const handleGameSaved = useCallback(() => {
     showSuccessNotification(`Game ${game.id} saved`);
@@ -30,7 +28,7 @@ export const EditGameView = memo(function EditGameView({
     <GameForm
       loading={isAsyncLoading(savingGame)}
       game={game}
-      players={playersList}
+      players={players}
       submitText="Update Game"
       onSubmit={saveGame}
     />
