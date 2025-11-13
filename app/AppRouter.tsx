@@ -18,7 +18,7 @@ import { ResultsContainer } from "./containers/results/ResultsContainer";
 import { RulesContainer } from "./containers/rules/RulesContainer";
 import { SearchContainer } from "./containers/search/SearchContainer";
 import { ApiProvider } from "./context/ApiContext";
-import { GamePlayerProvider } from "./context/GamePlayerProvider";
+import { GamePlayerIdProvider } from "./context/GamePlayerIdProvider";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -55,19 +55,21 @@ const router = createBrowserRouter([
 //     <Route path="/play/:roomId" Component={PlayContainer} />
 
 interface Props {
-  gamePlayerCookie: string | undefined;
+  gamePlayerIdCookie: string | undefined;
 }
 
-export const AppRouter = memo(function AppRouter({ gamePlayerCookie }: Props) {
+export const AppRouter = memo(function AppRouter({
+  gamePlayerIdCookie,
+}: Props) {
   const api = useMemo(
     () => new ServerApi("/api/v1", router.navigate),
     [router.navigate]
   );
   return (
     <ApiProvider value={api}>
-      <GamePlayerProvider gamePlayerCookie={gamePlayerCookie}>
+      <GamePlayerIdProvider gamePlayerIdCookie={gamePlayerIdCookie}>
         <RouterProvider router={router} />
-      </GamePlayerProvider>
+      </GamePlayerIdProvider>
     </ApiProvider>
   );
 });

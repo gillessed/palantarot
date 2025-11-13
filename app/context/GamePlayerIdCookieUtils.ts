@@ -25,7 +25,7 @@ function deleteCookie(key: string) {
   setCookie(key, "", 0);
 }
 
-export function setGamePlayerCookie(playerId?: string) {
+export function setGamePlayerIdCookie(playerId?: string) {
   if (playerId == null) {
     deleteCookie(GamePlayerCookie);
   } else {
@@ -43,7 +43,7 @@ export function setGamePlayerCookie(playerId?: string) {
   }
 }
 
-export function getGamePlayerCookie(): string | undefined {
+export function getGamePlayerIdCookie(): string | undefined {
   const cookies = parseCookies();
   if (!cookies.has(GamePlayerCookie)) {
     return undefined;

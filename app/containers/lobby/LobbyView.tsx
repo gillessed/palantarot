@@ -3,16 +3,16 @@ import { IconUser } from "@tabler/icons-react";
 import { memo } from "react";
 import { Player } from "../../../server/model/Player";
 import {
-  useGamePlayer,
+  useGamePlayerId,
   useOpenGamePlayerDialog,
-} from "../../context/GamePlayerContext";
+} from "../../context/GamePlayerIdContext";
 
 interface Props {
   players: Map<string, Player>;
 }
 
 export const LobbyView = memo(function LobbyView({ players }: Props) {
-  const gamePlayerId = useGamePlayer();
+  const gamePlayerId = useGamePlayerId();
   const openGamePlayerDialog = useOpenGamePlayerDialog();
   // TODO: socket connect on mount
   // dispatchers.lobby.socketConnect(gamePlayer?.playerId);
@@ -69,7 +69,7 @@ export const LobbyView = memo(function LobbyView({ players }: Props) {
 
 //   private renderRooms = () => {
 //     const { rooms, gamePlayer, players } = this.props;
-//     const roomList = [...rooms.values()];
+//     const roomList = [...rooms.values()];:Wq
 //     // TODO: sort rooms
 //     if (roomList.length === 0) {
 //       return (

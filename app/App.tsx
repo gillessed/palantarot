@@ -4,13 +4,12 @@ import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
 import "./App.css";
 import { AppRouter } from "./AppRouter";
 import {
-  getGamePlayerCookie,
-  setGamePlayerCookie,
-} from "./context/GamePlayerCookieUtils";
+  getGamePlayerIdCookie,
+  setGamePlayerIdCookie,
+} from "./context/GamePlayerIdCookieUtils";
 
 const theme = createTheme({
   headings: {
@@ -30,9 +29,9 @@ function init() {
   // ) as any;
   // registerConsoleStore(store);
 
-  const gamePlayerCookie = getGamePlayerCookie();
+  const gamePlayerIdCookie = getGamePlayerIdCookie();
   // refresh cookie expiration
-  setGamePlayerCookie(gamePlayerCookie);
+  setGamePlayerIdCookie(gamePlayerIdCookie);
   const rootElement = document.getElementById("root");
   if (rootElement == null) {
     throw Error("could not find app element");
@@ -43,7 +42,7 @@ function init() {
     // <Provider store={store}>
     <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications autoClose={3000} position="top-center" />
-      <AppRouter gamePlayerCookie={gamePlayerCookie} />
+      <AppRouter gamePlayerIdCookie={gamePlayerIdCookie} />
     </MantineProvider>
     // </Provider>
   );

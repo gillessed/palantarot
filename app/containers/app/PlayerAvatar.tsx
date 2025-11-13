@@ -1,8 +1,8 @@
 import { memo, useMemo } from "react";
 import {
-  useGamePlayer,
+  useGamePlayerId,
   useOpenGamePlayerDialog,
-} from "../../context/GamePlayerContext";
+} from "../../context/GamePlayerIdContext";
 import { Avatar, Loader } from "@mantine/core";
 import type { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
@@ -48,7 +48,7 @@ const Loaders = {
 type Loaders = typeof Loaders;
 
 export const PlayerAvatar = memo(function PlayerAvatar() {
-  const gamePlayerId = useGamePlayer();
+  const gamePlayerId = useGamePlayerId();
   const openGamePlayerDialog = useOpenGamePlayerDialog();
   if (gamePlayerId == null) {
     return (
