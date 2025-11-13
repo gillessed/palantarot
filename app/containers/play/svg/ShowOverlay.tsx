@@ -4,7 +4,7 @@ import { Suit, TrumpCard } from "../../../../server/play/model/Card";
 import { compareCards } from "../../../../server/play/model/CardUtils";
 import { PlayerId } from "../../../../server/play/model/GameState";
 import { Dispatchers } from "../../../services/dispatchers";
-import { getPlayerName } from "../../../services/players/playerName";
+import { getPlayerName } from "../../../services/utils/playerName";
 import { ClientGame } from "../../../services/room/ClientGame";
 import { ShowDetails } from "../../../services/room/ClientGameEventHandler";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
@@ -40,9 +40,17 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
     return (
       <g>
         {canShow && (
-          <ActionButton x={130} y={70} width={200} height={80} text="Show Trump" onClick={this.handleShowTrump} />
+          <ActionButton
+            x={130}
+            y={70}
+            width={200}
+            height={80}
+            text="Show Trump"
+            onClick={this.handleShowTrump}
+          />
         )}
-        {game.playState.showIndex !== null && this.renderShowWindow(game.playState.shows[game.playState.showIndex])}
+        {game.playState.showIndex !== null &&
+          this.renderShowWindow(game.playState.shows[game.playState.showIndex])}
       </g>
     );
   }
@@ -53,7 +61,8 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
     shownCards.sort(compareCards());
     const cardy = height / 2 - CardHeight / 2;
     const cardOverlap = Math.min(
-      (width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) / (shownCards.length - 1),
+      (width - WindowInset * 2 - CardAreaMargin * 2 - CardWidth) /
+        (shownCards.length - 1),
       CardWidth + 10
     );
     const showWidth = cardOverlap * (shownCards.length - 1) + CardWidth;
@@ -80,11 +89,22 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
           {playerName} is showing their trump.
         </text>
         {shownCards.map((card, index) => {
-          return <CardSvg key={index} x={startX + index * cardOverlap} y={cardy} card={card} />;
+          return (
+            <CardSvg
+              key={index}
+              x={startX + index * cardOverlap}
+              y={cardy}
+              card={card}
+            />
+          );
         })}
         <ActionButton
           x={width / 2}
-          y={height - WindowInset - (height - WindowInset - cardy - CardHeight) / 2}
+          y={
+            height -
+            WindowInset -
+            (height - WindowInset - cardy - CardHeight) / 2
+          }
           width={150}
           height={80}
           text="Close"
@@ -96,7 +116,9 @@ export class ShowOverlay extends React.PureComponent<Props, State> {
 
   private handleShowTrump = () => {
     const { game, dispatchers } = this.props;
-    const trump = game.playState.hand.filter(([suit]) => suit === "T") as TrumpCard[];
+    const trump = game.playState.hand.filter(
+      ([suit]) => suit === "T"
+    ) as TrumpCard[];
     dispatchers.room.play(game.playerId).showTrump(trump);
   };
 

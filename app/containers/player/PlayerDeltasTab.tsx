@@ -5,7 +5,10 @@ import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { DeltasTable } from "../../components/tables/DeltasTable";
-import { DefaultDeltaLoad, DeltasLoader } from "../../services/DeltasLoader";
+import {
+  DefaultDeltaLoad,
+  DeltasLoader,
+} from "../../services/loaders/DeltasLoader";
 
 interface LoadedProps {
   deltas: Deltas;
@@ -21,7 +24,9 @@ const PlayerDeltasTabLoaded = memo(function PlayerDeltasTabLoaded({
 }: LoadedProps & AdditionalProps) {
   return (
     <Stack>
-      <Title order={3} mt={20}>Highest Deltas</Title>
+      <Title order={3} mt={20}>
+        Highest Deltas
+      </Title>
       <DeltasTable
         deltas={deltas.maximums}
         players={players}

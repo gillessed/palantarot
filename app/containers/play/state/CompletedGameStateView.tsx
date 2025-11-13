@@ -3,8 +3,12 @@ import { IconNames } from "@blueprintjs/icons";
 import classNames from "classnames";
 import React from "react";
 import { Role } from "../../../../server/model/Result";
-import { CompletedGameState, Outcome, PlayerId } from "../../../../server/play/model/GameState";
-import { getPlayerName } from "../../../services/players/playerName";
+import {
+  CompletedGameState,
+  Outcome,
+  PlayerId,
+} from "../../../../server/play/model/GameState";
+import { getPlayerName } from "../../../services/utils/playerName";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
 import { ActionButton } from "../svg/ActionButton";
 import { getCardUrl } from "../svg/CardSvg";
@@ -59,7 +63,12 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
         <StatusOverlay {...this.props} />
         <TrickSvg {...this.props} />
         {endState && isParticipant && (
-          <text className="completed-game-message" x={width / 2} y={buttony - 80} textAnchor="middle">
+          <text
+            className="completed-game-message"
+            x={width / 2}
+            y={buttony - 80}
+            textAnchor="middle"
+          >
             {text}
           </text>
         )}
@@ -111,7 +120,9 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
               <span className="dog-text unselectable">Dog</span>
               <div className="dog-cards">
                 {endState.dog.map((card) => {
-                  return <img key={`${card[0]}|${card[1]}`} src={getCardUrl(card)} />;
+                  return (
+                    <img key={`${card[0]}|${card[1]}`} src={getCardUrl(card)} />
+                  );
                 })}
               </div>
             </div>
@@ -126,7 +137,10 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     const thresholds = [56, 51, 41, 36];
     let oneLastPlayer: string | undefined;
     for (let i = 0; i < endState.players.length; i++) {
-      if (endState.outcomes[i] && endState.outcomes[i].find((outcome) => outcome === "one_last")) {
+      if (
+        endState.outcomes[i] &&
+        endState.outcomes[i].find((outcome) => outcome === "one_last")
+      ) {
         oneLastPlayer = endState.players[i];
       }
     }
@@ -165,11 +179,17 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
           </tr>
           <tr>
             <td>Threshold Points</td>
-            <td>{getPointsEearned(endState.pointsEarned - thresholds[endState.bouts.length])}</td>
+            <td>
+              {getPointsEearned(
+                endState.pointsEarned - thresholds[endState.bouts.length]
+              )}
+            </td>
           </tr>
           <tr>
             <td>Showed</td>
-            <td>{endState.shows.length * 10 * (endState.bidderWon ? 1 : -1)}</td>
+            <td>
+              {endState.shows.length * 10 * (endState.bidderWon ? 1 : -1)}
+            </td>
           </tr>
           <tr>
             <td>One Last</td>
@@ -208,7 +228,12 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
     }
     playerOrder.push(...rest);
     for (const player of playerOrder) {
-      const role = player === state.bidder ? "bidder" : player === state.partner ? "partner" : "opposition";
+      const role =
+        player === state.bidder
+          ? "bidder"
+          : player === state.partner
+          ? "partner"
+          : "opposition";
       const points =
         role === "bidder"
           ? multiplier * state.pointsResult
@@ -235,9 +260,27 @@ export class CompletedStateView extends React.PureComponent<Props, State> {
               <React.Fragment key={index}>
                 <div className="result-separator" key={`separator-${index}`} />
                 <div className="player-result" key={`result-${index}`}>
-                  {result.role === "bidder" && <Icon icon={IconNames.CROWN} iconSize={30} color="#FFC940" />}
-                  {result.role === "partner" && <Icon icon={IconNames.PERSON} iconSize={30} color="#FFC940" />}
-                  {result.role === "opposition" && <Icon icon={IconNames.PEOPLE} iconSize={30} color="#C274C2" />}
+                  {result.role === "bidder" && (
+                    <Icon
+                      icon={IconNames.CROWN}
+                      iconSize={30}
+                      color="#FFC940"
+                    />
+                  )}
+                  {result.role === "partner" && (
+                    <Icon
+                      icon={IconNames.PERSON}
+                      iconSize={30}
+                      color="#FFC940"
+                    />
+                  )}
+                  {result.role === "opposition" && (
+                    <Icon
+                      icon={IconNames.PEOPLE}
+                      iconSize={30}
+                      color="#C274C2"
+                    />
+                  )}
                   <span className="unselectable">{playerName}</span>
                   <span className={pointsClasses}>{result.points}</span>
                 </div>

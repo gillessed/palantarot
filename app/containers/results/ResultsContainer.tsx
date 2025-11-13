@@ -1,17 +1,16 @@
-import { ActionIcon, Group, Stack, Title } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { Stack } from "@mantine/core";
 import moment from "moment";
 import { memo, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router";
 import { IMonth, Month } from "../../../server/model/Month";
 import { DynamicRoutes } from "../../../shared/routes";
 import { AsyncView } from "../../components/asyncView/AsyncView";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { ResultsLoader } from "../../services/ResultsLoader";
+import { MonthPicker } from "../../components/MonthPicker";
+import { GamesForMonthLoader } from "../../services/loaders/GamesForMonthLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { ResultsLoader } from "../../services/loaders/ResultsLoader";
 import { PageContainer } from "../PageContainer";
 import { ResultsView } from "./ResultsView";
-import { GamesForMonthLoader } from "../../services/GamesForMonthLoader";
-import { MonthPicker } from "../../components/MonthPicker";
 
 const Loaders = {
   results: ResultsLoader,

@@ -5,8 +5,8 @@ import type { Streak } from "../../../server/model/Streak";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { StreaksTable } from "../../components/tables/StreaksTable";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { StreaksLoader } from "../../services/StreaksLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { StreaksLoader } from "../../services/loaders/StreaksLoader";
 
 interface LoadedProps {
   streaks: Streak[];

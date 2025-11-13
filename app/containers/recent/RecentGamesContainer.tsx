@@ -3,10 +3,10 @@ import { RecentGameQuery } from "../../../server/db/GameRecordQuerier";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { DEFAULT_COUNT } from "../../components/tables/GameTable";
 import { PageState } from "../../components/tables/GameTablePager";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { RecentGamesLoader } from "../../services/RecentGamesLoader";
 import { PageContainer } from "../PageContainer";
 import { RecentGamesView, RecentGamesViewArgs } from "./RecentGamesView";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { RecentGamesLoader } from "../../services/loaders/RecentGamesLoader";
 
 const Loaders = {
   players: PlayersLoader,

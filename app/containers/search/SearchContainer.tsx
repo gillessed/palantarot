@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { SearchForm } from "../../components/search/SearchForm";
-import { PlayersLoader } from "../../services/PlayersLoader";
 import { PageContainer } from "../PageContainer";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
 
 const Loaders = {
   players: PlayersLoader,

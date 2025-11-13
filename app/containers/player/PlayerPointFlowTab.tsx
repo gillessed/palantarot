@@ -10,10 +10,10 @@ import {
   type PointFlow,
 } from "../../components/graphs/PointFlowGraph";
 import { MonthPicker } from "../../components/MonthPicker";
-import { GamesForMonthLoader } from "../../services/GamesForMonthLoader";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { count, type Aggregator } from "../../../server/utils/count";
 import { integerComparator } from "../../../server/utils";
+import { GamesForMonthLoader } from "../../services/loaders/GamesForMonthLoader";
 
 interface LoadedProps {
   games: GameRecord[];

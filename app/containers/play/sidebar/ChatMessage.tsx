@@ -4,9 +4,12 @@ import React from "react";
 import { Player } from "../../../../server/model/Player";
 import { ChatText } from "../../../../server/play/room/ChatText";
 import { parseMessageForEmojis } from "../../../components/emoji/emojiRenderer";
-import { getPlayerName } from "../../../services/players/playerName";
+import { getPlayerName } from "../../../services/utils/playerName";
 import { ClientGame } from "../../../services/room/ClientGame";
-import { ChatMessageListItem, isChatTextGroup } from "../../../services/room/RoomTypes";
+import {
+  ChatMessageListItem,
+  isChatTextGroup,
+} from "../../../services/room/RoomTypes";
 
 interface Props {
   game: ClientGame;
@@ -26,7 +29,8 @@ export class ChatMessage extends React.PureComponent<Props> {
   public render() {
     const { item, game, players } = this.props;
 
-    const isParticipant = game.playState.playerOrder.indexOf(item.authorId) >= 0;
+    const isParticipant =
+      game.playState.playerOrder.indexOf(item.authorId) >= 0;
     const isYou = game.playerId === item.authorId;
     const player = players.get(item.authorId);
     const authorName = getPlayerName(player);

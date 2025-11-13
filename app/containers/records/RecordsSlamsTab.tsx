@@ -4,12 +4,12 @@ import { SlamRecord, SlamsTable } from "../../components/tables/SlamsTable";
 import { Player } from "../../../server/model/Player";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { Records } from "../../../server/model/Records";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { integerComparator } from "../../../server/utils";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { RecordsLoader } from "../../services/RecordsLoader";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { GameTable } from "../../components/tables/GameTable";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { RecordsLoader } from "../../services/loaders/RecordsLoader";
 
 interface Props {
   players: Map<PlayerId, Player>;

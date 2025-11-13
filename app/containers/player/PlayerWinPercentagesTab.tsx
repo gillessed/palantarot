@@ -4,10 +4,8 @@ import { memo } from "react";
 import { StatAverage, Stats } from "../../../server/model/Stats";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { WinPercentagesTable } from "../../components/tables/WinPercentagesTable";
-import { StatsLoader } from "../../services/StatsLoader";
-import {
-  useStatEntriesForPlayerByMonth
-} from "../../services/useAggregatedStats";
+import { useStatEntriesForPlayerByMonth } from "../../services/apis/useAggregatedStats";
+import { StatsLoader } from "../../services/loaders/StatsLoader";
 
 interface LoadedProps {
   stats: Stats;
@@ -34,10 +32,7 @@ const PlayerWinPercentagesTabLoaded = memo(
           label="Filter players who have played less than 100 games: "
           onChange={toggleFilter}
         />
-        <WinPercentagesTable
-          leftColumnName="Month"
-          statEntries={statEntries}
-        />
+        <WinPercentagesTable leftColumnName="Month" statEntries={statEntries} />
       </Stack>
     );
   }

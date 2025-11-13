@@ -3,7 +3,7 @@ import { memo } from "react";
 import type { BidStats } from "../../../server/model/Bid";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { BidsGraph } from "../../components/graphs/BidsGraph";
-import { BidsLoader } from "../../services/BidsLoader";
+import { BidsLoader } from "../../services/loaders/BidsLoader";
 
 interface LoadedProps {
   bids: BidStats;

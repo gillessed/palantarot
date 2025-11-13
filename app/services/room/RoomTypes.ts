@@ -1,10 +1,10 @@
-import { PlayerEvent } from '../../../server/play/model/GameEvents';
-import { GameSettings } from '../../../server/play/model/GameSettings';
-import { PlayerId } from '../../../server/play/model/GameState';
-import { ChatText } from '../../../server/play/room/ChatText';
-import { PlayerStatus } from '../../../server/play/room/PlayerStatus';
-import { RoomStatus } from '../../../server/play/room/RoomStatus';
-import { ClientGame } from './ClientGame';
+import { PlayerEvent } from "../../../server/play/model/GameEvents";
+import { GameSettings } from "../../../server/play/model/GameSettings";
+import { PlayerId } from "../../../server/play/model/GameState";
+import { ChatText } from "../../../server/play/room/ChatText";
+import { PlayerStatus } from "../../../server/play/room/PlayerStatus";
+import { RoomStatus } from "../../../server/play/room/RoomStatus";
+import type { ClientGame } from "../../../shared/types/ClientGame";
 
 export interface ClientRoom {
   // Server state
@@ -34,7 +34,7 @@ export interface JoinRoomPayload {
 }
 
 export interface ChatTextGroup {
-  type: 'group'
+  type: "group";
   id: string;
   authorId: PlayerId;
   time: number;
@@ -56,8 +56,10 @@ export interface SetPlayerStatusPayload {
   playerStatus: PlayerStatus;
 }
 
-export function isChatTextGroup(item: ChatMessageListItem): item is ChatTextGroup {
-  return (item as ChatTextGroup).type === 'group';
+export function isChatTextGroup(
+  item: ChatMessageListItem
+): item is ChatTextGroup {
+  return (item as ChatTextGroup).type === "group";
 }
 
 export type ChatMessageListItem = ChatText | ChatTextGroup;

@@ -4,9 +4,14 @@ import classNames from "classnames";
 import React from "react";
 import { Player } from "../../../../server/model/Player";
 import { Card } from "../../../../server/play/model/Card";
-import { Bid, BidValue, Call, PlayerId } from "../../../../server/play/model/GameState";
+import {
+  Bid,
+  BidValue,
+  Call,
+  PlayerId,
+} from "../../../../server/play/model/GameState";
 import { Dispatchers } from "../../../services/dispatchers";
-import { getPlayerName } from "../../../services/players/playerName";
+import { getPlayerName } from "../../../services/utils/playerName";
 import { isSpectatorModeObserver, SpectatorMode } from "../SpectatorMode";
 import { ActionButton } from "./ActionButton";
 import {
@@ -103,7 +108,10 @@ const HorizontalX = CardWidth / 2;
 const IconYOffset = 12;
 const IconXDelta = IconSize.width + 8;
 
-export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, PlayerTitleSvg.State> {
+export class PlayerTitleSvg extends React.PureComponent<
+  PlayerTitleSvg.Props,
+  PlayerTitleSvg.State
+> {
   private textElement: SVGTextElement;
   public state: PlayerTitleSvg.State = {};
 
@@ -111,7 +119,9 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
     if (this.props.player !== nextProps.player) {
       setTimeout(() => {
         if (this.textElement) {
-          this.setState({ textWidth: this.textElement.getComputedTextLength() });
+          this.setState({
+            textWidth: this.textElement.getComputedTextLength(),
+          });
         }
       }, 0);
     }
@@ -132,19 +142,33 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
       selfId,
     } = this.props;
     const playerName = player ? `${getPlayerName(player)}` : "Unknown Player";
-    const layoutArgs: PlayerTitleSvg.ArrangementArgs = { ...this.props, ...this.state };
+    const layoutArgs: PlayerTitleSvg.ArrangementArgs = {
+      ...this.props,
+      ...this.state,
+    };
     const clipHeight = getObserverClipHeight(svgWidth, svgHeight, playerCount);
     const L = isSpectatorModeObserver(spectatorMode)
-      ? getTitleLayoutForObserverMode(layoutArgs, playerCount, clipHeight ?? CardHeight)
+      ? getTitleLayoutForObserverMode(
+          layoutArgs,
+          playerCount,
+          clipHeight ?? CardHeight
+        )
       : getTitleLayout(layoutArgs);
     const textClasses = classNames("player-text unselectable", {
       highlight: highlight,
       plain: !highlight,
     });
-    const showPokeButton = allowPoke != null && allowPoke === player?.id && allowPoke !== selfId;
+    const showPokeButton =
+      allowPoke != null && allowPoke === player?.id && allowPoke !== selfId;
     return (
       <g>
-        {!hand && <CardSvg x={L.cardx} y={L.cardy} color={showDealer ? "blue" : "black"} />}
+        {!hand && (
+          <CardSvg
+            x={L.cardx}
+            y={L.cardy}
+            color={showDealer ? "blue" : "black"}
+          />
+        )}
         {hand && (
           <HandSvg
             left={L.cardx}
@@ -155,7 +179,13 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
             alignment="left"
           />
         )}
-        <text ref={this.setTextRef} className={textClasses} x={L.textx} y={L.texty} textAnchor={L.textAnchor}>
+        <text
+          ref={this.setTextRef}
+          className={textClasses}
+          x={L.textx}
+          y={L.texty}
+          textAnchor={L.textAnchor}
+        >
           {playerName}
         </text>
         {bid && this.renderBid(bid, L)}
@@ -166,7 +196,8 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
   }
 
   private renderBid(bid: Bid, L: TitleLayout) {
-    const fillId = bid.bid === BidValue.PASS ? GradientIds.PassText : GradientIds.BidText;
+    const fillId =
+      bid.bid === BidValue.PASS ? GradientIds.PassText : GradientIds.BidText;
     const text =
       bid.bid === BidValue.PASS
         ? "PASS"
@@ -204,7 +235,10 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
       icons.push({ icon: IconNames.CROWN, fill: `url(#${GradientIds.Crown})` });
     }
     if (showPerson) {
-      icons.push({ icon: IconNames.PERSON, fill: `url(#${GradientIds.Crown})` });
+      icons.push({
+        icon: IconNames.PERSON,
+        fill: `url(#${GradientIds.Crown})`,
+      });
     }
     return (
       <g>
@@ -252,7 +286,9 @@ export class PlayerTitleSvg extends React.PureComponent<PlayerTitleSvg.Props, Pl
   };
 }
 
-export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayout {
+export function getTitleLayout(
+  args: PlayerTitleSvg.ArrangementArgs
+): TitleLayout {
   const { svgWidth, svgHeight, side, position, text, textWidth } = args;
   const L = emptyLayout();
   if (side === "top") {
@@ -268,7 +304,10 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
     if (text === "before") {
       L.textx = L.cardx - PlayerTextMargin + CardWidth;
       L.textAnchor = "end";
-      L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
+      L.iconx =
+        textWidth !== undefined
+          ? L.textx - textWidth - 10 - IconSize.width
+          : L.iconx;
       L.pokeButtonx = L.textx - PokeButtonWidth / 2;
     } else {
       L.textx = L.cardx + PlayerTextMargin;
@@ -303,7 +342,10 @@ export function getTitleLayout(args: PlayerTitleSvg.ArrangementArgs): TitleLayou
     L.textx = svgWidth - PlayerTextMargin;
     L.pokeButtonx = L.textx - PokeButtonWidth / 2;
     L.textAnchor = "end";
-    L.iconx = textWidth !== undefined ? L.textx - textWidth - 10 - IconSize.width : L.iconx;
+    L.iconx =
+      textWidth !== undefined
+        ? L.textx - textWidth - 10 - IconSize.width
+        : L.iconx;
     L.bidAnchor = "end";
     if (text === "before") {
       L.texty = L.cardy - PlayerTextMargin;

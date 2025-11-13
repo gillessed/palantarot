@@ -2,8 +2,8 @@ import { Center, Stack, Title } from "@mantine/core";
 import { memo, useMemo } from "react";
 import type { BidStats } from "../../../server/model/Bid";
 import { AsyncView } from "../../components/asyncView/AsyncView";
-import { BidsLoader } from "../../services/BidsLoader";
 import { BidsGraph } from "../../components/graphs/BidsGraph";
+import { BidsLoader } from "../../services/loaders/BidsLoader";
 
 interface LoadedProps {
   bids: BidStats;

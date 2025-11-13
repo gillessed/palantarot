@@ -2,7 +2,7 @@ import { Table } from "@mantine/core";
 import { memo } from "react";
 import { Delta } from "../../../server/model/Delta";
 import { DeltaIcon } from "../DeltaIcon";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { Player } from "../../../server/model/Player";
 

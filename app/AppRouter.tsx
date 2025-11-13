@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { StaticRoutes } from "../shared/routes";
+import { ServerApi } from "./api/serverApi";
 import { AddPlayerContainer } from "./containers/addPlayer/AddPlayerContainer";
 import { AppContainer } from "./containers/app/AppContainer";
 import { BotsContainer } from "./containers/bot/BotsContainer";
@@ -8,15 +9,16 @@ import { EditGameContainer } from "./containers/edit/EditGameContainer";
 import { EnterContainer } from "./containers/enter/EnterContainer";
 import { GameContainer } from "./containers/game/GameContainer";
 import { HomeContainer } from "./containers/home/HomeContainer";
+import { LobbyContainer } from "./containers/lobby/LobbyContainer";
+import { LoginContainer } from "./containers/login/LoginContainer";
 import { PlayerContainer } from "./containers/player/PlayerContainer";
 import { RecentGamesContainer } from "./containers/recent/RecentGamesContainer";
+import { RecordsContainer } from "./containers/records/RecordsContainer";
 import { ResultsContainer } from "./containers/results/ResultsContainer";
 import { RulesContainer } from "./containers/rules/RulesContainer";
 import { SearchContainer } from "./containers/search/SearchContainer";
-import { RecordsContainer } from "./containers/records/RecordsContainer";
-import { LoginContainer } from "./containers/login/LoginContainer";
-import { ServerApi } from "./api/serverApi";
-import { ApiProvider } from "./apiProvider";
+import { ApiProvider } from "./context/ApiContext";
+import { GamePlayerProvider } from "./context/GamePlayerProvider";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -36,6 +38,7 @@ const router = createBrowserRouter([
       { path: StaticRoutes.rules(), Component: RulesContainer },
       { path: StaticRoutes.search(), Component: SearchContainer },
       { path: StaticRoutes.records(), Component: RecordsContainer },
+      { path: StaticRoutes.lobby(), Component: LobbyContainer },
     ],
   },
   { path: StaticRoutes.login(), Component: LoginContainer },
@@ -51,14 +54,20 @@ const router = createBrowserRouter([
 //     <Route path="/app/rules" Component={RulesContainer} />
 //     <Route path="/play/:roomId" Component={PlayContainer} />
 
-export const AppRouter = memo(function AppRouter() {
+interface Props {
+  gamePlayerCookie: string | undefined;
+}
+
+export const AppRouter = memo(function AppRouter({ gamePlayerCookie }: Props) {
   const api = useMemo(
     () => new ServerApi("/api/v1", router.navigate),
     [router.navigate]
   );
   return (
     <ApiProvider value={api}>
-      <RouterProvider router={router} />
+      <GamePlayerProvider gamePlayerCookie={gamePlayerCookie}>
+        <RouterProvider router={router} />
+      </GamePlayerProvider>
     </ApiProvider>
   );
 });

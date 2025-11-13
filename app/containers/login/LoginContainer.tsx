@@ -1,7 +1,7 @@
 import { Button, Space, Stack, Text, TextInput, Title } from "@mantine/core";
 import { IconLogin } from "@tabler/icons-react";
 import React, { memo, useCallback, useState } from "react";
-import { useLogin } from "../../services/useLogin";
+import { useLogin } from "../../services/apis/useLogin";
 import { isAsyncError, isAsyncLoading } from "../../utils/Async";
 import { useNavigate } from "react-router";
 import { StaticRoutes } from "../../../shared/routes";

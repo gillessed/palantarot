@@ -1,24 +1,27 @@
-import { TypedAction } from 'redoodle';
-import { END, EventChannel, eventChannel } from 'redux-saga';
-import { cancelled, put, take, takeEvery } from 'redux-saga/effects';
-import { generateId } from '../../../server/utils/randomString';
-import { socketConnectionMessage, SocketMessage } from '../../../server/websocket/SocketMessage';
-import { actionName } from '../redux/actionName';
+import { TypedAction } from "redoodle";
+import { END, EventChannel, eventChannel } from "redux-saga";
+import { cancelled, put, take, takeEvery } from "redux-saga/effects";
+import { generateId } from "../../../server/utils/randomString";
+import {
+  socketConnectionMessage,
+  SocketMessage,
+} from "../../../server/websocket/SocketMessage";
+import { actionName } from "../../redux/utils/actionName";
 
 export interface SocketConnectPayload {
   id: string;
   initialMessages: SocketMessage[];
 }
 
-const name = actionName('socketService');
+const name = actionName("socketService");
 
 export const SocketActions = {
-  connect: TypedAction.define(name('connect'))<SocketConnectPayload>(),
-  message: TypedAction.define(name('message'))<SocketMessage<any>>(),
-  send: TypedAction.define(name('send'))<SocketMessage<any>>(),
-  error: TypedAction.define(name('error'))<Error>(),
-  close: TypedAction.define(name('close'))<void>(),
-}
+  connect: TypedAction.define(name("connect"))<SocketConnectPayload>(),
+  message: TypedAction.define(name("message"))<SocketMessage<any>>(),
+  send: TypedAction.define(name("send"))<SocketMessage<any>>(),
+  error: TypedAction.define(name("error"))<Error>(),
+  close: TypedAction.define(name("close"))<void>(),
+};
 
 export function* socketSaga() {
   yield takeEvery(SocketActions.connect.TYPE, connectSaga);
@@ -58,7 +61,10 @@ function* connectSaga(action: TypedAction<SocketConnectPayload>) {
   }
 }
 
-function* sendSaga(websocket: WebSocket, action: TypedAction<SocketMessage<any>>) {
+function* sendSaga(
+  websocket: WebSocket,
+  action: TypedAction<SocketMessage<any>>
+) {
   if (websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify(action.payload));
   } else if (websocket.readyState === WebSocket.CONNECTING) {
@@ -84,12 +90,12 @@ function listen(socket: WebSocket): EventChannel<SocketMessage<any>> {
     socket.onclose = () => emitter(END);
     return () => {
       socket.close();
-    }
+    };
   });
 }
 
 function openSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const websocketUri = `${protocol}//${window.location.host}/ws`;
   return new WebSocket(websocketUri);
 }

@@ -3,7 +3,7 @@ import { Player } from "../../../server/model/Player";
 import { Streak } from "../../../server/model/Streak";
 import { DynamicRoutes } from "../../../shared/routes";
 import { Link } from "react-router";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { Table } from "@mantine/core";
 
 interface Props {

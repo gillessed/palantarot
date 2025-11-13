@@ -4,8 +4,11 @@ import { Deltas } from "../../../server/model/Delta";
 import { Player } from "../../../server/model/Player";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { DeltasTable } from "../../components/tables/DeltasTable";
-import { DefaultDeltaLoad, DeltasLoader } from "../../services/DeltasLoader";
-import { PlayersLoader } from "../../services/PlayersLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import {
+  DefaultDeltaLoad,
+  DeltasLoader,
+} from "../../services/loaders/DeltasLoader";
 
 interface LoadedProps {
   deltas: Deltas;

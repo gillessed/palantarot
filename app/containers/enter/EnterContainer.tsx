@@ -2,9 +2,9 @@ import { Container, Group, Title } from "@mantine/core";
 import { memo } from "react";
 import { RecentGameQuery } from "../../../server/db/GameRecordQuerier";
 import { AsyncView } from "../../components/asyncView/AsyncView";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { RecentGamesLoader } from "../../services/RecentGamesLoader";
 import { EnterScoreView } from "./EnterScoreView";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { RecentGamesLoader } from "../../services/loaders/RecentGamesLoader";
 
 const GameQuery: RecentGameQuery = { count: 10, full: true };
 

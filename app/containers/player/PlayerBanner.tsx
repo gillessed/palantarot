@@ -2,7 +2,7 @@ import { Flex, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { memo } from "react";
 import { Player } from "../../../server/model/Player";
 import { Result } from "../../../server/model/Result";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { ScoreBox } from "../../components/ScoreBox";
 
 interface Props {

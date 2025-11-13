@@ -6,7 +6,7 @@ import { Player } from "../../../server/model/Player";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { DynamicRoutes } from "../../../shared/routes";
 import { ScoreBox } from "../../components/ScoreBox";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import classes from "./HandDataCard.module.css";
 
 interface Props {

@@ -5,7 +5,7 @@ import { Player } from "../../../server/model/Player";
 import { MonthlyScore } from "../../../server/model/Records";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { DynamicRoutes } from "../../../shared/routes";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 
 interface Props {
   playerId?: PlayerId;
@@ -27,9 +27,7 @@ export const MonthWinnersTableCell = memo(function MonthWinnersTableCell({
     <Table.Td style={{ backgroundColor: color }}>
       <Text>
         <Link to={DynamicRoutes.player(score.playerId)}>
-          <span>
-            {getPlayerName(players.get(score.playerId))}
-          </span>
+          <span>{getPlayerName(players.get(score.playerId))}</span>
         </Link>
         <span> ({score.score})</span>
       </Text>

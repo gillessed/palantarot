@@ -3,12 +3,12 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
 import { mapFromCollection } from "../../../server/utils";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { findMatches, type Item } from "../../utils/stringMatch";
 import { PlayerSelectOption } from "./PlayerSelectOption";
 
 interface Props {
-  players: Player[];
+  players: Map<PlayerId, Player>;
   recentPlayers?: Player[];
   selectedPlayers?: Set<PlayerId> | undefined;
   unselectedLabel?: string;
@@ -56,17 +56,18 @@ export const PlayerSelect = memo(function PlayerSelect({
   );
 
   const itemList = useMemo(() => {
-    const items: Item[] = players.map((p) => {
+    const items: Item[] = [];
+    for (const p of players.values()) {
       const text = getPlayerName(p);
-      return {
+      items.push({
         id: p.id,
         text,
         queryText: text.toLowerCase(),
         activatible: true,
         selects: p,
         recent: !!(recentPlayers && recentPlayers.find((rp) => rp.id === p.id)),
-      };
-    });
+      });
+    }
     items.sort((p1, p2) => {
       if (p1.recent && !p2.recent) {
         return -1;

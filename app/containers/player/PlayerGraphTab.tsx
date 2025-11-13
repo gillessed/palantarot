@@ -7,7 +7,7 @@ import type { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { PointsGraph } from "../../components/graphs/PointsGraph";
 import { MonthPicker } from "../../components/MonthPicker";
-import { GamesForMonthLoader } from "../../services/GamesForMonthLoader";
+import { GamesForMonthLoader } from "../../services/loaders/GamesForMonthLoader";
 
 interface LoadedProps {
   games: GameRecord[];

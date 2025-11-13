@@ -5,7 +5,7 @@ import { MonthlyScore, Records } from "../../../server/model/Records";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { integerComparator } from "../../../server/utils";
 import { Aggregate, Aggregator, count } from "../../../server/utils/count";
-import { useGroupedMonthlyScores } from "../../services/useGroupedMonthlyScores";
+import { useGroupedMonthlyScores } from "../../services/selectors/useGroupedMonthlyScores";
 import { MedalRecord, MedalsTableCell } from "./MedalsTableCell";
 
 interface MedalEntry {

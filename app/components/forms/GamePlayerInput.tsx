@@ -7,7 +7,7 @@ import { AddPlayerForm } from "./AddPlayerForm";
 import type { PlayerRole } from "./PlayerRoles";
 import { PlayerSelect } from "./PlayerSelect";
 import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
-import { useAddPlayer } from "../../services/useAddPlayer";
+import { useAddPlayer } from "../../services/apis/useAddPlayer";
 import classes from "./GamePlayerInput.module.css";
 
 export interface PlayerState {

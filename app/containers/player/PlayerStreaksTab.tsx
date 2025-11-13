@@ -2,7 +2,7 @@ import { Center, Group, Stack, Text, Title } from "@mantine/core";
 import { memo } from "react";
 import type { Streak } from "../../../server/model/Streak";
 import { AsyncView } from "../../components/asyncView/AsyncView";
-import { StreaksLoader } from "../../services/StreaksLoader";
+import { StreaksLoader } from "../../services/loaders/StreaksLoader";
 
 interface LoadedProps {
   streaks: Streak[];

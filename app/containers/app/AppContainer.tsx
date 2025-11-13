@@ -1,11 +1,12 @@
 import { Burger, Container, Group, Image, Menu, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconPencil } from "@tabler/icons-react";
 import classNames from "classnames";
 import { memo, useCallback } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
-import classes from "./AppContainer.module.css";
-import { IconPencil } from "@tabler/icons-react";
 import { StaticRoutes } from "../../../shared/routes";
+import classes from "./AppContainer.module.css";
+import { PlayerAvatar } from "./PlayerAvatar";
 
 export const AppContainer = memo(function AppContainer() {
   const navigate = useNavigate();
@@ -18,7 +19,10 @@ export const AppContainer = memo(function AppContainer() {
       <header className={classes.header}>
         <Container size="lg">
           <div className={classes.inner}>
-            <Link to={StaticRoutes.home()} className={classNames(classes.link, "appLink")}>
+            <Link
+              to={StaticRoutes.home()}
+              className={classNames(classes.link, "appLink")}
+            >
               <Image src="/images/joker.png" w="20" h="30" ml="sm" mr="sm" />
               <Title order={3}>Palantarot</Title>
             </Link>
@@ -32,13 +36,22 @@ export const AppContainer = memo(function AppContainer() {
               <Link className="appLink" to={StaticRoutes.recent()}>
                 Recent Games
               </Link>
+              <PlayerAvatar />
             </Group>
             <Menu onClose={close}>
               <Menu.Target>
-                <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+                <Burger
+                  opened={opened}
+                  onClick={toggle}
+                  size="sm"
+                  hiddenFrom="sm"
+                />
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item leftSection={<IconPencil />} onClick={handleEnterScore}>
+                <Menu.Item
+                  leftSection={<IconPencil />}
+                  onClick={handleEnterScore}
+                >
                   Enter score
                 </Menu.Item>
               </Menu.Dropdown>

@@ -4,7 +4,7 @@ import { memo, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { StaticRoutes } from "../../../shared/routes";
 import { showSuccessNotification } from "../../notifications/showSuccessNotification";
-import { useDeleteGame } from "../../services/useDeleteGame";
+import { useDeleteGame } from "../../services/apis/useDeleteGame";
 
 interface Props {
   gameId: string;

@@ -7,7 +7,7 @@ import { PlayerId } from "../../../server/play/model/GameState";
 import { integerComparator } from "../../../server/utils";
 import { Aggregate, Aggregator, count } from "../../../server/utils/count";
 import { MonthWinnersTableCell } from "./MonthWinnersTableCell";
-import { useGroupedMonthlyScores } from "../../services/useGroupedMonthlyScores";
+import { useGroupedMonthlyScores } from "../../services/selectors/useGroupedMonthlyScores";
 
 interface MonthWinners {
   month: IMonth;
@@ -59,7 +59,7 @@ export const MonthWinnersTable = memo(function MonthWinnersTable({
   }, [groupedMonthlyScores]);
 
   if (eachMonthWinners.length === 0) {
-    return <Text> No wins yet </Text>
+    return <Text> No wins yet </Text>;
   }
 
   return (

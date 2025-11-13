@@ -6,9 +6,9 @@ import { StatAverage, Stats } from "../../../server/model/Stats";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { WinPercentagesTable } from "../../components/tables/WinPercentagesTable";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { StatsLoader } from "../../services/StatsLoader";
-import { useStatEntriesByPlayer } from "../../services/useAggregatedStats";
+import { useStatEntriesByPlayer } from "../../services/apis/useAggregatedStats";
+import { StatsLoader } from "../../services/loaders/StatsLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
 
 interface Props {
   stats: Stats;

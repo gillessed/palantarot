@@ -7,8 +7,8 @@ import { AsyncView } from "../../components/asyncView/AsyncView";
 import { MedalsTable } from "../../components/tables/MedalsTable";
 import { MonthWinnersTable } from "../../components/tables/MonthWinnersTable";
 import { RecordScorersTable } from "../../components/tables/RecordScorersTable";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { RecordsLoader } from "../../services/RecordsLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { RecordsLoader } from "../../services/loaders/RecordsLoader";
 
 interface LoadedProps {
   records: Records;

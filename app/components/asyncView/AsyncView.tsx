@@ -1,8 +1,7 @@
 import { Alert } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
-import { AsyncLoader } from "../../services/AsyncLoader";
-import { useLoaderContext } from "../../services/useLoaderContext";
+import { useLoaderContext } from "../../services/utils/useLoaderContext";
 import {
   Async,
   asyncError,
@@ -14,6 +13,7 @@ import {
   isAsyncLoading,
 } from "../../utils/Async";
 import { SpinnerOverlay } from "../spinnerOverlay/SpinnerOverlay";
+import type { AsyncLoader } from "../../services/loaders/AsyncLoader";
 
 type LoaderMap = Record<string, AsyncLoader<any, any>>;
 
@@ -33,25 +33,24 @@ type LoadedState<Loaders extends LoaderMap> = {
     : never;
 };
 
-type BaseProps<
+type BaseProps<Loaders extends LoaderMap, AdditionalArgs> = {
+  loaders: LoaderProps<Loaders>;
+  Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
+  loadingElement?: React.ReactNode;
+};
+
+type BasePropsWithArgs<
   Loaders extends LoaderMap,
   AdditionalArgs
-> = keyof ArgMap<Loaders> extends never
-  ? {
-      loaders: LoaderProps<Loaders>;
-      args?: ArgMap<Loaders>;
-      Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
-    }
-  : {
-      loaders: LoaderProps<Loaders>;
-      args: ArgMap<Loaders>;
-      Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
-    };
+> = (keyof ArgMap<Loaders> extends never
+  ? { args?: ArgMap<Loaders> }
+  : { args: ArgMap<Loaders> }) &
+  BaseProps<Loaders, AdditionalArgs>;
 
-type PropsWithArgs<Loaders extends LoaderMap, AdditionalArgs> = BaseProps<
-  Loaders,
+type PropsWithAdditionalArgs<
+  Loaders extends LoaderMap,
   AdditionalArgs
-> & {
+> = BasePropsWithArgs<Loaders, AdditionalArgs> & {
   additionalArgs: AdditionalArgs;
 };
 
@@ -59,8 +58,8 @@ type Props<
   Loaders extends LoaderMap,
   AdditionalArgs
 > = AdditionalArgs extends void
-  ? BaseProps<Loaders, AdditionalArgs>
-  : PropsWithArgs<Loaders, AdditionalArgs>;
+  ? BasePropsWithArgs<Loaders, AdditionalArgs>
+  : PropsWithAdditionalArgs<Loaders, AdditionalArgs>;
 
 interface Reload {
   reload: () => void;
@@ -70,9 +69,10 @@ export const AsyncView = function AsyncView<
   Loaders extends LoaderMap,
   AdditionalArgs = void
 >(props: Props<Loaders, AdditionalArgs>) {
-  const { Component, args, loaders } = props;
-  const additionalArgs = ((props as PropsWithArgs<Loaders, AdditionalArgs>)
-    .additionalArgs ?? {}) as AdditionalArgs;
+  const { Component, args, loaders, loadingElement } = props;
+  const additionalArgs = ((
+    props as PropsWithAdditionalArgs<Loaders, AdditionalArgs>
+  ).additionalArgs ?? {}) as AdditionalArgs;
 
   const loaderContext = useLoaderContext();
 
@@ -89,7 +89,7 @@ export const AsyncView = function AsyncView<
           const key = entry[0];
           const loader = entry[1] as Loaders[typeof key];
           const doLoad = async () => {
-            const result = await loader(loaderContext, (args as any)[key]);
+            const result = await loader(loaderContext, (args as any)?.[key]);
             return { key, result };
           };
           promises.push(doLoad());
@@ -114,7 +114,7 @@ export const AsyncView = function AsyncView<
   }, [doLoad]);
 
   if (isAsyncLoading(state)) {
-    return <SpinnerOverlay />;
+    return loadingElement ?? <SpinnerOverlay />;
   } else if (isAsyncError(state)) {
     return (
       <Alert

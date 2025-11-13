@@ -3,12 +3,12 @@ import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { GameForm } from "../../components/forms/GameForm";
-import { usePlayersList } from "../../services/usePlayersList";
-import { useSaveGame } from "../../services/useSaveGame";
+import { useSaveGame } from "../../services/apis/useSaveGame";
 import { isAsyncLoading } from "../../utils/Async";
 import { useNavigate } from "react-router";
 import { DynamicRoutes } from "../../../shared/routes";
 import { showSuccessNotification } from "../../notifications/showSuccessNotification";
+import { usePlayersList } from "../../services/selectors/usePlayersList";
 
 interface Props {
   game: GameRecord;

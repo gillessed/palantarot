@@ -3,10 +3,10 @@ import { useParams } from "react-router";
 import { IMonth } from "../../../server/model/Month";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { ErrorAlert } from "../../components/ErrorAlert";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { ResultsLoader } from "../../services/ResultsLoader";
 import { PageContainer } from "../PageContainer";
 import { PlayerView } from "./PlayerView";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { ResultsLoader } from "../../services/loaders/ResultsLoader";
 
 // load results
 const Loaders = {

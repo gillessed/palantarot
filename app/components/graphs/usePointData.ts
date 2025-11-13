@@ -2,7 +2,7 @@ import type { LineChartSeries } from "@mantine/charts";
 import type { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
 import type { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { Colors } from "../../utils/Colors";
 import { useMemo } from "react";
 

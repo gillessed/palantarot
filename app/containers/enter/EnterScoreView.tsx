@@ -4,7 +4,7 @@ import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { StaticRoutes } from "../../../shared/routes";
 import { GameForm } from "../../components/forms/GameForm";
-import { useSaveGame } from "../../services/useSaveGame";
+import { useSaveGame } from "../../services/apis/useSaveGame";
 import { isAsyncLoading } from "../../utils/Async";
 
 interface Props {
@@ -27,7 +27,10 @@ function getPlayersInGame(game: GameRecord): string[] {
   return playerIds;
 }
 
-export const EnterScoreView = memo(function EnterScoreView({ players, recentGames }: Props) {
+export const EnterScoreView = memo(function EnterScoreView({
+  players,
+  recentGames,
+}: Props) {
   const playerList = useMemo(() => {
     const list = Array.from(players.values());
     return list.sort((p1: Player, p2: Player) => {

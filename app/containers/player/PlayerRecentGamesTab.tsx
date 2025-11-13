@@ -4,12 +4,12 @@ import { GameRecord } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
-import { RecentGamesLoader } from "../../services/RecentGamesLoader";
 import {
   DEFAULT_COUNT,
   GameTable,
   type GameOutcome,
 } from "../../components/tables/GameTable";
+import { RecentGamesLoader } from "../../services/loaders/RecentGamesLoader";
 
 interface LoadedProps {
   recentGames: GameRecord[];

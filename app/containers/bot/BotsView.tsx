@@ -7,8 +7,8 @@ import type { PlayerId } from "../../../server/play/model/GameState";
 import { getAdminPassword } from "../../admin";
 import { AddPlayerForm } from "../../components/forms/AddPlayerForm";
 import { showSuccessNotification } from "../../notifications/showSuccessNotification";
-import { getPlayerName } from "../../services/players/playerName";
-import { useAddPlayer } from "../../services/useAddPlayer";
+import { getPlayerName } from "../../services/utils/playerName";
+import { useAddPlayer } from "../../services/apis/useAddPlayer";
 import { BotCard } from "./BotCard";
 import { useBotPlayers } from "./useBotPlayers";
 
@@ -17,7 +17,10 @@ interface Props {
 }
 
 export const BotsView = memo(function BotsView({ players }: Props) {
-  const [createDialogOpen, { open: openCreateDialog, close: closeCreateDialog }] = useDisclosure(false);
+  const [
+    createDialogOpen,
+    { open: openCreateDialog, close: closeCreateDialog },
+  ] = useDisclosure(false);
   const handlePlayerAdded = useCallback(
     (player: Player) => {
       showSuccessNotification(`Bot ${getPlayerName(player)} added`);
@@ -48,7 +51,11 @@ export const BotsView = memo(function BotsView({ players }: Props) {
         })}
       </Group>
 
-      <Modal opened={createDialogOpen} onClose={closeCreateDialog} title="Add Bot">
+      <Modal
+        opened={createDialogOpen}
+        onClose={closeCreateDialog}
+        title="Add Bot"
+      >
         <AddPlayerForm isBot onSubmit={addPlayer} />
       </Modal>
     </Stack>

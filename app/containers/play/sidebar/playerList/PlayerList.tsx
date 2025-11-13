@@ -4,7 +4,7 @@ import { Player } from "../../../../../server/model/Player";
 import { PlayerId } from "../../../../../server/play/model/GameState";
 import { PlayerStatus } from "../../../../../server/play/room/PlayerStatus";
 import { Dispatchers } from "../../../../services/dispatchers";
-import { getPlayerName } from "../../../../services/players/playerName";
+import { getPlayerName } from "../../../../services/utils/playerName";
 import "./PlayerList.scss";
 import { PlayerRow } from "./PlayerRow";
 
@@ -44,7 +44,12 @@ export class PlayerList extends React.PureComponent<Props, State> {
     sidebarTab: SidebarTab.Chat,
   };
 
-  private getPlayerItems = ({ selfId, players, gamePlayers, playerStatuses }: Props): PlayerItem[] => {
+  private getPlayerItems = ({
+    selfId,
+    players,
+    gamePlayers,
+    playerStatuses,
+  }: Props): PlayerItem[] => {
     const allPlayerIds = [...playerStatuses.keys()];
     const gamePlayersSet = new Set(gamePlayers);
     const playerItems: PlayerItem[] = [];
@@ -66,40 +71,50 @@ export class PlayerList extends React.PureComponent<Props, State> {
     return playerItems;
   };
 
-  private getOnlinePlayerItems = defaultMemoize((props: Props): PlayerItem[] => {
-    const playerItems = this.getPlayerItems(props);
-    const onlinePlayers = playerItems.filter((player) => player.status === PlayerStatus.Online);
-    onlinePlayers.sort(playerItemComparator);
-    return onlinePlayers;
-  });
-
-  private getOfflinePlayerItems = defaultMemoize((props: Props): PlayerItem[] => {
-    const playerItems = this.getPlayerItems(props);
-    const onlinePlayers = playerItems.filter((player) => player.status === PlayerStatus.Offline);
-    onlinePlayers.sort(playerItemComparator);
-    return onlinePlayers;
-  });
-
-  private getBotPlayers = defaultMemoize(({ players, gamePlayers }: Props): PlayerItem[] => {
-    const gamePlayersSet = new Set(gamePlayers);
-    const bots: Player[] = [];
-    for (const playerId of players.keys()) {
-      const player = players.get(playerId);
-      if (player?.isBot) {
-        bots.push(player);
-      }
+  private getOnlinePlayerItems = defaultMemoize(
+    (props: Props): PlayerItem[] => {
+      const playerItems = this.getPlayerItems(props);
+      const onlinePlayers = playerItems.filter(
+        (player) => player.status === PlayerStatus.Online
+      );
+      onlinePlayers.sort(playerItemComparator);
+      return onlinePlayers;
     }
-    const botItems = bots.map((player) => ({
-      id: player.id,
-      isYou: false,
-      isParticipant: gamePlayersSet.has(player.id),
-      name: getPlayerName(player),
-      status: PlayerStatus.Online,
-      isBot: true,
-    }));
-    botItems.sort(playerItemComparator);
-    return botItems;
-  });
+  );
+
+  private getOfflinePlayerItems = defaultMemoize(
+    (props: Props): PlayerItem[] => {
+      const playerItems = this.getPlayerItems(props);
+      const onlinePlayers = playerItems.filter(
+        (player) => player.status === PlayerStatus.Offline
+      );
+      onlinePlayers.sort(playerItemComparator);
+      return onlinePlayers;
+    }
+  );
+
+  private getBotPlayers = defaultMemoize(
+    ({ players, gamePlayers }: Props): PlayerItem[] => {
+      const gamePlayersSet = new Set(gamePlayers);
+      const bots: Player[] = [];
+      for (const playerId of players.keys()) {
+        const player = players.get(playerId);
+        if (player?.isBot) {
+          bots.push(player);
+        }
+      }
+      const botItems = bots.map((player) => ({
+        id: player.id,
+        isYou: false,
+        isParticipant: gamePlayersSet.has(player.id),
+        name: getPlayerName(player),
+        status: PlayerStatus.Online,
+        isBot: true,
+      }));
+      botItems.sort(playerItemComparator);
+      return botItems;
+    }
+  );
 
   public render() {
     const onlinePlayers = this.getOnlinePlayerItems(this.props);
@@ -109,15 +124,26 @@ export class PlayerList extends React.PureComponent<Props, State> {
       <div className="sidebar-player-list list-container">
         <div className="unselectable sidebar-player-list-title">Online</div>
         {onlinePlayers.map(this.renderPlayer)}
-        <div className="unselectable sidebar-player-list-title offline">Offline</div>
+        <div className="unselectable sidebar-player-list-title offline">
+          Offline
+        </div>
         {offlinePlayers.map(this.renderPlayer)}
-        <div className="unselectable sidebar-player-list-title offline">Bots</div>
+        <div className="unselectable sidebar-player-list-title offline">
+          Bots
+        </div>
         {bots.map(this.renderPlayer)}
       </div>
     );
   }
 
-  private renderPlayer = ({ id, isYou, isParticipant, name, status, isBot }: PlayerItem) => {
+  private renderPlayer = ({
+    id,
+    isYou,
+    isParticipant,
+    name,
+    status,
+    isBot,
+  }: PlayerItem) => {
     return (
       <PlayerRow
         key={id}

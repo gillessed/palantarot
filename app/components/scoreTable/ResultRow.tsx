@@ -5,7 +5,7 @@ import { Player } from "../../../server/model/Player";
 import { RoleResultRankChange } from "../../../server/model/Result";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { DynamicRoutes } from "../../../shared/routes";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { DeltaIcon } from "../DeltaIcon";
 
 interface Props {

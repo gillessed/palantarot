@@ -6,9 +6,9 @@ import { Records } from "../../../server/model/Records";
 import { RoleResult } from "../../../server/model/Result";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { ScoreTable } from "../../components/scoreTable/ScoreTable";
-import { PlayersLoader } from "../../services/PlayersLoader";
-import { RecordsLoader } from "../../services/RecordsLoader";
-import { useTotalScores } from "../../services/useTotalScores";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
+import { RecordsLoader } from "../../services/loaders/RecordsLoader";
+import { useTotalScores } from "../../services/selectors/useTotalScores";
 
 interface Props {
   players: Map<string, Player>;

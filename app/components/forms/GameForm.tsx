@@ -4,7 +4,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
-import { getPlayerName } from "../../services/players/playerName";
+import { getPlayerName } from "../../services/utils/playerName";
 import { filterFalsy } from "../../utils/filterFalsy";
 import { PointsInput, SelectInput } from "./Elements";
 import { GamePlayerInput, PlayerState } from "./GamePlayerInput";

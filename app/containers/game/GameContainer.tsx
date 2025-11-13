@@ -2,10 +2,10 @@ import { memo, useMemo } from "react";
 import { useParams } from "react-router";
 import { AsyncView } from "../../components/asyncView/AsyncView";
 import { ErrorAlert } from "../../components/ErrorAlert";
-import { GameLoader } from "../../services/GameLoader";
-import { PlayersLoader } from "../../services/PlayersLoader";
 import { PageContainer } from "../PageContainer";
 import { GameView } from "./GameView";
+import { GameLoader } from "../../services/loaders/GameLoader";
+import { PlayersLoader } from "../../services/loaders/PlayersLoader";
 
 const Loaders = {
   game: GameLoader,
