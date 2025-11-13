@@ -5,21 +5,14 @@ import { PlayersLoader } from "../../services/PlayersLoader";
 import { PageContainer } from "../PageContainer";
 
 const Loaders = {
-  players: PlayersLoader
-}
+  players: PlayersLoader,
+};
 type Loaders = typeof Loaders;
-const Args = {
-  players: undefined
-}
 
 export const SearchContainer = memo(function SearchContainer() {
   return (
     <PageContainer title="Search">
-      <AsyncView<Loaders>
-        loaders={Loaders}
-        args={Args}
-        Component={SearchForm}
-      />
+      <AsyncView<Loaders> loaders={Loaders} Component={SearchForm} />
     </PageContainer>
-  )
+  );
 });

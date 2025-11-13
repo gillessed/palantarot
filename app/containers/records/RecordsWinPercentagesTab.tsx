@@ -47,17 +47,11 @@ const Loaders = {
 };
 type Loaders = typeof Loaders;
 
-const Args = {
-  stats: undefined,
-  players: undefined,
-};
-
 export const RecordsWinPercentagesTab = memo(
   function RecordsWinPercentagesTab() {
     return (
       <AsyncView<Loaders>
         loaders={Loaders}
-        args={Args}
         Component={RecordsWinPercentagesTabLoaded}
       />
     );

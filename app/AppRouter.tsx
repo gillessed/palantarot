@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { StaticRoutes } from "../shared/routes";
 import { AddPlayerContainer } from "./containers/addPlayer/AddPlayerContainer";
@@ -15,6 +15,8 @@ import { RulesContainer } from "./containers/rules/RulesContainer";
 import { SearchContainer } from "./containers/search/SearchContainer";
 import { RecordsContainer } from "./containers/records/RecordsContainer";
 import { LoginContainer } from "./containers/login/LoginContainer";
+import { ServerApi } from "./api/serverApi";
+import { ApiProvider } from "./apiProvider";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -39,20 +41,7 @@ const router = createBrowserRouter([
   { path: StaticRoutes.login(), Component: LoginContainer },
 ]);
 
-// const routes = (
-//   <div>
-//     <Route path="/" exact render={() => <Redirect from="/" to="/app/home" />} />
-//     <Route path="/app" Component={AppContainer} />
-//     <Route path="/app/home" Component={HomeContainer} />
-//     <Route path="/app/enter" Component={EnterContainer} />
-//     <Route path="/app/recent" Component={RecentContainer} />
-//     <Route path="/app/game/:gameId" Component={GameContainer} />
-//     <Route path="/app/results" Component={ResultsContainer} />
-//     <Route path="/app/add-player" Component={AddPlayerContainer} />
-//     <Route path="/app/player/:playerId" Component={PlayerContainer} />
-//     <Route path="/app/edit/:gameId" Component={EditContainer} />
-//     <Route path="/app/records" Component={RecordsContainer} />
-//     <Route path="/app/search" Component={SearchContainer} />
+// Unhandled routes
 //     <Route path="/app/search-results" Component={SearchResultsContainer} />
 //     <Route path="/app/tarothons" Component={TarothonsContainer} />
 //     <Route path="/app/add-tarothon" Component={TarothonFormContainer} />
@@ -61,11 +50,15 @@ const router = createBrowserRouter([
 //     <Route path="/app/lobby" Component={LobbyContainer} />
 //     <Route path="/app/rules" Component={RulesContainer} />
 //     <Route path="/play/:roomId" Component={PlayContainer} />
-//     <Route path="/app/bots" Component={BotContainer} />
-//     <Route path="/login" Component={LoginContainer} />
-//   </div>
-// );
 
 export const AppRouter = memo(function AppRouter() {
-  return <RouterProvider router={router} />;
+  const api = useMemo(
+    () => new ServerApi("/api/v1", router.navigate),
+    [router.navigate]
+  );
+  return (
+    <ApiProvider value={api}>
+      <RouterProvider router={router} />
+    </ApiProvider>
+  );
 });

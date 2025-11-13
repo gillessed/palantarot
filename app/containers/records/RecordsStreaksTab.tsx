@@ -44,14 +44,9 @@ const Loaders = {
   streaks: StreaksLoader,
 };
 type Loaders = typeof Loaders;
-const Args = { streaks: undefined, players: undefined };
 
 export const RecordsStreaksTab = memo(function RecordsStreaksTab() {
   return (
-    <AsyncView<Loaders>
-      loaders={Loaders}
-      args={Args}
-      Component={RecordsStreaksTabLoaded}
-    />
+    <AsyncView<Loaders> loaders={Loaders} Component={RecordsStreaksTabLoaded} />
   );
 });

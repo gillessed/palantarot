@@ -29,7 +29,7 @@ type Loaders = typeof Loaders;
 
 const Args = {
   bids: {},
-}
+};
 
 export const RecordsBidsTab = memo(function RecordsBidsTab() {
   return (

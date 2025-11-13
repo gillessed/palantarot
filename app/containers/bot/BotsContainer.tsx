@@ -8,12 +8,11 @@ const Loaders = {
   players: PlayersLoader,
 };
 type Loaders = typeof Loaders;
-const Args = { players: undefined };
 
 export const BotsContainer = memo(function BotsContainer() {
   return (
     <PageContainer title="Bots">
-      <AsyncView<Loaders> loaders={Loaders} args={Args} Component={BotsView} />
+      <AsyncView<Loaders> loaders={Loaders} Component={BotsView} />
     </PageContainer>
   );
 });

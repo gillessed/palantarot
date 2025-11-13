@@ -1,9 +1,10 @@
 import { Button, Space, Stack, Text, TextInput, Title } from "@mantine/core";
+import { IconLogin } from "@tabler/icons-react";
 import React, { memo, useCallback, useState } from "react";
 import { useLogin } from "../../services/useLogin";
 import { isAsyncError, isAsyncLoading } from "../../utils/Async";
-import { IconLogin } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+import { StaticRoutes } from "../../../shared/routes";
 
 export const LoginContainer = memo(function LoginContainer() {
   const [password, setPassword] = useState("");
@@ -15,7 +16,11 @@ export const LoginContainer = memo(function LoginContainer() {
     []
   );
 
-  const { state: loginState, request: login } = useLogin();
+  const navigate = useNavigate();
+  const handleLoginSuccessful = useCallback(() => {
+    navigate(StaticRoutes.home());
+  }, [navigate]);
+  const { state: loginState, request: login } = useLogin(handleLoginSuccessful);
   const loading = isAsyncLoading(loginState);
   const error = isAsyncError(loginState) ? loginState.error.message : undefined;
 

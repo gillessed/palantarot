@@ -13,7 +13,6 @@ const Loaders = {
   recentGames: RecentGamesLoader,
 };
 const Args = {
-  players: undefined,
   recentGames: GameQuery,
 };
 

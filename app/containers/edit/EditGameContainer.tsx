@@ -10,7 +10,7 @@ import { EditGameView } from "./EditGameView";
 const Loaders = {
   players: PlayersLoader,
   game: GameLoader,
-}
+};
 type Loaders = typeof Loaders;
 
 export const EditGameContainer = memo(function EditGameContainer() {
@@ -19,7 +19,7 @@ export const EditGameContainer = memo(function EditGameContainer() {
     return <ErrorAlert> No game id </ErrorAlert>;
   }
 
-  const args = useMemo(() => ({ game: gameId, players: undefined}), [gameId]);
+  const args = useMemo(() => ({ game: gameId }), [gameId]);
 
   return (
     <PageContainer title={`Edit Game ${gameId}`}>
@@ -27,7 +27,7 @@ export const EditGameContainer = memo(function EditGameContainer() {
         loaders={Loaders}
         args={args}
         Component={EditGameView}
-        />
+      />
     </PageContainer>
-  )
+  );
 });

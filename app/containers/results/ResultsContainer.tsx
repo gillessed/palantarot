@@ -68,10 +68,7 @@ export const ResultsContainer = memo(function ResultsContainer() {
     monthParam?.month ?? moment().month(),
     monthParam?.year ?? moment().year()
   );
-  const args = useMemo(
-    () => ({ results: month, games: month, players: undefined }),
-    [month]
-  );
+  const args = useMemo(() => ({ results: month, games: month }), [month]);
 
   return (
     <PageContainer>

@@ -49,7 +49,6 @@ const Args = {
   deltas: {
     length: DefaultDeltaLoad,
   },
-  players: undefined,
 };
 
 export const RecordsDeltasTab = memo(function RecordsDeltasTab() {

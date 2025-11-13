@@ -44,17 +44,8 @@ const Loaders = {
 };
 type Loaders = typeof Loaders;
 
-const Args = {
-  players: undefined,
-  records: undefined,
-};
-
 export const RecordsAllTimeTab = memo(function RecordsAllTimeTab() {
   return (
-    <AsyncView<Loaders>
-      loaders={Loaders}
-      args={Args}
-      Component={RecordsAllTimeTabLoaded}
-    />
+    <AsyncView<Loaders> loaders={Loaders} Component={RecordsAllTimeTabLoaded} />
   );
 });

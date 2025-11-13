@@ -1,17 +1,13 @@
 import { Button, Checkbox, Group, Paper, Stack } from "@mantine/core";
 import { IconDownload, IconUsers } from "@tabler/icons-react";
-import classNames from "classnames";
 import { memo, useCallback, useMemo, useState } from "react";
 import { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
-import {
-  GamePlayerInput,
-  PlayerState,
-} from "../../containers/gamePlayerInput/GamePlayerInput";
 import { getPlayerName } from "../../services/players/playerName";
 import { filterFalsy } from "../../utils/filterFalsy";
 import { PointsInput, SelectInput } from "./Elements";
+import { GamePlayerInput, PlayerState } from "./GamePlayerInput";
 import { OppositionRoles, type PlayerRole } from "./PlayerRoles";
 import { getPointsEarned } from "./getPointsEarned";
 

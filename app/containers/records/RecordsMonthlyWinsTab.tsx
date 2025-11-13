@@ -43,16 +43,10 @@ const Loaders = {
 };
 type Loaders = typeof Loaders;
 
-const Args = {
-  records: undefined,
-  players: undefined,
-};
-
 export const RecordsMonthlyWinsTab = memo(function RecordsMonthlyWinsTab() {
   return (
     <AsyncView<Loaders>
       loaders={Loaders}
-      args={Args}
       Component={RecordsMonthlyWinsTabLoaded}
     />
   );

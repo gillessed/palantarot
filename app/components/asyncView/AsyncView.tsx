@@ -1,6 +1,6 @@
 import { Alert } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AsyncLoader } from "../../services/AsyncLoader";
 import { useLoaderContext } from "../../services/useLoaderContext";
 import {
@@ -22,15 +22,37 @@ type LoaderProps<Loaders extends LoaderMap> = {
 };
 
 type ArgMap<Loaders extends LoaderMap> = {
-  [K in keyof Loaders]: Loaders[K] extends AsyncLoader<any, infer Arg>
-    ? Arg
-    : never;
+  [K in keyof Loaders as Loaders[K] extends AsyncLoader<any, void>
+    ? never
+    : K]: Loaders[K] extends AsyncLoader<any, infer Arg> ? Arg : never;
 };
 
 type LoadedState<Loaders extends LoaderMap> = {
   [K in keyof Loaders]: Loaders[K] extends AsyncLoader<infer Result, any>
     ? Result
     : never;
+};
+
+type BaseProps<
+  Loaders extends LoaderMap,
+  AdditionalArgs
+> = keyof ArgMap<Loaders> extends never
+  ? {
+      loaders: LoaderProps<Loaders>;
+      args?: ArgMap<Loaders>;
+      Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
+    }
+  : {
+      loaders: LoaderProps<Loaders>;
+      args: ArgMap<Loaders>;
+      Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
+    };
+
+type PropsWithArgs<Loaders extends LoaderMap, AdditionalArgs> = BaseProps<
+  Loaders,
+  AdditionalArgs
+> & {
+  additionalArgs: AdditionalArgs;
 };
 
 type Props<
@@ -42,17 +64,6 @@ type Props<
 
 interface Reload {
   reload: () => void;
-}
-
-interface BaseProps<Loaders extends LoaderMap, AdditionalArgs> {
-  loaders: LoaderProps<Loaders>;
-  args: ArgMap<Loaders>;
-  Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
-}
-
-interface PropsWithArgs<Loaders extends LoaderMap, AdditionalArgs>
-  extends BaseProps<Loaders, AdditionalArgs> {
-  additionalArgs: AdditionalArgs;
 }
 
 export const AsyncView = function AsyncView<
@@ -78,7 +89,7 @@ export const AsyncView = function AsyncView<
           const key = entry[0];
           const loader = entry[1] as Loaders[typeof key];
           const doLoad = async () => {
-            const result = await loader(loaderContext, args[key]);
+            const result = await loader(loaderContext, (args as any)[key]);
             return { key, result };
           };
           promises.push(doLoad());

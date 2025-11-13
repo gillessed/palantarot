@@ -1,9 +1,11 @@
-import { Store } from 'redux';
-import { ClientGame } from '../services/room/ClientGame';
+import { Store } from "redux";
 import { ReduxState } from "../services/rootReducer";
+import type { ClientGame } from "../../shared/types/ClientGame";
 
-function getGameUpdatedFiltered(store: Store<ReduxState>): () => ClientGame | null {
-  return function() {
+function getGameUpdatedFiltered(
+  store: Store<ReduxState>
+): () => ClientGame | null {
+  return function () {
     const game = store.getState().room?.game;
     if (!game) {
       return null;
@@ -11,8 +13,8 @@ function getGameUpdatedFiltered(store: Store<ReduxState>): () => ClientGame | nu
     return {
       ...game,
       events: game.events,
-    }
-  }
+    };
+  };
 }
 
 interface ReduxDebug {

@@ -25,10 +25,7 @@ export const RecentGamesContainer = memo(function RecentContainer() {
     }
   }, [offset]);
 
-  const args = useMemo(
-    () => ({ recentGames: query, players: undefined }),
-    [query]
-  );
+  const args = useMemo(() => ({ recentGames: query }), [query]);
   const pageState: PageState = useMemo(
     () => ({ offset, onOffsetChange: setOffset }),
     [offset, setOffset]

@@ -19,7 +19,7 @@ export const GameContainer = memo(function GameContainer() {
     return <ErrorAlert> No game id </ErrorAlert>;
   }
 
-  const args = useMemo(() => ({ players: undefined, game: gameId }), [gameId]);
+  const args = useMemo(() => ({ game: gameId }), [gameId]);
 
   return (
     <PageContainer>
