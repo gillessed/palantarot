@@ -4,19 +4,21 @@ import { Player } from "../../../server/model/Player";
 import { Records } from "../../../server/model/Records";
 import { PlayerId } from "../../../server/play/model/GameState";
 import { AsyncView } from "../../components/asyncView/AsyncView";
+import { MedalsTable } from "../../components/tables/MedalsTable";
 import { MonthWinnersTable } from "../../components/tables/MonthWinnersTable";
 import { RecordScorersTable } from "../../components/tables/RecordScorersTable";
+import { PlayersLoader } from "../../services/PlayersLoader";
 import { RecordsLoader } from "../../services/RecordsLoader";
-import { MedalsTable } from "../../components/tables/MedalsTable";
 
 interface LoadedProps {
   records: Records;
+  players: Map<PlayerId, Player>;
 }
 
-const RecordMonthlyWinsTabLoaded = memo(function RecordMonthlyWinsTabLoaded({
+const RecordsMonthlyWinsTabLoaded = memo(function RecordsMonthlyWinsTabLoaded({
   records,
   players,
-}: LoadedProps & TabProps) {
+}: LoadedProps) {
   return (
     <Stack>
       <Title order={3} mt={20}>
@@ -35,29 +37,23 @@ const RecordMonthlyWinsTabLoaded = memo(function RecordMonthlyWinsTabLoaded({
   );
 });
 
-interface TabProps {
-  playerId?: string;
-  players: Map<PlayerId, Player>;
-}
-
 const Loaders = {
+  players: PlayersLoader,
   records: RecordsLoader,
 };
 type Loaders = typeof Loaders;
 
 const Args = {
   records: undefined,
+  players: undefined,
 };
 
-export const RecordMonthlyWinsTab = memo(function RecordMonthlyWinsTab(
-  props: TabProps
-) {
+export const RecordsMonthlyWinsTab = memo(function RecordsMonthlyWinsTab() {
   return (
-    <AsyncView<Loaders, TabProps>
+    <AsyncView<Loaders>
       loaders={Loaders}
       args={Args}
-      Component={RecordMonthlyWinsTabLoaded}
-      additionalArgs={props}
+      Component={RecordsMonthlyWinsTabLoaded}
     />
   );
 });

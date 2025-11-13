@@ -20,7 +20,7 @@ export const AppContainer = memo(function AppContainer() {
           <div className={classes.inner}>
             <Link to={StaticRoutes.home()} className={classNames(classes.link, "appLink")}>
               <Image src="/images/joker.png" w="20" h="30" ml="sm" mr="sm" />
-              <Title order={4}>Palantarot</Title>
+              <Title order={3}>Palantarot</Title>
             </Link>
             <Group visibleFrom="sm">
               <Link className="appLink" to={StaticRoutes.enter()}>

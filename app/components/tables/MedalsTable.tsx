@@ -1,4 +1,4 @@
-import { Table } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import { memo, useMemo } from "react";
 import { Player } from "../../../server/model/Player";
 import { MonthlyScore, Records } from "../../../server/model/Records";
@@ -93,6 +93,10 @@ export const MedalsTable = memo(function MedalsTable({
     return medalRecords;
   }, [groupedMonthlyScores]);
 
+  if (monthlyMedals.length === 0) {
+    return <Text>No medals yet</Text>;
+  }
+
   return (
     <Table withTableBorder>
       <Table.Thead>
@@ -103,7 +107,9 @@ export const MedalsTable = memo(function MedalsTable({
       </Table.Thead>
       <Table.Tbody>
         {monthlyMedals.map((medalRecord) => {
-          return <MedalsTableCell medalRecord={medalRecord} players={players}/>
+          return (
+            <MedalsTableCell medalRecord={medalRecord} players={players} />
+          );
         })}
       </Table.Tbody>
     </Table>

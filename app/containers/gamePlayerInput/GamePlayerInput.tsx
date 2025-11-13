@@ -1,6 +1,6 @@
 import { Checkbox, Fieldset, Group, Modal, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback } from "react";
 import { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
 import { AddPlayerForm } from "../../components/forms/AddPlayerForm";

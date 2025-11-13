@@ -14,6 +14,7 @@ import { ResultsContainer } from "./containers/results/ResultsContainer";
 import { RulesContainer } from "./containers/rules/RulesContainer";
 import { SearchContainer } from "./containers/search/SearchContainer";
 import { RecordsContainer } from "./containers/records/RecordsContainer";
+import { LoginContainer } from "./containers/login/LoginContainer";
 
 const router = createBrowserRouter([
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: StaticRoutes.records(), Component: RecordsContainer },
     ],
   },
+  { path: StaticRoutes.login(), Component: LoginContainer },
 ]);
 
 // const routes = (

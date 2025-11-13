@@ -16,7 +16,6 @@ import { RoomDescriptions } from "../../server/play/room/RoomDescription";
 import { mapFromCollection } from "../../server/utils";
 import { pTimeout } from "../../server/utils/index";
 import { getAdminPassword } from "../admin";
-import history from "../history";
 import { AuthRequest } from "../services/auth/index";
 import { Month } from "./../../server/model/Month";
 import { NewPlayer, Player } from "./../../server/model/Player";
@@ -35,7 +34,6 @@ export class ServerApi {
   // API
 
   public login = (request: AuthRequest): Promise<void> => {
-    // Timeout for login time to feel natural
     return pTimeout(250).then(() => {
       return this.wrapPost<void>("/login", request);
     });

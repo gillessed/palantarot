@@ -30,8 +30,8 @@ export const ResultsView = memo(function ResultsView({
 }: LoaderProps & OtherProps) {
   if (results.length === 0) {
     return (
-      <Center>
-        <Title order={4}> No results for this month!</Title>
+      <Center mt={20}>
+        <Title order={3}> No results for this month!</Title>
       </Center>
     );
   }

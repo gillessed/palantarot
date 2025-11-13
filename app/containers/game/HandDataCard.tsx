@@ -1,12 +1,12 @@
-import { memo, useCallback } from "react";
-import { PlayerHand } from "../../../server/model/GameRecord";
-import { PlayerId } from "../../../server/play/model/GameState";
-import { Player } from "../../../server/model/Player";
-import { getPlayerName } from "../../services/players/playerName";
-import { Link, useNavigate } from "react-router";
-import { DynamicRoutes } from "../../../shared/routes";
 import { Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { memo, useCallback } from "react";
+import { useNavigate } from "react-router";
+import { PlayerHand } from "../../../server/model/GameRecord";
+import { Player } from "../../../server/model/Player";
+import { PlayerId } from "../../../server/play/model/GameState";
+import { DynamicRoutes } from "../../../shared/routes";
 import { ScoreBox } from "../../components/ScoreBox";
+import { getPlayerName } from "../../services/players/playerName";
 import classes from "./HandDataCard.module.css";
 
 interface Props {

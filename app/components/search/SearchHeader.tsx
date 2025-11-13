@@ -13,7 +13,7 @@ export const SearchHeader = memo(function SearchHeader({
 }: Props) {
   return (
     <Group>
-      <Title order={2}> {title} </Title>
+      <Title order={3}> {title} </Title>
       {onClick && (
         <ActionIcon
           variant="outline"

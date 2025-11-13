@@ -1,6 +1,6 @@
 import { Alert } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AsyncLoader } from "../../services/AsyncLoader";
 import { useLoaderContext } from "../../services/useLoaderContext";
 import {
@@ -40,10 +40,14 @@ type Props<
   ? BaseProps<Loaders, AdditionalArgs>
   : PropsWithArgs<Loaders, AdditionalArgs>;
 
+interface Reload {
+  reload: () => void;
+}
+
 interface BaseProps<Loaders extends LoaderMap, AdditionalArgs> {
   loaders: LoaderProps<Loaders>;
   args: ArgMap<Loaders>;
-  Component: React.FC<LoadedState<Loaders> & AdditionalArgs>;
+  Component: React.FC<LoadedState<Loaders> & AdditionalArgs & Reload>;
 }
 
 interface PropsWithArgs<Loaders extends LoaderMap, AdditionalArgs>
@@ -65,7 +69,7 @@ export const AsyncView = function AsyncView<
     asyncUnloaded()
   );
 
-  useEffect(() => {
+  const doLoad = useCallback(
     async function load() {
       setState(asyncLoading);
       const promises: Promise<{ key: string; result: any }>[] = [];
@@ -90,9 +94,13 @@ export const AsyncView = function AsyncView<
         console.error(error);
         setState(asyncError(error.message));
       }
-    }
-    load();
-  }, [args, loaders, loaderContext, setState]);
+    },
+    [args, loaders, loaderContext, setState]
+  );
+
+  useEffect(() => {
+    doLoad();
+  }, [doLoad]);
 
   if (isAsyncLoading(state)) {
     return <SpinnerOverlay />;
@@ -109,7 +117,7 @@ export const AsyncView = function AsyncView<
     );
   } else if (isAsyncLoaded(state)) {
     if (additionalArgs != null) {
-      return <Component {...state.value} {...additionalArgs} />;
+      return <Component {...state.value} {...additionalArgs} reload={doLoad} />;
     }
   }
   return null;
