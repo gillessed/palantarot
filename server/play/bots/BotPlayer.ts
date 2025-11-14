@@ -1,11 +1,11 @@
+import type { TarotBot } from "../../../shared/bots/TarotBot.ts";
+import type { ClientGame } from "../../../shared/types/ClientGame.ts";
 import {
   BlankState,
   type PlayState,
   type ShowDetails,
   type TrickCards,
-} from "../../../app/services/room/ClientGameEventHandler.ts";
-import type { TarotBot } from "../../../shared/bots/TarotBot.ts";
-import type { ClientGame } from "../../../shared/types/ClientGame.ts";
+} from "../../../shared/types/ClientGameTypes.ts";
 import { Game } from "../game/Game.ts";
 import { type Card } from "../model/Card.ts";
 import {
@@ -59,7 +59,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
       return null;
     case "bidding":
       const bid = bot.bid(clientGame);
-      const bidAction: BidAction = {
+    const bidAction: BidAction = {
         ...bid,
         player: botId,
         type: "bid",
@@ -95,6 +95,7 @@ export function playForBot(game: Game, botId: string, bot: TarotBot): Action | n
       };
       return playCardAction;
   }
+  return null;
 }
 
 function getPlayerBids(bids: Bid[]) {

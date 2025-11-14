@@ -59,8 +59,8 @@ export class WebsocketManager {
     this.socketMap.set(socketId, jsonSocket);
   };
 
-  public getSocket(userId: string) {
-    return this.socketMap.get(userId);
+  public getSocket(socketId: string) {
+    return this.socketMap.get(socketId);
   }
 
   public addMessageListener(listener: SocketMessageListener) {

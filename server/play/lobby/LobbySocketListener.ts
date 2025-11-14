@@ -10,8 +10,8 @@ export class LobbySocketListener implements SocketMessageListener {
     this.playService = playService;
   }
 
-  public handleMessage(socketId: string, socket: JsonSocket, message: SocketMessage<any>) {
-    LobbySocketMessages.enterLobby.handle(message, (payload) => {
+  public handleMessage(socketId: string, _: JsonSocket, message: SocketMessage<any>) {
+    LobbySocketMessages.enterLobby.handle(message, () => {
       this.playService.playerEnteredLobby(socketId);
     });
   }

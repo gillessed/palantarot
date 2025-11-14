@@ -1,4 +1,4 @@
-import { Stack, Table, Text } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import { memo, useCallback } from "react";
 import type { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
@@ -6,13 +6,11 @@ import type { RoomDescriptions } from "../../../server/play/room/RoomDescription
 import { RoomTableRow } from "./RoomsTableRow";
 
 interface Props {
-  gamePlayerId: PlayerId | undefined;
   players: Map<PlayerId, Player>;
   rooms: RoomDescriptions;
 }
 
 export const RoomsTable = memo(function RoomsTable({
-  gamePlayerId,
   players,
   rooms,
 }: Props) {
@@ -22,10 +20,12 @@ export const RoomsTable = memo(function RoomsTable({
     );
   }
 
-  const handleEnterRoom = useCallback((roomId: string) => {}, [gamePlayerId]);
+  const handleEnterRoom = useCallback((roomId: string) => {
+
+  }, []);
 
   return (
-    <Table>
+    <Table highlightOnHover>
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Name</Table.Th>

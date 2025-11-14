@@ -17,9 +17,7 @@ export class JsonSocket {
     try {
       this.webSocket.send(JSON.stringify(message));
     } catch (error: any) {
-      if (this.handleError) {
-        this.handleError(error);
-      }
+      this.handleError?.(error);
     }
   }
 
@@ -30,19 +28,13 @@ export class JsonSocket {
   private handleWebSocketMessage = (event: WebSocket.MessageEvent) => {
     try {
       const data: SocketMessage<any> = JSON.parse(event.data as string);
-      if (this.handleMessage) {
-        this.handleMessage(data);
-      }
+      this.handleMessage?.(data);
     } catch (error: any) {
-      if (this.handleError) {
-        this.handleError(error);
-      }
+      this.handleError?.(error);
     }
   };
 
   private handleWebSocketClose = () => {
-    if (this.handleClose) {
-      this.handleClose();
-    }
+    this.handleClose?.();
   };
 }

@@ -1,13 +1,16 @@
-import { memo, useCallback, useReducer, useState } from "react";
-import { LobbyLoader } from "../../services/loaders/LobbyLoader";
-import { AsyncView } from "../../components/asyncView/AsyncView";
-import { RoomsTable } from "../../components/tables/RoomsTable";
-import type { PlayerId } from "../../../server/play/model/GameState";
+import { memo, useCallback, useEffect, useReducer } from "react";
 import type { Player } from "../../../server/model/Player";
+import { LobbySocketMessages } from "../../../server/play/lobby/LobbySocketMessages";
+import type { PlayerId } from "../../../server/play/model/GameState";
 import type {
   RoomDescription,
   RoomDescriptions,
 } from "../../../server/play/room/RoomDescription";
+import { SocketMessage } from "../../../server/websocket/SocketMessage";
+import { AsyncView } from "../../components/asyncView/AsyncView";
+import { RoomsTable } from "../../components/tables/RoomsTable";
+import { LobbyLoader } from "../../services/loaders/LobbyLoader";
+import { useClientSocket } from "../../services/socket/useClientSocket";
 
 interface LoadedProps {
   rooms: RoomDescriptions;
@@ -19,7 +22,6 @@ type RoomAction = {
 };
 
 const RoomsContainerLoaded = memo(function RoomsContainerLoaded({
-  gamePlayerId,
   players,
   rooms: loadedRooms,
 }: LoadedProps & Props) {
@@ -32,9 +34,21 @@ const RoomsContainerLoaded = memo(function RoomsContainerLoaded({
     loadedRooms
   );
 
-  return (
-    <RoomsTable gamePlayerId={gamePlayerId} players={players} rooms={rooms} />
+  const handleMessage = useCallback(
+    (message: SocketMessage<any>) => {
+      LobbySocketMessages.roomUpdated.handle(message, (roomDescription) => {
+        console.log(message);
+        dispatch({ type: "room_update", room: roomDescription });
+      });
+    },
+    [dispatch]
   );
+  const clientSocket = useClientSocket(handleMessage);
+  useEffect(() => {
+    clientSocket.send(LobbySocketMessages.enterLobby())
+  }, [clientSocket]);
+
+  return <RoomsTable players={players} rooms={rooms} />;
 });
 
 const Loaders = {

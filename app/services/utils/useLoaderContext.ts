@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ServerApi } from "../../api/serverApi";
+import { ServerApi } from "../apis/serverApi";
 import { useApi } from "../../context/ApiContext";
 
 export interface LoaderContext {

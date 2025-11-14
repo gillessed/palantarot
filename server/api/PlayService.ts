@@ -6,7 +6,10 @@ import { PlayerQuerier } from "../db/PlayerQuerier.ts";
 import { LobbySocketMessages } from "../play/lobby/LobbySocketMessages.ts";
 import { type NewRoomArgs } from "../play/room/NewRoomArgs.ts";
 import { Room } from "../play/room/Room.ts";
-import { getRoomDescription, type RoomDescriptions } from "../play/room/RoomDescription.ts";
+import {
+  getRoomDescription,
+  type RoomDescription,
+} from "../play/room/RoomDescription.ts";
 import { JsonSocket } from "../websocket/JsonSocket.ts";
 import { WebsocketManager } from "../websocket/WebsocketManager.ts";
 
@@ -21,7 +24,11 @@ export class PlayService {
   private lobbySocketIds: Set<string>;
   public readonly botRegistry: TarotBotRegistry;
 
-  constructor(db: Database, websocketManager: WebsocketManager, botRegistry: TarotBotRegistry) {
+  constructor(
+    db: Database,
+    websocketManager: WebsocketManager,
+    botRegistry: TarotBotRegistry
+  ) {
     this.router = Router();
     this.gameQuerier = new GameRecordQuerier(db);
     this.playerQuerier = new PlayerQuerier(db);
@@ -35,15 +42,16 @@ export class PlayService {
     this.router.get("/rooms", this.listRooms);
   }
 
-  public newRoom = async (req: Request, _: Response) => {
+  public newRoom = async (req: Request, res: Response) => {
     const args: NewRoomArgs = req.body;
     const room = Room.empty(this, args);
     this.rooms.set(room.id, room);
     this.roomUpdated(room);
+    res.send();
   };
 
   public listRooms = async (_: Request, res: Response) => {
-    const rooms: RoomDescriptions = {};
+    const rooms: { [key: string]: RoomDescription } = {};
     for (const [id, room] of this.rooms) {
       rooms[id] = getRoomDescription(room);
     }
@@ -83,9 +91,8 @@ export class PlayService {
     const roomDescription = getRoomDescription(room);
     for (const socketId of this.lobbySocketIds) {
       const socket = this.getSocketForSocketId(socketId);
-      if (socket != null) {
-        socket.send(LobbySocketMessages.roomUpdated(roomDescription));
-      }
+      console.log("updating " + socketId);
+      socket?.send(LobbySocketMessages.roomUpdated(roomDescription));
     }
   }
 }

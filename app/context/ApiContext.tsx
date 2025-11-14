@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { ServerApi } from "../api/serverApi";
+import { ServerApi } from "../services/apis/serverApi";
 
 const ApiContext = createContext<ServerApi>(null as any);
 

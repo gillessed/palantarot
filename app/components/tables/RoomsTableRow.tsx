@@ -45,7 +45,7 @@ export const RoomTableRow = memo(function RoomTableRow({
   };
 
   return (
-    <Table.Tr onClick={handleClick}>
+    <Table.Tr onClick={handleClick} style={{ cursor: "pointer" }}>
       <Table.Td>{room.name}</Table.Td>
       <Table.Td> {getOnlinePlayersInRoom(room, players).length}</Table.Td>
       <Table.Td> {gameStateString} </Table.Td>

@@ -1,4 +1,4 @@
-import { actionName } from "../../app/services/redux/actionName.ts";
+import { actionName } from "../../app/redux/utils/actionName.ts";
 
 export interface SocketMessage<Payload = any> {
   type: string;

@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { StaticRoutes } from "../shared/routes";
-import { ServerApi } from "./api/serverApi";
+import { ServerApi } from "./services/apis/serverApi";
 import { AddPlayerContainer } from "./containers/addPlayer/AddPlayerContainer";
 import { AppContainer } from "./containers/app/AppContainer";
 import { BotsContainer } from "./containers/bot/BotsContainer";

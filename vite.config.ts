@@ -10,6 +10,11 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:4567",
       },
+      '/ws': {
+        target: 'ws://localhost:4567',
+        ws: true,
+        rewriteWsOrigin: true,
+      }
     },
   },
 });

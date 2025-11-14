@@ -6,20 +6,21 @@ import {
   useGamePlayerId,
   useOpenGamePlayerDialog,
 } from "../../context/GamePlayerIdContext";
-import { LobbyContainer } from "./LobbyContainer";
 import { RoomsContainer } from "./RoomsContainer";
+import { useDisclosure } from "@mantine/hooks";
+import { CreateRoomDialog } from "./CreateRoomDialog";
 
 interface Props {
   players: Map<string, Player>;
 }
 
 export const LobbyView = memo(function LobbyView({ players }: Props) {
+  const [dialogOpen, { close: closeDialog, open: openDialog }] =
+    useDisclosure(false);
   const gamePlayerId = useGamePlayerId();
   const openGamePlayerDialog = useOpenGamePlayerDialog();
-  // TODO: socket connect on mount
-  // dispatchers.lobby.socketConnect(gamePlayer?.playerId);
-  // (unmount) this.props.dispatchers.lobby.socketClose();
   const gamePlayer = gamePlayerId ? players.get(gamePlayerId) : undefined;
+
   if (gamePlayer == null) {
     return (
       <Stack align="center">
@@ -39,10 +40,16 @@ export const LobbyView = memo(function LobbyView({ players }: Props) {
 
   return (
     <Stack>
-      <Button leftSection={<IconCirclePlus />} color="blue" w={150}>
+      <Button
+        leftSection={<IconCirclePlus />}
+        color="blue"
+        w={150}
+        onClick={openDialog}
+      >
         New Room
       </Button>
       <RoomsContainer gamePlayerId={gamePlayerId} players={players} />
+      <CreateRoomDialog onClose={closeDialog} opened={dialogOpen} />
     </Stack>
   );
 });

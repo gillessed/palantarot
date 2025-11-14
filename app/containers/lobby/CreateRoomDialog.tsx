@@ -1,110 +1,95 @@
-import { Button, Checkbox, Classes, Dialog, Intent } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
-import classNames from "classnames";
-import React from "react";
-import { ColorResult, CompactPicker } from "react-color";
+import {
+  Button,
+  Checkbox,
+  ColorPicker,
+  Group,
+  Modal,
+  Stack,
+  Text,
+  TextInput
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { memo, useCallback, useState } from "react";
 import { DefaultGameSettings } from "../../../server/play/model/GameSettings";
-import { NewRoomArgs } from "../../../server/play/room/NewRoomArgs";
-import { Dispatchers } from "../../services/dispatchers";
-import "./CreateRoomDialog.scss";
+import { useCreateRoom } from "../../services/apis/useCreateRoom";
+import { isAsyncLoading } from "../../utils/Async";
 
 const DefaultRoomColor = "#0F9960";
 
 interface Props {
-  isOpen: boolean;
+  opened: boolean;
   onClose: () => void;
-  dispatchers: Dispatchers;
 }
 
-type State = NewRoomArgs;
+export const CreateRoomDialog = memo(function RoomCreationDialog({
+  opened,
+  onClose,
+}: Props) {
+  const [color, setColor] = useState(DefaultRoomColor);
+  const [name, setName] = useState("");
+  const [autolog, { toggle: toggleAutolog }] = useDisclosure(
+    DefaultGameSettings.autologEnabled
+  );
+  const [bakerBengtsonVariant, { toggle: toggleBakerBengtsonVariant }] =
+    useDisclosure(DefaultGameSettings.bakerBengtsonVariant);
+  const [publicHands, { toggle: togglePublicHands }] = useDisclosure(
+    DefaultGameSettings.publicHands
+  );
 
-export class RoomCreationDialog extends React.PureComponent<Props, State> {
-  public state: State = {
-    color: DefaultRoomColor,
-    name: "",
-    gameSettings: { ...DefaultGameSettings },
-  };
-  public render() {
-    const contentClasses = classNames(Classes.DIALOG_BODY, "lobby-select-container");
-    const inputClasses = classNames(Classes.INPUT, "lobby-name-input");
-    return (
-      <Dialog isOpen={this.props.isOpen} icon={IconNames.NEW_OBJECT} title="New Room" onClose={this.props.onClose}>
-        <div className={contentClasses}>
-          <div className="room-dialog-section-title">Room Name</div>
-          <input
-            className={inputClasses}
-            type="text"
-            value={this.state.name}
-            onChange={this.handleChangeName}
-            placeholder="Room name..."
-          />
-          <div className="room-dialog-section-title">Room Background Color</div>
-          <div className="room-color-picker">
-            <CompactPicker color={this.state.color} onChangeComplete={this.handleChangeColor} />
-          </div>
-          <div className="room-dialog-section-title">Game Settings</div>
-          <Checkbox
-            id="autolog-checkbox"
-            checked={this.state.gameSettings.autologEnabled}
-            label="Autolog Enabled"
-            onChange={this.handleAutologChange}
-          />
-          <Checkbox
-            id="baker-bengtson-checkbox"
-            checked={this.state.gameSettings.bakerBengtsonVariant}
-            label="Baker-Bengtson Variant"
-            onChange={this.handleBakerBengtsonChange}
-          />
-          <Checkbox
-            id="public-hands-checkbox"
-            checked={this.state.gameSettings.publicHands}
-            label="Reveal All Hands to Observers"
-            onChange={this.handlePublicHandsChange}
-          />
-        </div>
-        <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              icon={IconNames.CONFIRM}
-              intent={Intent.PRIMARY}
-              text="Create"
-              disabled={this.state.name.length === 0}
-              onClick={this.handleSubmit}
-            />
-          </div>
-        </div>
-      </Dialog>
-    );
-  }
+  const { request: createRoom, state: createState } = useCreateRoom(onClose);
+  console.log(createState);
+  const handleCreateRoom = useCallback(() => {
+    createRoom({
+      color,
+      gameSettings: {
+        autologEnabled: autolog,
+        bakerBengtsonVariant,
+        publicHands,
+      },
+      name,
+    });
+  }, [color, name, autolog, bakerBengtsonVariant, publicHands]);
+  const loading = isAsyncLoading(createState);
 
-  private handleAutologChange = () => {
-    const gameSettings = { ...this.state.gameSettings, autologEnabled: !this.state.gameSettings.autologEnabled };
-    this.setState({ gameSettings });
-  };
-
-  private handleBakerBengtsonChange = () => {
-    const gameSettings = {
-      ...this.state.gameSettings,
-      bakerBengtsonVariant: !this.state.gameSettings.bakerBengtsonVariant,
-    };
-    this.setState({ gameSettings });
-  };
-
-  private handlePublicHandsChange = () => {
-    const gameSettings = { ...this.state.gameSettings, publicHands: !this.state.gameSettings.publicHands };
-    this.setState({ gameSettings });
-  };
-
-  private handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.target.value });
-  };
-
-  private handleSubmit = () => {
-    this.props.onClose();
-    this.props.dispatchers.lobby.newRoom({ ...this.state });
-  };
-
-  private handleChangeColor = (result: ColorResult) => {
-    this.setState({ color: result.hex });
-  };
-}
+  return (
+    <Modal title="New Room" onClose={onClose} opened={opened}>
+      <Stack>
+        <TextInput
+          label="Room Name"
+          value={name}
+          onChange={(event) => setName(event.currentTarget.value)}
+          placeholder="Room name"
+        />
+        <Stack gap={0}>
+          <Text>Background Color</Text>
+          <ColorPicker value={color} onChange={setColor} />
+        </Stack>
+        <Checkbox
+          checked={autolog}
+          label="Autolog Enabled"
+          onChange={toggleAutolog}
+        />
+        <Checkbox
+          checked={bakerBengtsonVariant}
+          label="Baker-Bengtson Variant"
+          onChange={toggleBakerBengtsonVariant}
+        />
+        <Checkbox
+          checked={publicHands}
+          label="Reveal All Hands to Observers"
+          onChange={togglePublicHands}
+        />
+        <Group>
+          <Button
+            color="blue"
+            disabled={name.length === 0}
+            onClick={handleCreateRoom}
+            loading={loading}
+          >
+            Create
+          </Button>
+        </Group>
+      </Stack>
+    </Modal>
+  );
+});
