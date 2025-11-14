@@ -4,25 +4,28 @@ import type { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
 import type { RoomDescriptions } from "../../../server/play/room/RoomDescription";
 import { RoomTableRow } from "./RoomsTableRow";
+import { useNavigate } from "react-router";
+import { DynamicRoutes } from "../../../shared/routes";
 
 interface Props {
   players: Map<PlayerId, Player>;
   rooms: RoomDescriptions;
 }
 
-export const RoomsTable = memo(function RoomsTable({
-  players,
-  rooms,
-}: Props) {
+export const RoomsTable = memo(function RoomsTable({ players, rooms }: Props) {
   if (rooms.size === 0) {
     return (
       <Text>There are currently no rooms. Create a room to start playing.</Text>
     );
   }
 
-  const handleEnterRoom = useCallback((roomId: string) => {
-
-  }, []);
+  const navigate = useNavigate();
+  const handleEnterRoom = useCallback(
+    (roomId: string) => {
+      navigate(DynamicRoutes.play(roomId));
+    },
+    [navigate]
+  );
 
   return (
     <Table highlightOnHover>
