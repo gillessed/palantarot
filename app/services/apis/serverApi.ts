@@ -1,7 +1,6 @@
 import { ApisauceInstance, create } from "apisauce";
 import { AdminPasswordKey } from "../../../server/headers";
 import { GameSettings } from "../../../server/play/model/GameSettings";
-import { NewRoomArgs } from "../../../server/play/room/NewRoomArgs";
 import { StaticRoutes } from "../../../shared/routes";
 import { getAdminPassword } from "../../admin";
 
@@ -16,10 +15,6 @@ export class ServerApi {
 
   public playNewGame = (settings: GameSettings): Promise<string> => {
     return this.wrapPost("/play/new_game", settings);
-  };
-
-  public createNewRoom = (settings: NewRoomArgs): Promise<string> => {
-    return this.wrapPost("/play/new_room", settings);
   };
 
   // Helpers

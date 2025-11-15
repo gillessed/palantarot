@@ -17,6 +17,7 @@ const StaticRoutesInternal = {
   player: () => "/app/player/:playerId",
   game: () => "/app/game/:gameId",
   edit: () => "/app/edit/:gameId",
+  play: () => "/play/:roomId",
 };
 
 export const StaticRoutes = StaticRoutesInternal;
@@ -30,7 +31,7 @@ const DynamicRoutesInternal = {
   tarothon: (tarothonId: string) => `/app/tarothon/${tarothonId}`,
   editTarothon: (tarothonId: string) => `/app/edit-tarothon/${tarothonId}`,
   edit: (gameId: string) => StaticRoutes.edit().replace(":gameId", gameId),
-  play: (roomId: string) => `/play/${roomId}`,
+  play: (roomId: string) => StaticRoutes.play().replace(":roomId", roomId),
   results: (year?: string, month?: string) => {
     if (year == null || month == null) {
       return "/app/results";

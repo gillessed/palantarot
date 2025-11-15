@@ -19,8 +19,10 @@ import { RulesContainer } from "./containers/rules/RulesContainer";
 import { SearchContainer } from "./containers/search/SearchContainer";
 import { ApiProvider } from "./context/ApiContext";
 import { GamePlayerIdProvider } from "./context/GamePlayerIdProvider";
+import { PlayContainer } from "./containers/play/PlayContainer";
 
 const router = createBrowserRouter([
+  { path: StaticRoutes.login(), Component: LoginContainer },
   { path: "/", index: true, element: <Navigate to={StaticRoutes.home()} /> },
   {
     path: "/app",
@@ -41,7 +43,7 @@ const router = createBrowserRouter([
       { path: StaticRoutes.lobby(), Component: LobbyContainer },
     ],
   },
-  { path: StaticRoutes.login(), Component: LoginContainer },
+  { path: StaticRoutes.play(), Component: PlayContainer },
 ]);
 
 // Unhandled routes
@@ -50,7 +52,6 @@ const router = createBrowserRouter([
 //     <Route path="/app/add-tarothon" Component={TarothonFormContainer} />
 //     <Route path="/app/tarothon/:tarothonId" Component={TarothonContainer} />
 //     <Route path="/app/edit-tarothon/:tarothonId" Component={EditTarothonContainer} />
-//     <Route path="/app/lobby" Component={LobbyContainer} />
 //     <Route path="/app/rules" Component={RulesContainer} />
 //     <Route path="/play/:roomId" Component={PlayContainer} />
 

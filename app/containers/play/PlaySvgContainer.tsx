@@ -1,69 +1,59 @@
-import React from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Player } from "../../../server/model/Player";
-import { Dispatchers } from "../../services/dispatchers";
-import { ClientRoom } from "../../services/room/RoomTypes";
+import { initializePlayScene } from "../../play/initializePlayScene";
 import "./PlaySvgContainer.scss";
-import { PlaySvgRoot } from "./PlaySvgRoot";
+import { Scene } from "../../sceneGraph/scene/Scene";
 
 interface Props {
   players: Map<string, Player>;
-  room: ClientRoom;
-  dispatchers: Dispatchers;
 }
 
-interface State {
-  dimensions?: {
-    width: number;
-    height: number;
-  };
-}
+export const PlaySvgContainer = memo(function PlaySvgContainer({}: Props) {
+  const sceneRef = useRef<Scene | undefined>(undefined);
+  const containerDiv = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
 
-export class PlaySvgContainer extends React.Component<Props, State> {
-  private containerDiv: HTMLDivElement;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {};
-  }
-
-  public render() {
-    return (
-      <div className="play-svg-container" ref={this.setContainerRef}>
-        {this.renderCanvasElement()}
-      </div>
-    );
-  }
-
-  public componentDidMount() {
-    window.addEventListener("resize", this.windowResizeListener);
-  }
-
-  private renderCanvasElement = () => {
-    const { players, room, dispatchers } = this.props;
-    if (this.state.dimensions && this.containerDiv) {
-      const { width, height } = this.state.dimensions;
-      return <PlaySvgRoot width={width} height={height} players={players} room={room} dispatchers={dispatchers} />;
+  const handleWindowResize = useCallback(() => {
+    if (containerDiv.current != null) {
+      setWidth(containerDiv.current.clientWidth);
+      setHeight(containerDiv.current.clientHeight);
     }
-  };
+  }, [containerDiv, setWidth, setHeight]);
 
-  private setContainerRef = (ref: HTMLDivElement) => {
-    if (!this.containerDiv) {
-      this.containerDiv = ref;
-      this.setState({
-        dimensions: {
-          width: ref.clientWidth,
-          height: ref.clientHeight,
-        },
-      });
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowResize);
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, []);
+
+  const setContainerRef = useCallback((ref: HTMLDivElement) => {
+    if (ref != null && containerDiv.current == null) {
+      containerDiv.current = ref;
+      if (sceneRef.current != null) {
+        sceneRef.current.width = width;
+        sceneRef.current.height = height;
+      }
+      setWidth(containerDiv.current.clientWidth);
+      setHeight(containerDiv.current.clientHeight);
     }
-  };
+  }, []);
 
-  private windowResizeListener = () => {
-    this.setState({
-      dimensions: {
-        width: this.containerDiv.clientWidth,
-        height: this.containerDiv.clientHeight,
-      },
-    });
-  };
-}
+  const setCanvasRef = useCallback((ref: HTMLCanvasElement) => {
+    if (sceneRef.current == null && ref != null) {
+      const scene = initializePlayScene(ref);
+      scene.width = width;
+      scene.height = height;
+      scene.run();
+    }
+  }, [width, height]);
+
+  return (
+    <div ref={setContainerRef} style={{ width: "100vw", height: "100vh" }}>
+      {width > 0 && height > 0 && (
+        <canvas ref={setCanvasRef} width={width} height={height} />
+      )}
+    </div>
+  );
+});
