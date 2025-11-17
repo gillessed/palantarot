@@ -1,6 +1,10 @@
 import { cardsEqual, getPlayerNum, getTrumps } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
-import { type DeclareSlam, type PlayerEvent, type ShowTrumpAction } from "../GameEvents.ts";
+import {
+  type DeclareSlamAction,
+  type PlayerEvent,
+  type ShowTrumpAction,
+} from "../GameEvents.ts";
 import {
   type BoardState,
   type CompletedBids,
@@ -28,7 +32,10 @@ export const showTrumpActionReducer = <T extends DealtBoardState>(
     throw GameErrors.cannotShowTwice(action.player);
   }
   if (!cardsEqual(getTrumps(state.hands[playerNum]), action.cards)) {
-    throw GameErrors.invalidTrumpShow(action, getTrumps(state.hands[playerNum]));
+    throw GameErrors.invalidTrumpShow(
+      action,
+      getTrumps(state.hands[playerNum])
+    );
   }
   if (state.players.length === 5 && action.cards.length < 8) {
     throw GameErrors.notEnoughTrump(action.cards.length, 8);
@@ -43,9 +50,11 @@ export const showTrumpActionReducer = <T extends DealtBoardState>(
   return simpleResult(newState, action);
 };
 
-export const declareSlamActionReducer = <T extends DealtBoardState & { bidder: PlayerId; bidding: CompletedBids }>(
+export const declareSlamActionReducer = <
+  T extends DealtBoardState & { bidder: PlayerId; bidding: CompletedBids }
+>(
   state: T,
-  action: DeclareSlam
+  action: DeclareSlamAction
 ): ReducerResult<T> => {
   const player_num = getPlayerNum(state.players, action.player);
   if (action.player != state.bidder) {

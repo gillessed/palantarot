@@ -1,79 +1,152 @@
-export interface NodeContainer {
-  nodesById: Map<string, SceneNode>;
+import type { Property } from "csstype";
+import { m_mult_v, m_new, transformContext } from "../math/Matrix";
+import { v_copy, type Vector } from "../math/Vector";
+
+export interface NodeManager<SceneContext> {
+  getNode: <NodeType extends SceneNode<SceneContext> = SceneNode<SceneContext>>(
+    nodeId: string
+  ) => NodeType;
+  nodesById: Map<string, SceneNode<SceneContext>>;
   width: number;
   height: number;
+  mousePosition: Vector;
+  context: SceneContext;
+  setCursor: (cursor: Property.Cursor) => void;
 }
 
-export class SceneNode {
+export class SceneNode<SceneContext> {
   public id: string;
-  public container?: NodeContainer;
-  public parent?: SceneNode;
-  public children: SceneNode[] = [];
+  public container?: NodeManager<SceneContext>;
+  public parent?: SceneNode<SceneContext>;
+  public children: SceneNode<SceneContext>[] = [];
+  public visible = true;
 
-  constructor(id: string, parent: SceneNode | undefined) {
+  public onMount?: (context: NodeManager<SceneContext>) => void;
+  public onUnmount?: (context: NodeManager<SceneContext>) => void;
+
+  public transformation = m_new();
+  public inverseTransformation = m_new();
+  public updateTransformation?: () => void;
+  public updateContextInternal?: (_: CanvasRenderingContext2D) => void;
+  public render?: (_: CanvasRenderingContext2D) => void;
+
+  public mouseEntered?: () => void;
+  public mouseExited?: () => void;
+  public mouseDown?: () => void;
+  public mouseUp?: () => void;
+
+  constructor(id: string, parent?: SceneNode<SceneContext>) {
     this.id = id;
     this.parent = parent;
   }
 
   public updateTree = (dt: number) => {
     this.update(dt);
+    this.updateTransformation?.();
     for (let i = 0; i < this.children.length; i++) {
       this.children[i].updateTree(dt);
     }
-  }
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public update = (_dt: number) => {}
+  public update = (_dt: number) => {};
 
   public renderTree = (ctx: CanvasRenderingContext2D) => {
     ctx.save();
-    this.transformContext(ctx);
-    this.render(ctx);
-    for (let i = 0; i < this.children.length; i++) {
-      this.children[i].renderTree(ctx);
-    }
+    transformContext(ctx, this.inverseTransformation);
+    this.updateContextInternal?.(ctx);
+    this.render?.(ctx);
     ctx.restore();
-  }
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i].visible) {
+        this.children[i].renderTree(ctx);
+      }
+    }
+  };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public transformContext = (_ctx: CanvasRenderingContext2D) => {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public render = (_ctx: CanvasRenderingContext2D) => {}
-
-  public addChild = (node: SceneNode) => {
+  public addChild = (node: SceneNode<SceneContext>) => {
     this.children.push(node);
     node.parent = this;
     node.setContainerTree(this.container);
-  }
+  };
 
-  public removeChild = (node: SceneNode) => {
+  public removeChild = (node: SceneNode<SceneContext>) => {
     const index = this.children.findIndex((n) => n === node);
-    this.children.splice(index, 1);
-    node.parent = undefined;
-    node.setContainer(undefined);
-  }
+    if (index >= 0) {
+      this.children.splice(index, 1);
+      node.parent = undefined;
+      node.setContainerTree(undefined);
+    }
+  };
 
-  public removeSelf = (node: SceneNode) => {
+  public removeChildById = (id: string) => {
+    if (this.container == null) {
+      throw Error("Cannot remove node by id when component is not mounted");
+    }
+    const node = this.container.nodesById.get(id);
+    if (node != null) {
+      this.removeChild(node);
+    }
+  };
+
+  public removeAllChildren = () => {
+    for (const node of this.children) {
+      node.parent = undefined;
+      node.setContainer(undefined);
+    }
+    this.children.splice(0);
+  };
+
+  public removeSelf = (node: SceneNode<SceneContext>) => {
     node.parent?.removeChild(node);
-  }
+  };
 
-  public setContainerTree = (container: NodeContainer | undefined) => {
+  public setContainerTree = (
+    container: NodeManager<SceneContext> | undefined
+  ) => {
     this.setContainer(container);
     for (let i = 0; i < this.children.length; i++) {
       this.children[i].setContainerTree(container);
     }
-  }
+  };
 
-  public setContainer = (container: NodeContainer | undefined) => {
+  public setContainer = (container: NodeManager<SceneContext> | undefined) => {
     if (container != null) {
       if (container.nodesById.has(this.id)) {
-        throw Error("Scene already container container with node id " + this.id);
+        throw Error("Scene already in container with node id " + this.id);
+      }
+      if (this.container != null) {
+        throw Error("Node " + this.id + " is already in a container");
       }
       container.nodesById.set(this.id, this);
+      this.onMount?.(container);
     } else {
+      if (this.container != null) {
+        this.onUnmount?.(this.container);
+      }
       this.container?.nodesById.delete(this.id);
     }
     this.container = container;
-  }
+  };
+
+  public transformToNodeSpace = (point: Vector): Vector => point;
+
+  public intersectTree = (
+    point: Vector,
+    intersectionList: SceneNode<SceneContext>[]
+  ) => {
+    if (!this.visible) {
+      return;
+    }
+    const nodeSpacePoint = v_copy(point);
+    m_mult_v(this.transformation, nodeSpacePoint);
+    if (this.intersects(nodeSpacePoint)) {
+      intersectionList.push(this);
+    }
+    for (const child of this.children) {
+      child.intersectTree(point, intersectionList);
+    }
+  };
+
+  public intersects = (_: Vector): boolean => false;
 }

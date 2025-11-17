@@ -1,19 +1,35 @@
 import { type TrickCards } from "../../app/services/room/ClientGameEventHandler.ts";
-import { AllCs, AllDs, AllRs, AllVs, type Card } from "../../server/play/model/Card.ts";
-import { cardsWithout, getCardSuitAsNumber, getCardValueAsNumber, isBout } from "../../server/play/model/CardUtils.ts";
-import { type ClientGame } from "../types/ClientGame.ts";
+import {
+  AllCs,
+  AllDs,
+  AllRs,
+  AllVs,
+  type Card,
+} from "../../server/play/model/Card.ts";
+import {
+  cardsWithout,
+  getCardSuitAsNumber,
+  getCardValueAsNumber,
+  isBout,
+} from "../../server/play/model/CardUtils.ts";
+import { type ClientRoom } from "../types/ClientRoom.ts";
 
 const NonPassBids = [10, 20, 40, 80, 160];
 // const NonPassBids = [10, 20, 40];
 
-export function getPossibleBidValues(clientGame: ClientGame): number[] {
+export function getPossibleBidValues(clientGame: ClientRoom): number[] {
   const { playState } = clientGame;
-  const maxBid = Math.max(...[...playState.playerBids.values()].map((bid) => bid.bid));
-  const availableBidValue: number[] = [0, ...NonPassBids.filter((value) => value > maxBid)];
+  const maxBid = Math.max(
+    ...[...playState.playerBids.values()].map((bid) => bid.bid)
+  );
+  const availableBidValue: number[] = [
+    0,
+    ...NonPassBids.filter((value) => value > maxBid),
+  ];
   return availableBidValue;
 }
 
-export function getNonSelfCalls(clientGame: ClientGame): Card[] {
+export function getNonSelfCalls(clientGame: ClientRoom): Card[] {
   const hand = clientGame.playState.hand;
   const hasAllRs = hand.filter(([_, value]) => value === "R").length === 4;
   const hasAllDs = hand.filter(([_, value]) => value === "D").length === 4;
@@ -94,5 +110,7 @@ export function dropValueSortComparator(c1: Card, c2: Card) {
 }
 
 export function getTrickCardList(trick: TrickCards) {
-  return trick.order.map((playerId) => trick.cards.get(playerId)).filter((c) => c) as Card[];
+  return trick.order
+    .map((playerId) => trick.cards.get(playerId))
+    .filter((c) => c) as Card[];
 }

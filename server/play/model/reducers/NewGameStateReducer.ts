@@ -7,9 +7,9 @@ import {
   type EnterGameAction,
   type LeaveGameAction,
   type PlayerEvent,
-  type PlayerNotReadyAction,
   type PlayerReadyAction,
   type PlayersSetTransition,
+  type PlayerUnreadyAction,
   type ShowDogToObservers,
 } from "../GameEvents.ts";
 import {
@@ -25,7 +25,10 @@ import { simpleResult } from "./CommonReducers.ts";
 
 const { map, without } = pkg;
 
-const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction): ReducerResult<NewGameStates> => {
+const handleEnterGameAction = (
+  state: NewGameBoardState,
+  action: EnterGameAction
+): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) >= 0) {
     throw GameErrors.actionAlreadyHappened(action, state.players);
   }
@@ -39,7 +42,10 @@ const handleEnterGameAction = (state: NewGameBoardState, action: EnterGameAction
   return simpleResult(newState, action);
 };
 
-const handleLeaveGameAction = (state: NewGameBoardState, action: LeaveGameAction): ReducerResult<NewGameStates> => {
+const handleLeaveGameAction = (
+  state: NewGameBoardState,
+  action: LeaveGameAction
+): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) < 0) {
     throw GameErrors.playerNotInGame(action.player, state.players);
   }
@@ -63,7 +69,10 @@ const handleMarkPlayerReadyAction = (
   if (state.players.indexOf(action.player) < 0) {
     throw GameErrors.playerNotInGame(action.player, state.players);
   }
-  if (state.ready.length + 1 !== state.players.length || state.players.length < 3) {
+  if (
+    state.ready.length + 1 !== state.players.length ||
+    state.players.length < 3
+  ) {
     const newState: NewGameBoardState = {
       ...state,
       ready: [...state.ready, action.player],
@@ -103,26 +112,32 @@ const handleMarkPlayerReadyAction = (
       privateTo: undefined,
     };
 
-    const dealTransitions: DealtHandTransition[] = map(hands).map((hand: Card[], player: number) => {
-      const transition: DealtHandTransition = {
-        type: "dealt_hand",
-        hand,
-        privateTo: undefined,
-        playerId: playerOrder[player],
-      };
-      if (state.publicHands) {
-        const exclude = [...playerOrder];
-        exclude.splice(player, 1);
-        return { ...transition, exclude };
-      } else {
-        return {
-          ...transition,
-          privateTo: playerOrder[player],
+    const dealTransitions: DealtHandTransition[] = map(hands).map(
+      (hand: Card[], player: number) => {
+        const transition: DealtHandTransition = {
+          type: "dealt_hand",
+          hand,
+          privateTo: undefined,
+          playerId: playerOrder[player],
         };
+        if (state.publicHands) {
+          const exclude = [...playerOrder];
+          exclude.splice(player, 1);
+          return { ...transition, exclude };
+        } else {
+          return {
+            ...transition,
+            privateTo: playerOrder[player],
+          };
+        }
       }
-    });
+    );
 
-    const events: PlayerEvent[] = [action, setPlayersTransition, ...dealTransitions];
+    const events: PlayerEvent[] = [
+      action,
+      setPlayersTransition,
+      ...dealTransitions,
+    ];
 
     if (publicHands) {
       const showDogEvent: ShowDogToObservers = {
@@ -132,13 +147,17 @@ const handleMarkPlayerReadyAction = (
       };
       events.push(showDogEvent);
     }
-    return { state: bidState, events, serverMessages: ["A new game has begun"] };
+    return {
+      state: bidState,
+      events,
+      serverMessages: ["A new game has begun"],
+    };
   }
 };
 
 export const handleUnmarkPlayerReadyAction = (
   state: NewGameBoardState,
-  action: PlayerNotReadyAction
+  action: PlayerUnreadyAction
 ): ReducerResult<NewGameStates> => {
   if (state.players.indexOf(action.player) < 0) {
     throw GameErrors.playerNotInGame(action.player, state.players);
@@ -153,7 +172,10 @@ export const handleUnmarkPlayerReadyAction = (
   return simpleResult(newState, action);
 };
 
-export const NewGameStateReducer = (state: NewGameBoardState, action: NewGameActions): ReducerResult<NewGameStates> => {
+export const NewGameStateReducer = (
+  state: NewGameBoardState,
+  action: NewGameActions
+): ReducerResult<NewGameStates> => {
   switch (action.type) {
     case "enter_game":
       return handleEnterGameAction(state, action);
@@ -161,7 +183,7 @@ export const NewGameStateReducer = (state: NewGameBoardState, action: NewGameAct
       return handleLeaveGameAction(state, action);
     case "mark_player_ready":
       return handleMarkPlayerReadyAction(state, action);
-    case "unmark_player_ready":
+    case "mark_player_unready":
       return handleUnmarkPlayerReadyAction(state, action);
     default:
       throw GameErrors.invalidActionForGameState(action, state.name);

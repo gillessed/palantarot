@@ -1,6 +1,9 @@
 import { Checkbox, Tooltip } from "@blueprintjs/core";
 import React from "react";
-import { GameplayState, isGamePlayState } from "../../../../server/play/model/GameState";
+import {
+  GamePhase,
+  isGamePhase,
+} from "../../../../server/play/model/GameState";
 import { Dispatchers } from "../../../services/dispatchers";
 import { ClientRoom } from "../../../services/room/RoomTypes";
 import "./SidebarActions.scss";
@@ -10,17 +13,22 @@ interface Props {
   dispatchers: Dispatchers;
 }
 
-const AutopassTooltip = "The client will automatically pass for you when it it your turn to bid";
-const AutoplayTooltip = "The client will play a card at random when it is your turn to play";
+const AutopassTooltip =
+  "The client will automatically pass for you when it it your turn to bid";
+const AutoplayTooltip =
+  "The client will play a card at random when it is your turn to play";
 
 export class SidebarActions extends React.PureComponent<Props> {
   public render() {
     const { autoplay, autopass, playerId } = this.props.room;
     const playState = this.props.room.game.playState;
-    const currentBoardState = playState.state;
+    const currentBoardState = playState.gamePhase;
     const gamePlayers = new Set(playState.playerOrder);
     const showActions = gamePlayers.has(playerId);
-    const enableAutopass = isGamePlayState(currentBoardState, [GameplayState.NewGame, GameplayState.Bidding]);
+    const enableAutopass = isGamePhase(currentBoardState, [
+      GameplayState.NewGame,
+      GameplayState.Bidding,
+    ]);
     if (!showActions) {
       return null;
     }
@@ -43,8 +51,12 @@ export class SidebarActions extends React.PureComponent<Props> {
     );
     return (
       <div className="sidebar-actions bp3-dark">
-        {showActions && <Tooltip content={AutopassTooltip}>{autopassButton}</Tooltip>}
-        {showActions && <Tooltip content={AutoplayTooltip}>{autoplayButton}</Tooltip>}
+        {showActions && (
+          <Tooltip content={AutopassTooltip}>{autopassButton}</Tooltip>
+        )}
+        {showActions && (
+          <Tooltip content={AutoplayTooltip}>{autoplayButton}</Tooltip>
+        )}
       </div>
     );
   }

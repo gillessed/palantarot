@@ -6,7 +6,7 @@ import {
   Modal,
   Stack,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { memo, useCallback, useState } from "react";
@@ -37,7 +37,6 @@ export const CreateRoomDialog = memo(function RoomCreationDialog({
   );
 
   const { request: createRoom, state: createState } = useCreateRoom(onClose);
-  console.log(createState);
   const handleCreateRoom = useCallback(() => {
     createRoom({
       color,

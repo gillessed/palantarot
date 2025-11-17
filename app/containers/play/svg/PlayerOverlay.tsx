@@ -1,10 +1,13 @@
 import React from "react";
-import { GameplayState, PlayerId } from "../../../../server/play/model/GameState";
+import { GamePhase, PlayerId } from "../../../../server/play/model/GameState";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver } from "../SpectatorMode";
+import { isSpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { StateViewProps } from "../state/StateViewProps";
 import { PlayerTitleSvg } from "./PlayerTitleSvg";
-import { getTitleArrangementSpec, TitleArrangementSpec } from "./TitleArrangementSpec";
+import {
+  getTitleArrangementSpec,
+  TitleArrangementSpec,
+} from "./TitleArrangementSpec";
 
 export class PlayerOverlay extends React.PureComponent<StateViewProps> {
   public render() {
@@ -22,16 +25,25 @@ export class PlayerOverlay extends React.PureComponent<StateViewProps> {
     );
   }
 
-  private renderPlayerTitle(playerOrder: PlayerId[], index: number, spec: TitleArrangementSpec): JSX.Element | null {
-    const { width, height, game, players, spectatorMode, dispatchers } = this.props;
+  private renderPlayerTitle(
+    playerOrder: PlayerId[],
+    index: number,
+    spec: TitleArrangementSpec
+  ): JSX.Element | null {
+    const { width, height, game, players, spectatorMode, dispatchers } =
+      this.props;
     if (playerOrder.length <= index) {
       return null;
     }
     const bid =
-      game.playState.state === GameplayState.Bidding ? game.playState.playerBids.get(playerOrder[index]) : undefined;
+      game.playState.state === GameplayState.Bidding
+        ? game.playState.playerBids.get(playerOrder[index])
+        : undefined;
     const playerId = playerOrder[index];
     const player = players.get(playerId);
-    const hand = isSpectatorModeObserver(spectatorMode) ? game.playState.allHands.get(player?.id ?? "") : undefined;
+    const hand = isSpectatorModeObserver(spectatorMode)
+      ? game.playState.allHands.get(player?.id ?? "")
+      : undefined;
     return (
       <PlayerTitleSvg
         player={player}
@@ -57,16 +69,21 @@ export class PlayerOverlay extends React.PureComponent<StateViewProps> {
     const playerOrder = ClientGameSelectors.getRotatedPlayerOrder(game);
     return {
       showReady:
-        game.playState.state === GameplayState.NewGame && game.playState.readiedPlayers.has(playerOrder[index]),
+        game.playState.state === GameplayState.NewGame &&
+        game.playState.readiedPlayers.has(playerOrder[index]),
       showUnready:
-        game.playState.state === GameplayState.NewGame && !game.playState.readiedPlayers.has(playerOrder[index]),
+        game.playState.state === GameplayState.NewGame &&
+        !game.playState.readiedPlayers.has(playerOrder[index]),
     };
   };
 
   private isDealer = (index: number) => {
     const { game } = this.props;
     const playerOrder = ClientGameSelectors.getRotatedPlayerOrder(game);
-    return game.playState.state !== GameplayState.NewGame && game.playState.playerOrder[0] === playerOrder[index];
+    return (
+      game.playState.state !== GameplayState.NewGame &&
+      game.playState.playerOrder[0] === playerOrder[index]
+    );
   };
 
   private isHighlighted = (index: number) => {
@@ -91,7 +108,9 @@ export class PlayerOverlay extends React.PureComponent<StateViewProps> {
       return false;
     }
     const playerOrder = ClientGameSelectors.getRotatedPlayerOrder(game);
-    return game.playState.playerOrder[game.playState.toBid] === playerOrder[index];
+    return (
+      game.playState.playerOrder[game.playState.toBid] === playerOrder[index]
+    );
   };
 
   private isWinningBidder = (index: number) => {

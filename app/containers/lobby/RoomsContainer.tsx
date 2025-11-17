@@ -34,19 +34,23 @@ const RoomsContainerLoaded = memo(function RoomsContainerLoaded({
     loadedRooms
   );
 
-  const handleMessage = useCallback(
+  const socketListener = useCallback(
     (message: SocketMessage<any>) => {
       LobbySocketMessages.roomUpdated.handle(message, (roomDescription) => {
-        console.log(message);
         dispatch({ type: "room_update", room: roomDescription });
       });
     },
     [dispatch]
   );
-  const clientSocket = useClientSocket(handleMessage);
+  const clientSocket = useClientSocket();
   useEffect(() => {
-    clientSocket.send(LobbySocketMessages.enterLobby())
-  }, [clientSocket]);
+    const removeListener = clientSocket.addListener(socketListener);
+    clientSocket.connect();
+    clientSocket.send(LobbySocketMessages.enterLobby());
+    return () => {
+      removeListener();
+    };
+  }, [clientSocket, socketListener]);
 
   return <RoomsTable players={players} rooms={rooms} />;
 });

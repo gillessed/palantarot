@@ -25,7 +25,7 @@ export const PlayerContainer = memo(function PlayerContainer({}) {
   const { playerId } = useParams();
 
   if (playerId == null) {
-    return <ErrorAlert> Not player id</ErrorAlert>;
+    return <ErrorAlert>No player id</ErrorAlert>;
   }
 
   return (

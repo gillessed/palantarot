@@ -14,6 +14,7 @@ const Loaders = {
 type Loaders = typeof Loaders;
 type AdditionalProps = {
   gamePlayerId: string;
+  roomId: string;
 };
 
 export const PlayContainer = memo(function PlayContainer() {
@@ -35,7 +36,7 @@ export const PlayContainer = memo(function PlayContainer() {
       loaders={Loaders}
       args={args}
       Component={PlayView}
-      additionalArgs={{ gamePlayerId }}
+      additionalArgs={{ gamePlayerId, roomId }}
     />
   );
 });

@@ -1,4 +1,11 @@
-import { Button, Intent, Menu, Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
+import {
+  Button,
+  Intent,
+  Menu,
+  Popover,
+  PopoverInteractionKind,
+  Position,
+} from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import React from "react";
 import { Player } from "../../../../server/model/Player";
@@ -10,7 +17,7 @@ import {
   SpectatorMode,
   SpectatorModeNone,
   SpectatorModeObserver,
-} from "../SpectatorMode";
+} from "../sidebar/SpectatorMode";
 import { SpectatorModeMenuItem } from "./SpectatorModeMenuItem";
 
 interface Props {
@@ -31,7 +38,10 @@ export class SpectatorButton extends React.PureComponent<Props> {
     }
     return (
       <foreignObject x={width - 40} y={height - 40} width={40} height={40}>
-        <Popover interactionKind={PopoverInteractionKind.CLICK} position={Position.TOP}>
+        <Popover
+          interactionKind={PopoverInteractionKind.CLICK}
+          position={Position.TOP}
+        >
           <Button icon={IconNames.EYE_OPEN} intent={Intent.PRIMARY} />
           <Menu>
             <SpectatorModeMenuItem

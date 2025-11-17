@@ -1,11 +1,11 @@
 export interface GameSettings {
-  autologEnabled: boolean;
-  bakerBengtsonVariant: boolean;
-  publicHands: boolean;
+  readonly autologEnabled: boolean;
+  readonly bakerBengtsonVariant: boolean;
+  readonly publicHands: boolean;
 }
 
 export const DefaultGameSettings: GameSettings = {
   autologEnabled: true,
   bakerBengtsonVariant: false,
   publicHands: true,
-}
+};

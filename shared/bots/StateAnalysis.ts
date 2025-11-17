@@ -1,9 +1,13 @@
 import pkg from "lodash";
 import { type Suit } from "../../server/play/model/Card.ts";
-import { AllSuits, createCardsOfSuit, getLeadCard } from "../../server/play/model/CardUtils.ts";
+import {
+  AllSuits,
+  createCardsOfSuit,
+  getLeadCard,
+} from "../../server/play/model/CardUtils.ts";
 import { getTrickCardList } from "./BotUtils.ts";
 import { CardList } from "./CardList.ts";
-import type { ClientGame } from "../types/ClientGame.ts";
+import type { ClientRoom } from "../types/ClientRoom.ts";
 
 const { isEqual } = pkg;
 
@@ -23,8 +27,12 @@ export interface SuitAnalysis {
   remainingCards: CardList;
 }
 
-export function analyseGameState(clientGame: ClientGame): StateAnalysis {
-  const { trick: currentTrick, completedTricks, playerOrder } = clientGame.playState;
+export function analyseGameState(clientGame: ClientRoom): StateAnalysis {
+  const {
+    trick: currentTrick,
+    completedTricks,
+    playerOrder,
+  } = clientGame.playState;
   const stateAnalysis: StateAnalysis = {
     onePlayed: false,
     hands: {},
@@ -69,7 +77,12 @@ export function analyseGameState(clientGame: ClientGame): StateAnalysis {
             stateAnalysis.hands[playerList[i]].knownVoids.add("T");
           }
         }
-        if (card[0] === "T" && !isJoker && highestTrump !== null && +card[1] < highestTrump) {
+        if (
+          card[0] === "T" &&
+          !isJoker &&
+          highestTrump !== null &&
+          +card[1] < highestTrump
+        ) {
           stateAnalysis.hands[playerList[i]].highestTrump = highestTrump;
         }
       }

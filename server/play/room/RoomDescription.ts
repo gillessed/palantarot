@@ -1,6 +1,6 @@
 import { type Player } from "../../model/Player.ts";
 import { type GameSettings } from "../model/GameSettings.ts";
-import { type GameplayState } from "../model/GameState.ts";
+import { type GamePhase } from "../model/GameState.ts";
 import { type PlayerStatus } from "./PlayerStatus.ts";
 import { Room } from "./Room.ts";
 
@@ -11,7 +11,7 @@ export interface RoomDescription {
   name: string;
   players: { [key: string]: PlayerStatus };
   settings: GameSettings;
-  gameState: GameplayState;
+  gameState: GamePhase;
 }
 
 export function getRoomDescription(room: Room): RoomDescription {

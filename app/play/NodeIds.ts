@@ -1,4 +1,12 @@
-export const SceneNodeId = "scene_node";
-export const BoardNodeId = "board_node";
-export const InfoNodeId = "info_node";
-export const PreviousTrickInfoNodeId = "previous_trick_info";
+export const RootNodeId = "root-node";
+export const LoadingScreenNodeId = "loading-screen-node";
+export const TableNodeId = "table-node";
+export const InfoNodeId = "info-node";
+export const PreviousTrickInfoNodeId = "previous-trick-info";
+export const DogInfoNodeId = "dog-info";
+export const PartnerCallInfoNodeId = "partner-call-info";
+export const NewGameNodeId = "new-game-node";
+export const JoinGameButtonId = "join-game-button";
+export const LeaveGameButtonId = "keave-game-button";
+export const MarkReadyButtonId = "mark-ready-button";
+export const MarkUnreadyButtonId = "mark-unready-button";

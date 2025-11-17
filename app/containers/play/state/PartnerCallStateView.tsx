@@ -1,7 +1,7 @@
 import React from "react";
 import { RegSuit, RegValue, Suit } from "../../../../server/play/model/Card";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver } from "../SpectatorMode";
+import { isSpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { ActionButton } from "../svg/ActionButton";
 import { BottomHandSvg } from "../svg/BottomHandSvg";
 import { CardHeight } from "../svg/CardSpec";
@@ -28,19 +28,33 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
     suit: Suit.Spade,
   };
   public render() {
-    const { width, height, game, players, dispatchers, spectatorMode } = this.props;
+    const { width, height, game, players, dispatchers, spectatorMode } =
+      this.props;
     const isParticipant = ClientGameSelectors.isParticipant(game);
     const dogSize = ClientGameSelectors.getDogSize(game);
     return (
       <g className="partnet-call-state-view">
         <StatusOverlay {...this.props} />
         <PlayerOverlay {...this.props} />
-        {isParticipant && <BottomHandSvg svgWidth={width} svgHeight={height} cards={game.playState.hand} />}
+        {isParticipant && (
+          <BottomHandSvg
+            svgWidth={width}
+            svgHeight={height}
+            cards={game.playState.hand}
+          />
+        )}
         {!isSpectatorModeObserver(spectatorMode) && (
           <DogSvg svgWidth={width} svgHeight={height} emptyLength={dogSize} />
         )}
-        {game.playerId === game.playState.winningBid?.player && this.renderPartnerCallButtons()}
-        <ShowOverlay width={width} height={height} players={players} game={game} dispatchers={dispatchers} />
+        {game.playerId === game.playState.winningBid?.player &&
+          this.renderPartnerCallButtons()}
+        <ShowOverlay
+          width={width}
+          height={height}
+          players={players}
+          game={game}
+          dispatchers={dispatchers}
+        />
         <SpectatorButton {...this.props} />
       </g>
     );
@@ -231,6 +245,8 @@ export class PartnerCallStateView extends React.PureComponent<Props, State> {
 
   private handleSelectPartner = () => {
     const player = this.props.game.playerId;
-    this.props.dispatchers.room.play(player).callPartner([this.state.suit, this.state.card]);
+    this.props.dispatchers.room
+      .play(player)
+      .callPartner([this.state.suit, this.state.card]);
   };
 }

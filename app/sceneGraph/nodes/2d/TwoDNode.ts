@@ -1,30 +1,62 @@
-import { v_new, type Vector } from "../../math/Vector";
-import type { Painter } from "../../painter/Painter";
+import {
+  m_diagonal,
+  M_Identity,
+  m_invert,
+  m_mult,
+  m_rotation,
+  m_set,
+  m_translate,
+} from "../../math/Matrix";
+import { v_is_one, v_is_zero, v_new, type Vector } from "../../math/Vector";
 import { SceneNode } from "../SceneNode";
 
-export class TwoDNode extends SceneNode {
+export class TwoDNode<SceneContext> extends SceneNode<SceneContext> {
   public offset: Vector = v_new();
   public position: Vector = v_new();
   public scale: Vector = v_new(1, 1);
   public rotation: number = 0;
-  public painter?: Painter;
-  public visible = true;
+  public opacity: number = 1;
+  public blur: number = 0;
 
-  constructor(id: string, parent?: TwoDNode) {
-    super(id, parent);
+  constructor(id: string) {
+    super(id);
   }
 
-  public transformContext = (ctx: CanvasRenderingContext2D) => {
-    ctx.translate(this.offset[0], this.offset[1]);
-    ctx.scale(this.scale[0], this.scale[1]);
-    if (this.rotation !== 0) {
-      ctx.rotate(this.rotation);
+  public updateContextInternal = (ctx: CanvasRenderingContext2D) => {
+    ctx.globalAlpha = this.opacity;
+    if (this.blur !== 0) {
+      ctx.filter = `blur(${this.blur}px)`;
     }
   };
 
-  public render = (ctx: CanvasRenderingContext2D) => {
-    if (this.visible) {
-      this.painter?.render(ctx);
+  public updateTransformation = () => {
+    const parentTransformation = this.parent?.transformation ?? M_Identity;
+    const parentInverseTransformation =
+      this.parent?.inverseTransformation ?? M_Identity;
+    m_set(this.transformation, parentTransformation);
+    const needRotation = this.rotation !== 0;
+    const needScale = !v_is_one(this.scale);
+    const needOffset = !v_is_zero(this.offset);
+    if (needRotation || needScale || needOffset) {
+      if (this.rotation !== 0) {
+        m_mult(this.transformation, m_rotation(-this.rotation));
+      }
+      if (!v_is_one(this.scale)) {
+        m_mult(
+          this.transformation,
+          m_diagonal(1 / this.scale[0], 1 / this.scale[1])
+        );
+      }
+      if (!v_is_zero(this.offset)) {
+        m_mult(
+          this.transformation,
+          m_translate(-this.offset[0], -this.offset[1])
+        );
+      }
+      m_set(this.inverseTransformation, this.transformation);
+      m_invert(this.inverseTransformation);
+    } else {
+      m_set(this.inverseTransformation, parentInverseTransformation);
     }
   };
 }

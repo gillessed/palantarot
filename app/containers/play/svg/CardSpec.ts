@@ -1,8 +1,8 @@
-import { SpectatorModeObserver } from "../SpectatorMode";
+import { SpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { getTitleArrangementSpec } from "./TitleArrangementSpec";
 
 export const MaxHandCardSeparation = 50;
-export const CardAspectRatio = 1.56
+export const CardAspectRatio = 1.56;
 export const CardWidth = 120;
 export const CardHeight = CardWidth * CardAspectRatio;
 export const HandCardPopup = 80;
@@ -19,14 +19,16 @@ export const PokeButtonHeight = 60;
 export const PokeButtonOffset = 20;
 
 export function getMaxHandWidth(players: number) {
-  const cardCount = players === 3 ? 24
-    : players === 4 ? 18
-    : 15;
+  const cardCount = players === 3 ? 24 : players === 4 ? 18 : 15;
   const boundedSeparation = MaxHandCardSeparation * (cardCount - 1);
   return CardWidth + boundedSeparation;
 }
 
-export function getObserverClipHeight(width: number, height: number, players: number): number | undefined {
+export function getObserverClipHeight(
+  width: number,
+  height: number,
+  players: number
+): number | undefined {
   const layout = getTitleArrangementSpec(players, SpectatorModeObserver);
   const y0 = layout[0](width, height).position;
   const y1 = layout[1](width, height).position;

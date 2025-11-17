@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "../../../../server/play/model/Card";
-import { SpectatorModeNone } from "../SpectatorMode";
+import { SpectatorModeNone } from "../sidebar/SpectatorMode";
 import { BottomLeftStatusLayout } from "./BottomLeftStatus";
 import { HandCardPopup, HandCardSelectablePopup } from "./CardSpec";
 import { HandSvg } from "./HandSvg";
@@ -21,8 +21,18 @@ export namespace BottomHandSvg {
 
 export class BottomHandSvg extends React.Component<BottomHandSvg.Props> {
   public render() {
-    const { svgWidth, svgHeight, cards, selectedCards, dogCards, selectableFilter, onClick } = this.props;
-    const titleLayout = getTitleLayout(getTitleArrangementSpec(3, SpectatorModeNone)[0](svgWidth, svgHeight));
+    const {
+      svgWidth,
+      svgHeight,
+      cards,
+      selectedCards,
+      dogCards,
+      selectableFilter,
+      onClick,
+    } = this.props;
+    const titleLayout = getTitleLayout(
+      getTitleArrangementSpec(3, SpectatorModeNone)[0](svgWidth, svgHeight)
+    );
     const leftBound = BottomLeftStatusLayout.Width + 20;
     const rightBound = titleLayout.cardx - 20;
 

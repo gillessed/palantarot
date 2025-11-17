@@ -1,8 +1,18 @@
 import React from "react";
 import { ClientGame } from "../../../services/room/ClientGame";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver, SpectatorMode } from "../SpectatorMode";
-import { CardHeight, CardWidth, getMaxHandWidth, getObserverClipHeight, TrickMargin, TrickWidth } from "./CardSpec";
+import {
+  isSpectatorModeObserver,
+  SpectatorMode,
+} from "../sidebar/SpectatorMode";
+import {
+  CardHeight,
+  CardWidth,
+  getMaxHandWidth,
+  getObserverClipHeight,
+  TrickMargin,
+  TrickWidth,
+} from "./CardSpec";
 import { CardSvg } from "./CardSvg";
 import { getTrickLayoutSpec, TrickLayout } from "./TrickLayoutSpec";
 import "./TrickSvg.scss";
@@ -68,7 +78,13 @@ export class TrickSvg extends React.PureComponent<Props> {
       const index = playerOrder.indexOf(playerId);
       const cardSpec = spec[index](width, height);
       cards.push(
-        <CardSvg key={`card-${index}`} x={xOverride ?? cardSpec.x} y={cardSpec.y} card={card} clipHeight={clipHeight} />
+        <CardSvg
+          key={`card-${index}`}
+          x={xOverride ?? cardSpec.x}
+          y={cardSpec.y}
+          card={card}
+          clipHeight={clipHeight}
+        />
       );
     }
     return cards;

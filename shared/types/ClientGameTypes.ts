@@ -1,45 +1,47 @@
-
 import type { Card, TrumpCard } from "../../server/play/model/Card.ts";
-import type {  Bid, CompletedGameState, GameplayState, PlayerId } from "../../server/play/model/GameState.ts";
+import type {
+  Bid,
+  CompletedGameState,
+  GamePhase,
+  PlayerId,
+} from "../../server/play/model/GameState.ts";
 
-// const { isEqual, without } = pkg;
-
-export interface TrickCards {
-  order: string[];
-  cards: Map<string, Card>;
-  completed: boolean;
-  winner?: string;
+export interface ClientTrickCards {
+  readonly order: string[];
+  readonly cards: ReadonlyMap<string, Card>;
+  readonly completed: boolean;
+  readonly winner?: string;
 }
 
-export interface PlayState {
-  readonly state: GameplayState;
-  readonly hand: Card[];
-  readonly dog: Card[];
-  readonly playerOrder: PlayerId[];
-  readonly readiedPlayers: Set<PlayerId>;
+export interface ClientShowDetails {
+  readonly player: PlayerId;
+  readonly trumpCards: ReadonlyArray<TrumpCard>;
+}
+
+export interface ClientGame {
+  readonly gamePhase: GamePhase;
+  readonly hand: ReadonlyArray<Card>;
+  readonly dog: ReadonlyArray<Card>;
+  readonly playerOrder: ReadonlyArray<PlayerId>;
+  readonly readiedPlayers: ReadonlySet<PlayerId>;
   readonly toPlay?: PlayerId;
   readonly toBid?: number;
-  readonly playerBids: Map<PlayerId, Bid>;
+  readonly playerBids: ReadonlyMap<PlayerId, Bid>;
   readonly winningBid?: Bid;
   readonly partner?: PlayerId;
   readonly partnerCard?: Card;
   readonly anyPlayerPlayedCard?: boolean;
-  readonly trick: TrickCards;
-  readonly completedTricks: TrickCards[];
+  readonly trick: ClientTrickCards;
+  readonly completedTricks: ReadonlyArray<ClientTrickCards>;
   readonly endState?: CompletedGameState;
-  readonly shows: ShowDetails[];
+  readonly shows: ReadonlyArray<ClientShowDetails>;
   readonly showIndex: number | null;
-  readonly allHands: Map<PlayerId, Card[]>;
-  readonly allowNotifyPlayer: PlayerId | null;
+  readonly allHands: ReadonlyMap<PlayerId, ReadonlyArray<Card>>;
+  readonly notifyPlayer: PlayerId | null;
 }
 
-export interface ShowDetails {
-  player: PlayerId;
-  trumpCards: TrumpCard[];
-}
-
-export const BlankState: PlayState = {
-  state: "new_game",
+export const EmptyClientGame: ClientGame = {
+  gamePhase: "new_game",
   hand: [],
   dog: [],
   playerOrder: [],
@@ -54,5 +56,5 @@ export const BlankState: PlayState = {
   shows: [],
   showIndex: null,
   allHands: new Map(),
-  allowNotifyPlayer: null,
+  notifyPlayer: null,
 };

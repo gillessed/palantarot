@@ -1,6 +1,6 @@
 import { Classes, MenuItem } from "@blueprintjs/core";
 import React from "react";
-import { SpectatorMode } from "../SpectatorMode";
+import { SpectatorMode } from "../sidebar/SpectatorMode";
 
 interface Props {
   selected: boolean;

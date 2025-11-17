@@ -12,7 +12,10 @@ import {
 } from "../../../../server/play/model/GameState";
 import { Dispatchers } from "../../../services/dispatchers";
 import { getPlayerName } from "../../../services/utils/playerName";
-import { isSpectatorModeObserver, SpectatorMode } from "../SpectatorMode";
+import {
+  isSpectatorModeObserver,
+  SpectatorMode,
+} from "../sidebar/SpectatorMode";
 import { ActionButton } from "./ActionButton";
 import {
   CardHeight,

@@ -1,31 +1,88 @@
-import type { } from "../nodes/2d/TwoDNode";
-import type { NodeContainer, SceneNode } from "../nodes/SceneNode";
+import type { Property } from "csstype";
+import { v_new, v_set, type Vector } from "../math/Vector";
+import type {} from "../nodes/2d/TwoDNode";
+import type { NodeManager, SceneNode } from "../nodes/SceneNode";
+import { setDiff } from "../utils/setDiff";
 
-export function runScene(canvas: HTMLCanvasElement): Scene {
-  const scene = new Scene(canvas);
-  scene.run();
-  return scene;
-}
-
-export class Scene implements NodeContainer {
+export class Scene<SceneContext> implements NodeManager<SceneContext> {
   public running = false;
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
-  public root?: SceneNode;
+  public offscreenCanvas: HTMLCanvasElement;
+  public offscreenCtx: CanvasRenderingContext2D;
+  public canvas?: HTMLCanvasElement;
+  public ctx?: CanvasRenderingContext2D;
+  public root?: SceneNode<SceneContext>;
   public lastUpdate: number = 0;
   public clearColor: string = "#000000";
-  public nodesById = new Map<string, SceneNode>();
-  public width = 0;
-  public height = 0;
+  public nodesById = new Map<string, SceneNode<SceneContext>>();
+  public width: number = 0;
+  public height: number = 0;
+  public mousePosition: Vector = v_new();
+  public intersectingNodes: SceneNode<SceneContext>[] = [];
+  public context: SceneContext;
 
-  public constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
+  private handleResize = (entries: ResizeObserverEntry[]) => {
+    const [entry] = entries;
+    if (entry != null) {
+      this.width = entry.contentRect.width;
+      this.height = entry.contentRect.height;
+      this.offscreenCanvas.width = this.width;
+      this.offscreenCanvas.height = this.height;
+    }
+  };
+  public resizeObserver = new ResizeObserver(this.handleResize);
+
+  public constructor(context: SceneContext) {
+    this.context = context;
+    this.offscreenCanvas = document.createElement("canvas");
+    const offscreenCtx = this.offscreenCanvas.getContext("2d");
+    if (offscreenCtx == null) {
+      throw Error("Error initializing offscreen canvas context");
+    }
+    this.offscreenCtx = offscreenCtx;
+  }
+
+  public attachCanvas = (canvas: HTMLCanvasElement) => {
+    if (this.ctx != null) {
+      throw Error("Scene is already attached to one canvas");
+    }
     const ctx = canvas.getContext("2d");
     if (ctx == null) {
-      throw Error("Error initializing context");
+      throw Error("Error initializing canvas context");
     }
+    this.canvas = canvas;
     this.ctx = ctx;
-  }
+    this.resizeObserver.observe(canvas);
+    this.width = canvas.clientWidth;
+    this.height = canvas.clientHeight;
+    this.offscreenCanvas.width = this.width;
+    this.offscreenCanvas.height = this.height;
+    this.addMouseListeners(canvas);
+  };
+
+  public addMouseListeners = (canvas: HTMLCanvasElement) => {
+    canvas.addEventListener("mousemove", this.handleMouseMove);
+    canvas.addEventListener("mousedown", this.handleMouseDown);
+    canvas.addEventListener("mouseup", this.handleMouseUp);
+  };
+
+  public detachCanvas = () => {
+    if (this.canvas == null) {
+      return;
+    }
+    this.removeMouseListeners(this.canvas);
+    this.resizeObserver.unobserve(this.canvas);
+    this.width = 0;
+    this.height = 0;
+    this.offscreenCanvas.width = 0;
+    this.offscreenCanvas.height = 0;
+    this.stop();
+  };
+
+  public removeMouseListeners = (canvas: HTMLCanvasElement) => {
+    canvas.removeEventListener("mousemove", this.handleMouseMove);
+    canvas.removeEventListener("mousedown", this.handleMouseDown);
+    canvas.removeEventListener("mouseup", this.handleMouseUp);
+  };
 
   public clearRoot = () => {
     if (this.root == null) {
@@ -33,38 +90,108 @@ export class Scene implements NodeContainer {
     }
     this.nodesById.clear();
     this.root = undefined;
-  }
+  };
 
-  public setRoot = (node: SceneNode) => {
+  public setRoot = (node: SceneNode<SceneContext>) => {
     this.clearRoot();
     this.root = node;
     node.setContainerTree(this);
-  }
+  };
 
   public run = () => {
-    this.running = true;
-    this.lastUpdate = Date.now();
-    requestAnimationFrame(this.update);
-  }
+    if (this.ctx != null && !this.running) {
+      this.running = true;
+      this.lastUpdate = Date.now();
+      requestAnimationFrame(this.update);
+    }
+  };
 
   public stop = () => {
     this.running = false;
-  }
+  };
+
+  public rx = 0;
 
   public update = () => {
     const currentUpdate = Date.now();
     const dt = currentUpdate - this.lastUpdate;
 
-    if (this.root != null) {
+    if (
+      this.root != null &&
+      this.offscreenCanvas.width > 0 &&
+      this.offscreenCanvas.height > 0
+    ) {
+      this.handleMouseMovement(this.root);
       this.root.updateTree(dt);
-      this.ctx.fillStyle = this.clearColor;
-      this.ctx.fillRect(0, 0, this.width, this.height);
-      this.root.renderTree(this.ctx);
+      this.offscreenCtx.fillStyle = this.clearColor;
+      this.offscreenCtx.fillRect(0, 0, this.width, this.height);
+      this.root.renderTree(this.offscreenCtx);
+      this.ctx?.drawImage(this.offscreenCanvas, 0, 0);
     }
 
     this.lastUpdate = currentUpdate;
     if (this.running) {
       requestAnimationFrame(this.update);
     }
-  }
+  };
+
+  public getNode = <
+    NodeType extends SceneNode<SceneContext> = SceneNode<SceneContext>
+  >(
+    nodeId: string
+  ): NodeType => {
+    return this.nodesById.get(nodeId) as NodeType;
+  };
+
+  public handleMouseMove = (event: MouseEvent) => {
+    v_set(this.mousePosition, event.clientX, event.clientY);
+  };
+
+  public handleMouseDown = (event: MouseEvent) => {
+    v_set(this.mousePosition, event.clientX, event.clientY);
+    if (this.root != null) {
+      this.updateIntersectingNodes(this.root);
+      for (const node of this.intersectingNodes) {
+        node.mouseDown?.();
+      }
+    }
+  };
+
+  public handleMouseUp = (event: MouseEvent) => {
+    v_set(this.mousePosition, event.clientX, event.clientY);
+    if (this.root != null) {
+      this.updateIntersectingNodes(this.root);
+      for (const node of this.intersectingNodes) {
+        node.mouseUp?.();
+      }
+    }
+  };
+
+  public updateIntersectingNodes = (root: SceneNode<SceneContext>) => {
+    const newIntersectingNodes: SceneNode<SceneContext>[] = [];
+    root.intersectTree(this.mousePosition, newIntersectingNodes);
+    this.intersectingNodes = newIntersectingNodes;
+  };
+
+  public handleMouseMovement = (root: SceneNode<SceneContext>) => {
+    const newIntersectingNodes: SceneNode<SceneContext>[] = [];
+    root.intersectTree(this.mousePosition, newIntersectingNodes);
+    const { added, removed } = setDiff(
+      this.intersectingNodes,
+      newIntersectingNodes
+    );
+    this.intersectingNodes = newIntersectingNodes;
+    for (const node of removed) {
+      node.mouseExited?.();
+    }
+    for (const node of added) {
+      node.mouseEntered?.();
+    }
+  };
+
+  public setCursor = (cursor: Property.Cursor) => {
+    if (this.canvas != null) {
+      this.canvas.style.cursor = cursor;
+    }
+  };
 }

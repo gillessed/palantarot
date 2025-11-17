@@ -1,17 +1,22 @@
-import { isSpectatorModeObserver, SpectatorMode } from '../SpectatorMode';
-import { BottomLeftStatusLayout } from './BottomLeftStatus';
-import { PlayerTitleSvg } from './PlayerTitleSvg';
+import {
+  isSpectatorModeObserver,
+  SpectatorMode,
+} from "../sidebar/SpectatorMode";
+import { BottomLeftStatusLayout } from "./BottomLeftStatus";
+import { PlayerTitleSvg } from "./PlayerTitleSvg";
 
-export type TitleArrangementSpec = Array<(svgWidth: number, svgHeight: number) => PlayerTitleSvg.ArrangementProps>;
+export type TitleArrangementSpec = Array<
+  (svgWidth: number, svgHeight: number) => PlayerTitleSvg.ArrangementProps
+>;
 export const TitleArrangementSpecs = {
   threePlayers: [
     (svgWidth: number, svgHeight: number) => {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'bottom',
+        side: "bottom",
         position: 0,
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -19,9 +24,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'top',
-        position: Math.min(svgWidth - 400, 2 * svgWidth / 3),
-        text: 'after',
+        side: "top",
+        position: Math.min(svgWidth - 400, (2 * svgWidth) / 3),
+        text: "after",
       };
       return props;
     },
@@ -29,9 +34,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'top',
+        side: "top",
         position: Math.max(400, svgWidth / 3),
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -41,9 +46,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'bottom',
+        side: "bottom",
         position: 0,
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -51,9 +56,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'right',
+        side: "right",
         position: svgHeight / 2 - 100,
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -61,9 +66,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'top',
+        side: "top",
         position: svgWidth / 2 - 100,
-        text: 'after',
+        text: "after",
       };
       return props;
     },
@@ -71,9 +76,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'left',
+        side: "left",
         position: svgHeight / 2 - 100,
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -83,9 +88,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'bottom',
+        side: "bottom",
         position: 0,
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -93,9 +98,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'right',
+        side: "right",
         position: Math.max(250, svgHeight / 2 - 100),
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -103,9 +108,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'top',
-        position: Math.min(svgWidth - 400, 2 * svgWidth / 3),
-        text: 'after',
+        side: "top",
+        position: Math.min(svgWidth - 400, (2 * svgWidth) / 3),
+        text: "after",
       };
       return props;
     },
@@ -113,9 +118,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'top',
+        side: "top",
         position: Math.max(400, svgWidth / 3),
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -123,9 +128,9 @@ export const TitleArrangementSpecs = {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'left',
+        side: "left",
         position: Math.max(250, svgHeight / 2 - 100),
-        text: 'before',
+        text: "before",
       };
       return props;
     },
@@ -142,9 +147,9 @@ function generateRightAlignedSpec(hands: number) {
       const props: PlayerTitleSvg.ArrangementProps = {
         svgWidth,
         svgHeight,
-        side: 'right',
+        side: "right",
         position: top + size * i + 50,
-        text: 'before',
+        text: "before",
       };
       return props;
     });
@@ -158,7 +163,10 @@ export const ObserverModeArrangementSpecs = {
   fivePlayers: generateRightAlignedSpec(5),
 };
 
-export function getTitleArrangementSpec(count: number, spectatorMode: SpectatorMode): TitleArrangementSpec {
+export function getTitleArrangementSpec(
+  count: number,
+  spectatorMode: SpectatorMode
+): TitleArrangementSpec {
   if (!isSpectatorModeObserver(spectatorMode)) {
     if (count <= 3) {
       return TitleArrangementSpecs.threePlayers;

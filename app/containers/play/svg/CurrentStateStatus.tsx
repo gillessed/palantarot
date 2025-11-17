@@ -1,10 +1,13 @@
 import React from "react";
 import { Player } from "../../../../server/model/Player";
-import { GameplayState } from "../../../../server/play/model/GameState";
+import { GamePhase } from "../../../../server/play/model/GameState";
 import { getPlayerName } from "../../../services/utils/playerName";
 import { ClientGame } from "../../../services/room/ClientGame";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver, SpectatorMode } from "../SpectatorMode";
+import {
+  isSpectatorModeObserver,
+  SpectatorMode,
+} from "../sidebar/SpectatorMode";
 import "./CurrentStateStatus.scss";
 
 interface Props {

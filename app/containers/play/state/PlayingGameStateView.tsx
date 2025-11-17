@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "../../../../server/play/model/Card";
 import { getCardsAllowedToPlay } from "../../../../server/play/model/CardUtils";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver } from "../SpectatorMode";
+import { isSpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { BottomHandSvg } from "../svg/BottomHandSvg";
 import { PlayerOverlay } from "../svg/PlayerOverlay";
 import { ShowOverlay } from "../svg/ShowOverlay";

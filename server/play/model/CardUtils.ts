@@ -42,7 +42,8 @@ export function createCardsOfSuit(suit: Suit): Card[] {
 
 export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
-  const value = parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
+  const value =
+    parseInt(card.slice(1, card.length - 1)) || card.slice(1, card.length - 1);
   return [suit, value] as Card;
 }
 
@@ -60,12 +61,16 @@ function invalidDeal(hands: Card[][]): boolean {
   return false;
 }
 
-export const cardTestingSetShuffler = (new_shuffler: (cards: Card[]) => Card[] = shuffle) => {
+export const cardTestingSetShuffler = (
+  new_shuffler: (cards: Card[]) => Card[] = shuffle
+) => {
   cardShuffler = new_shuffler;
 };
 let cardShuffler: (cards: Card[]) => Card[] = shuffle;
 
-export const playerTestingSetShuffler = (new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle) => {
+export const playerTestingSetShuffler = (
+  new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle
+) => {
   playerShuffler = new_shuffler;
 };
 let playerShuffler: (players: PlayerId[]) => PlayerId[] = shuffle;
@@ -76,7 +81,8 @@ export interface DealtCards {
 }
 
 export const shuffleDeck = (): Card[] => cardShuffler(createAllCards());
-export const shufflePlayers = (players: PlayerId[]): PlayerId[] => playerShuffler(players);
+export const shufflePlayers = (players: PlayerId[]): PlayerId[] =>
+  playerShuffler(players);
 
 export const dealCards = (players: number): DealtCards => {
   const comparer = compareCards(undefined);
@@ -157,11 +163,17 @@ export const cardsEqual = function (one: Card[], two: Card[]): boolean {
   return isEqual(one.sort(), two.sort());
 };
 
-export const cardsContain = function (cards: Card[], target: Card): Card | undefined {
+export const cardsContain = function (
+  cards: Card[],
+  target: Card
+): Card | undefined {
   return find(cards, (card) => isEqual(card, target));
 };
 
-export const cardsWithout = function (cards: Card[], ...subtract: Card[]): Card[] {
+export const cardsWithout = function (
+  cards: ReadonlyArray<Card>,
+  ...subtract: ReadonlyArray<Card>
+): Card[] {
   return differenceWith(cards, subtract, isEqual);
 };
 
@@ -207,7 +219,10 @@ export const getCardsAllowedToPlay = function (
   const leadsuit = getLeadSuit(trick);
   if (leadsuit === undefined) {
     if (!anyPlayerPlayedCard) {
-      return hand.filter((card) => card[0] !== (partnerSuit ?? [])[0] || isEqual(card, partnerSuit)); // lead anything that isn't the partner suit or is the called card
+      return hand.filter(
+        (card) =>
+          card[0] !== (partnerSuit ?? [])[0] || isEqual(card, partnerSuit)
+      ); // lead anything that isn't the partner suit or is the called card
     } else {
       return hand; // new trick, lead whatever
     }
@@ -220,7 +235,11 @@ export const getCardsAllowedToPlay = function (
   }
 
   const lowest_allowed = getLowestAllowableTrump(trick);
-  const allowedTrump = filter(hand, (card) => card[0] === "T" && card[1] !== "Joker" && card[1] >= lowest_allowed);
+  const allowedTrump = filter(
+    hand,
+    (card) =>
+      card[0] === "T" && card[1] !== "Joker" && card[1] >= lowest_allowed
+  );
   if (allowedTrump.length > 0) {
     return [...allowedTrump, ...joker]; // can over-trump
   }
@@ -288,7 +307,9 @@ export function getCardValueAsNumber(value: RegValue | TrumpValue): number {
 
 type Comparator<T> = (t1: T, T2: T) => number;
 
-export const compareCards = function (lead_suit?: Suit | undefined): Comparator<Card> {
+export const compareCards = function (
+  lead_suit?: Suit | undefined
+): Comparator<Card> {
   return (left: Card, right: Card) => {
     if (isEqual(left, right)) {
       return 0;
@@ -297,7 +318,9 @@ export const compareCards = function (lead_suit?: Suit | undefined): Comparator<
     } else if (right[1] === "Joker") {
       return 1;
     } else if (left[0] === right[0]) {
-      return Math.sign(getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1]));
+      return Math.sign(
+        getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1])
+      );
     } else if (left[0] === "T") {
       return 1;
     } else if (right[0] === "T") {
@@ -345,7 +368,10 @@ export const getCardPoint = function (card: Card) {
 };
 
 // Note: this does not include the joker slam code. If this actually happens, well, I guess we can code it afterwards.
-export const getWinner = function (trick: Card[], players: PlayerId[]): [Card, PlayerId] {
+export const getWinner = function (
+  trick: Card[],
+  players: PlayerId[]
+): [Card, PlayerId] {
   let [card, player] = [trick[0], players[0]];
   const comparer = compareCards(getLeadSuit(trick));
   for (const index in trick) {

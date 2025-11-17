@@ -1,7 +1,7 @@
 import React from "react";
 import { BidValue } from "../../../../server/play/model/GameState";
 import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
-import { isSpectatorModeObserver } from "../SpectatorMode";
+import { isSpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { ActionButton } from "../svg/ActionButton";
 import { BottomHandSvg } from "../svg/BottomHandSvg";
 import { CardHeight } from "../svg/CardSpec";
@@ -25,11 +25,19 @@ export class BiddingGameStateView extends React.PureComponent<Props> {
         <PlayerOverlay {...this.props} />
         {!isSpectatorModeObserver(spectatorMode) && (
           <>
-            {isParticipant && <BottomHandSvg svgWidth={width} svgHeight={height} cards={game.playState.hand} />}
+            {isParticipant && (
+              <BottomHandSvg
+                svgWidth={width}
+                svgHeight={height}
+                cards={game.playState.hand}
+              />
+            )}
             <DogSvg svgWidth={width} svgHeight={height} emptyLength={dogSize} />
           </>
         )}
-        {game.playerId === game.playState.playerOrder[game.playState.toBid ?? 0] && this.renderBiddingButtons()}
+        {game.playerId ===
+          game.playState.playerOrder[game.playState.toBid ?? 0] &&
+          this.renderBiddingButtons()}
         <ShowOverlay {...this.props} />
         <SpectatorButton {...this.props} />
       </g>

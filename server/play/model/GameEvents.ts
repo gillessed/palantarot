@@ -9,21 +9,28 @@ import {
   type PlayerId,
 } from "./GameState.ts";
 
-export interface PlayerEvent {
-  readonly type: ActionType | TransitionType | OtherEventsType | "error";
+interface BaseEvent {
   /** if contains state for only one player, which player to send to. */
   readonly privateTo?: PlayerId;
   /** if set, will not send to any of the following players */
   readonly exclude?: PlayerId[];
 }
 
+// export interface PlayerEvent {
+//   readonly type: ActionType | TransitionType | OtherEventsType | "error";
+//   /** if contains state for only one player, which player to send to. */
+//   readonly privateTo?: PlayerId;
+//   /** if set, will not send to any of the following players */
+//   readonly exclude?: PlayerId[];
+// }
+
 export type ErrorCode = "DOES_NOT_EXIST";
 
-export interface ErrorEvent extends PlayerEvent {
+export type ErrorEvent = BaseEvent & {
   readonly type: "error";
   readonly error: string;
   readonly errorCode?: ErrorCode;
-}
+};
 
 /* ACTIONS */
 
@@ -33,85 +40,84 @@ export interface ErrorEvent extends PlayerEvent {
  *
  * Their types are present tense commands.
  */
-export interface Action extends PlayerEvent {
-  readonly type: ActionType;
+export interface BaseAction extends BaseEvent {
   readonly player: PlayerId;
   readonly time: number;
 }
 
-export type ActionType =
-  | "game_settings"
-  | "enter_game"
-  | "leave_game"
-  | "mark_player_ready"
-  | "unmark_player_ready"
-  | "bid"
-  | "show_trump"
-  | "call_partner"
-  | "declare_slam"
-  | "set_dog"
-  | "play_card"
-  | "show_dog_to_observers";
-
-export interface GameSettingsAction extends Action {
+export interface GameSettingsAction extends BaseAction {
   readonly type: "game_settings";
   readonly settings: GameSettings;
 }
 
-export interface EnterGameAction extends Action {
+export interface EnterGameAction extends BaseAction {
   readonly type: "enter_game";
 }
 
-export interface LeaveGameAction extends Action {
+export interface LeaveGameAction extends BaseAction {
   readonly type: "leave_game";
 }
 
-export interface PlayerReadyAction extends Action {
+export interface PlayerReadyAction extends BaseAction {
   readonly type: "mark_player_ready";
 }
 
-export interface PlayerNotReadyAction extends Action {
-  readonly type: "unmark_player_ready";
+export interface PlayerUnreadyAction extends BaseAction {
+  readonly type: "mark_player_unready";
 }
 
-export interface BidAction extends Action {
+export interface BidAction extends BaseAction {
   readonly type: "bid";
   readonly bid: BidValue;
   readonly calls?: Call[];
 }
 
-export interface ShowTrumpAction extends Action {
+export interface ShowTrumpAction extends BaseAction {
   readonly type: "show_trump";
   /** Needs to match all trumps in player's hand */
   readonly cards: TrumpCard[];
 }
 
-export interface CallPartnerAction extends Action {
+export interface CallPartnerAction extends BaseAction {
   readonly type: "call_partner";
   readonly card: Card;
 }
 
-export interface DeclareSlam extends Action {
+export interface DeclareSlamAction extends BaseAction {
   readonly type: "declare_slam";
 }
 
-export interface SetDogAction extends Action {
+export interface SetDogAction extends BaseAction {
   readonly type: "set_dog";
   readonly dog: Card[];
   readonly privateTo?: PlayerId;
   readonly exclude?: PlayerId[];
 }
 
-export interface PlayCardAction extends Action {
+export interface PlayCardAction extends BaseAction {
   readonly type: "play_card";
   readonly card: Card;
 }
 
-export interface ShowDogToObservers extends PlayerEvent {
+export interface ShowDogToObservers extends BaseEvent {
   readonly type: "show_dog_to_observers";
   readonly dog: Card[];
   readonly exclude: PlayerId[];
 }
+
+export type Action =
+  | GameSettingsAction
+  | EnterGameAction
+  | LeaveGameAction
+  | PlayerReadyAction
+  | PlayerUnreadyAction
+  | BidAction
+  | ShowTrumpAction
+  | CallPartnerAction
+  | DeclareSlamAction
+  | SetDogAction
+  | PlayCardAction
+  | ShowDogToObservers;
 
 /* TRANSITIONS */
 
@@ -120,69 +126,66 @@ export interface ShowDogToObservers extends PlayerEvent {
  *
  * Their types are all past tense.
  */
-export interface Transition extends PlayerEvent {
-  readonly type: TransitionType;
-}
 
-export type TransitionType =
-  | "players_set"
-  | "dealt_hand"
-  | "bidding_completed"
-  | "dog_revealed"
-  | "game_started"
-  | "completed_trick"
-  | "game_completed"
-  | "game_aborted";
-
-export interface PlayersSetTransition extends Transition {
+export interface PlayersSetTransition extends BaseEvent {
   readonly type: "players_set";
   readonly playerOrder: PlayerId[];
 }
 
-export interface DealtHandTransition extends Transition {
+export interface DealtHandTransition extends BaseEvent {
   readonly type: "dealt_hand";
   readonly playerId: PlayerId;
   readonly hand: Card[];
 }
 
-export interface BiddingCompletedTransition extends Transition {
+export interface BiddingCompletedTransition extends BaseEvent {
   readonly type: "bidding_completed";
   readonly winning_bid: Bid;
 }
 
-export interface DogRevealTransition extends Transition {
+export interface DogRevealTransition extends BaseEvent {
   readonly type: "dog_revealed";
   readonly player: PlayerId;
   readonly dog: Card[];
 }
 
-export interface GameStartTransition extends Transition {
+export interface GameStartTransition extends BaseEvent {
   readonly type: "game_started";
   readonly first_player: PlayerId;
 }
 
-export interface CompletedTrickTransition extends Transition {
+export interface CompletedTrickTransition extends BaseEvent {
   readonly type: "completed_trick";
   readonly winner: PlayerId;
   readonly winning_card: Card;
   readonly jokerState?: JokerExchangeState;
 }
 
-export interface GameCompletedTransition extends Transition {
+export interface GameCompletedTransition extends BaseEvent {
   readonly type: "game_completed";
   readonly end_state: CompletedGameState;
 }
 
-export interface GameAbortedTransition extends Transition {
+export interface GameAbortedTransition extends BaseEvent {
   readonly type: "game_aborted";
   readonly reason: string;
 }
 
+export type Transition =
+  | PlayersSetTransition
+  | DealtHandTransition
+  | BiddingCompletedTransition
+  | DogRevealTransition
+  | GameStartTransition
+  | CompletedTrickTransition
+  | GameCompletedTransition
+  | GameAbortedTransition;
+
 /* OTHER EVENTS */
 
-export type OtherEventsType = "allow_notify_player";
-
-export interface AllowNotifyPlayerEvent extends PlayerEvent {
-  readonly type: "allow_notify_player";
+export interface NotifyEvent extends BaseEvent {
+  readonly type: "notify_player";
   readonly playerId: string;
 }
+
+export type PlayerEvent = Action | Transition | NotifyEvent | ErrorEvent;
