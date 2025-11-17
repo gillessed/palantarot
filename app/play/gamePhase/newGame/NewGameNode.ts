@@ -51,6 +51,7 @@ export class NewGameNode extends TwoDNode<PlaySceneContext> {
     for (const playerId of state.playerOrder) {
       this.addPlayerNode(playerId);
     }
+    
     this.layoutPlayerNodes();
 
     // Mark player nodes ready/not ready
@@ -74,9 +75,6 @@ export class NewGameNode extends TwoDNode<PlaySceneContext> {
   ) => {
     const playerNode = new PlayerNode(`${playerId}-player-node`);
     playerNode.playerLayoutNode.playEnterAnimation = playEnterAnimation;
-    if (playerId === this.container?.context.playerId) {
-      playerNode.playerLayoutNode.cardNode.setAssetKey("CardBackBlue");
-    }
     this.playerNodes.set(playerId, playerNode);
     this.playerOrder.addPlayer(playerId);
     this.layoutPlayerNodes();
@@ -122,7 +120,7 @@ export class NewGameNode extends TwoDNode<PlaySceneContext> {
       this.markReadyButton.visible = false;
       this.markUnreadyButton.visible = true;
     }
-    // TODO: mark player node ready
+    this.playerNodes.get(readyPlayerId)?.playerLayoutNode.playerInfoNode.animateReady(true);
   };
 
   public handleMarkPlayerUnready = ({
@@ -134,6 +132,6 @@ export class NewGameNode extends TwoDNode<PlaySceneContext> {
       this.markReadyButton.visible = true;
       this.markUnreadyButton.visible = false;
     }
-    // TODO: mark player node ready
+    this.playerNodes.get(unreadyPlayerId)?.playerLayoutNode.playerInfoNode.animateReady(false);
   };
 }

@@ -1,14 +1,11 @@
-import type { SvgNode } from "../../sceneGraph/nodes/2d/SvgNode";
-import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
-import type { TextTheme } from "../../sceneGraph/scene/Theme";
 import { getPlayerName } from "../../services/utils/playerName";
 import { CardHeight, CardWidth } from "../constants/CardConstants";
 import type { PlaySceneContext } from "../PlaySceneContext";
-import { CheckmarkNode } from "./CheckmarkNode";
 import { LoadedImageNode } from "./LoadedImageNode";
+import { PlayerInfoNode, PlayerInfoNodeHeight, PlayerInfoNodeWidth } from "./PlayerInfoNode";
 
 export type PlayerPosition =
   | "left"
@@ -28,22 +25,14 @@ export const PlayerPositionLayout: Record<number, PlayerPosition[]> = {
 
 const TextPadding = 5;
 
-const PlayerNodeTextTheme: TextTheme = {
-  fontFamily: "blenderProBold",
-  fontSize: 32,
-  textBorderColor: "white",
-  textColor: "black",
-};
-
 export class PlayerLayoutNode extends TwoDNode<PlaySceneContext> {
   public playerPosition: PlayerPosition = "left";
-  public textNode: TextNode<PlaySceneContext>;
   public cardNode: LoadedImageNode;
   public playEnterAnimation: boolean = false;
   public enterAnimationAxis: "x" | "y" = "x";
   public enterAnimation: AnimationNode<PlaySceneContext>;
   public textFadeInAnimation: AnimationNode<PlaySceneContext>;
-  public checkmarkNode: CheckmarkNode;
+  public playerInfoNode: PlayerInfoNode;
 
   public enterAnimationUpdated = (value: number) => {
     if (this.enterAnimationAxis === "x") {
@@ -54,7 +43,7 @@ export class PlayerLayoutNode extends TwoDNode<PlaySceneContext> {
   };
 
   public textFadeInAnimationUpdated = (value: number) => {
-    this.textNode.opacity = value;
+    this.playerInfoNode.opacity = value;
   };
 
   constructor(id: string) {
@@ -64,10 +53,6 @@ export class PlayerLayoutNode extends TwoDNode<PlaySceneContext> {
     this.cardNode.width = CardWidth;
     this.cardNode.height = CardHeight;
     this.addChild(this.cardNode);
-
-    this.textNode = new TextNode(`${id}-text`);
-    this.textNode.theme = PlayerNodeTextTheme;
-    this.addChild(this.textNode);
 
     this.enterAnimation = new AnimationNode(`${id}-enter-animation`);
     this.enterAnimation.durationMs = 800;
@@ -87,14 +72,14 @@ export class PlayerLayoutNode extends TwoDNode<PlaySceneContext> {
     );
     this.addChild(this.textFadeInAnimation);
 
-    this.checkmarkNode = new CheckmarkNode(`$${id}-checkmark`);
-    this.checkmarkNode.offset[1] = -40;
-    this.addChild(this.checkmarkNode);
+    this.playerInfoNode = new PlayerInfoNode(`$${id}-checkmark`);
+    this.playerInfoNode.offset[1] = -40;
+    this.addChild(this.playerInfoNode);
   }
 
   public onMount = (container: NodeManager<PlaySceneContext>) => {
     const { players, playerId } = container.context;
-    this.textNode.text = getPlayerName(players.get(playerId));
+    this.playerInfoNode.textNode.text = getPlayerName(players.get(playerId));
     if (this.playEnterAnimation) {
       this.enterAnimation.start();
       this.textFadeInAnimation.start();
@@ -105,39 +90,38 @@ export class PlayerLayoutNode extends TwoDNode<PlaySceneContext> {
     this.playerPosition = playerPosition;
     switch (playerPosition) {
       case "left":
-        this.textNode.textAlign = "left";
-        this.textNode.textBaseline = "bottom";
-        this.textNode.offset = [10, -CardHeight / 2 - TextPadding];
+        this.playerInfoNode.offset = [10, -CardHeight / 2 - TextPadding - PlayerInfoNodeHeight];
+        this.playerInfoNode.alignment = "right";
         this.enterAnimationAxis = "x";
+        this.enterAnimation.startValue = -CardWidth / 2;
         break;
       case "top-left":
-        this.textNode.textAlign = "center";
-        this.textNode.textBaseline = "top";
-        this.textNode.offset = [0, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.offset = [-PlayerInfoNodeWidth / 2, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.alignment = "bottom";
         this.enterAnimationAxis = "y";
+        this.enterAnimation.startValue = -CardHeight / 2;
         break;
       case "top":
-        this.textNode.textAlign = "center";
-        this.textNode.textBaseline = "top";
-        this.textNode.offset = [0, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.offset = [-PlayerInfoNodeWidth / 2, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.alignment = "bottom";
         this.enterAnimationAxis = "y";
+        this.enterAnimation.startValue = -CardHeight / 2;
         break;
       case "top-right":
-        this.textNode.textAlign = "center";
-        this.textNode.textBaseline = "top";
-        this.textNode.offset = [0, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.offset = [-PlayerInfoNodeWidth / 2, CardHeight / 2 + TextPadding];
+        this.playerInfoNode.alignment = "bottom";
         this.enterAnimationAxis = "y";
+        this.enterAnimation.startValue = -CardHeight / 2;
         break;
       case "right":
-        this.textNode.textAlign = "right";
-        this.textNode.textBaseline = "bottom";
-        this.textNode.offset = [-10, -CardHeight / 2 - TextPadding];
+        this.playerInfoNode.offset = [-10 - PlayerInfoNodeWidth, -CardHeight / 2 - TextPadding - PlayerInfoNodeHeight];
+        this.playerInfoNode.alignment = "left";
         this.enterAnimationAxis = "x";
+        this.enterAnimation.startValue = CardWidth / 2;
         break;
       case "bottom":
-        this.textNode.textAlign = "center";
-        this.textNode.textBaseline = "bottom";
-        this.textNode.offset = [0, -CardHeight / 2 - TextPadding];
+        this.playerInfoNode.offset = [-PlayerInfoNodeWidth / 2, -CardHeight / 2 - TextPadding - PlayerInfoNodeHeight];
+        this.playerInfoNode.alignment = "top";
         this.enterAnimationAxis = "y";
         this.enterAnimation.startValue = CardHeight / 2;
         break;

@@ -8,6 +8,7 @@ import {
 } from "../constants/Themes";
 
 export class ActionButtonNode extends ButtonNode<PlaySceneContext> {
+  private hovered = false;
   public onClick?: () => void;
   constructor(nodeId: string) {
     super(nodeId);
@@ -15,10 +16,12 @@ export class ActionButtonNode extends ButtonNode<PlaySceneContext> {
     this.textNode.theme = ActionButtonTextTheme;
 
     this.rectNode.mouseEntered = () => {
+      this.hovered = true;
       this.rectNode.theme = ActionButtonHoverTheme;
       this.container?.setCursor("pointer");
     };
     this.rectNode.mouseExited = () => {
+      this.hovered = false;
       this.rectNode.theme = ActionButtonTheme;
       this.container?.setCursor("default");
     };
@@ -26,7 +29,7 @@ export class ActionButtonNode extends ButtonNode<PlaySceneContext> {
       this.rectNode.theme = ActionButtonActiveTheme;
     };
     this.rectNode.mouseUp = () => {
-      this.rectNode.theme = ActionButtonHoverTheme;
+      this.rectNode.theme = this.hovered ? ActionButtonHoverTheme : ActionButtonTheme;
       this.onClick?.();
     };
   }
