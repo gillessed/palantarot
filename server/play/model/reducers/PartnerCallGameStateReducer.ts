@@ -1,6 +1,10 @@
 import { cardsContain } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
-import { type CallPartnerAction, type DogRevealTransition, type GameStartTransition } from "../GameEvents.ts";
+import {
+  type CallPartnerAction,
+  type DogRevealTransition,
+  type GameStartTransition,
+} from "../GameEvents.ts";
 import {
   type DogRevealAndExchangeBoardState,
   type PartnerCallBoardState,
@@ -9,15 +13,21 @@ import {
   type PlayingBoardState,
   type ReducerResult,
 } from "../GameState.ts";
-import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers.ts";
+import {
+  declareSlamActionReducer,
+  showTrumpActionReducer,
+} from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
 
 const handleCallPartnerAction = (
   state: PartnerCallBoardState,
   action: CallPartnerAction
 ): ReducerResult<PartnerCallStates> => {
-  if (action.player !== state.bidder) {
-    throw GameErrors.cannotCallPartnerIfNotBidder(action.player, state.bidder);
+  if (action.playerId !== state.bidder) {
+    throw GameErrors.cannotCallPartnerIfNotBidder(
+      action.playerId,
+      state.bidder
+    );
   }
   if (action.card[0] === "T") {
     throw GameErrors.cannotCallTrump(action.card);

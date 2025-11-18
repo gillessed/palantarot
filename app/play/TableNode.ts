@@ -7,40 +7,36 @@ import {
   type ClientGame,
 } from "../../shared/types/ClientGameTypes";
 import { TwoDNode } from "../sceneGraph/nodes/2d/TwoDNode";
-import type { NodeManager } from "../sceneGraph/nodes/SceneNode";
+import type { NodeManager, SceneNode } from "../sceneGraph/nodes/SceneNode";
 import type { ImageAssets } from "./assets/ImageAssets";
-import type { BiddingGameNode } from "./gamePhase/bidding/BiddingGameNode";
-import { NewGameNode } from "./gamePhase/newGame/NewGameNode";
+import { BiddingPhaseNode } from "./gamePhase/bidding/BiddingPhaseNode";
+import { NewGamePhaseNode } from "./gamePhase/newGame/NewGamePhaseNode";
 import { TableNodeId } from "./NodeIds";
 import type { PlaySceneContext } from "./PlaySceneContext";
 
-export type GamePhaseNode = NewGameNode | BiddingGameNode;
+export type GamePhaseNode = NewGamePhaseNode | BiddingPhaseNode;
 
 export class TableNode extends TwoDNode<PlaySceneContext> {
   public imageAssets: ImageAssets;
-  public gamePhaseNode: GamePhaseNode = new NewGameNode();
+  public newGamePhaseNode = new NewGamePhaseNode();
+  public biddingGameNode = new BiddingPhaseNode();
+  public gamePhaseNode?: SceneNode<PlaySceneContext>;
   private gameState: ClientGame = EmptyClientGame;
   private removeSceneListener?: () => void;
 
   constructor(imageAssets: ImageAssets) {
     super(TableNodeId);
     this.imageAssets = imageAssets;
-    this.addChild(this.gamePhaseNode);
   }
 
   public onMount = (container: NodeManager<PlaySceneContext>) => {
     const { socket } = container.context;
     this.removeSceneListener = socket.addListener(this.handleServerMessage);
   };
+
   public onUnmount = () => {
     this.removeSceneListener?.();
     this.removeSceneListener = undefined;
-  };
-
-  public setGamePhaseNode = (gamePhaseNode: GamePhaseNode) => {
-    this.removeChild(this.gamePhaseNode);
-    this.gamePhaseNode = gamePhaseNode;
-    this.addChild(this.gamePhaseNode);
   };
 
   public update = () => {
@@ -49,13 +45,24 @@ export class TableNode extends TwoDNode<PlaySceneContext> {
     this.offset = [width / 2, height / 2];
   };
 
+  public setSceneNode = (newGamePhaseNode: SceneNode<PlaySceneContext>) => {
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
+    this.gamePhaseNode = newGamePhaseNode;
+    this.addChild(newGamePhaseNode);
+  };
+
   public setToPlayState = (state: ClientGame) => {
     this.gameState = state;
     switch (this.gameState.gamePhase) {
       case "new_game":
-        const newGameNode = new NewGameNode();
-        this.setGamePhaseNode(newGameNode);
-        newGameNode.setToGameState(this.gameState);
+        this.setSceneNode(this.newGamePhaseNode);
+        this.newGamePhaseNode.setToGameState(this.gameState);
+        break;
+      case "bidding":
+        this.setSceneNode(this.biddingGameNode);
+        this.biddingGameNode.setToGameState(this.gameState);
         break;
     }
   };
@@ -90,27 +97,28 @@ export class TableNode extends TwoDNode<PlaySceneContext> {
     const { type } = event;
     switch (type) {
       case "enter_game":
-        if (this.gamePhaseNode instanceof NewGameNode) {
-          this.gamePhaseNode.handleEnterGame(event);
-        }
+        this.newGamePhaseNode.handleEnterGame(event);
         break;
 
       case "leave_game":
-        if (this.gamePhaseNode instanceof NewGameNode) {
-          this.gamePhaseNode.handleLeaveGame(event);
-        }
+        this.newGamePhaseNode.handleLeaveGame(event);
         break;
 
       case "mark_player_ready":
-        if (this.gamePhaseNode instanceof NewGameNode) {
-          this.gamePhaseNode.handleMarkPlayerReady(event);
-        }
+        this.newGamePhaseNode.handleMarkPlayerReady(event);
         break;
 
       case "mark_player_unready":
-        if (this.gamePhaseNode instanceof NewGameNode) {
-          this.gamePhaseNode.handleMarkPlayerUnready(event);
-        }
+        this.newGamePhaseNode.handleMarkPlayerUnready(event);
+        break;
+
+      case "players_set":
+        // TODO: deal animation
+        this.setSceneNode(this.biddingGameNode);
+        break;
+
+      case "dealt_hand":
+        // this.biddingGameNode.handleDealtHand(event);
         break;
     }
   };

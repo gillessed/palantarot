@@ -1,5 +1,9 @@
 import { defineSocketMessage } from "../../websocket/SocketMessage.ts";
-import { type Action, type ErrorCode, type PlayerEvent } from "../model/GameEvents.ts";
+import {
+  type Action,
+  type ErrorCode,
+  type PlayerEvent,
+} from "../model/GameEvents.ts";
 import { type GameSettings } from "../model/GameSettings.ts";
 import { type ChatText } from "./ChatText.ts";
 import { type PlayerStatus } from "./PlayerStatus.ts";
@@ -24,7 +28,6 @@ export interface RoomChatMessagePayload {
 
 export interface GameActionMessagePayload {
   roomId: string;
-  playerId: string;
   action: Action;
 }
 
@@ -67,18 +70,31 @@ export interface NotifyPlayerMessagePayload {
 
 const name = (method: string) => `room::${method}`;
 
-const enterRoom = defineSocketMessage<EnterRoomMessagePayload>(name("enterRoom"));
-const roomStatus = defineSocketMessage<RoomStatusMessagePayload>(name("roomStatus"));
-const playerStatusUpdated = defineSocketMessage<PlayerStatusUpdatedMessagePayload>(name("playerStatusUpdated"));
+const enterRoom = defineSocketMessage<EnterRoomMessagePayload>(
+  name("enterRoom")
+);
+const roomStatus = defineSocketMessage<RoomStatusMessagePayload>(
+  name("roomStatus")
+);
+const playerStatusUpdated =
+  defineSocketMessage<PlayerStatusUpdatedMessagePayload>(
+    name("playerStatusUpdated")
+  );
 const roomChat = defineSocketMessage<RoomChatMessagePayload>(name("roomChat"));
-const gameAction = defineSocketMessage<GameActionMessagePayload>(name("gameAction"));
-const gameUpdates = defineSocketMessage<GameUpdatesMessagePayload>(name("gameUpdates"));
+const gameAction = defineSocketMessage<GameActionMessagePayload>(
+  name("gameAction")
+);
+const gameUpdates = defineSocketMessage<GameUpdatesMessagePayload>(
+  name("gameUpdates")
+);
 const error = defineSocketMessage<RoomErrorMessagePayload>(name("error"));
 const newGame = defineSocketMessage<NewGameMessagePayload>(name("newGame"));
 const addBot = defineSocketMessage<BotMessagePayload>(name("adBot"));
 const removeBot = defineSocketMessage<BotMessagePayload>(name("removeBot"));
 const autoplay = defineSocketMessage<AutoplayMessagePayload>(name("autoplay"));
-const notifyPlayer = defineSocketMessage<NotifyPlayerMessagePayload>(name("notifyPlayer"));
+const notifyPlayer = defineSocketMessage<NotifyPlayerMessagePayload>(
+  name("notifyPlayer")
+);
 
 export const RoomSocketMessages = {
   enterRoom,

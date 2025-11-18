@@ -27,3 +27,10 @@ export const ActionButtonActiveTheme: RectTheme = {
   ...ActionButtonTheme,
   backgroundColor: "#156EA4",
 };
+
+export const ActionButtonDisabledTheme: RectTheme = {
+  backgroundColor: "#868e96",
+  borderColor: "#495057",
+  borderRadius: 10,
+  borderWidth: UiBorderWidth,
+};

@@ -3,7 +3,7 @@ import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { NewGameNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 
-export class BiddingGameNode extends TwoDNode<PlaySceneContext> {
+export class BiddingPhaseNode extends TwoDNode<PlaySceneContext> {
   constructor() {
     super(NewGameNodeId);
   }

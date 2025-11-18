@@ -1,7 +1,11 @@
 import pkg from "lodash";
 import { cardsWithout, getPlayerNum } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
-import { type GameStartTransition, type PlayerEvent, type SetDogAction } from "../GameEvents.ts";
+import {
+  type GameStartTransition,
+  type PlayerEvent,
+  type SetDogAction,
+} from "../GameEvents.ts";
 import {
   type DogRevealAndExchangeBoardState,
   type DogRevealStateActions,
@@ -9,7 +13,10 @@ import {
   type PlayingBoardState,
   type ReducerResult,
 } from "../GameState.ts";
-import { declareSlamActionReducer, showTrumpActionReducer } from "./CommonReducers.ts";
+import {
+  declareSlamActionReducer,
+  showTrumpActionReducer,
+} from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
 
 const { isEqual } = pkg;
@@ -18,10 +25,10 @@ const handleSetDogAction = (
   state: DogRevealAndExchangeBoardState,
   action: SetDogAction
 ): ReducerResult<DogRevealStates> => {
-  if (action.player !== state.bidder) {
-    throw GameErrors.cannotSetDogIfNotBidder(action.player, state.bidder);
+  if (action.playerId !== state.bidder) {
+    throw GameErrors.cannotSetDogIfNotBidder(action.playerId, state.bidder);
   }
-  if (!isEqual(action.player, action.privateTo)) {
+  if (!isEqual(action.playerId, action.privateTo)) {
     throw GameErrors.setDogActionShouldBePrivate(action);
   }
   if (action.dog.length !== state.dog.length) {
@@ -57,7 +64,7 @@ const handleSetDogAction = (
   const { publicHands } = state;
   if (publicHands) {
     const setDogForObservers: SetDogAction = {
-      player: action.player,
+      playerId: action.playerId,
       time: action.time,
       type: "set_dog",
       dog: action.dog,

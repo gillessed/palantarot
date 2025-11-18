@@ -24,19 +24,26 @@ export class RectNode<SceneContext> extends TwoDNode<SceneContext> {
     const borderRadius = this.theme?.borderRadius ?? 0;
     ctx.lineWidth = borderWidth;
     ctx.fillStyle = this.theme?.backgroundColor ?? "#000000";
-    ctx.beginPath();
     const x = this.position[0] - this.width / 2;
     const w = this.width;
     const y = this.position[1] - this.height / 2;
     const h = this.height;
+    ctx.shadowBlur = this.shadow;
+    ctx.shadowColor = this.shadowColor;
     if (borderRadius > 0) {
-      pathRoundedRectangle(ctx, x, y, w, h, borderRadius);
+      const path2d = new Path2D();
+      pathRoundedRectangle(path2d, x, y, w, h, borderRadius);
+      ctx.fill(path2d);
+      if (borderWidth > 0) {
+        ctx.stroke(path2d);
+      }
     } else {
+      ctx.beginPath();
       ctx.rect(x, y, w, h);
-    }
-    ctx.fill();
-    if (borderWidth > 0) {
-      ctx.stroke();
+      ctx.fill();
+      if (borderWidth > 0) {
+        ctx.stroke();
+      }
     }
   };
 }

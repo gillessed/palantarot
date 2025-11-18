@@ -10,7 +10,6 @@ import {
   type PlayerReadyAction,
   type PlayersSetTransition,
   type PlayerUnreadyAction,
-  type ShowDogToObservers,
 } from "../GameEvents.ts";
 import {
   type BiddingBoardState,
@@ -29,15 +28,15 @@ const handleEnterGameAction = (
   state: NewGameBoardState,
   action: EnterGameAction
 ): ReducerResult<NewGameStates> => {
-  if (state.players.indexOf(action.player) >= 0) {
+  if (state.players.indexOf(action.playerId) >= 0) {
     throw GameErrors.actionAlreadyHappened(action, state.players);
   }
   if (state.players.length > 5) {
-    throw GameErrors.tooManyPlayers(action.player, state.players);
+    throw GameErrors.tooManyPlayers(action.playerId, state.players);
   }
   const newState: NewGameBoardState = {
     ...state,
-    players: [...state.players, action.player],
+    players: [...state.players, action.playerId],
   };
   return simpleResult(newState, action);
 };
@@ -46,15 +45,15 @@ const handleLeaveGameAction = (
   state: NewGameBoardState,
   action: LeaveGameAction
 ): ReducerResult<NewGameStates> => {
-  if (state.players.indexOf(action.player) < 0) {
-    throw GameErrors.playerNotInGame(action.player, state.players);
+  if (state.players.indexOf(action.playerId) < 0) {
+    throw GameErrors.playerNotInGame(action.playerId, state.players);
   }
-  if (state.ready.indexOf(action.player) >= 0) {
-    throw GameErrors.playerMarkedReady(action.player);
+  if (state.ready.indexOf(action.playerId) >= 0) {
+    throw GameErrors.playerMarkedReady(action.playerId);
   }
   const newState: NewGameBoardState = {
     ...state,
-    players: without(state.players, action.player),
+    players: without(state.players, action.playerId),
   };
   return simpleResult(newState, action);
 };
@@ -63,11 +62,11 @@ const handleMarkPlayerReadyAction = (
   state: NewGameBoardState,
   action: PlayerReadyAction
 ): ReducerResult<NewGameStates> => {
-  if (state.ready.indexOf(action.player) >= 0) {
+  if (state.ready.indexOf(action.playerId) >= 0) {
     throw GameErrors.actionAlreadyHappened(action, state.ready);
   }
-  if (state.players.indexOf(action.player) < 0) {
-    throw GameErrors.playerNotInGame(action.player, state.players);
+  if (state.players.indexOf(action.playerId) < 0) {
+    throw GameErrors.playerNotInGame(action.playerId, state.players);
   }
   if (
     state.ready.length + 1 !== state.players.length ||
@@ -75,11 +74,10 @@ const handleMarkPlayerReadyAction = (
   ) {
     const newState: NewGameBoardState = {
       ...state,
-      ready: [...state.ready, action.player],
+      ready: [...state.ready, action.playerId],
     };
     return simpleResult(newState, action);
   } else {
-    const { publicHands } = state;
     const { dog, hands } = dealCards(state.players.length);
     const playerOrder = shufflePlayers(state.players);
 
@@ -139,14 +137,6 @@ const handleMarkPlayerReadyAction = (
       ...dealTransitions,
     ];
 
-    if (publicHands) {
-      const showDogEvent: ShowDogToObservers = {
-        type: "show_dog_to_observers",
-        dog,
-        exclude: state.players,
-      };
-      events.push(showDogEvent);
-    }
     return {
       state: bidState,
       events,
@@ -159,15 +149,15 @@ export const handleUnmarkPlayerReadyAction = (
   state: NewGameBoardState,
   action: PlayerUnreadyAction
 ): ReducerResult<NewGameStates> => {
-  if (state.players.indexOf(action.player) < 0) {
-    throw GameErrors.playerNotInGame(action.player, state.players);
+  if (state.players.indexOf(action.playerId) < 0) {
+    throw GameErrors.playerNotInGame(action.playerId, state.players);
   }
-  if (state.ready.indexOf(action.player) < 0) {
-    throw GameErrors.playerNotReady(action.player, state.ready);
+  if (state.ready.indexOf(action.playerId) < 0) {
+    throw GameErrors.playerNotReady(action.playerId, state.ready);
   }
   const newState: NewGameBoardState = {
     ...state,
-    ready: without(state.ready, action.player),
+    ready: without(state.ready, action.playerId),
   };
   return simpleResult(newState, action);
 };

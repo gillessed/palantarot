@@ -26,7 +26,10 @@ import {
 import { showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
 import { getNewTrick, getStringForBid } from "./Utils.ts";
 
-const getAllCalls = (players: PlayerId[], bidding: CurrentBids): { [player: number]: Call[] } => {
+const getAllCalls = (
+  players: PlayerId[],
+  bidding: CurrentBids
+): { [player: number]: Call[] } => {
   const calls: { [player: number]: Call[] } = {};
   for (const bid of bidding.bids) {
     const playerNum = getPlayerNum(players, bid.player);
@@ -70,7 +73,10 @@ const updateBids = (state: CurrentBids, bid: Bid): CurrentBids => {
   }
 };
 
-const handleAllPasses = (state: BiddingBoardState, action: BidAction): ReducerResult<BiddingStates> => {
+const handleAllPasses = (
+  state: BiddingBoardState,
+  action: BidAction
+): ReducerResult<BiddingStates> => {
   const newState: NewGameBoardState = {
     publicHands: state.publicHands,
     name: "new_game",
@@ -85,7 +91,10 @@ const handleAllPasses = (state: BiddingBoardState, action: BidAction): ReducerRe
   return { state: newState, events, serverMessages: ["Everyone passed"] };
 };
 
-const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerResult<BiddingStates> => {
+const handleBidAction = (
+  state: BiddingBoardState,
+  action: BidAction
+): ReducerResult<BiddingStates> => {
   const bid: Bid = {
     ...action,
     calls: action.calls || [],
@@ -96,7 +105,7 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
       ...state,
       bidding: newBidState,
     };
-    const bidMessage = `{${action.player}} bid ${getStringForBid(bid)}`;
+    const bidMessage = `{${action.playerId}} bid ${getStringForBid(bid)}`;
     return simpleResult(newState, action, [bidMessage]);
   } else {
     // last bid
@@ -104,7 +113,10 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
       // all passes
       return handleAllPasses(state, action);
     } else {
-      let newState: PartnerCallBoardState | DogRevealAndExchangeBoardState | PlayingBoardState;
+      let newState:
+        | PartnerCallBoardState
+        | DogRevealAndExchangeBoardState
+        | PlayingBoardState;
       const biddingCompletedTransition: BiddingCompletedTransition = {
         type: "bidding_completed",
         winning_bid: newBidState.current_high,
@@ -165,9 +177,13 @@ const handleBidAction = (state: BiddingBoardState, action: BidAction): ReducerRe
           events.push(gameStartedTransition);
         }
       }
-      const bidMessage = `{${action.player}} ${getStringForBid(bid)}`;
+      const bidMessage = `{${action.playerId}} ${getStringForBid(bid)}`;
       const winnerMessage = `{${newState.bidder}} has won the bid`;
-      return { state: newState, events, serverMessages: [bidMessage, winnerMessage] };
+      return {
+        state: newState,
+        events,
+        serverMessages: [bidMessage, winnerMessage],
+      };
     }
   }
 };

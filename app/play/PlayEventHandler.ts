@@ -1,8 +1,8 @@
-import { useCallback, useMemo } from "react";
-import type { PlayerId } from "../../server/play/model/GameState";
-import type { ClientSocket } from "../services/socket/ClientSocket";
+import { useMemo } from "react";
 import type { Action } from "../../server/play/model/GameEvents";
+import type { PlayerId } from "../../server/play/model/GameState";
 import { RoomSocketMessages } from "../../server/play/room/RoomSocketMessages";
+import type { ClientSocket } from "../services/socket/ClientSocket";
 
 export interface PlayEventHandler {
   joinGame: () => void;
@@ -11,53 +11,50 @@ export interface PlayEventHandler {
   markUnready: () => void;
 }
 
+export function createPlayEventHandler(
+  playerId: PlayerId,
+  roomId: string,
+  socket: ClientSocket
+): PlayEventHandler {
+  const sendActionMessage = (
+    actionPayload: Omit<Action, "playerId" | "time">
+  ) => {
+    const action = {
+      ...actionPayload,
+      playerId,
+      time: Date.now(),
+    } as Action;
+    socket.send(
+      RoomSocketMessages.gameAction({
+        roomId,
+        action,
+      })
+    );
+  };
+
+  return {
+    joinGame: () => {
+      sendActionMessage({ type: "enter_game" });
+    },
+    leaveGame: () => {
+      sendActionMessage({ type: "leave_game" });
+    },
+    markReady: () => {
+      sendActionMessage({ type: "mark_player_ready" });
+    },
+    markUnready: () => {
+      sendActionMessage({ type: "mark_player_unready" });
+    },
+  };
+}
+
 export function usePlayEventHandler(
   playerId: PlayerId,
   roomId: string,
   socket: ClientSocket
 ): PlayEventHandler {
-  const sendActionMessage = useCallback(
-    (action: Action) =>
-      socket.send(
-        RoomSocketMessages.gameAction({
-          playerId: playerId,
-          roomId,
-          action,
-        })
-      ),
-    [socket, playerId, roomId]
+  return useMemo(
+    () => createPlayEventHandler(playerId, roomId, socket),
+    [playerId, roomId, socket]
   );
-
-  return useMemo(() => {
-    return {
-      joinGame: () => {
-        sendActionMessage({
-          type: "enter_game",
-          player: playerId,
-          time: Date.now(),
-        });
-      },
-      leaveGame: () => {
-        sendActionMessage({
-          type: "leave_game",
-          player: playerId,
-          time: Date.now(),
-        });
-      },
-      markReady: () => {
-        sendActionMessage({
-          type: "mark_player_ready",
-          player: playerId,
-          time: Date.now(),
-        });
-      },
-      markUnready: () => {
-        sendActionMessage({
-          type: "mark_player_unready",
-          player: playerId,
-          time: Date.now(),
-        });
-      },
-    };
-  }, [sendActionMessage]);
 }

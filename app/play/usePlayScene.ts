@@ -2,20 +2,15 @@ import { useEffect, useMemo } from "react";
 import { Scene } from "../sceneGraph/scene/Scene";
 import { RootNode } from "./RootNode";
 import type { PlaySceneContext } from "./PlaySceneContext";
+import { useDebugConsole } from "./useDebugConsole";
 
-export function usePlayScene(eventHandler: PlaySceneContext) {
+export function usePlayScene(context: PlaySceneContext) {
   const scene = useMemo(() => {
-    const scene = new Scene<PlaySceneContext>(eventHandler);
+    const scene = new Scene<PlaySceneContext>(context);
     const rootNode = new RootNode();
     scene.setRoot(rootNode);
     return scene;
-  }, [eventHandler]);
-
-  useEffect(() => {
-    (window as any).getScene = () => scene;
-    return () => {
-      delete (window as any).getScene;
-    };
-  }, [scene]);
+  }, [context]);
+  useDebugConsole(scene);
   return scene;
 }

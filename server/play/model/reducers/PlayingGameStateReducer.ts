@@ -1,8 +1,19 @@
 import pkg from "lodash";
 import { TheJoker } from "../Card.ts";
-import { cardsContain, cardsWithout, getCardsAllowedToPlay, getPlayerNum, getWinner } from "../CardUtils.ts";
+import {
+  cardsContain,
+  cardsWithout,
+  getCardsAllowedToPlay,
+  getPlayerNum,
+  getWinner,
+} from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
-import { getBaseScore, getEarnings, getFinalScore, getOutcomes } from "../GameEvaluation.ts";
+import {
+  getBaseScore,
+  getEarnings,
+  getFinalScore,
+  getOutcomes,
+} from "../GameEvaluation.ts";
 import {
   type Action,
   type CompletedTrickTransition,
@@ -17,7 +28,11 @@ import {
   type PlayingStates,
   type ReducerResult,
 } from "../GameState.ts";
-import { declareSlamActionReducer, showTrumpActionReducer, simpleResult } from "./CommonReducers.ts";
+import {
+  declareSlamActionReducer,
+  showTrumpActionReducer,
+  simpleResult,
+} from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
 
 const { compact, findIndex, isEqual } = pkg;
@@ -25,7 +40,9 @@ const { compact, findIndex, isEqual } = pkg;
 const isAfterFirstTurn = (state: PlayingBoardState, action: Action) => {
   return (
     state.past_tricks.length > 0 ||
-    state.current_trick.players.slice(state.current_trick.current_player).indexOf(action.player) == -1
+    state.current_trick.players
+      .slice(state.current_trick.current_player)
+      .indexOf(action.playerId) == -1
   );
 };
 
@@ -33,8 +50,11 @@ export const handlePlayCardAction = (
   state: PlayingBoardState,
   action: PlayCardAction
 ): ReducerResult<PlayingStates> => {
-  const player_num = getPlayerNum(state.players, action.player);
-  const anyPlayerPlayedCard = !(state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0);
+  const player_num = getPlayerNum(state.players, action.playerId);
+  const anyPlayerPlayedCard = !(
+    state.current_trick.trick_num === 0 &&
+    state.current_trick.cards.length === 0
+  );
   const allowedCards = getCardsAllowedToPlay(
     state.hands[player_num],
     state.current_trick.cards,
@@ -42,14 +62,24 @@ export const handlePlayCardAction = (
     state.called
   );
 
-  if (state.current_trick.players[state.current_trick.current_player] !== action.player) {
-    throw GameErrors.playingOutOfTurn(action.player, state.current_trick.players[state.current_trick.current_player]);
+  if (
+    state.current_trick.players[state.current_trick.current_player] !==
+    action.playerId
+  ) {
+    throw GameErrors.playingOutOfTurn(
+      action.playerId,
+      state.current_trick.players[state.current_trick.current_player]
+    );
   }
   if (!cardsContain(state.hands[player_num], action.card)) {
     throw GameErrors.cardNotInHand(action, state.hands[player_num]);
   }
   if (!cardsContain(allowedCards, action.card)) {
-    throw GameErrors.cannotPlayCard(action.card, state.current_trick.cards, allowedCards);
+    throw GameErrors.cannotPlayCard(
+      action.card,
+      state.current_trick.cards,
+      allowedCards
+    );
   }
   if (
     !isAfterFirstTurn(state, action) &&
@@ -65,7 +95,10 @@ export const handlePlayCardAction = (
     ...state.hands,
     [player_num]: cardsWithout(state.hands[player_num], action.card),
   };
-  if (state.current_trick.current_player < state.current_trick.players.length - 1) {
+  if (
+    state.current_trick.current_player <
+    state.current_trick.players.length - 1
+  ) {
     const newState: PlayingBoardState = {
       ...state,
       hands,
@@ -79,7 +112,10 @@ export const handlePlayCardAction = (
   } else {
     // last card in trick
     const new_cards = [...state.current_trick.cards, action.card];
-    const [winning_card, winner] = getWinner(new_cards, state.current_trick.players);
+    const [winning_card, winner] = getWinner(
+      new_cards,
+      state.current_trick.players
+    );
     const completed_trick = {
       trick_num: state.current_trick.trick_num,
       cards: new_cards,
@@ -90,7 +126,10 @@ export const handlePlayCardAction = (
     if (cardsContain(completed_trick.cards, TheJoker) && hands[0].length > 0) {
       // joker is not kept on last trick
       jokerState = {
-        player: completed_trick.players[findIndex(completed_trick.cards, (card) => isEqual(card, TheJoker))],
+        player:
+          completed_trick.players[
+            findIndex(completed_trick.cards, (card) => isEqual(card, TheJoker))
+          ],
         owed_to: winner,
       };
     }
@@ -100,7 +139,11 @@ export const handlePlayCardAction = (
         ...state,
         hands,
         jokerState: state.jokerState || jokerState,
-        current_trick: getNewTrick(state.players, winner, completed_trick.trick_num + 1),
+        current_trick: getNewTrick(
+          state.players,
+          winner,
+          completed_trick.trick_num + 1
+        ),
         past_tricks: [...state.past_tricks, completed_trick],
       };
       const completedTrickTransition: CompletedTrickTransition = {
@@ -115,7 +158,13 @@ export const handlePlayCardAction = (
       // end of game!
       const tricks = [...state.past_tricks, completed_trick];
       const biddingTeam = compact([state.bidder, state.partner]);
-      const earnings = getEarnings(biddingTeam, tricks, state.bidding.winningBid.bid, state.dog, state.jokerState);
+      const earnings = getEarnings(
+        biddingTeam,
+        tricks,
+        state.bidding.winningBid.bid,
+        state.dog,
+        state.jokerState
+      );
       const baseScore = getBaseScore(state.bidding.winningBid.bid, earnings);
       const outcomes = getOutcomes(state.players, biddingTeam, tricks);
       const finalScore = getFinalScore(

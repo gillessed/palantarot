@@ -65,7 +65,7 @@ export function playForBot(
       const bid = bot.bid(clientGame);
       const bidAction: BidAction = {
         ...bid,
-        player: botId,
+        playerId: botId,
         type: "bid",
         time: Date.now(),
       };
@@ -74,7 +74,7 @@ export function playForBot(
       const call = bot.pickPartner(clientGame);
       const callAction: CallPartnerAction = {
         type: "call_partner",
-        player: botId,
+        playerId: botId,
         time: Date.now(),
         card: call,
       };
@@ -83,7 +83,7 @@ export function playForBot(
       const dogCards = bot.dropDog(clientGame);
       const setDogAction: SetDogAction = {
         type: "set_dog",
-        player: botId,
+        playerId: botId,
         privateTo: botId,
         time: Date.now(),
         dog: dogCards,
@@ -93,7 +93,7 @@ export function playForBot(
       const card = bot.playCard(clientGame);
       const playCardAction: PlayCardAction = {
         type: "play_card",
-        player: botId,
+        playerId: botId,
         time: Date.now(),
         card,
       };
@@ -215,7 +215,7 @@ function getShows(game: Game, botId: string) {
     if (event.type === "show_trump") {
       const trumpEvent = event as ShowTrumpAction;
       showDetails.push({
-        player: trumpEvent.player,
+        player: trumpEvent.playerId,
         trumpCards: trumpEvent.cards,
       });
     }

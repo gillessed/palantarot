@@ -27,9 +27,9 @@ export const showTrumpActionReducer = <T extends DealtBoardState>(
   state: T,
   action: ShowTrumpAction
 ): ReducerResult<T> => {
-  const playerNum = getPlayerNum(state.players, action.player);
-  if (state.shows.indexOf(action.player) >= 0) {
-    throw GameErrors.cannotShowTwice(action.player);
+  const playerNum = getPlayerNum(state.players, action.playerId);
+  if (state.shows.indexOf(action.playerId) >= 0) {
+    throw GameErrors.cannotShowTwice(action.playerId);
   }
   if (!cardsEqual(getTrumps(state.hands[playerNum]), action.cards)) {
     throw GameErrors.invalidTrumpShow(
@@ -45,7 +45,7 @@ export const showTrumpActionReducer = <T extends DealtBoardState>(
   }
   const newState: T = {
     ...state,
-    shows: [...state.shows, action.player],
+    shows: [...state.shows, action.playerId],
   };
   return simpleResult(newState, action);
 };
@@ -56,9 +56,9 @@ export const declareSlamActionReducer = <
   state: T,
   action: DeclareSlamAction
 ): ReducerResult<T> => {
-  const player_num = getPlayerNum(state.players, action.player);
-  if (action.player != state.bidder) {
-    throw GameErrors.onlyBidderCanDeclareSlam(action.player, state.bidder);
+  const player_num = getPlayerNum(state.players, action.playerId);
+  if (action.playerId != state.bidder) {
+    throw GameErrors.onlyBidderCanDeclareSlam(action.playerId, state.bidder);
   }
   const newState: T = {
     ...state,

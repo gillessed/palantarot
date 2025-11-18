@@ -17,13 +17,27 @@ export class TwoDNode<SceneContext> extends SceneNode<SceneContext> {
   public rotation: number = 0;
   public opacity: number = 1;
   public blur: number = 0;
+  public shadow: number = 0;
+  public shadowColor: string = "black";
 
   constructor(id: string) {
     super(id);
   }
 
+  public calculateOpacity = (): number => {
+    if (this.parent == null) {
+      return 1;
+    }
+    if (this.parent instanceof TwoDNode) {
+      const parentOpacity = this.parent.calculateOpacity();
+      return parentOpacity * this.opacity;
+    } else {
+      return 1;
+    }
+  };
+
   public updateContextInternal = (ctx: CanvasRenderingContext2D) => {
-    ctx.globalAlpha = this.opacity;
+    ctx.globalAlpha = this.calculateOpacity();
     if (this.blur !== 0) {
       ctx.filter = `blur(${this.blur}px)`;
     }

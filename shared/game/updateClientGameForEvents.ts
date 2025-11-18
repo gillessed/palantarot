@@ -40,7 +40,7 @@ function markPlayerReady(
 ): ClientGame {
   return {
     ...state,
-    readiedPlayers: new Set(state.readiedPlayers).add(action.player),
+    readiedPlayers: new Set(state.readiedPlayers).add(action.playerId),
   };
 }
 
@@ -49,7 +49,7 @@ function unmarkPlayerReady(
   action: PlayerUnreadyAction
 ): ClientGame {
   const newReadiedPlayers = new Set(state.readiedPlayers);
-  newReadiedPlayers.delete(action.player);
+  newReadiedPlayers.delete(action.playerId);
   return {
     ...state,
     readiedPlayers: newReadiedPlayers,
@@ -59,14 +59,14 @@ function unmarkPlayerReady(
 function enterGame(state: ClientGame, action: EnterGameAction): ClientGame {
   return {
     ...state,
-    playerOrder: [...state.playerOrder, action.player],
+    playerOrder: [...state.playerOrder, action.playerId],
   };
 }
 
 function leaveGame(state: ClientGame, action: LeaveGameAction): ClientGame {
   return {
     ...state,
-    playerOrder: without(state.playerOrder, action.player),
+    playerOrder: without(state.playerOrder, action.playerId),
   };
 }
 
@@ -105,7 +105,7 @@ function playersSet(
 function showTrump(state: ClientGame, action: ShowTrumpAction): ClientGame {
   const newShows = [
     ...state.shows,
-    { player: action.player, trumpCards: action.cards },
+    { player: action.playerId, trumpCards: action.cards },
   ];
   return {
     ...state,
@@ -116,8 +116,8 @@ function showTrump(state: ClientGame, action: ShowTrumpAction): ClientGame {
 
 function bid(state: ClientGame, action: BidAction): ClientGame {
   const newBids = new Map(state.playerBids);
-  newBids.set(action.player, {
-    player: action.player,
+  newBids.set(action.playerId, {
+    player: action.playerId,
     bid: action.bid,
     calls: action.calls ?? [],
   });
@@ -198,13 +198,13 @@ function dogRevealedToObservers(
 
 function setDog(state: ClientGame, action: SetDogAction): ClientGame {
   if (action.exclude != null) {
-    const globalHand = state.allHands.get(action.player);
+    const globalHand = state.allHands.get(action.playerId);
     const newAllHands = new Map(state.allHands);
     if (globalHand != null) {
       const handWithDog = [...globalHand, ...state.dog];
       const droppedHand = cardsWithout(handWithDog, ...action.dog);
       droppedHand.sort(compareCards());
-      newAllHands.set(action.player, droppedHand);
+      newAllHands.set(action.playerId, droppedHand);
     }
     return {
       ...state,
@@ -235,19 +235,19 @@ function playCard(
   action: PlayCardAction,
   playerId: PlayerId
 ): ClientGame {
-  const playerIndex = state.playerOrder.indexOf(action.player) + 1;
+  const playerIndex = state.playerOrder.indexOf(action.playerId) + 1;
   const toPlay = state.playerOrder[playerIndex % state.playerOrder.length];
   let newTrickCards;
   let newOrder;
   let newCompletedTricks = state.completedTricks;
   if (state.trick.completed) {
-    newTrickCards = new Map([[action.player, action.card]]);
-    newOrder = [action.player];
+    newTrickCards = new Map([[action.playerId, action.card]]);
+    newOrder = [action.playerId];
     newCompletedTricks = [...state.completedTricks, state.trick];
   } else {
     newTrickCards = new Map(state.trick.cards);
-    newTrickCards.set(action.player, action.card);
-    newOrder = [...(state.trick.order ?? []), action.player];
+    newTrickCards.set(action.playerId, action.card);
+    newOrder = [...(state.trick.order ?? []), action.playerId];
   }
   const newTrick: ClientTrickCards = {
     order: newOrder,
@@ -256,17 +256,17 @@ function playCard(
   };
   let partner = state.partner;
   if (!partner && isEqual(state.partnerCard, action.card)) {
-    partner = action.player;
+    partner = action.playerId;
   }
-  const globalHand = state.allHands.get(action.player);
+  const globalHand = state.allHands.get(action.playerId);
   const newAllHands = new Map(state.allHands);
   if (globalHand != null) {
-    newAllHands.set(action.player, cardsWithout(globalHand, action.card));
+    newAllHands.set(action.playerId, cardsWithout(globalHand, action.card));
   }
   return {
     ...state,
     hand:
-      action.player === playerId
+      action.playerId === playerId
         ? cardsWithout(state.hand, action.card)
         : state.hand,
     toPlay,

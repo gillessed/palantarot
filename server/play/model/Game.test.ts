@@ -115,10 +115,13 @@ export const SampleDeal = {
 };
 
 function autoplayTrick(game: Game, time: () => number) {
-  const order = (testingGetState(game) as PlayingBoardState).current_trick.players;
+  const order = (testingGetState(game) as PlayingBoardState).current_trick
+    .players;
   for (const player of order) {
     const state = testingGetState(game) as PlayingBoardState;
-    const isFirstPlay = state.current_trick.trick_num === 0 && state.current_trick.cards.length === 0;
+    const isFirstPlay =
+      state.current_trick.trick_num === 0 &&
+      state.current_trick.cards.length === 0;
     const cards = getCardsAllowedToPlay(
       state.hands[getPlayerNum(state.players, player)],
       state.current_trick.cards,
@@ -126,47 +129,133 @@ function autoplayTrick(game: Game, time: () => number) {
       state.called
     );
     // Play first available card, otherwise try to play one last. (Not smartest play, but good for testing)
-    const card = find(cards, (card) => !isEqual(card, TheOne)) || cardsContain(cards, TheOne);
-    game.playerAction({ type: "play_card", player, card, time: time() });
+    const card =
+      find(cards, (card) => !isEqual(card, TheOne)) ||
+      cardsContain(cards, TheOne);
+    game.playerAction({
+      type: "play_card",
+      playerId: player,
+      card,
+      time: time(),
+    });
   }
 }
 
 test("5 player game", () => {
   const game = Game.createNew();
   const time = createTimer();
-  cardTestingSetShuffler((_cards: Card[]) => [...concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
-  playerTestingSetShuffler((_players: PlayerId[]) => ["dxiao", "ericb", "gcole", "karl", "samira"]);
+  cardTestingSetShuffler((_cards: Card[]) => [
+    ...concat<Card>([], ...SampleDeal.hands),
+    ...SampleDeal.dog,
+  ]);
+  playerTestingSetShuffler((_players: PlayerId[]) => [
+    "dxiao",
+    "ericb",
+    "gcole",
+    "karl",
+    "samira",
+  ]);
 
   game.playerAction({ type: "enter_game", player: "dxiao", time: time() });
   game.playerAction({ type: "enter_game", player: "ericb", time: time() });
   game.playerAction({ type: "enter_game", player: "gcole", time: time() });
   game.playerAction({ type: "enter_game", player: "karl", time: time() });
   game.playerAction({ type: "enter_game", player: "samira", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "samira", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "ericb", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "gcole", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "karl", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "dxiao", time: time() });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "samira",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "ericb",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "gcole",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "karl",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "dxiao",
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "dealt_hand");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "dealt_hand"
+  );
 
-  game.playerAction({ type: "bid", player: "dxiao", bid: BidValue.TEN, time: time() });
-  game.playerAction({ type: "bid", player: "ericb", bid: BidValue.TWENTY, calls: ["russian"], time: time() });
-  game.playerAction({ type: "bid", player: "gcole", bid: BidValue.PASS, time: time() });
-  game.playerAction({ type: "bid", player: "karl", bid: BidValue.PASS, time: time() });
-  game.playerAction({ type: "bid", player: "samira", bid: BidValue.FORTY, time: time() });
-  game.playerAction({ type: "bid", player: "dxiao", bid: BidValue.PASS, time: time() });
-  game.playerAction({ type: "bid", player: "ericb", bid: BidValue.PASS, time: time() });
+  game.playerAction({
+    type: "bid",
+    player: "dxiao",
+    bid: BidValue.TEN,
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "ericb",
+    bid: BidValue.TWENTY,
+    calls: ["russian"],
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "gcole",
+    bid: BidValue.PASS,
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "karl",
+    bid: BidValue.PASS,
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "samira",
+    bid: BidValue.FORTY,
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "dxiao",
+    bid: BidValue.PASS,
+    time: time(),
+  });
+  game.playerAction({
+    type: "bid",
+    player: "ericb",
+    bid: BidValue.PASS,
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "bidding_completed");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "bidding_completed"
+  );
 
-  game.playerAction({ type: "call_partner", player: "samira", card: ["H", "R"], time: time() });
+  game.playerAction({
+    type: "call_partner",
+    player: "samira",
+    card: ["H", "R"],
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "dog_revealed");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "dog_revealed"
+  );
 
   game.playerAction({
     type: "set_dog",
-    player: "samira",
+    playerId: "samira",
     dog: [
       ["D", 4],
       ["D", 8],
@@ -176,11 +265,14 @@ test("5 player game", () => {
     time: time(),
   });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "game_started");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "game_started"
+  );
 
   game.playerAction({
     type: "show_trump",
-    player: "samira",
+    playerId: "samira",
     time: time(),
     cards: [
       ["T", "Joker"],
@@ -195,36 +287,125 @@ test("5 player game", () => {
     ],
   });
 
-  game.playerAction({ type: "play_card", player: "dxiao", card: ["C", 3], time: time() });
-  game.playerAction({ type: "play_card", player: "ericb", card: ["C", 10], time: time() });
-  game.playerAction({ type: "play_card", player: "gcole", card: ["C", "R"], time: time() });
-  game.playerAction({ type: "play_card", player: "karl", card: ["C", 2], time: time() });
-  game.playerAction({ type: "play_card", player: "samira", card: ["C", 5], time: time() });
+  game.playerAction({
+    type: "play_card",
+    playerId: "dxiao",
+    card: ["C", 3],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "ericb",
+    card: ["C", 10],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    player: "gcole",
+    card: ["C", "R"],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "karl",
+    card: ["C", 2],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "samira",
+    card: ["C", 5],
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao", time() - 5).events.pop()?.type, "completed_trick");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao", time() - 5).events.pop()?.type,
+    "completed_trick"
+  );
 
-  game.playerAction({ type: "play_card", player: "gcole", card: ["C", 1], time: time() });
-  game.playerAction({ type: "play_card", player: "karl", card: ["C", 9], time: time() });
-  game.playerAction({ type: "play_card", player: "samira", card: ["C", 6], time: time() });
-  game.playerAction({ type: "play_card", player: "dxiao", card: ["C", "D"], time: time() });
-  game.playerAction({ type: "play_card", player: "ericb", card: ["T", 6], time: time() });
+  game.playerAction({
+    type: "play_card",
+    playerId: "gcole",
+    card: ["C", 1],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "karl",
+    card: ["C", 9],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "samira",
+    card: ["C", 6],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    player: "dxiao",
+    card: ["C", "D"],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "ericb",
+    card: ["T", 6],
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao", time() - 5).events.pop()?.type, "completed_trick");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao", time() - 5).events.pop()?.type,
+    "completed_trick"
+  );
 
-  game.playerAction({ type: "play_card", player: "ericb", card: ["T", 8], time: time() });
-  game.playerAction({ type: "play_card", player: "gcole", card: ["T", 11], time: time() });
-  game.playerAction({ type: "play_card", player: "karl", card: ["T", 2], time: time() });
-  game.playerAction({ type: "play_card", player: "samira", card: ["T", 13], time: time() });
-  game.playerAction({ type: "play_card", player: "dxiao", card: ["T", 18], time: time() });
+  game.playerAction({
+    type: "play_card",
+    playerId: "ericb",
+    card: ["T", 8],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "gcole",
+    card: ["T", 11],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "karl",
+    card: ["T", 2],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "samira",
+    card: ["T", 13],
+    time: time(),
+  });
+  game.playerAction({
+    type: "play_card",
+    playerId: "dxiao",
+    card: ["T", 18],
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao", time() - 5).events.pop()?.type, "completed_trick");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao", time() - 5).events.pop()?.type,
+    "completed_trick"
+  );
 
   for (let i = 0; i < 12; i++) {
     autoplayTrick(game, time);
   }
-  assert.deepStrictEqual(game.getEvents("dxiao", time() - 5).events.pop()?.type, "game_completed");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao", time() - 5).events.pop()?.type,
+    "game_completed"
+  );
 
-  const end_state = (game.getEvents("dxiao", time() - 5).events.pop() as GameCompletedTransition).end_state;
+  const end_state = (
+    game.getEvents("dxiao", time() - 5).events.pop() as GameCompletedTransition
+  ).end_state;
   assert.deepStrictEqual(end_state.bidderWon, true);
   assert.deepStrictEqual(end_state.outcomes[4], ["one_last"]);
   assert.deepStrictEqual(end_state.bouts.length, 3);
@@ -236,27 +417,67 @@ test("5 player game", () => {
 test("5 player game with self call", () => {
   const game = Game.createNew();
   const time = createTimer();
-  cardTestingSetShuffler((_cards: Card[]) => [...concat<Card>([], ...SampleDeal.hands), ...SampleDeal.dog]);
-  playerTestingSetShuffler((_players: PlayerId[]) => ["dxiao", "ericb", "gcole", "karl", "samira"]);
+  cardTestingSetShuffler((_cards: Card[]) => [
+    ...concat<Card>([], ...SampleDeal.hands),
+    ...SampleDeal.dog,
+  ]);
+  playerTestingSetShuffler((_players: PlayerId[]) => [
+    "dxiao",
+    "ericb",
+    "gcole",
+    "karl",
+    "samira",
+  ]);
 
   game.playerAction({ type: "enter_game", player: "dxiao", time: time() });
   game.playerAction({ type: "enter_game", player: "ericb", time: time() });
   game.playerAction({ type: "enter_game", player: "gcole", time: time() });
   game.playerAction({ type: "enter_game", player: "karl", time: time() });
   game.playerAction({ type: "enter_game", player: "samira", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "samira", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "ericb", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "gcole", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "karl", time: time() });
-  game.playerAction({ type: "mark_player_ready", player: "dxiao", time: time() });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "samira",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "ericb",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "gcole",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "karl",
+    time: time(),
+  });
+  game.playerAction({
+    type: "mark_player_ready",
+    player: "dxiao",
+    time: time(),
+  });
 
   game.playerAction({ type: "bid", player: "dxiao", bid: 160, time: time() });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "bidding_completed");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "bidding_completed"
+  );
 
-  game.playerAction({ type: "call_partner", player: "dxiao", card: ["D", "R"], time: time() });
+  game.playerAction({
+    type: "call_partner",
+    player: "dxiao",
+    card: ["D", "R"],
+    time: time(),
+  });
 
-  assert.deepStrictEqual(game.getEvents("dxiao").events.pop()?.type, "game_started");
+  assert.deepStrictEqual(
+    game.getEvents("dxiao").events.pop()?.type,
+    "game_started"
+  );
 
   for (let i = 0; i < 15; i++) {
     autoplayTrick(game, time);
@@ -266,6 +487,10 @@ test("5 player game with self call", () => {
   expect(lastState).not.toBeFalsy();
   expect(lastState?.type).toBe("game_completed");
   const completedState = lastState as GameCompletedTransition;
-  const playerHand = getHandForPlayer(completedState.end_state, PlayerRoles.BIDDER, "dxiao");
+  const playerHand = getHandForPlayer(
+    completedState.end_state,
+    PlayerRoles.BIDDER,
+    "dxiao"
+  );
   expect(playerHand.pointsEarned).toBe(-880);
 });

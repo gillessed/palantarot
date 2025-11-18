@@ -21,8 +21,8 @@ export class SceneNode<SceneContext> {
   public children: SceneNode<SceneContext>[] = [];
   public visible = true;
 
-  public onMount?: (context: NodeManager<SceneContext>) => void;
-  public onUnmount?: (context: NodeManager<SceneContext>) => void;
+  public onMount?: (container: NodeManager<SceneContext>) => void;
+  public onUnmount?: (container: NodeManager<SceneContext>) => void;
 
   public transformation = m_new();
   public inverseTransformation = m_new();

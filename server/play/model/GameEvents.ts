@@ -41,7 +41,7 @@ export type ErrorEvent = BaseEvent & {
  * Their types are present tense commands.
  */
 export interface BaseAction extends BaseEvent {
-  readonly player: PlayerId;
+  readonly playerId: PlayerId;
   readonly time: number;
 }
 
@@ -99,12 +99,6 @@ export interface PlayCardAction extends BaseAction {
   readonly card: Card;
 }
 
-export interface ShowDogToObservers extends BaseEvent {
-  readonly type: "show_dog_to_observers";
-  readonly dog: Card[];
-  readonly exclude: PlayerId[];
-}
-
 export type Action =
   | GameSettingsAction
   | EnterGameAction
@@ -116,8 +110,7 @@ export type Action =
   | CallPartnerAction
   | DeclareSlamAction
   | SetDogAction
-  | PlayCardAction
-  | ShowDogToObservers;
+  | PlayCardAction;
 
 /* TRANSITIONS */
 
@@ -188,4 +181,15 @@ export interface NotifyEvent extends BaseEvent {
   readonly playerId: string;
 }
 
-export type PlayerEvent = Action | Transition | NotifyEvent | ErrorEvent;
+export interface ShowDogToObservers extends BaseEvent {
+  readonly type: "show_dog_to_observers";
+  readonly dog: Card[];
+  readonly exclude: PlayerId[];
+}
+
+export type PlayerEvent =
+  | Action
+  | Transition
+  | NotifyEvent
+  | ShowDogToObservers
+  | ErrorEvent;
