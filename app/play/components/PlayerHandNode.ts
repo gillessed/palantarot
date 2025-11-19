@@ -3,8 +3,12 @@ import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
 import { getCardAssetKey } from "../assets/ImageAssets";
-import { AreaBackgroundPadding, CardHeight, CardWidth } from "../constants/CardConstants";
-import { DarkenBackgroundColor } from "../constants/Themes";
+import {
+  AreaBackgroundPadding,
+  CardHeight,
+  CardWidth,
+} from "../constants/CardConstants";
+import { DarkenColor2 } from "../constants/Themes";
 import { PlayerHandNodeId } from "../NodeIds";
 import { PlaySceneContext } from "../PlaySceneContext";
 import { LoadedImageNode } from "./LoadedImageNode";
@@ -25,7 +29,7 @@ export class PlayerHandNode extends TwoDNode {
     this.backgroundNode.width = 0;
     this.backgroundNode.height = CardHeight + AreaBackgroundPadding * 2;
     this.backgroundNode.theme = {
-      backgroundColor: DarkenBackgroundColor,
+      backgroundColor: DarkenColor2,
       borderRadius: 10,
     };
     this.addChild(this.backgroundNode);
@@ -44,11 +48,17 @@ export class PlayerHandNode extends TwoDNode {
     }
     this.addChild(this.cardListNode);
 
-    this.enterAnimation = new AnimationNode(`${PlayerHandNodeId}-enter-animation`);
+    this.enterAnimation = new AnimationNode(
+      `${PlayerHandNodeId}-enter-animation`
+    );
     this.enterAnimation.startValue = CardHeight / 2;
     this.enterAnimation.endValue = 0;
-    this.enterAnimation.updateListeners.add((value: number) => this.cardListNode.offset[1] = value);
-    this.enterAnimation.finishListeners.add(() => { this.cardListNode.offset[1] = 0 });
+    this.enterAnimation.updateListeners.add(
+      (value: number) => (this.cardListNode.offset[1] = value)
+    );
+    this.enterAnimation.finishListeners.add(() => {
+      this.cardListNode.offset[1] = 0;
+    });
     this.enterAnimation.durationMs = 750;
     this.enterAnimation.easing = "outCubic";
     this.addChild(this.enterAnimation);
@@ -56,7 +66,7 @@ export class PlayerHandNode extends TwoDNode {
 
   public onMount = () => {
     this.enterAnimation.start();
-  }
+  };
 
   public update = () => {
     const containerWidth = this.container?.width ?? 0;
@@ -78,7 +88,10 @@ export class PlayerHandNode extends TwoDNode {
     } else if (cardCount === 1) {
       this.cardNodes[0].offset[1] = 0;
     } else {
-      const overlap = Math.min((this.handWidth - CardWidth) / (cardCount - 1), CardWidth);
+      const overlap = Math.min(
+        (this.handWidth - CardWidth) / (cardCount - 1),
+        CardWidth
+      );
       let x = -(this.handWidth - CardWidth) / 2;
       for (const card of this.cardNodes) {
         card.offset[0] = Math.round(x);

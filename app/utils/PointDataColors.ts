@@ -1,4 +1,4 @@
-export const Colors = [
+export const PointDataColors = [
   "red.5",
   "green.5",
   "blue.5",

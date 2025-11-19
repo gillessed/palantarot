@@ -1,21 +1,37 @@
 import { ButtonNode } from "../../sceneGraph/nodes/2d/ButtonNode";
+import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
+import type { ShapeTheme } from "../../sceneGraph/scene/Theme";
 import {
-  ActionButtonActiveTheme,
   ActionButtonDisabledTheme,
-  ActionButtonHoverTheme,
   ActionButtonTextTheme,
   ActionButtonTheme,
+  LightenColor05,
 } from "../constants/Themes";
+
+const HoverTheme: ShapeTheme = {
+  ...ActionButtonTheme,
+  backgroundColor: LightenColor05,
+};
+
+const ActiveTheme: ShapeTheme = {
+  ...ActionButtonTheme,
+  backgroundColor: LightenColor05,
+};
 
 export class ActionButtonNode extends ButtonNode {
   private state: "normal" | "hovered" | "active" = "normal";
   private disabled = false;
   public onClick?: () => void;
+  public overlayNode: RectNode;
 
   constructor(nodeId: string) {
     super(nodeId);
     this.rectNode.theme = ActionButtonTheme;
     this.textNode.theme = ActionButtonTextTheme;
+
+    this.overlayNode = new RectNode(`${this.id}-overlay`);
+    this.overlayNode.opacity = 0;
+    this.addChild(this.overlayNode);
 
     this.rectNode.mouseEntered = () => {
       this.state = "hovered";
@@ -38,6 +54,11 @@ export class ActionButtonNode extends ButtonNode {
     };
   }
 
+  public update = () => {
+    this.overlayNode.width = this.rectNode.width;
+    this.overlayNode.height = this.rectNode.height;
+  };
+
   public setDisabled = (disabled: boolean) => {
     this.disabled = disabled;
     this.updateUi();
@@ -52,14 +73,17 @@ export class ActionButtonNode extends ButtonNode {
       }
       this.rectNode.theme = ActionButtonDisabledTheme;
     } else {
+      this.rectNode.theme = ActionButtonTheme;
       if (this.state === "normal") {
-        this.rectNode.theme = ActionButtonTheme;
+        this.overlayNode.opacity = 0;
         this.container?.setCursor("default");
       } else if (this.state === "hovered") {
-        this.rectNode.theme = ActionButtonHoverTheme;
+        this.overlayNode.opacity = 1;
+        this.overlayNode.theme = HoverTheme;
         this.container?.setCursor("pointer");
       } else {
-        this.rectNode.theme = ActionButtonActiveTheme;
+        this.overlayNode.opacity = 1;
+        this.overlayNode.theme = ActiveTheme;
         this.container?.setCursor("pointer");
       }
     }

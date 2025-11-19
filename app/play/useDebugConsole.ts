@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import type { Scene } from "../sceneGraph/scene/Scene";
 import { getPlayerDebugName } from "../services/utils/playerName";
+import { filterFalsy } from "../utils/filterFalsy";
 import {
   createPlayEventHandler,
   type PlayEventHandler,
 } from "./PlayEventHandler";
 import type { PlaySceneContext } from "./PlaySceneContext";
-import { filterFalsy } from "../utils/filterFalsy";
 
 const DebugPlayerIds = ["1", "2", "3", "4", "5"];
 
@@ -22,13 +22,14 @@ declare global {
   }
 }
 
-function createDebugObject(scene: Scene, context: PlaySceneContext): DebugObject {
+function createDebugObject(
+  scene: Scene,
+  context: PlaySceneContext
+): DebugObject {
   const playHandlers: DebugObject["players"] = {};
 
   const debugPlayers = filterFalsy(
-    DebugPlayerIds.map((id) =>
-      getPlayerDebugName(context.players.get(id))
-    )
+    DebugPlayerIds.map((id) => getPlayerDebugName(context.players.get(id)))
   );
   if (debugPlayers.length < 5) {
     console.warn(
@@ -54,7 +55,6 @@ function createDebugObject(scene: Scene, context: PlaySceneContext): DebugObject
     joinGame: (playerCount: number) => {
       for (let i = 0; i < playerCount; i++) {
         const playerHandler = playHandlers[debugPlayers[i]];
-        console.log(playerHandler);
         playerHandler.joinGame();
       }
     },

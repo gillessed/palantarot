@@ -2,8 +2,12 @@ import { v_set, type Vector } from "../../sceneGraph/math/Vector";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
-import { AreaBackgroundPadding, CardHeight, CardWidth } from "../constants/CardConstants";
-import { DarkenBackgroundColor } from "../constants/Themes";
+import {
+  AreaBackgroundPadding,
+  CardHeight,
+  CardWidth,
+} from "../constants/CardConstants";
+import { DarkenColor2, PrimaryColor } from "../constants/Themes";
 import { LoadedImageNode } from "./LoadedImageNode";
 
 const TopOffsetFactor = 1 / 2;
@@ -64,9 +68,9 @@ export class SideCardNode extends TwoDNode {
     this.backgroundNode.width = CardWidth + 2 * AreaBackgroundPadding;
     this.backgroundNode.height = CardHeight + 2 * AreaBackgroundPadding;
     this.backgroundNode.theme = {
-      backgroundColor: DarkenBackgroundColor,
+      backgroundColor: PrimaryColor[5],
       borderRadius: 5,
-    }
+    };
     this.addChild(this.backgroundNode);
 
     this.cardNode = new LoadedImageNode(`${id}-card`, "CardBackBlack");

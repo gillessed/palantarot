@@ -9,6 +9,8 @@ import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
 import { RectNode } from "../../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { SideCardsNode } from "../../components/SideCardsNode";
+import { Green } from "../../constants/PlayColors";
+import { DarkenColor2 } from "../../constants/Themes";
 import { NewGamePhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 import { EmptyRowNode } from "./EmptyRowNode";
@@ -37,7 +39,7 @@ export class NewGamePhaseNode extends TwoDNode {
   public playerInfoNodes: Map<PlayerId, PlayerRowNode>;
   public playerListNode: TwoDNode;
   public rowBackgroundNodes: TwoDNode[] = [];
-  public sideCardNodes: SideCardsNode = new SideCardsNode();
+  public sideCardNodes: SideCardsNode = new SideCardsNode(false);
   public joinLeaveButton: JoinLeaveButton;
 
   constructor(context: PlaySceneContext, state: ClientGame) {
@@ -54,9 +56,9 @@ export class NewGamePhaseNode extends TwoDNode {
       `${NewGamePhaseNodeId}-background-rect`
     );
     backgroundRect.theme = {
-      backgroundColor: "#257735",
+      backgroundColor: Green[7],
       borderRadius: 25,
-      borderColor: "rgba(0, 0, 0, 0.3)",
+      borderColor: DarkenColor2,
       borderWidth: 3,
     };
     backgroundRect.width = 420;
@@ -78,7 +80,7 @@ export class NewGamePhaseNode extends TwoDNode {
 
     this.sideCardNodes.setCount(state.playerOrder.length);
     this.addChild(this.sideCardNodes);
-    
+
     for (let i = 0; i < 5; i++) {
       const playerId = state.playerOrder[i];
       if (playerId != null) {

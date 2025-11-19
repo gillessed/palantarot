@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Scene } from "../sceneGraph/scene/Scene";
+import { PrimaryColor } from "./constants/Themes";
 import type { PlaySceneContext } from "./PlaySceneContext";
 import { RootNode } from "./RootNode";
 import { useDebugConsole } from "./useDebugConsole";
@@ -7,7 +8,7 @@ import { useDebugConsole } from "./useDebugConsole";
 export function usePlayScene(context: PlaySceneContext) {
   const scene = useMemo(() => {
     const scene = new Scene();
-    scene.clearColor = "#0F9960";
+    scene.clearColor = PrimaryColor[8];
     const rootNode = new RootNode(context);
     scene.setRoot(rootNode);
     return scene;

@@ -3,6 +3,7 @@ import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { TextTheme } from "../../sceneGraph/scene/Theme";
 import { getPlayerName } from "../../services/utils/playerName";
+import { PrimaryColor } from "../constants/Themes";
 import type { PlaySceneContext } from "../PlaySceneContext";
 import { pathRoundedRectangle } from "../utils/pathRoundedRectangle";
 import { PlayerNodeBorderColor } from "./PlayerNodeConstants";
@@ -18,11 +19,9 @@ export type PlayerReadyNodeAlignment = "left" | "right" | "top" | "bottom";
 export const PlayerInfoNodeWidth = 300;
 export const PlayerInfoNodeHeight = 60;
 const TextWidth = 200;
-const BackgroundColor = "#696c70";
+const BackgroundColor = PrimaryColor[6];
 const BorderColor = PlayerNodeBorderColor;
 const BorderRadius = 10;
-const OtherGradientColor = "#495057";
-const SelfGradientColor = "#1971c2";
 
 export class PlayerInfoNode extends TwoDNode {
   public context: PlaySceneContext;
@@ -62,7 +61,9 @@ export class PlayerInfoNode extends TwoDNode {
     if (this.playerId == null) {
       this.textNode.text = "";
     } else {
-      this.textNode.text = getPlayerName(this.context.players.get(this.playerId));
+      this.textNode.text = getPlayerName(
+        this.context.players.get(this.playerId)
+      );
     }
   };
 
@@ -90,8 +91,6 @@ export class PlayerInfoNode extends TwoDNode {
   };
 
   private renderNameHighlight = (ctx: CanvasRenderingContext2D) => {
-    const isSelf = this.playerId === this.context.playerId;
-
     ctx.save();
     const gradient = ctx.createLinearGradient(
       -PlayerInfoNodeWidth / 2 + TextWidth - 150,
@@ -99,7 +98,7 @@ export class PlayerInfoNode extends TwoDNode {
       -PlayerInfoNodeWidth / 2 + TextWidth,
       0
     );
-    gradient.addColorStop(0, isSelf ? SelfGradientColor : OtherGradientColor);
+    gradient.addColorStop(0, BorderColor);
     gradient.addColorStop(1, BackgroundColor);
     ctx.fillStyle = gradient;
     const rectPath = new Path2D();

@@ -22,7 +22,9 @@ export class PlayerRowNode extends TwoDNode {
     this.addChild(this.playerInfoNode);
 
     this.readyButton = new ReadyButton(context);
+    if (playerId === this.context.playerId) {
       this.addChild(this.readyButton);
+    }
   }
 
   public setReady = (ready: boolean) => {

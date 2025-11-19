@@ -3,7 +3,7 @@ import type { GameRecord, PlayerHand } from "../../../server/model/GameRecord";
 import type { Player } from "../../../server/model/Player";
 import type { PlayerId } from "../../../server/play/model/GameState";
 import { getPlayerName } from "../../services/utils/playerName";
-import { Colors } from "../../utils/Colors";
+import { PointDataColors } from "../../utils/PointDataColors";
 import { useMemo } from "react";
 
 function getPlayersForGame(game: GameRecord) {
@@ -70,9 +70,9 @@ export function usePointData(
     for (const playerName of playerNames) {
       series.push({
         name: playerName,
-        color: Colors[colorIndex],
+        color: PointDataColors[colorIndex],
       });
-      colorIndex = (colorIndex + 1) % Colors.length;
+      colorIndex = (colorIndex + 1) % PointDataColors.length;
     }
     return { data, series };
   }, [players, games, playerFilter]);

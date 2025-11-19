@@ -23,7 +23,6 @@ export class AnimationNode extends DurationNode {
       const scalar = this.currentTime / this.durationMs;
       const eased =
         this.easing != null ? EasingFunctions[this.easing](scalar) : scalar;
-      // TODO: easing would happen here
       const interpolated =
         this.startValue + (this.endValue - this.startValue) * eased;
       this.signalUpdate(interpolated);

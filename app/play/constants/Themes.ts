@@ -1,14 +1,24 @@
 import type { RectTheme } from "../../sceneGraph/nodes/2d/RectNode";
 import type { TextTheme } from "../../sceneGraph/scene/Theme";
+import { Blue, Green, Yellow } from "./PlayColors";
 
-export const UiBackgroundColor = "#137CBD";
-export const UiBorderColor = "#0E5A8A";
+export const PrimaryColor: string[] = Green;
+export const SecondaryColor: string[] = Blue;
+export const HighlightColor: string[] = Yellow;
+
 export const UiBorderWidth = 3;
-export const DarkenBackgroundColor = "rgba(0, 0, 0, 0.2)";
+const black_t = (opacity: number) => `rgba(0, 0, 0, ${opacity})`;
+const white_t = (opacity: number) => `rgba(256, 256, 256, ${opacity})`;
+export const DarkenColor05 = black_t(0.05);
+export const DarkenColor1 = black_t(0.1);
+export const DarkenColor2 = black_t(0.2);
+export const LightenColor05 = white_t(0.05);
+export const LightenColor1 = white_t(0.1);
+export const LightenColor2 = white_t(0.2);
 
 export const ActionButtonTheme: RectTheme = {
-  backgroundColor: UiBackgroundColor,
-  borderColor: UiBorderColor,
+  backgroundColor: SecondaryColor[9],
+  borderColor: SecondaryColor[6],
   borderRadius: 10,
   borderWidth: UiBorderWidth,
 };
@@ -17,16 +27,6 @@ export const ActionButtonTextTheme: TextTheme = {
   textColor: "#FFFFFF",
   fontSize: 32,
   fontFamily: "blenderProBold",
-};
-
-export const ActionButtonHoverTheme: RectTheme = {
-  ...ActionButtonTheme,
-  backgroundColor: "#106BA3",
-};
-
-export const ActionButtonActiveTheme: RectTheme = {
-  ...ActionButtonTheme,
-  backgroundColor: "#156EA4",
 };
 
 export const ActionButtonDisabledTheme: RectTheme = {
@@ -40,4 +40,4 @@ export const AreaTextTheme: TextTheme = {
   textColor: "#FFFFFF",
   fontSize: 18,
   fontFamily: "blenderProBold",
-}
+};
