@@ -8,11 +8,8 @@ import type { PlayerId } from "../../../../server/play/model/GameState";
 import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
 import { RectNode } from "../../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
-import {
-  SideCardNode,
-  SideCardPositionLayout,
-} from "../../components/SideCardNode";
-import { NewGameNodeId } from "../../NodeIds";
+import { SideCardsNode } from "../../components/SideCardsNode";
+import { NewGamePhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 import { EmptyRowNode } from "./EmptyRowNode";
 import { JoinLeaveButton } from "./JoinLeaveButton";
@@ -27,29 +24,34 @@ const PanelHeight =
 
 type MaybePlayerId = PlayerId | undefined;
 
-export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
+export class NewGamePhaseNode extends TwoDNode {
+  public context: PlaySceneContext;
   private playerCount = 0;
-  private playerOrder: [
+  public playerOrder: [
     MaybePlayerId,
     MaybePlayerId,
     MaybePlayerId,
     MaybePlayerId,
     MaybePlayerId
   ] = [undefined, undefined, undefined, undefined, undefined];
-  private sideCardNodes: SideCardNode[] = [];
-  private playerInfoNodes: Map<PlayerId, PlayerRowNode>;
-  private playerListNode: TwoDNode<PlaySceneContext>;
-  private rowBackgroundNodes: TwoDNode<PlaySceneContext>[] = [];
-  public joinLeaveButton = new JoinLeaveButton();
+  public playerInfoNodes: Map<PlayerId, PlayerRowNode>;
+  public playerListNode: TwoDNode;
+  public rowBackgroundNodes: TwoDNode[] = [];
+  public sideCardNodes: SideCardsNode = new SideCardsNode();
+  public joinLeaveButton: JoinLeaveButton;
 
-  constructor() {
-    super(NewGameNodeId);
+  constructor(context: PlaySceneContext, state: ClientGame) {
+    super(NewGamePhaseNodeId);
+    if (state.gamePhase !== "new_game") {
+      throw Error("Updating new game node with not new game state");
+    }
+    this.context = context;
 
-    this.playerListNode = new TwoDNode(`${NewGameNodeId}-list`);
+    this.playerListNode = new TwoDNode(`${NewGamePhaseNodeId}-list`);
     this.addChild(this.playerListNode);
 
-    const backgroundRect = new RectNode<PlaySceneContext>(
-      `${NewGameNodeId}-background-rect`
+    const backgroundRect = new RectNode(
+      `${NewGamePhaseNodeId}-background-rect`
     );
     backgroundRect.theme = {
       backgroundColor: "#257735",
@@ -64,21 +66,19 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
     this.playerInfoNodes = new Map();
     let y = -PanelHeight / 2 + PanelPadding + PlayerRowHeight / 2;
     for (let i = 0; i < 5; i++) {
-      const emptyRowNode = new EmptyRowNode(`${NewGameNodeId}-empty-${i}`);
+      const emptyRowNode = new EmptyRowNode(`${NewGamePhaseNodeId}-empty-${i}`);
       emptyRowNode.offset[1] = y;
       y += RowHeight + RowGap;
       this.rowBackgroundNodes.push(emptyRowNode);
       this.playerListNode.addChild(emptyRowNode);
     }
 
+    this.joinLeaveButton = new JoinLeaveButton(context);
     this.addChild(this.joinLeaveButton);
-  }
 
-  public setToGameState = (state: ClientGame) => {
-    if (state.gamePhase !== "new_game") {
-      throw Error("Updating new game node with not new game state");
-    }
-
+    this.sideCardNodes.setCount(state.playerOrder.length);
+    this.addChild(this.sideCardNodes);
+    
     for (let i = 0; i < 5; i++) {
       const playerId = state.playerOrder[i];
       if (playerId != null) {
@@ -88,16 +88,15 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
         if (isReady) {
           this.playerInfoNodes.get(playerId)!.setReady(isReady);
         }
-        if (playerId === this.container?.context.playerId) {
+        if (playerId === this.context.playerId) {
           this.joinLeaveButton.setInGame(true);
           this.joinLeaveButton.setReady(isReady);
         }
-        this.addCardNode();
       }
     }
     this.playerCount = state.playerOrder.length;
     this.updateRowNodes();
-  };
+  }
 
   public updateRowNodes = () => {
     let y = -PanelHeight / 2 + PanelPadding + PlayerRowHeight / 2;
@@ -115,7 +114,8 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
 
   public addPlayerInfoNode = (playerId: PlayerId) => {
     const playerRowNode = new PlayerRowNode(
-      `${NewGameNodeId}-row-${playerId}`,
+      this.context,
+      `${NewGamePhaseNodeId}-row-${playerId}`,
       playerId
     );
     this.playerInfoNodes.set(playerId, playerRowNode);
@@ -130,32 +130,6 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
     }
   };
 
-  public updateSideCardLayout = () => {
-    const layout = SideCardPositionLayout[this.sideCardNodes.length];
-    for (let i = 0; i < this.sideCardNodes.length; i++) {
-      this.sideCardNodes[i].playerPosition = layout[i];
-    }
-  };
-
-  public addCardNode = (enterAnimationEnabled: boolean = false) => {
-    const sideCardNode = new SideCardNode(
-      `${this.id}-sidecard-${this.sideCardNodes.length + 1}`
-    );
-    sideCardNode.enterAnimationEnabled = enterAnimationEnabled;
-    this.sideCardNodes.push(sideCardNode);
-    this.addChild(sideCardNode);
-    this.updateSideCardLayout();
-  };
-
-  public removeCardNode = () => {
-    const lastCard = this.sideCardNodes.pop();
-    if (lastCard == null) {
-      return;
-    }
-    this.removeChild(lastCard);
-    this.updateSideCardLayout();
-  };
-
   public handleEnterGame = ({ playerId: enterPlayerId }: EnterGameAction) => {
     const playerOrderIndex = this.playerOrder.indexOf(enterPlayerId);
     if (playerOrderIndex < 0) {
@@ -163,9 +137,9 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
       this.playerCount++;
       this.addPlayerInfoNode(enterPlayerId);
     }
-    this.addCardNode();
+    this.sideCardNodes.addCard();
     this.updateRowNodes();
-    if (this.container?.context.playerId === enterPlayerId) {
+    if (this.context.playerId === enterPlayerId) {
       this.joinLeaveButton.setInGame(true);
     }
   };
@@ -178,9 +152,9 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
       this.playerCount--;
       this.removePlayerInfoNode(leavePlayerId);
     }
-    this.removeCardNode();
+    this.sideCardNodes.removeCard();
     this.updateRowNodes();
-    if (this.container?.context.playerId === leavePlayerId) {
+    if (this.context.playerId === leavePlayerId) {
       this.joinLeaveButton.setInGame(false);
     }
   };
@@ -188,7 +162,7 @@ export class NewGamePhaseNode extends TwoDNode<PlaySceneContext> {
   public setReady = (playerId: PlayerId, ready: boolean) => {
     const infoNode = this.playerInfoNodes.get(playerId);
     infoNode?.animateReady(ready);
-    if (playerId === this.container?.context.playerId) {
+    if (playerId === this.context.playerId) {
       this.joinLeaveButton.setReady(ready);
     }
   };

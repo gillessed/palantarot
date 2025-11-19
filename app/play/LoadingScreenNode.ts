@@ -1,11 +1,10 @@
 import { TwoDNode } from "../sceneGraph/nodes/2d/TwoDNode";
 import { LoadingScreenNodeId } from "./NodeIds";
-import type { PlaySceneContext } from "./PlaySceneContext";
 import { pathRoundedRectangle } from "./utils/pathRoundedRectangle";
 
 const WidthRatio = 0.6;
 
-export class LoadingScreenNode extends TwoDNode<PlaySceneContext> {
+export class LoadingScreenNode extends TwoDNode {
   public fillAmount = 0;
 
   constructor() {
@@ -31,24 +30,25 @@ export class LoadingScreenNode extends TwoDNode<PlaySceneContext> {
     const barWidth = WidthRatio * screenWidth;
     const rx = -barWidth / 2;
 
+    const rectPath = new Path2D();
+    pathRoundedRectangle(rectPath, rx, 10, barWidth, 40, 20);
+
     ctx.save();
-    ctx.beginPath();
-    pathRoundedRectangle(ctx, rx, 10, barWidth * this.fillAmount, 40, 20, [
+    const clipPath = new Path2D();
+    pathRoundedRectangle(clipPath, rx, 10, barWidth * this.fillAmount, 40, 20, [
       false,
       false,
       true,
       true,
     ]);
-    ctx.clip();
-    ctx.beginPath();
+    ctx.clip(clipPath);
+
     ctx.fillStyle = "rgba(256, 256, 256, 0.7)";
-    pathRoundedRectangle(ctx, rx, 10, barWidth, 40, 20);
-    ctx.fill();
+    ctx.fill(rectPath);
     ctx.restore();
 
     ctx.beginPath();
     ctx.fillStyle = "#ffffff";
-    pathRoundedRectangle(ctx, rx, 10, barWidth, 40, 20);
-    ctx.stroke();
+    ctx.stroke(rectPath);
   };
 }

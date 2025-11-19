@@ -11,11 +11,11 @@ const BackgroundColor = "#dee2e6";
 const SvgReadyTheme = { backgroundColor: "#0bae4a" };
 const SvgUnreadyTheme = { backgroundColor: "#c92a2a" };
 
-export class PlayerReadyNode extends TwoDNode<PlaySceneContext> {
+export class PlayerReadyNode extends TwoDNode {
   private ready = false;
 
-  public svgNode: SvgNode<PlaySceneContext>;
-  public circleNode: CircleNode<PlaySceneContext>;
+  public svgNode: SvgNode;
+  public circleNode: CircleNode;
 
   constructor(id: string) {
     super(id);

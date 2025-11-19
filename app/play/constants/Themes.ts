@@ -4,6 +4,7 @@ import type { TextTheme } from "../../sceneGraph/scene/Theme";
 export const UiBackgroundColor = "#137CBD";
 export const UiBorderColor = "#0E5A8A";
 export const UiBorderWidth = 3;
+export const DarkenBackgroundColor = "rgba(0, 0, 0, 0.2)";
 
 export const ActionButtonTheme: RectTheme = {
   backgroundColor: UiBackgroundColor,
@@ -34,3 +35,9 @@ export const ActionButtonDisabledTheme: RectTheme = {
   borderRadius: 10,
   borderWidth: UiBorderWidth,
 };
+
+export const AreaTextTheme: TextTheme = {
+  textColor: "#FFFFFF",
+  fontSize: 18,
+  fontFamily: "blenderProBold",
+}

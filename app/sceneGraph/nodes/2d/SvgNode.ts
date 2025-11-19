@@ -4,7 +4,7 @@ import { TwoDNode } from "./TwoDNode";
 
 export type SvgTheme = ShapeTheme & BorderTheme;
 
-export class SvgNode<SceneContext> extends TwoDNode<SceneContext> {
+export class SvgNode extends TwoDNode {
   public path?: SvgPath;
   public theme?: SvgTheme;
 

@@ -1,6 +1,6 @@
 import { RectNode } from "./RectNode";
 
-export class ImageNode<SceneContext> extends RectNode<SceneContext> {
+export class ImageNode extends RectNode {
   public image: CanvasImageSource | undefined;
 
   public render = (ctx: CanvasRenderingContext2D) => {

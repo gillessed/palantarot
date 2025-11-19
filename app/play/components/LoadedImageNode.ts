@@ -2,10 +2,9 @@ import { ImageNode } from "../../sceneGraph/nodes/2d/ImageNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import type { ImageAssets } from "../assets/ImageAssets";
 import { TableNodeId } from "../NodeIds";
-import type { PlaySceneContext } from "../PlaySceneContext";
 import { TableNode } from "../TableNode";
 
-export class LoadedImageNode extends ImageNode<PlaySceneContext> {
+export class LoadedImageNode extends ImageNode {
   private assetKey: keyof ImageAssets;
 
   constructor(id: string, assetKey: keyof ImageAssets) {
@@ -20,11 +19,11 @@ export class LoadedImageNode extends ImageNode<PlaySceneContext> {
     }
   };
 
-  public onMount = (container: NodeManager<PlaySceneContext>) => {
+  public onMount = (container: NodeManager) => {
     this.updateImage(container);
   };
 
-  private updateImage = (container: NodeManager<PlaySceneContext>) => {
+  private updateImage = (container: NodeManager) => {
     const tableNode = container.getNode<TableNode>(TableNodeId);
     if (tableNode == null) {
       console.warn("Have a card with no table node present");

@@ -1,24 +1,23 @@
 import type { Property } from "csstype";
 import { v_new, v_set, type Vector } from "../math/Vector";
-import type {} from "../nodes/2d/TwoDNode";
+import type { } from "../nodes/2d/TwoDNode";
 import type { NodeManager, SceneNode } from "../nodes/SceneNode";
 import { setDiff } from "../utils/setDiff";
 
-export class Scene<SceneContext> implements NodeManager<SceneContext> {
+export class Scene implements NodeManager {
   public running = false;
   public offscreenCanvas: HTMLCanvasElement;
   public offscreenCtx: CanvasRenderingContext2D;
   public canvas?: HTMLCanvasElement;
   public ctx?: CanvasRenderingContext2D;
-  public root?: SceneNode<SceneContext>;
+  public root?: SceneNode;
   public lastUpdate: number = 0;
   public clearColor: string = "#000000";
-  public nodesById = new Map<string, SceneNode<SceneContext>>();
+  public nodesById = new Map<string, SceneNode>();
   public width: number = 0;
   public height: number = 0;
   public mousePosition: Vector = v_new();
-  public intersectingNodes: SceneNode<SceneContext>[] = [];
-  public context: SceneContext;
+  public intersectingNodes: SceneNode[] = [];
 
   private handleResize = (entries: ResizeObserverEntry[]) => {
     const [entry] = entries;
@@ -31,8 +30,7 @@ export class Scene<SceneContext> implements NodeManager<SceneContext> {
   };
   public resizeObserver = new ResizeObserver(this.handleResize);
 
-  public constructor(context: SceneContext) {
-    this.context = context;
+  public constructor() {
     this.offscreenCanvas = document.createElement("canvas");
     const offscreenCtx = this.offscreenCanvas.getContext("2d");
     if (offscreenCtx == null) {
@@ -92,7 +90,7 @@ export class Scene<SceneContext> implements NodeManager<SceneContext> {
     this.root = undefined;
   };
 
-  public setRoot = (node: SceneNode<SceneContext>) => {
+  public setRoot = (node: SceneNode) => {
     this.clearRoot();
     this.root = node;
     node.setContainerTree(this);
@@ -136,7 +134,7 @@ export class Scene<SceneContext> implements NodeManager<SceneContext> {
   };
 
   public getNode = <
-    NodeType extends SceneNode<SceneContext> = SceneNode<SceneContext>
+    NodeType extends SceneNode = SceneNode
   >(
     nodeId: string
   ): NodeType => {
@@ -167,14 +165,14 @@ export class Scene<SceneContext> implements NodeManager<SceneContext> {
     }
   };
 
-  public updateIntersectingNodes = (root: SceneNode<SceneContext>) => {
-    const newIntersectingNodes: SceneNode<SceneContext>[] = [];
+  public updateIntersectingNodes = (root: SceneNode) => {
+    const newIntersectingNodes: SceneNode[] = [];
     root.intersectTree(this.mousePosition, newIntersectingNodes);
     this.intersectingNodes = newIntersectingNodes;
   };
 
-  public handleMouseMovement = (root: SceneNode<SceneContext>) => {
-    const newIntersectingNodes: SceneNode<SceneContext>[] = [];
+  public handleMouseMovement = (root: SceneNode) => {
+    const newIntersectingNodes: SceneNode[] = [];
     root.intersectTree(this.mousePosition, newIntersectingNodes);
     const { added, removed } = setDiff(
       this.intersectingNodes,

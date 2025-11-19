@@ -4,7 +4,7 @@ import type { PlaySceneContext } from "../PlaySceneContext";
 import { pathRoundedRectangle } from "../utils/pathRoundedRectangle";
 import { PlayColors_Gray } from "../constants/PlayColors";
 
-export class PartnerCallInfoNode extends TwoDNode<PlaySceneContext> {
+export class PartnerCallInfoNode extends TwoDNode {
   constructor() {
     super(PartnerCallInfoNodeId);
   }

@@ -5,7 +5,7 @@ import { TwoDNode } from "./TwoDNode";
 
 export type RectTheme = ShapeTheme & BorderTheme;
 
-export class RectNode<SceneContext> extends TwoDNode<SceneContext> {
+export class RectNode extends TwoDNode {
   public theme?: RectTheme;
   public width = 0;
   public height = 0;

@@ -1,7 +1,6 @@
 import type { PlayerId } from "../../../server/play/model/GameState";
 import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
-import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { TextTheme } from "../../sceneGraph/scene/Theme";
 import { getPlayerName } from "../../services/utils/playerName";
 import type { PlaySceneContext } from "../PlaySceneContext";
@@ -25,13 +24,15 @@ const BorderRadius = 10;
 const OtherGradientColor = "#495057";
 const SelfGradientColor = "#1971c2";
 
-export class PlayerInfoNode extends TwoDNode<PlaySceneContext> {
+export class PlayerInfoNode extends TwoDNode {
+  public context: PlaySceneContext;
   private playerId?: PlayerId;
-  public textNode: TextNode<PlaySceneContext>;
+  public textNode: TextNode;
   public readyNode: PlayerReadyNode;
 
-  constructor(id: string) {
+  constructor(context: PlaySceneContext, id: string) {
     super(id);
+    this.context = context;
 
     this.textNode = new TextNode(`${id}-text`);
     this.textNode.textBaseline = "top";
@@ -46,27 +47,22 @@ export class PlayerInfoNode extends TwoDNode<PlaySceneContext> {
 
     this.readyNode = new PlayerReadyNode(`${id}-ready`);
     this.readyNode.offset = [PlayerInfoNodeWidth / 2, 0];
+    this.readyNode.visible = false;
     this.addChild(this.readyNode);
   }
 
   public setPlayerId = (playerId: string | undefined) => {
     this.playerId = playerId;
-    if (this.container != null) {
-      this.updateText(this.container.context);
-    }
+    this.updateText();
   };
 
   public getPlayerId = () => this.playerId;
 
-  public onMount = (container: NodeManager<PlaySceneContext>) => {
-    this.updateText(container.context);
-  };
-
-  private updateText = ({ players }: PlaySceneContext) => {
+  private updateText = () => {
     if (this.playerId == null) {
       this.textNode.text = "";
     } else {
-      this.textNode.text = getPlayerName(players.get(this.playerId));
+      this.textNode.text = getPlayerName(this.context.players.get(this.playerId));
     }
   };
 
@@ -85,8 +81,6 @@ export class PlayerInfoNode extends TwoDNode<PlaySceneContext> {
       BorderRadius
     );
     ctx.save();
-    // ctx.shadowBlur = 5;
-    // ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
     ctx.fill(rectPath);
     ctx.restore();
 
@@ -96,7 +90,7 @@ export class PlayerInfoNode extends TwoDNode<PlaySceneContext> {
   };
 
   private renderNameHighlight = (ctx: CanvasRenderingContext2D) => {
-    const isSelf = this.playerId === this.container?.context.playerId;
+    const isSelf = this.playerId === this.context.playerId;
 
     ctx.save();
     const gradient = ctx.createLinearGradient(

@@ -4,7 +4,7 @@ export interface TimerNodeListener {
   (): void;
 }
 
-export class TimerNode<SceneContext> extends DurationNode<SceneContext> {
+export class TimerNode extends DurationNode {
   public listeners = new Set<TimerNodeListener>();
 
   protected signalFinished = () => {

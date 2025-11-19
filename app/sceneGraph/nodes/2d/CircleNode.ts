@@ -4,7 +4,7 @@ import { TwoDNode } from "./TwoDNode";
 
 export type CircleTheme = ShapeTheme & BorderTheme;
 
-export class CircleNode<SceneContext> extends TwoDNode<SceneContext> {
+export class CircleNode extends TwoDNode {
   public theme?: CircleTheme;
   public radius = 0;
 

@@ -2,9 +2,9 @@ import { RectNode } from "./RectNode";
 import { TextNode } from "./TextNode";
 import { TwoDNode } from "./TwoDNode";
 
-export class ButtonNode<SceneContext> extends TwoDNode<SceneContext> {
-  public textNode: TextNode<SceneContext>;
-  public rectNode: RectNode<SceneContext>;
+export class ButtonNode extends TwoDNode {
+  public textNode: TextNode;
+  public rectNode: RectNode;
 
   constructor(id: string) {
     super(id);

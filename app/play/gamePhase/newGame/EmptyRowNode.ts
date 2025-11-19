@@ -9,7 +9,7 @@ import { pathRoundedRectangle } from "../../utils/pathRoundedRectangle";
 export const PlayerNodeWidth = 300;
 export const PlayerRowHeight = 60;
 
-export class EmptyRowNode extends TwoDNode<PlaySceneContext> {
+export class EmptyRowNode extends TwoDNode {
   public render = (ctx: CanvasRenderingContext2D) => {
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     const rectPath = new Path2D();

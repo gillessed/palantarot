@@ -1,6 +1,4 @@
 import React from "react";
-import { BidValue } from "../../../../server/play/model/GameState";
-import { ClientGameSelectors } from "../../../services/room/ClientGameSelectors";
 import { isSpectatorModeObserver } from "../sidebar/SpectatorMode";
 import { ActionButton } from "../svg/ActionButton";
 import { BottomHandSvg } from "../svg/BottomHandSvg";

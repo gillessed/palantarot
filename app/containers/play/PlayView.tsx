@@ -34,27 +34,7 @@ export const PlayView = memo(function PlayView({
     },
     []
   );
-  const handleMessage = useCallback(
-    (message: SocketMessage<any>) => {
-      RoomSocketMessages.roomStatus.handle(message, (payload) => {
-        scene.clearColor = payload.room.color;
-      });
-    },
-    [scene]
-  );
-  useEffect(() => {
-    // TODO: update debug players
-    // registerDebugPlayers(gamePlayerId, room.id, this.dispatchers.room)
-    const removeComponentListener = clientSocket.addListener(handleMessage);
-    clientSocket.connect();
-    clientSocket.send(
-      RoomSocketMessages.enterRoom({ playerId: gamePlayerId, roomId: roomId })
-    );
-    return () => {
-      removeComponentListener();
-    };
-  }, [clientSocket]);
-
+  
   return (
     <div className="play-container" style={{ width: "100vw", height: "100vh" }}>
       <PlayCanvas players={players} scene={scene} />

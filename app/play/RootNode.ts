@@ -6,12 +6,14 @@ import { LoadingScreenNodeId, RootNodeId } from "./NodeIds";
 import type { PlaySceneContext } from "./PlaySceneContext";
 import { TableNode } from "./TableNode";
 
-export class RootNode extends SceneNode<PlaySceneContext> {
+export class RootNode extends SceneNode {
+  public context: PlaySceneContext;
   private infoNode = new InfoNode();
   private loadingScreenNode: LoadingScreenNode | undefined;
 
-  constructor() {
+  constructor(context: PlaySceneContext) {
     super(RootNodeId);
+    this.context = context;
     this.addChild(this.infoNode);
     const loadingScreenNode = new LoadingScreenNode();
     this.addChild(loadingScreenNode);
@@ -31,7 +33,7 @@ export class RootNode extends SceneNode<PlaySceneContext> {
   private loadImages = async () => {
     const imageAssets = await loadImageAssets(this.onLoadUpdate);
     this.removeChildById(LoadingScreenNodeId);
-    const tableNode = new TableNode(imageAssets);
+    const tableNode = new TableNode(this.context, imageAssets);
     this.addChild(tableNode);
   };
 }

@@ -1,5 +1,8 @@
-import { CardBackUrls } from "../../utils/getCardUrl";
-import type { ImageAssets } from "./ImageAssets";
+import { createAllCards } from "../../../server/play/model/CardUtils";
+import { CardBackUrls, getCardUrl } from "../../utils/getCardUrl";
+import { getCardAssetKey, RegSuitImageAssets, TrumpSuitAssets, type ImageAssets } from "./ImageAssets";
+
+type UrlAssets<T> = { [K in keyof T]: string};
 
 interface LoadedImageAsset {
   key: string;
@@ -29,9 +32,19 @@ async function loadImageAsset(
   });
 }
 
+function buildCardUrlAssets() {
+  const urlAssets: Record<string, string> = {};
+  for (const card of createAllCards()) {
+    const assetKey = getCardAssetKey(card);
+    urlAssets[assetKey] = getCardUrl(card);
+  }
+  return urlAssets as UrlAssets<RegSuitImageAssets & TrumpSuitAssets>;
+}
+
 const UrlAssetsToLoad: {
   [K in keyof ImageAssets]: string;
 } = {
+  ...buildCardUrlAssets(),
   CardBackBlack: CardBackUrls.Black,
   CardBackRed: CardBackUrls.Red,
   CardBackGreen: CardBackUrls.Green,

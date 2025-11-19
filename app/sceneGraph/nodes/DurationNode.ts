@@ -1,8 +1,6 @@
 import { SceneNode } from "./SceneNode";
 
-export abstract class DurationNode<
-  SceneContext
-> extends SceneNode<SceneContext> {
+export abstract class DurationNode extends SceneNode {
   public durationMs: number = 1_000;
   public repeating = false;
   public startValue = 0;

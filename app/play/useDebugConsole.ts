@@ -11,7 +11,7 @@ import { filterFalsy } from "../utils/filterFalsy";
 const DebugPlayerIds = ["1", "2", "3", "4", "5"];
 
 interface DebugObject {
-  scene: Scene<PlaySceneContext>;
+  scene: Scene;
   players: Record<string, PlayEventHandler>;
   group: Record<string, any>;
 }
@@ -22,12 +22,12 @@ declare global {
   }
 }
 
-function createDebugObject(scene: Scene<PlaySceneContext>): DebugObject {
+function createDebugObject(scene: Scene, context: PlaySceneContext): DebugObject {
   const playHandlers: DebugObject["players"] = {};
 
   const debugPlayers = filterFalsy(
     DebugPlayerIds.map((id) =>
-      getPlayerDebugName(scene.context.players.get(id))
+      getPlayerDebugName(context.players.get(id))
     )
   );
   if (debugPlayers.length < 5) {
@@ -36,7 +36,7 @@ function createDebugObject(scene: Scene<PlaySceneContext>): DebugObject {
     );
   }
 
-  for (const [playerId, player] of scene.context.players.entries()) {
+  for (const [playerId, player] of context.players.entries()) {
     const name = getPlayerDebugName(player);
     if (name == null) {
       continue;
@@ -44,22 +44,21 @@ function createDebugObject(scene: Scene<PlaySceneContext>): DebugObject {
 
     const handler = createPlayEventHandler(
       playerId,
-      scene.context.roomId,
-      scene.context.socket
+      context.roomId,
+      context.socket
     );
     playHandlers[name] = handler;
   }
 
   const group = {
     joinGame: (playerCount: number) => {
-      console.log(debugPlayers, playHandlers);
       for (let i = 0; i < playerCount; i++) {
         const playerHandler = playHandlers[debugPlayers[i]];
+        console.log(playerHandler);
         playerHandler.joinGame();
       }
     },
     leaveGame: (playerCount: number) => {
-      console.log(debugPlayers, playHandlers);
       for (let i = 0; i < playerCount; i++) {
         const playerHandler = playHandlers[debugPlayers[i]];
         playerHandler.leaveGame();
@@ -77,11 +76,11 @@ function createDebugObject(scene: Scene<PlaySceneContext>): DebugObject {
   return debugObject;
 }
 
-export function useDebugConsole(scene: Scene<PlaySceneContext>) {
+export function useDebugConsole(scene: Scene, context: PlaySceneContext) {
   useEffect(() => {
-    window.d = createDebugObject(scene);
+    window.d = createDebugObject(scene, context);
     return () => {
       window.d = undefined;
     };
-  }, [scene]);
+  }, [scene, context]);
 }

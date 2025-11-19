@@ -5,8 +5,14 @@ export const InfoNodeId = "info-node";
 export const PreviousTrickInfoNodeId = "previous-trick-info";
 export const DogInfoNodeId = "dog-info";
 export const PartnerCallInfoNodeId = "partner-call-info";
-export const NewGameNodeId = "new-game-node";
+export const PlayerHandNodeId = "player-hand";
+export const SidePlayerInfosNodeId = "side-player-infos";
+
+// New Game
+export const NewGamePhaseNodeId = "new-game-node";
 export const JoinLeaveButtonId = "join-leave-button";
-export const LeaveGameButtonId = "keave-game-button";
 export const ReadyButtonId = "ready-button";
-export const MarkUnreadyButtonId = "mark-unready-button";
+export const SideCardsNodeId = "side-cards";
+
+// Bidding
+export const BiddingPhaseNodeId = "bidding-node";

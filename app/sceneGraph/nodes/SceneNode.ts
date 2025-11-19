@@ -2,27 +2,26 @@ import type { Property } from "csstype";
 import { m_mult_v, m_new, transformContext } from "../math/Matrix";
 import { v_copy, type Vector } from "../math/Vector";
 
-export interface NodeManager<SceneContext> {
-  getNode: <NodeType extends SceneNode<SceneContext> = SceneNode<SceneContext>>(
+export interface NodeManager {
+  getNode: <NodeType extends SceneNode = SceneNode>(
     nodeId: string
   ) => NodeType;
-  nodesById: Map<string, SceneNode<SceneContext>>;
+  nodesById: Map<string, SceneNode>;
   width: number;
   height: number;
   mousePosition: Vector;
-  context: SceneContext;
   setCursor: (cursor: Property.Cursor) => void;
 }
 
-export class SceneNode<SceneContext> {
+export class SceneNode {
   public id: string;
-  public container?: NodeManager<SceneContext>;
-  public parent?: SceneNode<SceneContext>;
-  public children: SceneNode<SceneContext>[] = [];
+  public container?: NodeManager;
+  public parent?: SceneNode;
+  public children: SceneNode[] = [];
   public visible = true;
 
-  public onMount?: (container: NodeManager<SceneContext>) => void;
-  public onUnmount?: (container: NodeManager<SceneContext>) => void;
+  public onMount?: (container: NodeManager) => void;
+  public onUnmount?: (container: NodeManager) => void;
 
   public transformation = m_new();
   public inverseTransformation = m_new();
@@ -35,9 +34,8 @@ export class SceneNode<SceneContext> {
   public mouseDown?: () => void;
   public mouseUp?: () => void;
 
-  constructor(id: string, parent?: SceneNode<SceneContext>) {
+  constructor(id: string) {
     this.id = id;
-    this.parent = parent;
   }
 
   public updateTree = (dt: number) => {
@@ -64,13 +62,13 @@ export class SceneNode<SceneContext> {
     }
   };
 
-  public addChild = (node: SceneNode<SceneContext>) => {
+  public addChild = (node: SceneNode) => {
     this.children.push(node);
     node.parent = this;
     node.setContainerTree(this.container);
   };
 
-  public removeChild = (node: SceneNode<SceneContext>) => {
+  public removeChild = (node: SceneNode) => {
     const index = this.children.findIndex((n) => n === node);
     if (index >= 0) {
       this.children.splice(index, 1);
@@ -97,12 +95,12 @@ export class SceneNode<SceneContext> {
     this.children.splice(0);
   };
 
-  public removeSelf = (node: SceneNode<SceneContext>) => {
+  public removeSelf = (node: SceneNode) => {
     node.parent?.removeChild(node);
   };
 
   public setContainerTree = (
-    container: NodeManager<SceneContext> | undefined
+    container: NodeManager | undefined
   ) => {
     this.setContainer(container);
     for (let i = 0; i < this.children.length; i++) {
@@ -110,7 +108,7 @@ export class SceneNode<SceneContext> {
     }
   };
 
-  public setContainer = (container: NodeManager<SceneContext> | undefined) => {
+  public setContainer = (container: NodeManager | undefined) => {
     if (container != null) {
       if (container.nodesById.has(this.id)) {
         throw Error("Scene already in container with node id " + this.id);
@@ -133,7 +131,7 @@ export class SceneNode<SceneContext> {
 
   public intersectTree = (
     point: Vector,
-    intersectionList: SceneNode<SceneContext>[]
+    intersectionList: SceneNode[]
   ) => {
     if (!this.visible) {
       return;

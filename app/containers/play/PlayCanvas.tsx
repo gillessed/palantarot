@@ -6,7 +6,7 @@ import type { PlaySceneContext } from "../../play/PlaySceneContext";
 
 interface Props {
   players: Map<string, Player>;
-  scene: Scene<PlaySceneContext>;
+  scene: Scene;
 }
 
 export const PlayCanvas = memo(function PlaySvgContainer({ scene }: Props) {

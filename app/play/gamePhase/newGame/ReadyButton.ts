@@ -1,12 +1,15 @@
 import { ActionButtonNode } from "../../components/ActionButtonNode";
 import { ActionButtonTextTheme } from "../../constants/Themes";
 import { ReadyButtonId } from "../../NodeIds";
+import { PlaySceneContext } from "../../PlaySceneContext";
 
 export class ReadyButton extends ActionButtonNode {
   private ready = false;
+  public context: PlaySceneContext;
 
-  constructor() {
+  constructor(context: PlaySceneContext) {
     super(ReadyButtonId);
+    this.context = context;
 
     this.rectNode.width = 70;
     this.rectNode.height = 40;
@@ -25,9 +28,9 @@ export class ReadyButton extends ActionButtonNode {
 
   public onClick = () => {
     if (this.ready) {
-      this.container?.context.eventHandler.markUnready();
+      this.context.eventHandler.markUnready();
     } else {
-      this.container?.context.eventHandler.markReady();
+      this.context.eventHandler.markReady();
     }
   };
 }

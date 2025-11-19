@@ -3,12 +3,14 @@ import {
   type Card,
   type RegSuit,
   type RegValue,
+  RegValues,
   type Suit,
   The21,
   TheJoker,
   TheOne,
   type TrumpCard,
   type TrumpValue,
+  TrumpValues,
 } from "./Card.ts";
 import { GameErrors } from "./GameErrors.ts";
 import { type PlayerId } from "./GameState.ts";
@@ -25,14 +27,13 @@ export const AllSuits: Suit[] = [...RegSuits, "T"];
 export function createAllCards(): Card[] {
   const cards: Card[] = [];
   for (const suit of RegSuits) {
-    for (let i = 1; i <= 10; i++) {
-      cards.push([suit, `${i}` as RegValue]);
+    for (const value of RegValues) {
+      cards.push([suit, value]);
     }
   }
-  for (let i = 1; i <= 21; i++) {
-    cards.push(["T", `${i}` as TrumpValue]);
+  for (const trumpValue of TrumpValues) {
+    cards.push(["T", trumpValue]);
   }
-  cards.push(TheJoker);
   return cards;
 }
 

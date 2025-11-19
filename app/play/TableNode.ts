@@ -7,7 +7,7 @@ import {
   type ClientGame,
 } from "../../shared/types/ClientGameTypes";
 import { TwoDNode } from "../sceneGraph/nodes/2d/TwoDNode";
-import type { NodeManager, SceneNode } from "../sceneGraph/nodes/SceneNode";
+import type { SceneNode } from "../sceneGraph/nodes/SceneNode";
 import type { ImageAssets } from "./assets/ImageAssets";
 import { BiddingPhaseNode } from "./gamePhase/bidding/BiddingPhaseNode";
 import { NewGamePhaseNode } from "./gamePhase/newGame/NewGamePhaseNode";
@@ -16,22 +16,34 @@ import type { PlaySceneContext } from "./PlaySceneContext";
 
 export type GamePhaseNode = NewGamePhaseNode | BiddingPhaseNode;
 
-export class TableNode extends TwoDNode<PlaySceneContext> {
+export class TableNode extends TwoDNode {
+  public context: PlaySceneContext;
   public imageAssets: ImageAssets;
-  public newGamePhaseNode = new NewGamePhaseNode();
-  public biddingGameNode = new BiddingPhaseNode();
-  public gamePhaseNode?: SceneNode<PlaySceneContext>;
+  public gamePhaseNode?: SceneNode;
   private gameState: ClientGame = EmptyClientGame;
   private removeSceneListener?: () => void;
 
-  constructor(imageAssets: ImageAssets) {
+  constructor(context: PlaySceneContext, imageAssets: ImageAssets) {
     super(TableNodeId);
+    this.context = context;
     this.imageAssets = imageAssets;
   }
 
-  public onMount = (container: NodeManager<PlaySceneContext>) => {
-    const { socket } = container.context;
-    this.removeSceneListener = socket.addListener(this.handleServerMessage);
+  public onMount = () => {
+    this.removeSceneListener = this.context.socket.addListener(
+      this.handleServerMessage
+    );
+    this.context.socket.connect();
+    this.context.socket.send(
+      RoomSocketMessages.enterRoom({
+        playerId: this.context.playerId,
+        roomId: this.context.roomId,
+      })
+    );
+
+    this.removeSceneListener = this.context.socket.addListener(
+      this.handleServerMessage
+    );
   };
 
   public onUnmount = () => {
@@ -45,7 +57,7 @@ export class TableNode extends TwoDNode<PlaySceneContext> {
     this.offset = [width / 2, height / 2];
   };
 
-  public setSceneNode = (newGamePhaseNode: SceneNode<PlaySceneContext>) => {
+  public setSceneNode = (newGamePhaseNode: SceneNode) => {
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
@@ -55,71 +67,92 @@ export class TableNode extends TwoDNode<PlaySceneContext> {
 
   public setToPlayState = (state: ClientGame) => {
     this.gameState = state;
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
     switch (this.gameState.gamePhase) {
       case "new_game":
-        this.setSceneNode(this.newGamePhaseNode);
-        this.newGamePhaseNode.setToGameState(this.gameState);
+        const newGamePhaseNode = new NewGamePhaseNode(
+          this.context,
+          this.gameState
+        );
+        this.gamePhaseNode = newGamePhaseNode;
+        this.handleEvent =
+          this.createNewGamePhaseEventHandler(newGamePhaseNode);
         break;
       case "bidding":
-        this.setSceneNode(this.biddingGameNode);
-        this.biddingGameNode.setToGameState(this.gameState);
+        const biddingPhaseNode = new BiddingPhaseNode(
+          this.context,
+          this.gameState
+        );
+        this.gamePhaseNode = biddingPhaseNode;
         break;
+    }
+    if (this.gamePhaseNode != null) {
+      this.addChild(this.gamePhaseNode);
     }
   };
 
   public handleServerMessage = (message: SocketMessage) => {
-    const playerId = this.container?.context.playerId;
-    if (playerId == null) {
-      return;
-    }
+    const playerId = this.context.playerId;
     RoomSocketMessages.gameUpdates.handle(message, (payload) => {
-      const newGameState = updateClientGameForEvents(
-        this.gameState,
-        payload.events,
-        playerId
-      );
-      this.gameState = newGameState;
-      for (const event of payload.events) {
-        this.handleEvent(event);
+      try {
+        const newGameState = updateClientGameForEvents(
+          this.gameState,
+          payload.events,
+          playerId
+        );
+        this.gameState = newGameState;
+        for (const event of payload.events) {
+          this.handleEvent(event);
+        }
+      } catch (error) {
+        console.error(error);
       }
     });
     RoomSocketMessages.roomStatus.handle(message, (payload) => {
-      const newGameState = updateClientGameForEvents(
-        this.gameState,
-        payload.room.gameEvents,
-        playerId
-      );
-      this.setToPlayState(newGameState);
+      try {
+        const newGameState = updateClientGameForEvents(
+          this.gameState,
+          payload.room.gameEvents,
+          playerId
+        );
+        this.setToPlayState(newGameState);
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
-  public handleEvent = (event: PlayerEvent) => {
-    const { type } = event;
-    switch (type) {
-      case "enter_game":
-        this.newGamePhaseNode.handleEnterGame(event);
-        break;
+  public createNewGamePhaseEventHandler = (
+    newGamePhaseNode: NewGamePhaseNode
+  ) => {
+    return (event: PlayerEvent) => {
+      const { type } = event;
+      switch (type) {
+        case "enter_game":
+          newGamePhaseNode.handleEnterGame(event);
+          break;
 
-      case "leave_game":
-        this.newGamePhaseNode.handleLeaveGame(event);
-        break;
+        case "leave_game":
+          newGamePhaseNode.handleLeaveGame(event);
+          break;
 
-      case "mark_player_ready":
-        this.newGamePhaseNode.handleMarkPlayerReady(event);
-        break;
+        case "mark_player_ready":
+          newGamePhaseNode.handleMarkPlayerReady(event);
+          break;
 
-      case "mark_player_unready":
-        this.newGamePhaseNode.handleMarkPlayerUnready(event);
-        break;
+        case "mark_player_unready":
+          newGamePhaseNode.handleMarkPlayerUnready(event);
+          break;
 
-      case "players_set":
-        // TODO: deal animation
-        this.setSceneNode(this.biddingGameNode);
-        break;
-
-      case "dealt_hand":
-        // this.biddingGameNode.handleDealtHand(event);
-        break;
-    }
+        case "players_set":
+          // TODO: deal animation
+          this.setToPlayState(this.gameState);
+          break;
+      }
+    };
   };
+
+  public handleEvent = (_: PlayerEvent) => {};
 }

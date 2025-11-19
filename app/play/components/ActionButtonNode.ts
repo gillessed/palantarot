@@ -1,5 +1,4 @@
 import { ButtonNode } from "../../sceneGraph/nodes/2d/ButtonNode";
-import type { PlaySceneContext } from "../PlaySceneContext";
 import {
   ActionButtonActiveTheme,
   ActionButtonDisabledTheme,
@@ -8,7 +7,7 @@ import {
   ActionButtonTheme,
 } from "../constants/Themes";
 
-export class ActionButtonNode extends ButtonNode<PlaySceneContext> {
+export class ActionButtonNode extends ButtonNode {
   private state: "normal" | "hovered" | "active" = "normal";
   private disabled = false;
   public onClick?: () => void;

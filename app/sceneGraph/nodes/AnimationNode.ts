@@ -9,7 +9,7 @@ export interface AnimationFinishedListener {
   (): void;
 }
 
-export class AnimationNode<SceneContext> extends DurationNode<SceneContext> {
+export class AnimationNode extends DurationNode {
   public updateListeners = new Set<AnimationUpdateListener>();
   public finishListeners = new Set<AnimationFinishedListener>();
   public startValue = 0;

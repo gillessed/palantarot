@@ -5,7 +5,7 @@ import { DogInfoNode } from "./DogInfoNode";
 import { PartnerCallInfoNode } from "./PartnerCallInfoNode";
 import { PreviousTrickInfoNode } from "./PreviousTrickInfoNode";
 
-export class InfoNode extends TwoDNode<PlaySceneContext> {
+export class InfoNode extends TwoDNode {
   constructor() {
     super(InfoNodeId);
 

@@ -4,7 +4,7 @@ import { TwoDNode } from "./TwoDNode";
 const DefaultFont = "verdana";
 const DefaultFontSize = 18;
 
-export class TextNode<SceneContext> extends TwoDNode<SceneContext> {
+export class TextNode extends TwoDNode {
   public theme?: TextTheme;
   public text: string = "";
   public textAlign: CanvasTextAlign = "center";

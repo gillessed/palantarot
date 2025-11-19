@@ -1,13 +1,14 @@
 import { v_set, type Vector } from "../../sceneGraph/math/Vector";
+import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
-import { CardHeight, CardWidth } from "../constants/CardConstants";
-import type { PlaySceneContext } from "../PlaySceneContext";
+import { AreaBackgroundPadding, CardHeight, CardWidth } from "../constants/CardConstants";
+import { DarkenBackgroundColor } from "../constants/Themes";
 import { LoadedImageNode } from "./LoadedImageNode";
 
 const TopOffsetFactor = 1 / 2;
 const BottomHandPadding = 200;
-const PositionMap: {
+export const SideCardPositions: {
   [key in SideCardPosition]: (
     halfWidth: number,
     halfHeight: number
@@ -40,20 +41,13 @@ export type SideCardPosition =
   | "right"
   | "bottom";
 
-export const SideCardPositionLayout: Record<number, SideCardPosition[]> = {
-  [1]: ["bottom"],
-  [2]: ["bottom", "top-left"],
-  [3]: ["bottom", "top-right", "top-left"],
-  [4]: ["bottom", "left", "top", "right"],
-  [5]: ["bottom", "left", "top-left", "top-right", "right"],
-};
-
-export class SideCardNode extends TwoDNode<PlaySceneContext> {
+export class SideCardNode extends TwoDNode {
   public playerPosition: SideCardPosition = "left";
   public cardNode: LoadedImageNode;
   public enterAnimationEnabled: boolean = false;
   public enterAnimationAxis: Axis = "x";
-  public enterAnimation: AnimationNode<PlaySceneContext>;
+  public enterAnimation: AnimationNode;
+  public backgroundNode: RectNode;
 
   public enterAnimationUpdated = (value: number) => {
     if (this.enterAnimationAxis === "x") {
@@ -65,6 +59,15 @@ export class SideCardNode extends TwoDNode<PlaySceneContext> {
 
   constructor(id: string) {
     super(id);
+
+    this.backgroundNode = new RectNode(`${id}-background`);
+    this.backgroundNode.width = CardWidth + 2 * AreaBackgroundPadding;
+    this.backgroundNode.height = CardHeight + 2 * AreaBackgroundPadding;
+    this.backgroundNode.theme = {
+      backgroundColor: DarkenBackgroundColor,
+      borderRadius: 5,
+    }
+    this.addChild(this.backgroundNode);
 
     this.cardNode = new LoadedImageNode(`${id}-card`, "CardBackBlack");
     this.cardNode.width = CardWidth;
@@ -83,7 +86,7 @@ export class SideCardNode extends TwoDNode<PlaySceneContext> {
   public update = () => {
     const halfWidth = (this.container?.width ?? 0) / 2;
     const halfHeight = (this.container?.height ?? 0) / 2;
-    const [offset, axis] = PositionMap[this.playerPosition](
+    const [offset, axis] = SideCardPositions[this.playerPosition](
       halfWidth,
       halfHeight
     );

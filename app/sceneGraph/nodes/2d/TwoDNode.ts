@@ -10,7 +10,7 @@ import {
 import { v_is_one, v_is_zero, v_new, type Vector } from "../../math/Vector";
 import { SceneNode } from "../SceneNode";
 
-export class TwoDNode<SceneContext> extends SceneNode<SceneContext> {
+export class TwoDNode extends SceneNode {
   public offset: Vector = v_new();
   public position: Vector = v_new();
   public scale: Vector = v_new(1, 1);
