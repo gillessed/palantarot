@@ -32,7 +32,7 @@ export class SideCardsNode extends TwoDNode {
 
   public setCount = (count: number) => {
     if (count < 0 || count > 5) {
-      throw Error("Side card count must be in the range [0, 5]");
+      throw Error("Side card count must be in the range [0, 5] " + count);
     }
 
     const currentCount = this.sideCardNodes.length;
@@ -43,7 +43,7 @@ export class SideCardsNode extends TwoDNode {
         this.addChild(sideCardNode);
       }
     } else if (count < currentCount) {
-      for (let i = currentCount - 1; i >= currentCount; i++) {
+      for (let i = currentCount - 1; i >= count; i--) {
         const sideCardNode = this.sideCardNodes.pop();
         if (sideCardNode != null) {
           this.removeChild(sideCardNode);

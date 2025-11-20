@@ -1,4 +1,5 @@
-import type { PlayerId } from "../../../server/play/model/GameState";
+import type { Bid, PlayerId } from "../../../server/play/model/GameState";
+import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { TextTheme } from "../../sceneGraph/scene/Theme";
@@ -25,9 +26,11 @@ const BorderRadius = 10;
 
 export class PlayerInfoNode extends TwoDNode {
   public context: PlaySceneContext;
-  private playerId?: PlayerId;
   public textNode: TextNode;
   public readyNode: PlayerReadyNode;
+  public bidNode: TextNode;
+  public bidBackgroundNode: RectNode;
+  private playerId?: PlayerId;
 
   constructor(context: PlaySceneContext, id: string) {
     super(id);
@@ -44,11 +47,34 @@ export class PlayerInfoNode extends TwoDNode {
     this.textNode.theme = PlayerNodeTextTheme;
     this.addChild(this.textNode);
 
+    this.bidNode = new TextNode(`${id}-bid`);
+
+    this.bidBackgroundNode = new RectNode(`${id}-bid-background`);
+    this.bidBackgroundNode.offset = [
+      PlayerInfoNodeWidth - 100,
+      PlayerInfoNodeHeight / 2,
+    ];
+    this.bidBackgroundNode.addChild(this.bidNode);
+    this.addChild(this.bidBackgroundNode);
+
     this.readyNode = new PlayerReadyNode(`${id}-ready`);
     this.readyNode.offset = [PlayerInfoNodeWidth / 2, 0];
     this.readyNode.visible = false;
     this.addChild(this.readyNode);
   }
+
+  public setBid = (bid: Bid | undefined) => {
+    if (bid == null) {
+      this.bidNode.text = "";
+    } else {
+      const russianTwenty = bid.bid === 20 && bid.calls.includes("russian")
+      const bidText = bid.bid === 0 ? "PASS" : russianTwenty ? "R 20" : `${bid}`;
+      this.bidNode.text = bidText;
+      // TODO: different color for pass vs number
+      // TODO: animate a bid thing to make it more visible
+    }
+    this.bidBackgroundNode.visible = bid != null;
+  };
 
   public setPlayerId = (playerId: string | undefined) => {
     this.playerId = playerId;

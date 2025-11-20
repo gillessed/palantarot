@@ -45,7 +45,6 @@ function createColorTheme(colorString: string): string[] {
   const c = parseColorString(colorString);
   const shades = T_List.map((t) => interpolateColor(C_Black, c, t));
   const tints = T_List.map((t) => interpolateColor(c, C_White, t));
-  console.log(shades);
   return [...shades, c, ...tints].map((color) => toColorString(color));
 }
 
