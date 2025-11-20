@@ -3,11 +3,18 @@ import {
   M_Identity,
   m_invert,
   m_mult,
+  m_mult_v,
   m_rotation,
   m_set,
   m_translate,
 } from "../../math/Matrix";
-import { v_is_one, v_is_zero, v_new, type Vector } from "../../math/Vector";
+import {
+  v_copy,
+  v_is_one,
+  v_is_zero,
+  v_new,
+  type Vector,
+} from "../../math/Vector";
 import { SceneNode } from "../SceneNode";
 
 export class TwoDNode extends SceneNode {
@@ -72,5 +79,17 @@ export class TwoDNode extends SceneNode {
     } else {
       m_set(this.inverseTransformation, parentInverseTransformation);
     }
+  };
+
+  public transformToNodeSpace = (point: Vector): Vector => {
+    const copy = v_copy(point);
+    m_mult_v(this.transformation, copy);
+    return copy;
+  };
+
+  public transformFromNodeSpace = (point: Vector): Vector => {
+    const copy = v_copy(point);
+    m_mult_v(this.inverseTransformation, copy);
+    return copy;
   };
 }

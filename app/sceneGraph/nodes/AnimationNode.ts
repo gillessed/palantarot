@@ -1,3 +1,4 @@
+import { interpolateValue } from "../../play/constants/PlayColors";
 import { EasingFunctions, type EasingFunction } from "../math/Easing";
 import { DurationNode } from "./DurationNode";
 
@@ -23,8 +24,11 @@ export class AnimationNode extends DurationNode {
       const scalar = this.currentTime / this.durationMs;
       const eased =
         this.easing != null ? EasingFunctions[this.easing](scalar) : scalar;
-      const interpolated =
-        this.startValue + (this.endValue - this.startValue) * eased;
+      const interpolated = interpolateValue(
+        this.startValue,
+        this.endValue,
+        eased
+      );
       this.signalUpdate(interpolated);
     }
   };
@@ -38,6 +42,7 @@ export class AnimationNode extends DurationNode {
   };
 
   protected signalFinished = () => {
+    this.signalUpdate(this.endValue);
     for (const listener of this.finishListeners) {
       listener();
     }

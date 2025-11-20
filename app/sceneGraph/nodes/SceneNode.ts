@@ -3,9 +3,7 @@ import { m_mult_v, m_new, transformContext } from "../math/Matrix";
 import { v_copy, type Vector } from "../math/Vector";
 
 export interface NodeManager {
-  getNode: <NodeType extends SceneNode = SceneNode>(
-    nodeId: string
-  ) => NodeType;
+  getNode: <NodeType extends SceneNode = SceneNode>(nodeId: string) => NodeType;
   nodesById: Map<string, SceneNode>;
   width: number;
   height: number;
@@ -99,9 +97,7 @@ export class SceneNode {
     node.parent?.removeChild(node);
   };
 
-  public setContainerTree = (
-    container: NodeManager | undefined
-  ) => {
+  public setContainerTree = (container: NodeManager | undefined) => {
     this.setContainer(container);
     for (let i = 0; i < this.children.length; i++) {
       this.children[i].setContainerTree(container);
@@ -128,11 +124,9 @@ export class SceneNode {
   };
 
   public transformToNodeSpace = (point: Vector): Vector => point;
+  public transformFromNodeSpace = (point: Vector): Vector => point;
 
-  public intersectTree = (
-    point: Vector,
-    intersectionList: SceneNode[]
-  ) => {
+  public intersectTree = (point: Vector, intersectionList: SceneNode[]) => {
     if (!this.visible) {
       return;
     }

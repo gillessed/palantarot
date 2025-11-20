@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import type { Action } from "../../server/play/model/GameEvents";
-import type { PlayerId } from "../../server/play/model/GameState";
+import type {
+  BidValue,
+  Call,
+  PlayerId,
+} from "../../server/play/model/GameState";
 import { RoomSocketMessages } from "../../server/play/room/RoomSocketMessages";
 import type { ClientSocket } from "../services/socket/ClientSocket";
 
@@ -9,6 +13,7 @@ export interface PlayEventHandler {
   leaveGame: () => void;
   markReady: () => void;
   markUnready: () => void;
+  bid: (value: BidValue, calls: Call[]) => void;
 }
 
 export function createPlayEventHandler(
@@ -16,14 +21,7 @@ export function createPlayEventHandler(
   roomId: string,
   socket: ClientSocket
 ): PlayEventHandler {
-  const sendActionMessage = (
-    actionPayload: Omit<Action, "playerId" | "time">
-  ) => {
-    const action = {
-      ...actionPayload,
-      playerId,
-      time: Date.now(),
-    } as Action;
+  const sendActionMessage = (action: Action) => {
     socket.send(
       RoomSocketMessages.gameAction({
         roomId,
@@ -34,16 +32,33 @@ export function createPlayEventHandler(
 
   return {
     joinGame: () => {
-      sendActionMessage({ type: "enter_game" });
+      sendActionMessage({ playerId, time: Date.now(), type: "enter_game" });
     },
     leaveGame: () => {
-      sendActionMessage({ type: "leave_game" });
+      sendActionMessage({ playerId, time: Date.now(), type: "leave_game" });
     },
     markReady: () => {
-      sendActionMessage({ type: "mark_player_ready" });
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "mark_player_ready",
+      });
     },
     markUnready: () => {
-      sendActionMessage({ type: "mark_player_unready" });
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "mark_player_unready",
+      });
+    },
+    bid: (value: BidValue, calls: Call[]) => {
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "bid",
+        bid: value,
+        calls,
+      });
     },
   };
 }

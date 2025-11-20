@@ -7,13 +7,17 @@ import {
   type PlayEventHandler,
 } from "./PlayEventHandler";
 import type { PlaySceneContext } from "./PlaySceneContext";
+import { TableNodeId } from "./NodeIds";
+import type { TableNode } from "./TableNode";
 
 const DebugPlayerIds = ["1", "2", "3", "4", "5"];
 
 interface DebugObject {
   scene: Scene;
+  context: PlaySceneContext;
   players: Record<string, PlayEventHandler>;
   group: Record<string, any>;
+  printGameState: () => void;
 }
 
 declare global {
@@ -72,7 +76,22 @@ function createDebugObject(
     },
   };
 
-  const debugObject: DebugObject = { scene, players: playHandlers, group };
+  const printGameState = () => {
+    const tableNode = scene.getNode<TableNode>(TableNodeId);
+    if (tableNode == null) {
+      console.log("Table node not mounted yet");
+    } else {
+      console.log(tableNode.gameState);
+    }
+  };
+
+  const debugObject: DebugObject = {
+    scene,
+    context,
+    players: playHandlers,
+    group,
+    printGameState,
+  };
   return debugObject;
 }
 

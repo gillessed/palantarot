@@ -1,12 +1,12 @@
 type Color = [number, number, number];
 const C_Black: Color = [0, 0, 0];
-const C_White: Color = [1, 1, 1];
+const C_White: Color = [256, 256, 256];
 
-function interpolateValue(x1: number, x2: number, t: number) {
+export function interpolateValue(x1: number, x2: number, t: number) {
   return x1 + (x2 - x1) * t;
 }
 
-function interpolateColor(
+export function interpolateColor(
   [r1, g1, b1]: Color,
   [r2, g2, b2]: Color,
   t: number
@@ -16,6 +16,12 @@ function interpolateColor(
     interpolateValue(g1, g2, t),
     interpolateValue(b1, b2, t),
   ];
+}
+
+export function interpolateColorString(c1: string, c2: string, t: number) {
+  return toColorString(
+    interpolateColor(parseColorString(c1), parseColorString(c2), t)
+  );
 }
 
 const T_List = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
@@ -50,6 +56,6 @@ function createColorTheme(colorString: string): string[] {
 
 export const Green = createColorTheme("#22AA22");
 export const Blue = createColorTheme("#2266AA");
-export const Violet = createColorTheme("#BB11B5");
-export const Yellow = createColorTheme("#B0AE1C");
+export const Violet = createColorTheme("#E2C605");
+export const Yellow = createColorTheme("#E4D00A");
 export const Ocean = createColorTheme("#2266AA");

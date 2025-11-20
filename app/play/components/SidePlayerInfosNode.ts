@@ -63,7 +63,7 @@ export class SidePlayerInfosNode extends TwoDNode {
   ) => {
     const playerInfoNode = new PlayerInfoNode(
       this.context,
-      `$${this.id}-${playerId}`
+      `${this.id}-${playerId}`
     );
     playerInfoNode.setPlayerId(playerId);
     playerInfoNode.visible = true;

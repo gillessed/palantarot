@@ -1,4 +1,11 @@
-import { Green0, Green1, Green2, Green3 } from "../constants/PlayColors";
-import { PrimaryColor } from "../constants/Themes";
+import { PrimaryColor, SecondaryColor } from "../constants/Themes";
 
-export const PlayerNodeBorderColor = PrimaryColor[4];
+export const PlayerNodeColors = {
+  BackgroundColor: PrimaryColor[6],
+  BorderColor: PrimaryColor[4],
+};
+
+export const PlayerNodeActiveColors = {
+  BackgroundColor: SecondaryColor[8],
+  BorderColor: SecondaryColor[6],
+};

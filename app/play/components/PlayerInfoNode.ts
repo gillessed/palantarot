@@ -1,13 +1,16 @@
-import type { Bid, PlayerId } from "../../../server/play/model/GameState";
-import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
+import { type PlayerId } from "../../../server/play/model/GameState";
 import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
+import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
 import { TextTheme } from "../../sceneGraph/scene/Theme";
 import { getPlayerName } from "../../services/utils/playerName";
-import { PrimaryColor } from "../constants/Themes";
+import { interpolateColorString } from "../constants/PlayColors";
 import type { PlaySceneContext } from "../PlaySceneContext";
 import { pathRoundedRectangle } from "../utils/pathRoundedRectangle";
-import { PlayerNodeBorderColor } from "./PlayerNodeConstants";
+import {
+  PlayerNodeActiveColors,
+  PlayerNodeColors,
+} from "./PlayerNodeConstants";
 import { PlayerReadyNode } from "./PlayerReadyNode";
 
 const PlayerNodeTextTheme: TextTheme = {
@@ -16,21 +19,21 @@ const PlayerNodeTextTheme: TextTheme = {
   textColor: "white",
 };
 
+export const BidNodeWidth = 80;
 export type PlayerReadyNodeAlignment = "left" | "right" | "top" | "bottom";
 export const PlayerInfoNodeWidth = 300;
 export const PlayerInfoNodeHeight = 60;
 const TextWidth = 200;
-const BackgroundColor = PrimaryColor[6];
-const BorderColor = PlayerNodeBorderColor;
 const BorderRadius = 10;
 
 export class PlayerInfoNode extends TwoDNode {
   public context: PlaySceneContext;
   public textNode: TextNode;
   public readyNode: PlayerReadyNode;
-  public bidNode: TextNode;
-  public bidBackgroundNode: RectNode;
+  public activeAnimation: AnimationNode;
+  public fadeAnimation: AnimationNode;
   private playerId?: PlayerId;
+  private colorInterpolateValue = 0;
 
   constructor(context: PlaySceneContext, id: string) {
     super(id);
@@ -47,34 +50,32 @@ export class PlayerInfoNode extends TwoDNode {
     this.textNode.theme = PlayerNodeTextTheme;
     this.addChild(this.textNode);
 
-    this.bidNode = new TextNode(`${id}-bid`);
-
-    this.bidBackgroundNode = new RectNode(`${id}-bid-background`);
-    this.bidBackgroundNode.offset = [
-      PlayerInfoNodeWidth - 100,
-      PlayerInfoNodeHeight / 2,
-    ];
-    this.bidBackgroundNode.addChild(this.bidNode);
-    this.addChild(this.bidBackgroundNode);
-
     this.readyNode = new PlayerReadyNode(`${id}-ready`);
     this.readyNode.offset = [PlayerInfoNodeWidth / 2, 0];
     this.readyNode.visible = false;
     this.addChild(this.readyNode);
-  }
 
-  public setBid = (bid: Bid | undefined) => {
-    if (bid == null) {
-      this.bidNode.text = "";
-    } else {
-      const russianTwenty = bid.bid === 20 && bid.calls.includes("russian")
-      const bidText = bid.bid === 0 ? "PASS" : russianTwenty ? "R 20" : `${bid}`;
-      this.bidNode.text = bidText;
-      // TODO: different color for pass vs number
-      // TODO: animate a bid thing to make it more visible
-    }
-    this.bidBackgroundNode.visible = bid != null;
-  };
+    this.activeAnimation = new AnimationNode(`${id}-active-animation`);
+    this.activeAnimation.startValue = 0;
+    this.activeAnimation.endValue = 1;
+    this.activeAnimation.durationMs = 300;
+    this.activeAnimation.easing = "inOutCubic";
+    this.activeAnimation.updateListeners.add((value: number) => {
+      this.colorInterpolateValue = value;
+    });
+    this.addChild(this.activeAnimation);
+
+    this.fadeAnimation = new AnimationNode(`${id}-opacity-animation`);
+    this.fadeAnimation.durationMs = 300;
+    this.fadeAnimation.easing = "inOutCubic";
+    this.fadeAnimation.updateListeners.add((value: number) => {
+      this.opacity = value;
+    });
+    this.fadeAnimation.finishListeners.add(() => {
+      this.opacity = this.fadeAnimation.endValue;
+    });
+    this.addChild(this.fadeAnimation);
+  }
 
   public setPlayerId = (playerId: string | undefined) => {
     this.playerId = playerId;
@@ -82,6 +83,26 @@ export class PlayerInfoNode extends TwoDNode {
   };
 
   public getPlayerId = () => this.playerId;
+
+  public setActive = (active: boolean) => {
+    this.colorInterpolateValue = active ? 1 : 0;
+  };
+
+  public animateActive = (active: boolean) => {
+    this.activeAnimation.startValue = active ? 0 : 1;
+    this.activeAnimation.endValue = active ? 1 : 0;
+    this.activeAnimation.start();
+  };
+
+  public setFade = (faded: boolean) => {
+    this.opacity = faded ? 0.6 : 1;
+  };
+
+  public fade = (fadeIn: boolean) => {
+    this.fadeAnimation.startValue = fadeIn ? 0.6 : 1;
+    this.fadeAnimation.endValue = fadeIn ? 1 : 0.6;
+    this.fadeAnimation.start();
+  };
 
   private updateText = () => {
     if (this.playerId == null) {
@@ -93,9 +114,25 @@ export class PlayerInfoNode extends TwoDNode {
     }
   };
 
+  public getBackgroundColor = () => {
+    return interpolateColorString(
+      PlayerNodeColors.BackgroundColor,
+      PlayerNodeActiveColors.BackgroundColor,
+      this.colorInterpolateValue
+    );
+  };
+
+  public getBorderColor = () => {
+    return interpolateColorString(
+      PlayerNodeColors.BorderColor,
+      PlayerNodeActiveColors.BorderColor,
+      this.colorInterpolateValue
+    );
+  };
+
   public render = (ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = BackgroundColor;
-    ctx.strokeStyle = BorderColor;
+    ctx.fillStyle = this.getBackgroundColor();
+    ctx.strokeStyle = this.getBorderColor();
     ctx.lineWidth = 3;
 
     const rectPath = new Path2D();
@@ -124,8 +161,8 @@ export class PlayerInfoNode extends TwoDNode {
       -PlayerInfoNodeWidth / 2 + TextWidth,
       0
     );
-    gradient.addColorStop(0, BorderColor);
-    gradient.addColorStop(1, BackgroundColor);
+    gradient.addColorStop(0, this.getBorderColor());
+    gradient.addColorStop(1, this.getBackgroundColor());
     ctx.fillStyle = gradient;
     const rectPath = new Path2D();
     pathRoundedRectangle(

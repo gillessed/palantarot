@@ -96,8 +96,9 @@ const handleBidAction = (
   action: BidAction
 ): ReducerResult<BiddingStates> => {
   const bid: Bid = {
-    ...action,
-    calls: action.calls || [],
+    player: action.playerId,
+    bid: action.bid,
+    calls: action.calls ?? [],
   };
   const newBidState = updateBids(state.bidding, bid);
   if (newBidState.bidders.length > 0 && action.bid !== 160) {

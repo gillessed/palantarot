@@ -90,8 +90,6 @@ export interface DeclareSlamAction extends BaseAction {
 export interface SetDogAction extends BaseAction {
   readonly type: "set_dog";
   readonly dog: Card[];
-  readonly privateTo?: PlayerId;
-  readonly exclude?: PlayerId[];
 }
 
 export interface PlayCardAction extends BaseAction {

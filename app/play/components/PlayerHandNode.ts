@@ -36,16 +36,6 @@ export class PlayerHandNode extends TwoDNode {
 
     this.cardListNode = new TwoDNode(`${PlayerHandNodeId}-cards`);
     this.cardListNode.offset[1] = CardHeight / 2;
-    for (const card of cards) {
-      const cardNode = new LoadedImageNode(
-        `${PlayerHandNodeId}-card-${card}`,
-        getCardAssetKey(card)
-      );
-      cardNode.width = CardWidth;
-      cardNode.height = CardHeight;
-      this.cardNodes.push(cardNode);
-      this.cardListNode.addChild(cardNode);
-    }
     this.addChild(this.cardListNode);
 
     this.enterAnimation = new AnimationNode(
@@ -62,11 +52,13 @@ export class PlayerHandNode extends TwoDNode {
     this.enterAnimation.durationMs = 750;
     this.enterAnimation.easing = "outCubic";
     this.addChild(this.enterAnimation);
+
+    if (cards.length > 0) {
+      this.setHand(cards, false);
+    }
   }
 
-  public onMount = () => {
-    this.enterAnimation.start();
-  };
+  public onMount = () => {};
 
   public update = () => {
     const containerWidth = this.container?.width ?? 0;
@@ -78,6 +70,25 @@ export class PlayerHandNode extends TwoDNode {
       this.offset[0] = 150;
       this.backgroundNode.width = this.handWidth + 2 * AreaBackgroundPadding;
       this.layoutCards();
+    }
+  };
+
+  public setHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
+    for (const card of cards) {
+      const cardNode = new LoadedImageNode(
+        `${PlayerHandNodeId}-card-${card}`,
+        getCardAssetKey(card)
+      );
+      cardNode.width = CardWidth;
+      cardNode.height = CardHeight;
+      this.cardNodes.push(cardNode);
+      this.cardListNode.addChild(cardNode);
+    }
+    this.layoutCards();
+    if (animate) {
+      this.enterAnimation.start();
+    } else {
+      this.cardListNode.offset[1] = 0;
     }
   };
 

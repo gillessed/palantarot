@@ -2,8 +2,7 @@ import { CircleNode } from "../../sceneGraph/nodes/2d/CircleNode";
 import { SvgNode } from "../../sceneGraph/nodes/2d/SvgNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { SvgPaths } from "../assets/SvgPaths";
-import type { PlaySceneContext } from "../PlaySceneContext";
-import { PlayerNodeBorderColor } from "./PlayerNodeConstants";
+import { PlayerNodeColors } from "./PlayerNodeConstants";
 
 const CheckmarkScale = 0.15;
 const BackgroundColor = "#dee2e6";
@@ -24,7 +23,7 @@ export class PlayerReadyNode extends TwoDNode {
     this.circleNode.radius = 15;
     this.circleNode.theme = {
       backgroundColor: BackgroundColor,
-      borderColor: PlayerNodeBorderColor,
+      borderColor: PlayerNodeColors.BorderColor,
       borderWidth: 3,
     };
     this.addChild(this.circleNode);

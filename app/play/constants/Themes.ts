@@ -23,10 +23,15 @@ export const ActionButtonTheme: RectTheme = {
   borderWidth: UiBorderWidth,
 };
 
-export const ActionButtonTextTheme: TextTheme = {
+export const DefaultTextTheme: TextTheme = {
   textColor: "#FFFFFF",
-  fontSize: 32,
+  fontSize: 24,
   fontFamily: "blenderProBold",
+};
+
+export const ActionButtonTextTheme: TextTheme = {
+  ...DefaultTextTheme,
+  fontSize: 32,
 };
 
 export const ActionButtonDisabledTheme: RectTheme = {
@@ -37,7 +42,6 @@ export const ActionButtonDisabledTheme: RectTheme = {
 };
 
 export const AreaTextTheme: TextTheme = {
-  textColor: "#FFFFFF",
+  ...DefaultTextTheme,
   fontSize: 18,
-  fontFamily: "blenderProBold",
 };

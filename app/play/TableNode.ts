@@ -20,7 +20,7 @@ export class TableNode extends TwoDNode {
   public context: PlaySceneContext;
   public imageAssets: ImageAssets;
   public gamePhaseNode?: SceneNode;
-  private gameState: ClientGame = EmptyClientGame;
+  public gameState: ClientGame = EmptyClientGame;
   private removeSceneListener?: () => void;
 
   constructor(context: PlaySceneContext, imageAssets: ImageAssets) {
@@ -149,6 +149,29 @@ export class TableNode extends TwoDNode {
         case "players_set":
           // TODO: deal animation
           this.setToPlayState(this.gameState);
+          break;
+      }
+    };
+  };
+
+  public createBiddingPhaseEventHandler = (
+    biddingPhaseNode: BiddingPhaseNode
+  ) => {
+    return (event: PlayerEvent) => {
+      const { type } = event;
+      switch (type) {
+        case "dealt_hand":
+          biddingPhaseNode.handleDealtHands(event);
+          break;
+
+        case "bid":
+          if (this.gameState.toBid == null) {
+            throw Error("to bid cannot be null");
+          }
+          biddingPhaseNode.handleBid(
+            event,
+            this.gameState.playerOrder[this.gameState.toBid]
+          );
           break;
       }
     };
