@@ -17,6 +17,7 @@ export class SceneNode {
   public parent?: SceneNode;
   public children: SceneNode[] = [];
   public visible = true;
+  public isMounted = false;
 
   public onMount?: (container: NodeManager) => void;
   public onUnmount?: (container: NodeManager) => void;
@@ -114,10 +115,12 @@ export class SceneNode {
       }
       container.nodesById.set(this.id, this);
       this.onMount?.(container);
+      this.isMounted = true;
     } else {
       if (this.container != null) {
         this.onUnmount?.(this.container);
       }
+      this.isMounted = false;
       this.container?.nodesById.delete(this.id);
     }
     this.container = container;

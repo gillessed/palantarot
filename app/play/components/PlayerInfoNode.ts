@@ -98,9 +98,9 @@ export class PlayerInfoNode extends TwoDNode {
     this.opacity = faded ? 0.6 : 1;
   };
 
-  public fade = (fadeIn: boolean) => {
-    this.fadeAnimation.startValue = fadeIn ? 0.6 : 1;
-    this.fadeAnimation.endValue = fadeIn ? 1 : 0.6;
+  public fade = (mode: "fadeIn" | "fadeOut") => {
+    this.fadeAnimation.startValue = mode === "fadeIn" ? 0.6 : 1;
+    this.fadeAnimation.endValue = mode === "fadeIn" ? 1 : 0.6;
     this.fadeAnimation.start();
   };
 

@@ -15,19 +15,21 @@ export class AnimationNode extends DurationNode {
   public finishListeners = new Set<AnimationFinishedListener>();
   public startValue = 0;
   public endValue = 1;
+  public reversed = false;
   public easing?: EasingFunction;
   // TODO: add easing types
 
   public update = (dt: number) => {
     this.updateState(dt);
     if (this.running) {
-      const scalar = this.currentTime / this.durationMs;
+      const delta = this.currentTime / this.durationMs;
+      const scalar = this.reversed ? 1 - delta : delta;
       const eased =
         this.easing != null ? EasingFunctions[this.easing](scalar) : scalar;
       const interpolated = interpolateValue(
         this.startValue,
         this.endValue,
-        eased
+        eased,
       );
       this.signalUpdate(interpolated);
     }

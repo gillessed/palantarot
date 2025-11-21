@@ -5,7 +5,7 @@ import {
 import {
   BidPass,
   type Bid,
-  type PlayerId,
+  type PlayerId
 } from "../../../../server/play/model/GameState";
 import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
@@ -14,6 +14,7 @@ import { SideCardsNode } from "../../components/SideCardsNode";
 import { SidePlayerInfosNode } from "../../components/SidePlayerInfosNode";
 import { BiddingPhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
+import { BidModalNode } from "./BidModalNode";
 import { PlayerBidNode } from "./PlayerBidNode";
 
 export class BiddingPhaseNode extends TwoDNode {
@@ -22,6 +23,7 @@ export class BiddingPhaseNode extends TwoDNode {
   public playerInfoNodes: SidePlayerInfosNode;
   public bidNodes: Map<PlayerId, PlayerBidNode> = new Map();
   public playerHandNode: PlayerHandNode;
+  public modalNode: BidModalNode;
   private playerInGame: boolean;
   private activePlayerId: string;
 
@@ -56,6 +58,10 @@ export class BiddingPhaseNode extends TwoDNode {
 
     this.playerHandNode = new PlayerHandNode(context, state.hand);
     this.addChild(this.playerHandNode);
+
+    this.modalNode = new BidModalNode(`${this.id}-modal`);
+    this.modalNode.visible = this.activePlayerId === context.playerId;
+    this.addChild(this.modalNode);
   }
 
   public handleDealtHands = (transition: DealtHandTransition) => {
@@ -63,17 +69,22 @@ export class BiddingPhaseNode extends TwoDNode {
   };
 
   public setBid = (bid: Bid, animate: boolean) => {
-    const bidNode = new PlayerBidNode(`${this.id}-${bid.player}-bid`);
+    const bidNodeId = `${this.id}-${bid.player}-bid`;
+    const bidNode =
+      this.container?.getNode<PlayerBidNode>(bidNodeId) ??
+      new PlayerBidNode(bidNodeId);
     bidNode.setBid(bid, animate);
     const playerNode = this.playerInfoNodes.playerInfoNodes.get(bid.player);
     if (playerNode != null) {
-      const shouldFade = bid.bid === BidPass;
+      const faded = bid.bid === BidPass;
       if (animate) {
-        playerNode.fade(shouldFade);
+        playerNode.fade(faded ? "fadeOut" : "fadeIn");
       } else {
-        playerNode.setFade(shouldFade);
+        playerNode.setFade(faded);
       }
-      playerNode.addChild(bidNode);
+      if (!bidNode.isMounted) {
+        playerNode.addChild(bidNode);
+      }
     }
   };
 
@@ -92,5 +103,10 @@ export class BiddingPhaseNode extends TwoDNode {
       .get(newActivePlayer)
       ?.animateActive(true);
     this.activePlayerId = newActivePlayer;
+    if (this.activePlayerId === this.context.playerId) {
+      this.modalNode.fadeIn();
+    } else {
+      this.modalNode.fadeOut();
+    }
   };
 }

@@ -86,6 +86,8 @@ export class TableNode extends TwoDNode {
           this.gameState
         );
         this.gamePhaseNode = biddingPhaseNode;
+        this.handleEvent =
+          this.createBiddingPhaseEventHandler(biddingPhaseNode);
         break;
     }
     if (this.gamePhaseNode != null) {

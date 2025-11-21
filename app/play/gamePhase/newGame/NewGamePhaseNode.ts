@@ -6,11 +6,9 @@ import type {
 } from "../../../../server/play/model/GameEvents";
 import type { PlayerId } from "../../../../server/play/model/GameState";
 import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
-import { RectNode } from "../../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
+import { ModalNode } from "../../components/ModalNode";
 import { SideCardsNode } from "../../components/SideCardsNode";
-import { Green } from "../../constants/PlayColors";
-import { DarkenColor2 } from "../../constants/Themes";
 import { NewGamePhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 import { EmptyRowNode } from "./EmptyRowNode";
@@ -37,7 +35,7 @@ export class NewGamePhaseNode extends TwoDNode {
     MaybePlayerId
   ] = [undefined, undefined, undefined, undefined, undefined];
   public playerInfoNodes: Map<PlayerId, PlayerRowNode>;
-  public playerListNode: TwoDNode;
+  public modalNode: ModalNode;
   public rowBackgroundNodes: TwoDNode[] = [];
   public sideCardNodes: SideCardsNode = new SideCardsNode(false);
   public joinLeaveButton: JoinLeaveButton;
@@ -49,21 +47,10 @@ export class NewGamePhaseNode extends TwoDNode {
     }
     this.context = context;
 
-    this.playerListNode = new TwoDNode(`${NewGamePhaseNodeId}-list`);
-    this.addChild(this.playerListNode);
 
-    const backgroundRect = new RectNode(
-      `${NewGamePhaseNodeId}-background-rect`
-    );
-    backgroundRect.theme = {
-      backgroundColor: Green[7],
-      borderRadius: 25,
-      borderColor: DarkenColor2,
-      borderWidth: 3,
-    };
-    backgroundRect.width = 420;
-    backgroundRect.height = PanelHeight;
-    this.playerListNode.addChild(backgroundRect);
+    this.modalNode = new ModalNode(`${NewGamePhaseNodeId}-modal`);
+    this.modalNode.width = 420;
+    this.modalNode.height = PanelHeight;
 
     this.playerInfoNodes = new Map();
     let y = -PanelHeight / 2 + PanelPadding + PlayerRowHeight / 2;
@@ -72,7 +59,7 @@ export class NewGamePhaseNode extends TwoDNode {
       emptyRowNode.offset[1] = y;
       y += RowHeight + RowGap;
       this.rowBackgroundNodes.push(emptyRowNode);
-      this.playerListNode.addChild(emptyRowNode);
+      this.modalNode.addChild(emptyRowNode);
     }
 
     this.joinLeaveButton = new JoinLeaveButton(context);

@@ -31,6 +31,7 @@ export class PlayerBidNode extends TwoDNode {
     this.bidBackgroundNode.height = PlayerInfoNodeHeight - 20;
     this.bidBackgroundNode.theme = PlayerBidNodeBackgroundTheme;
     this.bidBackgroundNode.visible = false;
+    this.bidBackgroundNode.scale = [0, 0];
     this.bidBackgroundNode.addChild(this.bidNode);
     this.addChild(this.bidBackgroundNode);
 
@@ -55,14 +56,10 @@ export class PlayerBidNode extends TwoDNode {
         bid.bid === BidPass ? "PASS" : russianTwenty ? "R 20" : `${bid.bid}`;
       this.bidNode.text = bidText;
       // TODO: different color for pass vs number
-      if (bid.bid === BidPass) {
-        // TODO: animate this opacity change
-        this.opacity = 0.5;
-      } else {
-        this.opacity = 1;
-      }
       if (animate) {
         this.doBidEffect();
+      } else {
+        this.bidBackgroundNode.scale = [1, 1];
       }
     }
     this.bidBackgroundNode.visible = bid != null;
