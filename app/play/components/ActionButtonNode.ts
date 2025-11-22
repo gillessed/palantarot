@@ -5,6 +5,7 @@ import {
   ActionButtonDisabledTheme,
   ActionButtonTextTheme,
   ActionButtonTheme,
+  DarkenColor05,
   LightenColor05,
 } from "../constants/Themes";
 
@@ -15,7 +16,7 @@ const HoverTheme: ShapeTheme = {
 
 const ActiveTheme: ShapeTheme = {
   ...ActionButtonTheme,
-  backgroundColor: LightenColor05,
+  backgroundColor: DarkenColor05,
 };
 
 export class ActionButtonNode extends ButtonNode {

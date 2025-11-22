@@ -5,7 +5,7 @@ import {
 import {
   BidPass,
   type Bid,
-  type PlayerId
+  type PlayerId,
 } from "../../../../server/play/model/GameState";
 import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
@@ -102,11 +102,11 @@ export class BiddingPhaseNode extends TwoDNode {
     this.playerInfoNodes.playerInfoNodes
       .get(newActivePlayer)
       ?.animateActive(true);
-    this.activePlayerId = newActivePlayer;
-    if (this.activePlayerId === this.context.playerId) {
+    if (newActivePlayer === this.context.playerId) {
       this.modalNode.fadeIn();
-    } else {
+    } else if (this.activePlayerId === this.context.playerId) {
       this.modalNode.fadeOut();
     }
+    this.activePlayerId = newActivePlayer;
   };
 }
