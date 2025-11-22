@@ -1,5 +1,8 @@
 import type { PlayerEvent } from "../../server/play/model/GameEvents";
-import { RoomSocketMessages } from "../../server/play/room/RoomSocketMessages";
+import {
+  GameUpdatesMessagePayload,
+  RoomSocketMessages,
+} from "../../server/play/room/RoomSocketMessages";
 import type { SocketMessage } from "../../server/websocket/SocketMessage";
 import { updateClientGameForEvents } from "../../shared/game/updateClientGameForEvents";
 import {
@@ -22,6 +25,8 @@ export class TableNode extends TwoDNode {
   public gamePhaseNode?: SceneNode;
   public gameState: ClientGame = EmptyClientGame;
   private removeSceneListener?: () => void;
+  private processedInitialUpdated = false;
+  private queueMessages: SocketMessage<GameUpdatesMessagePayload>[] = [];
 
   constructor(context: PlaySceneContext, imageAssets: ImageAssets) {
     super(TableNodeId);
@@ -95,33 +100,49 @@ export class TableNode extends TwoDNode {
     }
   };
 
+  public handleGameEventMessage = ({
+    payload,
+  }: SocketMessage<GameUpdatesMessagePayload>) => {
+    for (const event of payload.events) {
+      const newGameState = updateClientGameForEvents(
+        this.gameState,
+        [event],
+        this.context.playerId
+      );
+      this.gameState = newGameState;
+      this.handleEvent(event);
+    }
+  };
+
   public handleServerMessage = (message: SocketMessage) => {
-    const playerId = this.context.playerId;
-    RoomSocketMessages.gameUpdates.handle(message, (payload) => {
+    RoomSocketMessages.gameUpdates.handleMessage(message, (typedMessage) => {
       try {
-        const newGameState = updateClientGameForEvents(
-          this.gameState,
-          payload.events,
-          playerId
-        );
-        this.gameState = newGameState;
-        for (const event of payload.events) {
-          this.handleEvent(event);
+        if (this.processedInitialUpdated) {
+          this.handleGameEventMessage(typedMessage);
+        } else {
+          this.queueMessages.push(message);
         }
       } catch (error) {
         console.error(error);
       }
     });
     RoomSocketMessages.roomStatus.handle(message, (payload) => {
-      try {
-        const newGameState = updateClientGameForEvents(
-          this.gameState,
-          payload.room.gameEvents,
-          playerId
-        );
-        this.setToPlayState(newGameState);
-      } catch (error) {
-        console.error(error);
+      if (!this.processedInitialUpdated) {
+        try {
+          const newGameState = updateClientGameForEvents(
+            this.gameState,
+            payload.room.gameEvents,
+            this.context.playerId
+          );
+          this.setToPlayState(newGameState);
+          for (const queuedMessage of this.queueMessages) {
+            this.handleGameEventMessage(queuedMessage);
+          }
+          this.queueMessages.splice(0);
+          this.processedInitialUpdated = true;
+        } catch (error) {
+          console.error(error);
+        }
       }
     });
   };

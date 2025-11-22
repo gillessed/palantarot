@@ -58,8 +58,6 @@ export class PlayerHandNode extends TwoDNode {
     }
   }
 
-  public onMount = () => {};
-
   public update = () => {
     const containerWidth = this.container?.width ?? 0;
     const containerHeight = this.container?.height ?? 0;
@@ -74,6 +72,10 @@ export class PlayerHandNode extends TwoDNode {
   };
 
   public setHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
+    for (const node of this.cardNodes) {
+      this.removeChild(node);
+    }
+    this.cardNodes.splice(0);
     for (const card of cards) {
       const cardNode = new LoadedImageNode(
         `${PlayerHandNodeId}-card-${card}`,

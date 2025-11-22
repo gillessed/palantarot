@@ -51,6 +51,7 @@ export class NewGamePhaseNode extends TwoDNode {
     this.modalNode = new ModalNode(`${NewGamePhaseNodeId}-modal`);
     this.modalNode.width = 420;
     this.modalNode.height = PanelHeight;
+    this.addChild(this.modalNode);
 
     this.playerInfoNodes = new Map();
     let y = -PanelHeight / 2 + PanelPadding + PlayerRowHeight / 2;
