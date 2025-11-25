@@ -11,8 +11,7 @@ export class ReadyButton extends ActionButtonNode {
     super(ReadyButtonId);
     this.context = context;
 
-    this.rectNode.width = 70;
-    this.rectNode.height = 40;
+    this.size.set({ width: 70, height: 40 });
     this.offset[0] = 92;
     this.textNode.text = "Ready";
     this.textNode.theme = {

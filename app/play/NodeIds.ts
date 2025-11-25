@@ -16,3 +16,7 @@ export const SideCardsNodeId = "side-cards";
 
 // Bidding
 export const BiddingPhaseNodeId = "bidding-node";
+
+// Partner Call
+export const PartnerCallPhaseNodeId = "partner-call-node";
+export const PartnerCallModalId = "partner-call-modal";

@@ -16,10 +16,11 @@ export class SvgNode extends TwoDNode {
     ctx.lineWidth = borderWidth;
     ctx.fillStyle = this.theme?.backgroundColor ?? "#000000";
 
-    const { pathString, viewBox } = this.path;
+    const { pathString, viewBox, scale } = this.path;
     const [dx, dy] = viewBox;
 
     ctx.save();
+    ctx.scale(1 / scale, 1 / scale);
     ctx.translate(-dx / 2, -dy / 2);
 
     const path2d = new Path2D(pathString);

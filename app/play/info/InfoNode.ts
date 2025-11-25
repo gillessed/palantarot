@@ -1,4 +1,5 @@
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
+import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import {
   DogInfoNodeId,
   InfoNodeId,
@@ -34,7 +35,12 @@ export class InfoNode extends TwoDNode {
     );
   }
 
-  public update = (_: number) => {
-    this.offset = [0, (this.container?.height ?? 0) - 320];
+  public onMount = (container: NodeManager) => {
+    const removeListener = container.size.listen(({ height }) => {
+      this.offset[1] = height - 320;
+    });
+    return () => {
+      removeListener();
+    };
   };
 }

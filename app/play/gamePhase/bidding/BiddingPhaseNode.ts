@@ -7,7 +7,7 @@ import {
   type Bid,
   type PlayerId,
 } from "../../../../server/play/model/GameState";
-import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
+import type { BiddingClientGameState } from "../../../../shared/types/ClientGameState";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { PlayerHandNode } from "../../components/PlayerHandNode";
 import { SideCardsNode } from "../../components/SideCardsNode";
@@ -27,11 +27,8 @@ export class BiddingPhaseNode extends TwoDNode {
   private playerInGame: boolean;
   private activePlayerId: string;
 
-  constructor(context: PlaySceneContext, state: ClientGame) {
+  constructor(context: PlaySceneContext, state: BiddingClientGameState) {
     super(BiddingPhaseNodeId);
-    if (state.gamePhase !== "bidding") {
-      throw Error("Updating new game node with not new game state");
-    }
     this.context = context;
     this.playerInGame = state.playerOrder.includes(context.playerId);
 
@@ -43,9 +40,6 @@ export class BiddingPhaseNode extends TwoDNode {
       this.context,
       state.playerOrder
     );
-    if (state.toBid == null) {
-      throw Error("Player to bid cannot be null during bidding phase");
-    }
     this.activePlayerId = state.playerOrder[state.toBid];
     this.playerInfoNodes.playerInfoNodes
       .get(this.activePlayerId)
@@ -59,7 +53,7 @@ export class BiddingPhaseNode extends TwoDNode {
     this.playerHandNode = new PlayerHandNode(context, state.hand);
     this.addChild(this.playerHandNode);
 
-    this.modalNode = new BidModalNode(`${this.id}-modal`);
+    this.modalNode = new BidModalNode(this.context, `${this.id}-modal`);
     this.modalNode.visible = this.activePlayerId === context.playerId;
     this.addChild(this.modalNode);
   }

@@ -1,7 +1,9 @@
+import type { Size } from "recharts/types/util/types";
 import { Card } from "../../../server/play/model/Card";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
+import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { getCardAssetKey } from "../assets/ImageAssets";
 import {
   AreaBackgroundPadding,
@@ -26,8 +28,10 @@ export class PlayerHandNode extends TwoDNode {
     this.context = context;
 
     this.backgroundNode = new RectNode(`${PlayerHandNodeId}-background`);
-    this.backgroundNode.width = 0;
-    this.backgroundNode.height = CardHeight + AreaBackgroundPadding * 2;
+    this.backgroundNode.size.set({
+      width: 0,
+      height: CardHeight + AreaBackgroundPadding * 2,
+    });
     this.backgroundNode.theme = {
       backgroundColor: DarkenColor2,
       borderRadius: 10,
@@ -58,18 +62,27 @@ export class PlayerHandNode extends TwoDNode {
     }
   }
 
-  public update = () => {
-    const containerWidth = this.container?.width ?? 0;
-    const containerHeight = this.container?.height ?? 0;
-    this.offset[1] = containerHeight / 2;
-    const newWidth = Math.max(containerWidth - 500, 0);
-    if (this.handWidth !== newWidth) {
-      this.handWidth = newWidth;
-      this.offset[0] = 150;
-      this.backgroundNode.width = this.handWidth + 2 * AreaBackgroundPadding;
-      this.layoutCards();
-    }
+  public onMount = (nodeManager: NodeManager) => {
+    const removeListener = nodeManager.size.listen(
+      ({ width, height }: Size) => {
+        this.offset[1] = height / 2;
+        const newWidth = Math.max(width - 500, 0);
+        if (this.handWidth !== newWidth) {
+          this.handWidth = newWidth;
+          this.offset[0] = 150;
+          this.backgroundNode.size.setWidth(
+            this.handWidth + 2 * AreaBackgroundPadding
+          );
+          this.layoutCards();
+        }
+      }
+    );
+    return () => {
+      removeListener();
+    };
   };
+
+  public update = () => {};
 
   public setHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
     for (const node of this.cardNodes) {
@@ -81,8 +94,7 @@ export class PlayerHandNode extends TwoDNode {
         `${PlayerHandNodeId}-card-${card}`,
         getCardAssetKey(card)
       );
-      cardNode.width = CardWidth;
-      cardNode.height = CardHeight;
+      cardNode.size.set({ width: CardWidth, height: CardHeight });
       this.cardNodes.push(cardNode);
       this.cardListNode.addChild(cardNode);
     }

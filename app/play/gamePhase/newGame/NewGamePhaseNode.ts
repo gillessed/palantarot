@@ -5,7 +5,7 @@ import type {
   PlayerUnreadyAction,
 } from "../../../../server/play/model/GameEvents";
 import type { PlayerId } from "../../../../server/play/model/GameState";
-import type { ClientGame } from "../../../../shared/types/ClientGameTypes";
+import type { NewGameClientGameState } from "../../../../shared/types/ClientGameState";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { ModalNode } from "../../components/ModalNode";
 import { SideCardsNode } from "../../components/SideCardsNode";
@@ -40,17 +40,12 @@ export class NewGamePhaseNode extends TwoDNode {
   public sideCardNodes: SideCardsNode = new SideCardsNode(false);
   public joinLeaveButton: JoinLeaveButton;
 
-  constructor(context: PlaySceneContext, state: ClientGame) {
+  constructor(context: PlaySceneContext, state: NewGameClientGameState) {
     super(NewGamePhaseNodeId);
-    if (state.gamePhase !== "new_game") {
-      throw Error("Updating new game node with not new game state");
-    }
     this.context = context;
 
-
     this.modalNode = new ModalNode(`${NewGamePhaseNodeId}-modal`);
-    this.modalNode.width = 420;
-    this.modalNode.height = PanelHeight;
+    this.modalNode.size.set({ width: 420, height: PanelHeight });
     this.addChild(this.modalNode);
 
     this.playerInfoNodes = new Map();

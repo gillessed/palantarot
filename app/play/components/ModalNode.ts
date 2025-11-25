@@ -22,8 +22,10 @@ export class ModalNode extends RectNode {
       this.opacity = value;
     });
     this.fadeAnimation.finishListeners.add(() => {
-      this.visible = false;
-    })
+      if (this.fadeAnimation.reversed) {
+        this.visible = false;
+      }
+    });
     this.addChild(this.fadeAnimation);
 
     this.translateAnimation = new AnimationNode(`${this.id}-translate`);
@@ -34,22 +36,24 @@ export class ModalNode extends RectNode {
       this.offset[1] = value;
     });
     this.translateAnimation.finishListeners.add(() => {
-      this.visible = false;
-    })
+      if (this.fadeAnimation.reversed) {
+        this.visible = false;
+      }
+    });
     this.addChild(this.translateAnimation);
   }
 
   public update = () => {
     this.translateAnimation.startValue = this.container?.height ?? 0;
-  }
+  };
 
   public fadeIn = () => {
+    this.visible = true;
     this.fadeAnimation.reversed = false;
     this.fadeAnimation.start();
   };
 
   public fadeOut = () => {
-    this.visible = true;
     this.fadeAnimation.reversed = true;
     this.fadeAnimation.start();
   };

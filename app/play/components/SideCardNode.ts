@@ -1,13 +1,15 @@
+import type { Size } from "recharts/types/util/types";
 import { v_set, type Vector } from "../../sceneGraph/math/Vector";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
+import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import {
   AreaBackgroundPadding,
   CardHeight,
   CardWidth,
 } from "../constants/CardConstants";
-import { DarkenColor2, PrimaryColor } from "../constants/Themes";
+import { PrimaryColor } from "../constants/Themes";
 import { LoadedImageNode } from "./LoadedImageNode";
 
 const TopOffsetFactor = 1 / 2;
@@ -65,8 +67,10 @@ export class SideCardNode extends TwoDNode {
     super(id);
 
     this.backgroundNode = new RectNode(`${id}-background`);
-    this.backgroundNode.width = CardWidth + 2 * AreaBackgroundPadding;
-    this.backgroundNode.height = CardHeight + 2 * AreaBackgroundPadding;
+    this.backgroundNode.size.set({
+      width: CardWidth + 2 * AreaBackgroundPadding,
+      height: CardHeight + 2 * AreaBackgroundPadding,
+    });
     this.backgroundNode.theme = {
       backgroundColor: PrimaryColor[5],
       borderRadius: 5,
@@ -74,8 +78,7 @@ export class SideCardNode extends TwoDNode {
     this.addChild(this.backgroundNode);
 
     this.cardNode = new LoadedImageNode(`${id}-card`, "CardBackBlack");
-    this.cardNode.width = CardWidth;
-    this.cardNode.height = CardHeight;
+    this.cardNode.size.set({ width: CardWidth, height: CardHeight });
     this.addChild(this.cardNode);
 
     this.enterAnimation = new AnimationNode(`${id}-enter-animation`);
@@ -87,9 +90,9 @@ export class SideCardNode extends TwoDNode {
     this.addChild(this.enterAnimation);
   }
 
-  public update = () => {
-    const halfWidth = (this.container?.width ?? 0) / 2;
-    const halfHeight = (this.container?.height ?? 0) / 2;
+  private layout = (size: Size) => {
+    const halfWidth = size.width / 2;
+    const halfHeight = size.height / 2;
     const [offset, axis] = SideCardPositions[this.playerPosition](
       halfWidth,
       halfHeight
@@ -101,9 +104,13 @@ export class SideCardNode extends TwoDNode {
     }
   };
 
-  public onMount = () => {
+  public onMount = (manager: NodeManager) => {
     if (this.enterAnimationEnabled) {
       this.enterAnimation.start();
     }
+    const removeSizeListener = manager.size.listen(this.layout);
+    return () => {
+      removeSizeListener();
+    };
   };
 }

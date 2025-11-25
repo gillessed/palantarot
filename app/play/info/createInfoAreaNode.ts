@@ -15,8 +15,7 @@ export function createInfoAreaNode(
   infoNode.offset = offset;
 
   const backgroundNode = new RectNode(`${id}-background`);
-  backgroundNode.width = width;
-  backgroundNode.height = height;
+  backgroundNode.size.set({ width, height });
   backgroundNode.theme = {
     backgroundColor: PrimaryColor[6],
     borderRadius: 10,

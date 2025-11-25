@@ -9,7 +9,6 @@ export class TextNode extends TwoDNode {
   public text: string = "";
   public textAlign: CanvasTextAlign = "center";
   public textBaseline: CanvasTextBaseline = "middle";
-  public maxWidth?: number;
 
   public render = (ctx: CanvasRenderingContext2D) => {
     if (this.text === "") {

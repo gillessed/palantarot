@@ -1,14 +1,16 @@
-import type { Property } from "csstype";
+import type { Property as CssProperty } from "csstype";
 import { m_mult_v, m_new, transformContext } from "../math/Matrix";
 import { v_copy, type Vector } from "../math/Vector";
+import type { Property } from "../property/Property";
+import type { Size } from "../property/Size";
 
 export interface NodeManager {
+  size: Property<Size>;
   getNode: <NodeType extends SceneNode = SceneNode>(nodeId: string) => NodeType;
   nodesById: Map<string, SceneNode>;
-  width: number;
-  height: number;
+  nodeCleanupByIds: Map<string, () => void>;
   mousePosition: Vector;
-  setCursor: (cursor: Property.Cursor) => void;
+  setCursor: (cursor: CssProperty.Cursor) => void;
 }
 
 export class SceneNode {
@@ -114,11 +116,18 @@ export class SceneNode {
         throw Error("Node " + this.id + " is already in a container");
       }
       container.nodesById.set(this.id, this);
-      this.onMount?.(container);
+      const cleanup = this.onMount?.(container);
+      if (cleanup != null) {
+        container.nodeCleanupByIds.set(this.id, cleanup);
+      }
       this.isMounted = true;
     } else {
       if (this.container != null) {
         this.onUnmount?.(this.container);
+        const cleanup = this.container.nodeCleanupByIds.get(this.id);
+        if (cleanup != null) {
+          cleanup();
+        }
       }
       this.isMounted = false;
       this.container?.nodesById.delete(this.id);

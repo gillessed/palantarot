@@ -1,9 +1,8 @@
-import { ButtonNode } from "../../sceneGraph/nodes/2d/ButtonNode";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
+import type { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import type { ShapeTheme } from "../../sceneGraph/scene/Theme";
 import {
   ActionButtonDisabledTheme,
-  ActionButtonTextTheme,
   ActionButtonTheme,
   DarkenColor05,
   LightenColor05,
@@ -19,45 +18,53 @@ const ActiveTheme: ShapeTheme = {
   backgroundColor: DarkenColor05,
 };
 
-export class ActionButtonNode extends ButtonNode {
+export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
   private state: "normal" | "hovered" | "active" = "normal";
   private disabled = false;
   public onClick?: () => void;
   public overlayNode: RectNode;
+  private removeSizeListener?: () => void;
+  public internalNode: InternalNode;
 
-  constructor(nodeId: string) {
+  constructor(nodeId: string, internalNode: InternalNode) {
     super(nodeId);
-    this.rectNode.theme = ActionButtonTheme;
-    this.textNode.theme = ActionButtonTextTheme;
+    this.theme = ActionButtonTheme;
+    this.internalNode = internalNode;
 
     this.overlayNode = new RectNode(`${this.id}-overlay`);
     this.overlayNode.opacity = 0;
     this.addChild(this.overlayNode);
 
-    this.rectNode.mouseEntered = () => {
+    this.mouseEntered = () => {
       this.state = "hovered";
       this.updateUi();
     };
-    this.rectNode.mouseExited = () => {
+    this.mouseExited = () => {
       this.state = "normal";
       this.updateUi();
     };
-    this.rectNode.mouseDown = () => {
+    this.mouseDown = () => {
       this.state = "active";
       this.updateUi();
     };
-    this.rectNode.mouseUp = () => {
+    this.mouseUp = () => {
       this.state = "hovered";
       this.updateUi();
       if (!this.disabled) {
         this.onClick?.();
       }
     };
+    this.addChild(internalNode);
   }
 
-  public update = () => {
-    this.overlayNode.width = this.rectNode.width;
-    this.overlayNode.height = this.rectNode.height;
+  public onMount = () => {
+    this.removeSizeListener = this.size.listen((size) => {
+      this.overlayNode.size.set(size);
+    });
+  };
+
+  public onUnmount = () => {
+    this.removeSizeListener?.();
   };
 
   public setDisabled = (disabled: boolean) => {
@@ -72,9 +79,9 @@ export class ActionButtonNode extends ButtonNode {
       } else {
         this.container?.setCursor("default");
       }
-      this.rectNode.theme = ActionButtonDisabledTheme;
+      this.theme = ActionButtonDisabledTheme;
     } else {
-      this.rectNode.theme = ActionButtonTheme;
+      this.theme = ActionButtonTheme;
       if (this.state === "normal") {
         this.overlayNode.opacity = 0;
         this.container?.setCursor("default");
@@ -88,5 +95,13 @@ export class ActionButtonNode extends ButtonNode {
         this.container?.setCursor("pointer");
       }
     }
+  };
+
+  public setInternal = (node: InternalNode) => {
+    if (this.internalNode != null) {
+      this.removeChild(this.internalNode);
+    }
+    this.internalNode = node;
+    this.addChild(node);
   };
 }

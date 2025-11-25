@@ -1,9 +1,9 @@
-import { ActionButtonNode } from "../../components/ActionButtonNode";
+import { TextActionButtonNode } from "../../components/TextActionButtonNode";
 import { ActionButtonTextTheme } from "../../constants/Themes";
 import { JoinLeaveButtonId } from "../../NodeIds";
 import { PlaySceneContext } from "../../PlaySceneContext";
 
-export class JoinLeaveButton extends ActionButtonNode {
+export class JoinLeaveButton extends TextActionButtonNode {
   public context: PlaySceneContext;
   private inGame = false;
 
@@ -11,11 +11,10 @@ export class JoinLeaveButton extends ActionButtonNode {
     super(JoinLeaveButtonId);
     this.context = context;
 
-    this.rectNode.width = 140;
-    this.rectNode.height = 50;
+    this.size.set({ width: 140, height: 50 });
     this.offset = [-100, 205];
-    this.textNode.text = "Join Game";
-    this.textNode.theme = {
+    this.setText("Join Game");
+    this.internalNode.theme = {
       ...ActionButtonTextTheme,
       fontSize: 24,
     };
@@ -23,7 +22,7 @@ export class JoinLeaveButton extends ActionButtonNode {
 
   public setInGame = (inGame: boolean) => {
     this.inGame = inGame;
-    this.textNode.text = inGame ? "Leave Game" : "Join Game";
+    this.setText(inGame ? "Leave Game" : "Join Game");
   };
 
   public setReady = (ready: boolean) => {

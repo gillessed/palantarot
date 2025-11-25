@@ -1,30 +1,41 @@
+import type { Size } from "recharts/types/util/types";
 import type { PlayerEvent } from "../../server/play/model/GameEvents";
 import {
   GameUpdatesMessagePayload,
   RoomSocketMessages,
 } from "../../server/play/room/RoomSocketMessages";
 import type { SocketMessage } from "../../server/websocket/SocketMessage";
+import { createEmptyClientGameState } from "../../shared/game/emptyClientGameState";
 import { updateClientGameForEvents } from "../../shared/game/updateClientGameForEvents";
-import {
-  EmptyClientGame,
-  type ClientGame,
-} from "../../shared/types/ClientGameTypes";
+import type { ClientGameState } from "../../shared/types/ClientGameState";
 import { TwoDNode } from "../sceneGraph/nodes/2d/TwoDNode";
-import type { SceneNode } from "../sceneGraph/nodes/SceneNode";
+import type { NodeManager, SceneNode } from "../sceneGraph/nodes/SceneNode";
+import {
+  createDefaultProperty,
+  type Property,
+} from "../sceneGraph/property/Property";
+import type { Sizeable } from "../sceneGraph/property/Size";
 import type { ImageAssets } from "./assets/ImageAssets";
 import { BiddingPhaseNode } from "./gamePhase/bidding/BiddingPhaseNode";
 import { NewGamePhaseNode } from "./gamePhase/newGame/NewGamePhaseNode";
+import { PartnerCallPhaseNode } from "./gamePhase/partnerCall/PartnerCallPhaseNode";
 import { TableNodeId } from "./NodeIds";
 import type { PlaySceneContext } from "./PlaySceneContext";
+import type { GameSettings } from "../../server/play/model/GameSettings";
 
 export type GamePhaseNode = NewGamePhaseNode | BiddingPhaseNode;
 
-export class TableNode extends TwoDNode {
+export class TableNode extends TwoDNode implements Sizeable {
   public context: PlaySceneContext;
+  public gameSettings: GameSettings = {
+    autologEnabled: false,
+    bakerBengtsonVariant: false,
+    publicHands: false,
+  };
+  public size: Property<Size> = createDefaultProperty({ width: 0, height: 0 });
   public imageAssets: ImageAssets;
   public gamePhaseNode?: SceneNode;
-  public gameState: ClientGame = EmptyClientGame;
-  private removeSceneListener?: () => void;
+  public gameState: ClientGameState = createEmptyClientGameState();
   private processedInitialUpdated = false;
   private queueMessages: SocketMessage<GameUpdatesMessagePayload>[] = [];
 
@@ -34,10 +45,7 @@ export class TableNode extends TwoDNode {
     this.imageAssets = imageAssets;
   }
 
-  public onMount = () => {
-    this.removeSceneListener = this.context.socket.addListener(
-      this.handleServerMessage
-    );
+  public onMount = (manager: NodeManager) => {
     this.context.socket.connect();
     this.context.socket.send(
       RoomSocketMessages.enterRoom({
@@ -46,20 +54,20 @@ export class TableNode extends TwoDNode {
       })
     );
 
-    this.removeSceneListener = this.context.socket.addListener(
+    const removeSceneListener = this.context.socket.addListener(
       this.handleServerMessage
     );
-  };
 
-  public onUnmount = () => {
-    this.removeSceneListener?.();
-    this.removeSceneListener = undefined;
-  };
+    const stopSizeListen = manager.size.listen((size: Size) => {
+      const { width, height } = size;
+      this.offset = [width / 2, height / 2];
+      this.size.set(size);
+    });
 
-  public update = () => {
-    const width = this.container?.width ?? 0;
-    const height = this.container?.height ?? 0;
-    this.offset = [width / 2, height / 2];
+    return () => {
+      stopSizeListen();
+      removeSceneListener();
+    };
   };
 
   public setSceneNode = (newGamePhaseNode: SceneNode) => {
@@ -70,12 +78,13 @@ export class TableNode extends TwoDNode {
     this.addChild(newGamePhaseNode);
   };
 
-  public setToPlayState = (state: ClientGame) => {
+  public setToPlayState = (state: ClientGameState) => {
     this.gameState = state;
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    switch (this.gameState.gamePhase) {
+    const { phase } = this.gameState;
+    switch (phase) {
       case "new_game":
         const newGamePhaseNode = new NewGamePhaseNode(
           this.context,
@@ -93,6 +102,15 @@ export class TableNode extends TwoDNode {
         this.gamePhaseNode = biddingPhaseNode;
         this.handleEvent =
           this.createBiddingPhaseEventHandler(biddingPhaseNode);
+        break;
+      case "partner_call":
+        const partnerCallPhaseNode = new PartnerCallPhaseNode(
+          this.context,
+          this.gameState
+        );
+        this.gamePhaseNode = partnerCallPhaseNode;
+        this.handleEvent =
+          this.createPartnerCallPhaseEventHandler(partnerCallPhaseNode);
         break;
     }
     if (this.gamePhaseNode != null) {
@@ -188,14 +206,30 @@ export class TableNode extends TwoDNode {
           break;
 
         case "bid":
-          if (this.gameState.toBid == null) {
-            throw Error("to bid cannot be null");
+          if (this.gameState.phase !== "bidding") {
+            throw Error("Cannot be other phase during bid action");
           }
           biddingPhaseNode.handleBid(
             event,
             this.gameState.playerOrder[this.gameState.toBid]
           );
           break;
+
+        case "bidding_completed":
+          // TODO: animation
+          this.setToPlayState(this.gameState);
+          break;
+      }
+    };
+  };
+
+  public createPartnerCallPhaseEventHandler = (_: PartnerCallPhaseNode) => {
+    return (event: PlayerEvent) => {
+      const { type } = event;
+      switch (
+        type
+        // TODO: handle events
+      ) {
       }
     };
   };

@@ -11,7 +11,7 @@ import { ShowOverlay } from "../svg/ShowOverlay";
 import { SpectatorButton } from "../svg/SpectatorButton";
 import { StatusOverlay } from "../svg/StatusOverlay";
 import { SuitIcons } from "../svg/SuitIcons";
-import { getAllowedPartnerCalls } from "./AllowedPartnerCalls";
+import { getAllowedPartnerCalls } from "../../../play/gamePhase/partnerCall/AllowedPartnerCalls";
 import { StateViewProps } from "./StateViewProps";
 
 type Props = StateViewProps;

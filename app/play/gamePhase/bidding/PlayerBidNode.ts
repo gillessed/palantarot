@@ -27,8 +27,10 @@ export class PlayerBidNode extends TwoDNode {
     this.bidNode.theme = PlayerBidNodeTextTheme;
 
     this.bidBackgroundNode = new RectNode(`${id}-bid-background`);
-    this.bidBackgroundNode.width = BidNodeWidth;
-    this.bidBackgroundNode.height = PlayerInfoNodeHeight - 20;
+    this.bidBackgroundNode.size.set({
+      width: BidNodeWidth,
+      height: PlayerInfoNodeHeight - 20,
+    });
     this.bidBackgroundNode.theme = PlayerBidNodeBackgroundTheme;
     this.bidBackgroundNode.visible = false;
     this.bidBackgroundNode.scale = [0, 0];

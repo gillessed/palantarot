@@ -1,6 +1,7 @@
 import { PlayerId } from "../../../server/play/model/GameState";
 import { v_set, v_sum, Vector } from "../../sceneGraph/math/Vector";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
+import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { CardHeight } from "../constants/CardConstants";
 import { SidePlayerInfosNodeId } from "../NodeIds";
 import { PlaySceneContext } from "../PlaySceneContext";
@@ -67,12 +68,18 @@ export class SidePlayerInfosNode extends TwoDNode {
     );
     playerInfoNode.setPlayerId(playerId);
     playerInfoNode.visible = true;
-    playerInfoNode.update = () => {
-      const width = this.container?.width ?? 0;
-      const height = this.container?.height ?? 0;
-      const [cardOffset] = SideCardPositions[position](width / 2, height / 2);
-      v_set(playerInfoNode.offset, cardOffset);
-      v_sum(playerInfoNode.offset, InfoOffsets[position]);
+    playerInfoNode.onMount = (nodeManager: NodeManager) => {
+      const removeListener = nodeManager.size.listen((size) => {
+        const [cardOffset] = SideCardPositions[position](
+          size.width / 2,
+          size.height / 2
+        );
+        v_set(playerInfoNode.offset, cardOffset);
+        v_sum(playerInfoNode.offset, InfoOffsets[position]);
+      });
+      return () => {
+        removeListener();
+      };
     };
     this.playerInfoNodes.set(playerId, playerInfoNode);
     this.addChild(playerInfoNode);

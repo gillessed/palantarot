@@ -1,13 +1,14 @@
-import { Call } from "../../../../server/play/model/GameState";
-import { ActionButtonNode } from "../../components/ActionButtonNode";
+import { Call, type BidValue } from "../../../../server/play/model/GameState";
 import { ModalNode } from "../../components/ModalNode";
+import { TextActionButtonNode } from "../../components/TextActionButtonNode";
+import type { PlaySceneContext } from "../../PlaySceneContext";
 
 const ButtonWidth = 80;
 const ButtonPadding = 20;
 const ButtonHeight = 50;
 const ModalPadding = 50;
 
-const bids: { text: string; value: number; calls: Call[] }[] = [
+const bids: { text: string; value: BidValue; calls: Call[] }[] = [
   { text: "10", value: 10, calls: [] },
   { text: "20", value: 20, calls: [] },
   { text: "R 20", value: 20, calls: ["russian"] },
@@ -17,14 +18,16 @@ const bids: { text: string; value: number; calls: Call[] }[] = [
 ];
 
 export class BidModalNode extends ModalNode {
-  constructor(id: string, ) {
+  public context: PlaySceneContext;
+
+  constructor(context: PlaySceneContext, id: string) {
     super(id);
+    this.context = context;
+
     const buttonRowWidth = 3 * ButtonWidth + 2 * ButtonPadding;
     const modalWidth = buttonRowWidth + 2 * ModalPadding;
-    const modalHeight =
-      ButtonHeight * 3 + ButtonPadding * 2 + ModalPadding * 2;
-    this.width = modalWidth;
-    this.height = modalHeight;
+    const modalHeight = ButtonHeight * 3 + ButtonPadding * 2 + ModalPadding * 2;
+    this.size.set({ width: modalWidth, height: modalHeight });
 
     // TODO: add text in front
 
@@ -36,38 +39,44 @@ export class BidModalNode extends ModalNode {
 
       const upperBid = bids[i];
       const upperOffset = -modalHeight / 2 + ModalPadding + ButtonHeight / 2;
-      const upperButton = new ActionButtonNode(
+      const upperButton = new TextActionButtonNode(
         `${this.id}-bid-value-upper-${i}`
       );
-      upperButton.textNode.text = upperBid.text;
-      upperButton.rectNode.height = ButtonHeight;
-      upperButton.rectNode.width = ButtonWidth;
+      upperButton.setText(upperBid.text);
+      upperButton.size.set({
+        width: ButtonWidth,
+        height: ButtonHeight,
+      });
       upperButton.offset[0] = offsetX;
       upperButton.offset[1] = upperOffset;
       upperButton.onClick = () => {
-        // TODO: set selected bid
+        this.context.eventHandler.bid(upperBid.value, upperBid.calls);
       };
       this.addChild(upperButton);
 
       const lowerBid = bids[i + 3];
-      const lowerButton = new ActionButtonNode(
+      const lowerButton = new TextActionButtonNode(
         `${this.id}-bid-value-lower-${i}`
       );
-      lowerButton.textNode.text = lowerBid.text;
-      lowerButton.rectNode.height = ButtonHeight;
-      lowerButton.rectNode.width = ButtonWidth;
+      lowerButton.setText(lowerBid.text);
+      lowerButton.size.set({
+        width: ButtonWidth,
+        height: ButtonHeight,
+      });
       lowerButton.offset[0] = offsetX;
       lowerButton.offset[1] = upperOffset + ButtonHeight + ButtonPadding;
       lowerButton.onClick = () => {
-        // TODO: set selected bid
+        this.context.eventHandler.bid(lowerBid.value, upperBid.calls);
       };
       this.addChild(lowerButton);
     }
 
-    const passButton = new ActionButtonNode(`${this.id}-bid-pass`);
-    passButton.textNode.text = "PASS";
-    passButton.rectNode.height = ButtonHeight;
-    passButton.rectNode.width = buttonRowWidth;
+    const passButton = new TextActionButtonNode(`${this.id}-bid-pass`);
+    passButton.setText("PASS");
+    passButton.size.set({
+      width: ButtonWidth,
+      height: ButtonHeight,
+    });
     passButton.offset[1] =
       -modalHeight / 2 +
       ModalPadding +

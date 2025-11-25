@@ -1,7 +1,9 @@
-import type { Property } from "csstype";
+import type { Property as CssProperty } from "csstype";
 import { v_new, v_set, type Vector } from "../math/Vector";
-import type { } from "../nodes/2d/TwoDNode";
+import type {} from "../nodes/2d/TwoDNode";
 import type { NodeManager, SceneNode } from "../nodes/SceneNode";
+import { createDefaultProperty, type Property } from "../property/Property";
+import type { Size } from "../property/Size";
 import { setDiff } from "../utils/setDiff";
 
 export class Scene implements NodeManager {
@@ -14,19 +16,23 @@ export class Scene implements NodeManager {
   public lastUpdate: number = 0;
   public clearColor: string = "#000000";
   public nodesById = new Map<string, SceneNode>();
-  public width: number = 0;
-  public height: number = 0;
+  public nodeCleanupByIds = new Map<string, () => void>();
+  public size: Property<Size> = createDefaultProperty({ width: 0, height: 0 });
   public mousePosition: Vector = v_new();
   public intersectingNodes: SceneNode[] = [];
 
   private handleResize = (entries: ResizeObserverEntry[]) => {
     const [entry] = entries;
     if (entry != null) {
-      this.width = entry.contentRect.width;
-      this.height = entry.contentRect.height;
-      this.offscreenCanvas.width = this.width;
-      this.offscreenCanvas.height = this.height;
+      const width = entry.contentRect.width;
+      const height = entry.contentRect.height;
+      this.updateSize({ width, height });
     }
+  };
+  private updateSize = (size: Size) => {
+    this.size.set(size);
+    this.offscreenCanvas.width = size.width;
+    this.offscreenCanvas.height = size.height;
   };
   public resizeObserver = new ResizeObserver(this.handleResize);
 
@@ -50,10 +56,9 @@ export class Scene implements NodeManager {
     this.canvas = canvas;
     this.ctx = ctx;
     this.resizeObserver.observe(canvas);
-    this.width = canvas.clientWidth;
-    this.height = canvas.clientHeight;
-    this.offscreenCanvas.width = this.width;
-    this.offscreenCanvas.height = this.height;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    this.updateSize({ width, height });
     this.addMouseListeners(canvas);
   };
 
@@ -69,10 +74,7 @@ export class Scene implements NodeManager {
     }
     this.removeMouseListeners(this.canvas);
     this.resizeObserver.unobserve(this.canvas);
-    this.width = 0;
-    this.height = 0;
-    this.offscreenCanvas.width = 0;
-    this.offscreenCanvas.height = 0;
+    this.updateSize({ width: 0, height: 0 });
     this.stop();
   };
 
@@ -119,10 +121,11 @@ export class Scene implements NodeManager {
       this.offscreenCanvas.width > 0 &&
       this.offscreenCanvas.height > 0
     ) {
+      const { width, height } = this.size.get();
       this.handleMouseMovement(this.root);
       this.root.updateTree(dt);
       this.offscreenCtx.fillStyle = this.clearColor;
-      this.offscreenCtx.fillRect(0, 0, this.width, this.height);
+      this.offscreenCtx.fillRect(0, 0, width, height);
       this.root.renderTree(this.offscreenCtx);
       this.ctx?.drawImage(this.offscreenCanvas, 0, 0);
     }
@@ -133,9 +136,7 @@ export class Scene implements NodeManager {
     }
   };
 
-  public getNode = <
-    NodeType extends SceneNode = SceneNode
-  >(
+  public getNode = <NodeType extends SceneNode = SceneNode>(
     nodeId: string
   ): NodeType => {
     return this.nodesById.get(nodeId) as NodeType;
@@ -187,7 +188,7 @@ export class Scene implements NodeManager {
     }
   };
 
-  public setCursor = (cursor: Property.Cursor) => {
+  public setCursor = (cursor: CssProperty.Cursor) => {
     if (this.canvas != null) {
       this.canvas.style.cursor = cursor;
     }
