@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Card } from "../../server/play/model/Card";
 import type { Action } from "../../server/play/model/GameEvents";
 import type {
   BidValue,
@@ -14,6 +15,7 @@ export interface PlayEventHandler {
   markReady: () => void;
   markUnready: () => void;
   bid: (value: BidValue, calls: Call[]) => void;
+  callPartner: (card: Card) => void;
 }
 
 export function createPlayEventHandler(
@@ -60,6 +62,14 @@ export function createPlayEventHandler(
         calls,
       });
     },
+    callPartner: (card: Card) => {
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "call_partner",
+        card,
+      })
+    }
   };
 }
 

@@ -1,6 +1,6 @@
 import { Card } from "../../../../server/play/model/Card";
 import type { PartnerCallClientGameState } from "../../../../shared/types/ClientGameState";
-import { getAllowedPartnerCalls } from "./AllowedPartnerCalls";
+import { getAllowedPartnerCalls } from "./getAllowedPartnerCalls";
 
 const createGameState = (
   hand: ReadonlyArray<Card>

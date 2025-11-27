@@ -1,26 +1,27 @@
-import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
+import { RectNode, RectTheme } from "../../sceneGraph/nodes/2d/RectNode";
 import type { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import type { ShapeTheme } from "../../sceneGraph/scene/Theme";
 import {
   ActionButtonDisabledTheme,
-  ActionButtonTheme,
   DarkenColor05,
+  DefaultActionButtonTheme,
+  HighlightColor,
   LightenColor05,
 } from "../constants/Themes";
 
-const HoverTheme: ShapeTheme = {
-  ...ActionButtonTheme,
+const HoverTheme: RectTheme = {
   backgroundColor: LightenColor05,
 };
 
-const ActiveTheme: ShapeTheme = {
-  ...ActionButtonTheme,
+const ActiveTheme: RectTheme = {
   backgroundColor: DarkenColor05,
 };
 
 export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
+  private selected = false;
   private state: "normal" | "hovered" | "active" = "normal";
   private disabled = false;
+  private baseTheme = DefaultActionButtonTheme;
   public onClick?: () => void;
   public overlayNode: RectNode;
   private removeSizeListener?: () => void;
@@ -28,7 +29,7 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
 
   constructor(nodeId: string, internalNode: InternalNode) {
     super(nodeId);
-    this.theme = ActionButtonTheme;
+    this.setTheme(this.baseTheme);
     this.internalNode = internalNode;
 
     this.overlayNode = new RectNode(`${this.id}-overlay`);
@@ -57,6 +58,11 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
     this.addChild(internalNode);
   }
 
+  public setBaseTheme = (theme: ShapeTheme) => {
+    this.baseTheme = theme;
+    this.updateUi();
+  }
+
   public onMount = () => {
     this.removeSizeListener = this.size.listen((size) => {
       this.overlayNode.size.set(size);
@@ -72,6 +78,11 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
     this.updateUi();
   };
 
+  public setSelected = (selected: boolean) => {
+    this.selected = selected;
+    this.updateUi();
+  }
+
   public updateUi = () => {
     if (this.disabled) {
       if (this.state === "hovered" || this.state === "active") {
@@ -79,19 +90,27 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
       } else {
         this.container?.setCursor("default");
       }
-      this.theme = ActionButtonDisabledTheme;
+      this.setTheme(ActionButtonDisabledTheme);
+    } else if (this.selected) {  
+      this.container?.setCursor("default");
+      this.setTheme({
+        ...this.baseTheme,
+        borderColor: HighlightColor[10],
+      })
+      this.overlayNode.opacity = 1;
+      this.overlayNode.setTheme(ActiveTheme);
     } else {
-      this.theme = ActionButtonTheme;
+      this.setTheme(this.baseTheme);
       if (this.state === "normal") {
         this.overlayNode.opacity = 0;
         this.container?.setCursor("default");
       } else if (this.state === "hovered") {
         this.overlayNode.opacity = 1;
-        this.overlayNode.theme = HoverTheme;
+        this.overlayNode.setTheme(HoverTheme);
         this.container?.setCursor("pointer");
       } else {
         this.overlayNode.opacity = 1;
-        this.overlayNode.theme = ActiveTheme;
+        this.overlayNode.setTheme(ActiveTheme);
         this.container?.setCursor("pointer");
       }
     }

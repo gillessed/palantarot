@@ -6,6 +6,7 @@ export type TrumpSuit = "T";
 export type RegSuit = "S" | "H" | "D" | "C";
 export type Suit = RegSuit | TrumpSuit;
 
+export type FaceCardValue = "V" | "C" | "D" | "R";
 export type RegValue =
   | "1"
   | "2"

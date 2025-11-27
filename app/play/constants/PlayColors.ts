@@ -59,3 +59,5 @@ export const Blue = createColorTheme("#2266AA");
 export const Violet = createColorTheme("#E2C605");
 export const Yellow = createColorTheme("#E4D00A");
 export const Ocean = createColorTheme("#2266AA");
+export const Gray = createColorTheme("#777777");
+export const Red = createColorTheme("#AA2222");

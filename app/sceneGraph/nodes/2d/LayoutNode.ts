@@ -3,12 +3,48 @@ import { createDefaultProperty, type Property } from "../../property/Property";
 import type { Sizeable } from "../../property/Size";
 import { TwoDNode } from "./TwoDNode";
 
-type SizeableNode = TwoDNode & Sizeable;
+export type SizeableNode = TwoDNode & Sizeable;
+type LayoutAlign = "top" | "middle" | "bottom";
+type LayoutAxis = "x" | "y";
+
+interface CreateLayoutNodeArgs {
+  id: string;
+  nodes: SizeableNode[];
+  axis?: LayoutAxis;
+  align?: LayoutAlign;
+  padding?: number;
+  gap?: number;
+}
+
+export function createLayoutNode({
+  id,
+  nodes,
+  align,
+  axis,
+  padding,
+  gap,
+}: CreateLayoutNodeArgs) {
+  const node = new LayoutNode(id);
+  if (axis != null) {
+    node.axis = axis;
+  }
+  if (align != null) {
+    node.align = align;
+  }
+  if (padding != null) {
+    node.padding = padding;
+  }
+  if (gap != null) {
+    node.gap = gap;
+  }
+  node.pushNodes(...nodes);
+  return node;
+}
 
 export class LayoutNode extends TwoDNode implements Sizeable {
   public gap: number = 0;
-  public align: "top" | "middle" | "bottom" = "middle";
-  public axis: "x" | "y" = "x";
+  public align: LayoutAlign = "middle";
+  public axis: LayoutAxis = "x";
   public padding = 0;
   public size: Property<Size> = createDefaultProperty({ width: 0, height: 0 });
   public nodes: SizeableNode[] = [];
@@ -51,6 +87,7 @@ export class LayoutNode extends TwoDNode implements Sizeable {
       const { length, girth } = this.getLayoutSize(node);
       node.offset[this.axis === "x" ? 0 : 1] = lengthDelta + length / 2;
       lengthDelta += length + this.gap;
+      // TODO: compute alignments
     }
     this.size.set({
       width,

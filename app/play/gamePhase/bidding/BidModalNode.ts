@@ -1,10 +1,11 @@
 import { Call, type BidValue } from "../../../../server/play/model/GameState";
+import { createLayoutNode, LayoutNode, SizeableNode } from "../../../sceneGraph/nodes/2d/LayoutNode";
 import { ModalNode } from "../../components/ModalNode";
 import { TextActionButtonNode } from "../../components/TextActionButtonNode";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 
 const ButtonWidth = 80;
-const ButtonPadding = 20;
+const ButtonGap = 20;
 const ButtonHeight = 50;
 const ModalPadding = 50;
 
@@ -19,22 +20,24 @@ const bids: { text: string; value: BidValue; calls: Call[] }[] = [
 
 export class BidModalNode extends ModalNode {
   public context: PlaySceneContext;
+  public outerLayout: LayoutNode;
 
   constructor(context: PlaySceneContext, id: string) {
     super(id);
     this.context = context;
 
-    const buttonRowWidth = 3 * ButtonWidth + 2 * ButtonPadding;
+    const buttonRowWidth = 3 * ButtonWidth + 2 * ButtonGap;
     const modalWidth = buttonRowWidth + 2 * ModalPadding;
-    const modalHeight = ButtonHeight * 3 + ButtonPadding * 2 + ModalPadding * 2;
+    const modalHeight = ButtonHeight * 3 + ButtonGap * 2 + ModalPadding * 2;
     this.size.set({ width: modalWidth, height: modalHeight });
 
     // TODO: add text in front
 
+    const bidNodePairs: SizeableNode[] = [];
     for (let i = 0; i < 3; i++) {
       const offsetX =
         -buttonRowWidth / 2 +
-        i * (ButtonWidth + ButtonPadding) +
+        i * (ButtonWidth + ButtonGap) +
         ButtonWidth / 2;
 
       const upperBid = bids[i];
@@ -47,12 +50,9 @@ export class BidModalNode extends ModalNode {
         width: ButtonWidth,
         height: ButtonHeight,
       });
-      upperButton.offset[0] = offsetX;
-      upperButton.offset[1] = upperOffset;
       upperButton.onClick = () => {
         this.context.eventHandler.bid(upperBid.value, upperBid.calls);
       };
-      this.addChild(upperButton);
 
       const lowerBid = bids[i + 3];
       const lowerButton = new TextActionButtonNode(
@@ -63,25 +63,43 @@ export class BidModalNode extends ModalNode {
         width: ButtonWidth,
         height: ButtonHeight,
       });
-      lowerButton.offset[0] = offsetX;
-      lowerButton.offset[1] = upperOffset + ButtonHeight + ButtonPadding;
       lowerButton.onClick = () => {
         this.context.eventHandler.bid(lowerBid.value, upperBid.calls);
       };
-      this.addChild(lowerButton);
+      bidNodePairs.push(createLayoutNode({
+        id: `${this.id}-bid-pair-${i}`,
+        nodes: [upperButton, lowerButton],
+        axis: "y",
+        gap: ButtonGap,
+      }))
     }
 
     const passButton = new TextActionButtonNode(`${this.id}-bid-pass`);
     passButton.setText("PASS");
     passButton.size.set({
-      width: ButtonWidth,
-      height: ButtonHeight,
+      width: ButtonHeight * 2 + ButtonGap,
+      height: ButtonHeight * 2 + ButtonGap,
     });
-    passButton.offset[1] =
-      -modalHeight / 2 +
-      ModalPadding +
-      2 * (ButtonHeight + ButtonPadding) +
-      ButtonHeight / 2;
-    this.addChild(passButton);
+    const bidRowNode = createLayoutNode({
+      id: `${this.id}-bid-button-row`,
+      nodes: [...bidNodePairs, passButton],
+      gap: ButtonGap,
+    });
+    this.outerLayout = createLayoutNode({
+      id: `${this.id}-layout`,
+      nodes: [bidRowNode],
+      axis: "y",
+      padding: ModalPadding,
+    })
+    this.addChild(this.outerLayout);
   }
+
+  public onMount = () => {
+    const removeListener = this.outerLayout.size.listen((size) => {
+      this.size.set(size);
+    });
+    return () => {
+      removeListener();
+    };
+  };
 }

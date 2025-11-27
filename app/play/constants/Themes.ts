@@ -16,7 +16,7 @@ export const LightenColor05 = white_t(0.05);
 export const LightenColor1 = white_t(0.1);
 export const LightenColor2 = white_t(0.2);
 
-export const ActionButtonTheme: RectTheme = {
+export const DefaultActionButtonTheme: RectTheme = {
   backgroundColor: SecondaryColor[9],
   borderColor: SecondaryColor[6],
   borderRadius: 10,

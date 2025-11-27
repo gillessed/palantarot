@@ -1,9 +1,10 @@
 import { ActionButtonNode } from "../../components/ActionButtonNode";
+import { TextActionButtonNode } from "../../components/TextActionButtonNode";
 import { ActionButtonTextTheme } from "../../constants/Themes";
 import { ReadyButtonId } from "../../NodeIds";
 import { PlaySceneContext } from "../../PlaySceneContext";
 
-export class ReadyButton extends ActionButtonNode {
+export class ReadyButton extends TextActionButtonNode {
   private ready = false;
   public context: PlaySceneContext;
 
@@ -13,8 +14,8 @@ export class ReadyButton extends ActionButtonNode {
 
     this.size.set({ width: 70, height: 40 });
     this.offset[0] = 92;
-    this.textNode.text = "Ready";
-    this.textNode.theme = {
+    this.setText("Ready");
+    this.internalNode.theme = {
       ...ActionButtonTextTheme,
       fontSize: 18,
     };
@@ -22,7 +23,7 @@ export class ReadyButton extends ActionButtonNode {
 
   public setReady = (ready: boolean) => {
     this.ready = ready;
-    this.textNode.text = ready ? "Unready" : "Ready";
+    this.setText(ready ? "Unready" : "Ready");
   };
 
   public onClick = () => {

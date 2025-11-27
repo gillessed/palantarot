@@ -7,7 +7,7 @@ import { TwoDNode } from "./TwoDNode";
 export type RectTheme = ShapeTheme & BorderTheme;
 
 export class RectNode extends TwoDNode implements Sizeable {
-  public theme?: RectTheme;
+  public theme: RectTheme = {};
   public size = createSizeProperty();
   public getSize = () => this.size.get();
 
@@ -48,5 +48,9 @@ export class RectNode extends TwoDNode implements Sizeable {
         ctx.stroke();
       }
     }
+  };
+
+  public setTheme = (theme: RectTheme) => {
+    this.theme = { ...theme };
   };
 }
