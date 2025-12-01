@@ -13,7 +13,7 @@ import {
 import { SideCardPosition, SideCardPositions } from "./SideCardNode";
 import { SideCardPositionLayout } from "./SideCardsNode";
 
-const Below = CardHeight / 2 + PlayerInfoNodeHeight / 2 + 10;
+const Below = CardHeight / 2 + PlayerInfoNodeHeight / 2 + 15;
 const Above = -Below;
 const PushLeft = PlayerInfoNodeWidth / 2 + 10;
 const PushRight = -PushLeft;

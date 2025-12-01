@@ -1,5 +1,6 @@
 import type { Size } from "recharts/types/util/types";
 import type { PlayerEvent } from "../../server/play/model/GameEvents";
+import type { GameSettings } from "../../server/play/model/GameSettings";
 import {
   GameUpdatesMessagePayload,
   RoomSocketMessages,
@@ -9,7 +10,7 @@ import { createEmptyClientGameState } from "../../shared/game/emptyClientGameSta
 import { updateClientGameForEvents } from "../../shared/game/updateClientGameForEvents";
 import type { ClientGameState } from "../../shared/types/ClientGameState";
 import { TwoDNode } from "../sceneGraph/nodes/2d/TwoDNode";
-import type { NodeManager, SceneNode } from "../sceneGraph/nodes/SceneNode";
+import type { NodeManager } from "../sceneGraph/nodes/SceneNode";
 import {
   createDefaultProperty,
   type Property,
@@ -17,13 +18,14 @@ import {
 import type { Sizeable } from "../sceneGraph/property/Size";
 import type { ImageAssets } from "./assets/ImageAssets";
 import { BiddingPhaseNode } from "./gamePhase/bidding/BiddingPhaseNode";
+import { DogRevealPhaseNode } from "./gamePhase/dogReveal/DogRevealPhaseNode";
+import type { GameEventHandler } from "./gamePhase/GameEventHandler";
 import { NewGamePhaseNode } from "./gamePhase/newGame/NewGamePhaseNode";
 import { PartnerCallPhaseNode } from "./gamePhase/partnerCall/PartnerCallPhaseNode";
 import { TableNodeId } from "./NodeIds";
 import type { PlaySceneContext } from "./PlaySceneContext";
-import type { GameSettings } from "../../server/play/model/GameSettings";
 
-export type GamePhaseNode = NewGamePhaseNode | BiddingPhaseNode;
+export type GamePhaseNode = TwoDNode & GameEventHandler;
 
 export class TableNode extends TwoDNode implements Sizeable {
   public context: PlaySceneContext;
@@ -34,7 +36,7 @@ export class TableNode extends TwoDNode implements Sizeable {
   };
   public size: Property<Size> = createDefaultProperty({ width: 0, height: 0 });
   public imageAssets: ImageAssets;
-  public gamePhaseNode?: SceneNode;
+  public gamePhaseNode?: GamePhaseNode;
   public gameState: ClientGameState = createEmptyClientGameState();
   private processedInitialUpdated = false;
   private queueMessages: SocketMessage<GameUpdatesMessagePayload>[] = [];
@@ -70,7 +72,7 @@ export class TableNode extends TwoDNode implements Sizeable {
     };
   };
 
-  public setSceneNode = (newGamePhaseNode: SceneNode) => {
+  public setSceneNode = (newGamePhaseNode: GamePhaseNode) => {
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
@@ -86,31 +88,22 @@ export class TableNode extends TwoDNode implements Sizeable {
     const { phase } = this.gameState;
     switch (phase) {
       case "new_game":
-        const newGamePhaseNode = new NewGamePhaseNode(
-          this.context,
-          this.gameState
-        );
-        this.gamePhaseNode = newGamePhaseNode;
-        this.handleEvent =
-          this.createNewGamePhaseEventHandler(newGamePhaseNode);
+        this.gamePhaseNode = new NewGamePhaseNode(this.context, this.gameState);
         break;
       case "bidding":
-        const biddingPhaseNode = new BiddingPhaseNode(
-          this.context,
-          this.gameState
-        );
-        this.gamePhaseNode = biddingPhaseNode;
-        this.handleEvent =
-          this.createBiddingPhaseEventHandler(biddingPhaseNode);
+        this.gamePhaseNode = new BiddingPhaseNode(this.context, this.gameState);
         break;
       case "partner_call":
-        const partnerCallPhaseNode = new PartnerCallPhaseNode(
+        this.gamePhaseNode = new PartnerCallPhaseNode(
           this.context,
           this.gameState
         );
-        this.gamePhaseNode = partnerCallPhaseNode;
-        this.handleEvent =
-          this.createPartnerCallPhaseEventHandler(partnerCallPhaseNode);
+        break;
+      case "dog_reveal":
+        this.gamePhaseNode = new DogRevealPhaseNode(
+          this.context,
+          this.gameState
+        );
         break;
     }
     if (this.gamePhaseNode != null) {
@@ -128,7 +121,24 @@ export class TableNode extends TwoDNode implements Sizeable {
         this.context.playerId
       );
       this.gameState = newGameState;
-      this.handleEvent(event);
+    }
+  };
+
+  public handleEvent = (event: PlayerEvent) => {
+    const { type } = event;
+    switch (type) {
+      // handle transitions
+      case "game_started":
+        break;
+      case "bidding_completed":
+        break;
+      case "dog_revealed":
+        break;
+      case "dog_revealed":
+        break;
+      default:
+        this.gamePhaseNode?.handleEvent(event, this.gameState);
+        return;
     }
   };
 
@@ -165,36 +175,6 @@ export class TableNode extends TwoDNode implements Sizeable {
     });
   };
 
-  public createNewGamePhaseEventHandler = (
-    newGamePhaseNode: NewGamePhaseNode
-  ) => {
-    return (event: PlayerEvent) => {
-      const { type } = event;
-      switch (type) {
-        case "enter_game":
-          newGamePhaseNode.handleEnterGame(event);
-          break;
-
-        case "leave_game":
-          newGamePhaseNode.handleLeaveGame(event);
-          break;
-
-        case "mark_player_ready":
-          newGamePhaseNode.handleMarkPlayerReady(event);
-          break;
-
-        case "mark_player_unready":
-          newGamePhaseNode.handleMarkPlayerUnready(event);
-          break;
-
-        case "players_set":
-          // TODO: deal animation
-          this.setToPlayState(this.gameState);
-          break;
-      }
-    };
-  };
-
   public createBiddingPhaseEventHandler = (
     biddingPhaseNode: BiddingPhaseNode
   ) => {
@@ -223,16 +203,11 @@ export class TableNode extends TwoDNode implements Sizeable {
     };
   };
 
-  public createPartnerCallPhaseEventHandler = (_: PartnerCallPhaseNode) => {
+  public createDogRevealPhaseEventHandler = (_: DogRevealPhaseNode) => {
     return (event: PlayerEvent) => {
       const { type } = event;
-      switch (
-        type
-        // TODO: handle events
-      ) {
+      switch (type) {
       }
     };
   };
-
-  public handleEvent = (_: PlayerEvent) => {};
 }

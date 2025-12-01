@@ -38,12 +38,26 @@ export interface PartnerCallClientGameState
   readonly playerOrder: ReadonlyArray<PlayerId>;
   readonly winningBid: Bid;
   readonly hand: ReadonlyArray<Card>;
+  readonly partnerCard?: Card;
+}
+
+export interface DogRevealClientGameState
+  extends BaseClientGameState,
+    ShowTrumpClientGameState {
+  readonly phase: "dog_reveal";
+  readonly playerOrder: ReadonlyArray<PlayerId>;
+  readonly winningBid: Bid;
+  readonly hand: ReadonlyArray<Card>;
+  readonly partnerCard?: Card;
+  readonly dog: ReadonlyArray<Card>;
+  readonly partner?: PlayerId;
 }
 
 export type ClientGameState =
   | NewGameClientGameState
   | BiddingClientGameState
-  | PartnerCallClientGameState;
+  | PartnerCallClientGameState
+  | DogRevealClientGameState;
 
 // export interface ClientGame {
 //   readonly phase: GamePhase;

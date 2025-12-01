@@ -1,11 +1,12 @@
 import { type PlayerId } from "../../../server/play/model/GameState";
 import { TextNode } from "../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
-import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
+import { TimerNode } from "../../sceneGraph/nodes/TimerNode";
 import { TextTheme } from "../../sceneGraph/scene/Theme";
 import { getPlayerName } from "../../services/utils/playerName";
 import { interpolateColorString } from "../constants/PlayColors";
 import type { PlaySceneContext } from "../PlaySceneContext";
+import type { Animate } from "../utils/Animate";
 import { pathRoundedRectangle } from "../utils/pathRoundedRectangle";
 import {
   PlayerNodeActiveColors,
@@ -30,8 +31,8 @@ export class PlayerInfoNode extends TwoDNode {
   public context: PlaySceneContext;
   public textNode: TextNode;
   public readyNode: PlayerReadyNode;
-  public activeAnimation: AnimationNode;
-  public fadeAnimation: AnimationNode;
+  public activeAnimation: TimerNode;
+  public fadeAnimation: TimerNode;
   private playerId?: PlayerId;
   private colorInterpolateValue = 0;
 
@@ -46,7 +47,6 @@ export class PlayerInfoNode extends TwoDNode {
       -PlayerInfoNodeWidth / 2 + 5,
       -PlayerInfoNodeHeight / 2 + 5,
     ];
-    this.textNode.maxWidth = TextWidth;
     this.textNode.theme = PlayerNodeTextTheme;
     this.addChild(this.textNode);
 
@@ -55,25 +55,17 @@ export class PlayerInfoNode extends TwoDNode {
     this.readyNode.visible = false;
     this.addChild(this.readyNode);
 
-    this.activeAnimation = new AnimationNode(`${id}-active-animation`);
+    this.activeAnimation = new TimerNode(`${id}-active-animation`);
     this.activeAnimation.startValue = 0;
     this.activeAnimation.endValue = 1;
     this.activeAnimation.durationMs = 300;
     this.activeAnimation.easing = "inOutCubic";
-    this.activeAnimation.updateListeners.add((value: number) => {
-      this.colorInterpolateValue = value;
-    });
     this.addChild(this.activeAnimation);
 
-    this.fadeAnimation = new AnimationNode(`${id}-opacity-animation`);
+    this.fadeAnimation = new TimerNode(`${id}-opacity-animation`);
     this.fadeAnimation.durationMs = 300;
     this.fadeAnimation.easing = "inOutCubic";
-    this.fadeAnimation.updateListeners.add((value: number) => {
-      this.opacity = value;
-    });
-    this.fadeAnimation.finishListeners.add(() => {
-      this.opacity = this.fadeAnimation.endValue;
-    });
+
     this.addChild(this.fadeAnimation);
   }
 
@@ -84,24 +76,36 @@ export class PlayerInfoNode extends TwoDNode {
 
   public getPlayerId = () => this.playerId;
 
-  public setActive = (active: boolean) => {
-    this.colorInterpolateValue = active ? 1 : 0;
+  public setActive = (active: boolean, animated: Animate) => {
+    if (animated === "instant") {
+      this.colorInterpolateValue = active ? 1 : 0;
+    } else {
+      this.fadeAnimation.reversed = !active;
+      this.activeAnimation.start({
+        onChanged: (value: number) => {
+          this.colorInterpolateValue = value;
+        },
+        onFinished: () => {
+          this.colorInterpolateValue = this.activeAnimation.endValue;
+        },
+      });
+    }
   };
 
-  public animateActive = (active: boolean) => {
-    this.activeAnimation.startValue = active ? 0 : 1;
-    this.activeAnimation.endValue = active ? 1 : 0;
-    this.activeAnimation.start();
-  };
-
-  public setFade = (faded: boolean) => {
-    this.opacity = faded ? 0.6 : 1;
-  };
-
-  public fade = (mode: "fadeIn" | "fadeOut") => {
-    this.fadeAnimation.startValue = mode === "fadeIn" ? 0.6 : 1;
-    this.fadeAnimation.endValue = mode === "fadeIn" ? 1 : 0.6;
-    this.fadeAnimation.start();
+  public fade = (mode: "fadeIn" | "fadeOut", animate: Animate) => {
+    if (animate === "instant") {
+      this.fadeAnimation.reversed = mode === "fadeOut";
+      this.fadeAnimation.start({
+        onChanged: (value: number) => {
+          this.opacity = value;
+        },
+        onFinished: () => {
+          this.opacity = this.fadeAnimation.endValue;
+        },
+      });
+    } else {
+      this.opacity = mode === "fadeOut" ? 0.6 : 1;
+    }
   };
 
   private updateText = () => {

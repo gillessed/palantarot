@@ -1,6 +1,7 @@
 import type {
   EnterGameAction,
   LeaveGameAction,
+  PlayerEvent,
   PlayerReadyAction,
   PlayerUnreadyAction,
 } from "../../../../server/play/model/GameEvents";
@@ -11,6 +12,7 @@ import { ModalNode } from "../../components/ModalNode";
 import { SideCardsNode } from "../../components/SideCardsNode";
 import { NewGamePhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
+import type { GameEventHandler } from "../GameEventHandler";
 import { EmptyRowNode } from "./EmptyRowNode";
 import { JoinLeaveButton } from "./JoinLeaveButton";
 import { PlayerRowHeight, PlayerRowNode } from "./PlayerRowNode";
@@ -24,7 +26,7 @@ const PanelHeight =
 
 type MaybePlayerId = PlayerId | undefined;
 
-export class NewGamePhaseNode extends TwoDNode {
+export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
   public context: PlaySceneContext;
   private playerCount = 0;
   public playerOrder: [
@@ -82,6 +84,27 @@ export class NewGamePhaseNode extends TwoDNode {
     this.playerCount = state.playerOrder.length;
     this.updateRowNodes();
   }
+
+  public handleEvent = (event: PlayerEvent) => {
+    const { type } = event;
+    switch (type) {
+      case "enter_game":
+        this.handleEnterGame(event);
+        break;
+
+      case "leave_game":
+        this.handleLeaveGame(event);
+        break;
+
+      case "mark_player_ready":
+        this.handleMarkPlayerReady(event);
+        break;
+
+      case "mark_player_unready":
+        this.handleMarkPlayerUnready(event);
+        break;
+    }
+  };
 
   public updateRowNodes = () => {
     let y = -PanelHeight / 2 + PanelPadding + PlayerRowHeight / 2;

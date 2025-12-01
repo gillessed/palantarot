@@ -5,7 +5,6 @@ import { type PlayerStatus } from "./PlayerStatus.ts";
 
 export interface RoomStatus {
   id: string;
-  color: string;
   name: string;
   players: { [key: string]: PlayerStatus };
   settings: GameSettings;

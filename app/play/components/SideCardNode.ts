@@ -2,8 +2,8 @@ import type { Size } from "recharts/types/util/types";
 import { v_set, type Vector } from "../../sceneGraph/math/Vector";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
-import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
+import { TimerNode } from "../../sceneGraph/nodes/TimerNode";
 import {
   AreaBackgroundPadding,
   CardHeight,
@@ -52,7 +52,7 @@ export class SideCardNode extends TwoDNode {
   public cardNode: LoadedImageNode;
   public enterAnimationEnabled: boolean = false;
   public enterAnimationAxis: Axis = "x";
-  public enterAnimation: AnimationNode;
+  public enterAnimation: TimerNode;
   public backgroundNode: RectNode;
 
   public enterAnimationUpdated = (value: number) => {
@@ -81,12 +81,11 @@ export class SideCardNode extends TwoDNode {
     this.cardNode.size.set({ width: CardWidth, height: CardHeight });
     this.addChild(this.cardNode);
 
-    this.enterAnimation = new AnimationNode(`${id}-enter-animation`);
+    this.enterAnimation = new TimerNode(`${id}-enter-animation`);
     this.enterAnimation.durationMs = 800;
     this.enterAnimation.easing = "inOutCubic";
     this.enterAnimation.startValue = 0;
     this.enterAnimation.endValue = 0;
-    this.enterAnimation.updateListeners.add(this.enterAnimationUpdated);
     this.addChild(this.enterAnimation);
   }
 
@@ -106,7 +105,9 @@ export class SideCardNode extends TwoDNode {
 
   public onMount = (manager: NodeManager) => {
     if (this.enterAnimationEnabled) {
-      this.enterAnimation.start();
+      this.enterAnimation.start({
+        onChanged: this.enterAnimationUpdated,
+      });
     }
     const removeSizeListener = manager.size.listen(this.layout);
     return () => {

@@ -14,6 +14,7 @@ import {
 } from "./Card.ts";
 import { GameErrors } from "./GameErrors.ts";
 import { type PlayerId } from "./GameState.ts";
+import { compareCards } from "../../../shared/utils/compareCards.ts";
 
 const { chunk, differenceWith, filter, find, isEqual, shuffle } = pkg;
 
@@ -86,7 +87,7 @@ export const shufflePlayers = (players: PlayerId[]): PlayerId[] =>
   playerShuffler(players);
 
 export const dealCards = (players: number): DealtCards => {
-  const comparer = compareCards(undefined);
+  const comparer = compareCards();
   while (true) {
     const cards = cardShuffler(createAllCards());
     const dogSize = players > 4 ? 3 : 6;
@@ -305,36 +306,6 @@ export function getCardValueAsNumber(value: RegValue | TrumpValue): number {
       throw new Error(value);
   }
 }
-
-type Comparator<T> = (t1: T, T2: T) => number;
-
-export const compareCards = function (
-  lead_suit?: Suit | undefined
-): Comparator<Card> {
-  return (left: Card, right: Card) => {
-    if (isEqual(left, right)) {
-      return 0;
-    } else if (left[1] === "Joker") {
-      return -1;
-    } else if (right[1] === "Joker") {
-      return 1;
-    } else if (left[0] === right[0]) {
-      return Math.sign(
-        getCardValueAsNumber(left[1]) - getCardValueAsNumber(right[1])
-      );
-    } else if (left[0] === "T") {
-      return 1;
-    } else if (right[0] === "T") {
-      return -1;
-    } else if (left[0] === lead_suit) {
-      return 1;
-    } else if (right[0] === lead_suit) {
-      return -1;
-    } else {
-      return left[0].charCodeAt(0) - right[0].charCodeAt(0); // at this point, whatever.
-    }
-  };
-};
 
 export const getCardPoint = function (card: Card) {
   if (card[0] === "T") {

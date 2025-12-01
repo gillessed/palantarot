@@ -1,38 +1,10 @@
-import pkg from "lodash";
 import { assertNever } from "../../app/utils/assertNever.ts";
-import {
-  cardsWithout,
-  compareCards,
-} from "../../server/play/model/CardUtils.ts";
-import {
-  type BidAction,
-  type BiddingCompletedTransition,
-  type CallPartnerAction,
-  type CompletedTrickTransition,
-  type DealtHandTransition,
-  type DogRevealTransition,
-  type GameAbortedTransition,
-  type GameCompletedTransition,
-  type GameStartTransition,
-  type NotifyEvent,
-  type PlayCardAction,
-  type PlayerEvent,
-  type SetDogAction,
-  type ShowDogToObservers,
-  type ShowTrumpAction,
-} from "../../server/play/model/GameEvents.ts";
 import { type PlayerId } from "../../server/play/model/GameState.ts";
-import type {
-  BiddingClientGameState,
-  ClientGameState,
-} from "../types/ClientGameState.ts";
-import {
-  EmptyClientGame,
-  type ClientGame,
-  type ClientTrickCards,
-} from "../types/ClientGameTypes.ts";
+import type { ClientGameState } from "../types/ClientGameState.ts";
 import { updateNewGameClientGameState } from "./updateNewGameClientGameState.ts";
 import { updateBiddingClientGameState } from "./updateBiddingClientGameState.ts";
+import { updatePartnerCallClientGameState } from "./updatePartnerCallClientGameState.ts";
+import type { PlayerEvent } from "../../server/play/model/GameEvents.ts";
 
 // const { isEqual } = pkg;
 
@@ -211,16 +183,13 @@ export function updateClientGameForEvent(
     case "bidding":
       return updateBiddingClientGameState(state, event);
     case "partner_call":
+      return updatePartnerCallClientGameState(state, event);
+    case "dog_reveal":
       return null as any;
-      break;
     default:
       assertNever(phase);
   }
   // switch (event.type) {
-  //   case "bidding_completed":
-  //     return biddingCompleted(state, event);
-  //   case "call_partner":
-  //     return callPartner(state, event);
   //   case "dog_revealed":
   //     return dogRevealed(state, event, playerId);
   //   case "show_dog_to_observers":

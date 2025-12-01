@@ -2,12 +2,13 @@ import { BidPass, type Bid } from "../../../../server/play/model/GameState";
 import { RectNode } from "../../../sceneGraph/nodes/2d/RectNode";
 import { TextNode } from "../../../sceneGraph/nodes/2d/TextNode";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
-import { AnimationNode } from "../../../sceneGraph/nodes/AnimationNode";
+import { TimerNode } from "../../../sceneGraph/nodes/TimerNode";
 import {
   BidNodeWidth,
   PlayerInfoNodeHeight,
   PlayerInfoNodeWidth,
 } from "../../components/PlayerInfoNode";
+import type { Animate } from "../../utils/Animate";
 import {
   PlayerBidNodeBackgroundTheme,
   PlayerBidNodeTextTheme,
@@ -16,7 +17,7 @@ import {
 export class PlayerBidNode extends TwoDNode {
   public bidNode: TextNode;
   public bidBackgroundNode: RectNode;
-  public animation: AnimationNode;
+  public animation: TimerNode;
 
   constructor(id: string) {
     super(id);
@@ -37,19 +38,13 @@ export class PlayerBidNode extends TwoDNode {
     this.bidBackgroundNode.addChild(this.bidNode);
     this.addChild(this.bidBackgroundNode);
 
-    this.animation = new AnimationNode(`${id}-animation`);
+    this.animation = new TimerNode(`${id}-animation`);
     this.animation.easing = "easeOutBounce";
     this.animation.durationMs = 800;
-    this.animation.updateListeners.add((value: number) => {
-      this.bidBackgroundNode.scale = [value, value];
-    });
-    this.animation.finishListeners.add(() => {
-      this.bidBackgroundNode.scale = [1, 1];
-    });
     this.addChild(this.animation);
   }
 
-  public setBid = (bid: Bid | undefined, animate: boolean) => {
+  public setBid = (bid: Bid | undefined, animate: Animate) => {
     if (bid == null) {
       this.bidNode.text = "";
     } else {
@@ -58,7 +53,7 @@ export class PlayerBidNode extends TwoDNode {
         bid.bid === BidPass ? "PASS" : russianTwenty ? "R 20" : `${bid.bid}`;
       this.bidNode.text = bidText;
       // TODO: different color for pass vs number
-      if (animate) {
+      if (animate === "animate") {
         this.doBidEffect();
       } else {
         this.bidBackgroundNode.scale = [1, 1];
@@ -68,6 +63,13 @@ export class PlayerBidNode extends TwoDNode {
   };
 
   private doBidEffect = () => {
-    this.animation.start();
+    this.animation.start({
+      onChanged: (value: number) => {
+        this.bidBackgroundNode.scale = [value, value];
+      },
+      onFinished: () => {
+        this.bidBackgroundNode.scale = [1, 1];
+      },
+    });
   };
 }

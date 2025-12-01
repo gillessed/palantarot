@@ -1,9 +1,17 @@
-import type { Card, RegSuit, RegValue, TrumpSuit, TrumpValue } from "../../../server/play/model/Card";
+import type {
+  Card,
+  RegSuit,
+  RegValue,
+  TrumpSuit,
+  TrumpValue,
+} from "../../../server/play/model/Card";
 
 export type RegSuitAssetKey = `${RegSuit}-${RegValue}`;
 export type TrumpSuitAssetKey = `${TrumpSuit}-${TrumpValue}`;
 
-export function getCardAssetKey([suit, value]: Card): RegSuitAssetKey | TrumpSuitAssetKey {
+export function getCardAssetKey([suit, value]: Card):
+  | RegSuitAssetKey
+  | TrumpSuitAssetKey {
   return `${suit}-${value}` as RegSuitAssetKey | TrumpSuitAssetKey;
 }
 
@@ -12,12 +20,13 @@ export type RegSuitImageAssets = {
 };
 
 export type TrumpSuitAssets = {
-[K in TrumpSuitAssetKey]: CanvasImageSource;
-}
+  [K in TrumpSuitAssetKey]: CanvasImageSource;
+};
 
 export type ImageAssets = {
   CardBackBlue: CanvasImageSource;
   CardBackGreen: CanvasImageSource;
   CardBackRed: CanvasImageSource;
   CardBackBlack: CanvasImageSource;
-} & RegSuitImageAssets & TrumpSuitAssets;
+} & RegSuitImageAssets &
+  TrumpSuitAssets;

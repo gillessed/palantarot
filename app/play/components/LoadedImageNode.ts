@@ -1,35 +1,40 @@
 import { ImageNode } from "../../sceneGraph/nodes/2d/ImageNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
+import { createDefaultProperty } from "../../sceneGraph/property/Property";
 import type { ImageAssets } from "../assets/ImageAssets";
 import { TableNodeId } from "../NodeIds";
 import { TableNode } from "../TableNode";
 
-export class LoadedImageNode extends ImageNode {
-  private assetKey: keyof ImageAssets;
+export type LoadedImageKey = keyof ImageAssets | undefined;
 
-  constructor(id: string, assetKey: keyof ImageAssets) {
+export class LoadedImageNode extends ImageNode {
+  public assetKey = createDefaultProperty<LoadedImageKey>(undefined);
+
+  constructor(id: string, assetKey?: LoadedImageKey) {
     super(id);
-    this.assetKey = assetKey;
+    this.assetKey.set(assetKey);
   }
 
-  public setAssetKey = (assetKey: typeof this.assetKey) => {
-    this.assetKey = assetKey;
-    if (this.container != null) {
-      this.updateImage(this.container);
-    }
-  };
-
   public onMount = (container: NodeManager) => {
-    this.updateImage(container);
+    const cleanup = this.assetKey.listen((newAssetKey: LoadedImageKey) => {
+      this.updateImage(container, newAssetKey);
+    });
+    return () => {
+      cleanup();
+    };
   };
 
-  private updateImage = (container: NodeManager) => {
+  private updateImage = (container: NodeManager, assetKey: LoadedImageKey) => {
     const tableNode = container.getNode<TableNode>(TableNodeId);
     if (tableNode == null) {
       console.warn("Have a card with no table node present");
       return;
     }
-    this.image = tableNode.imageAssets[this.assetKey];
+    if (assetKey != null) {
+      this.image = tableNode.imageAssets[assetKey];
+    } else {
+      this.image = undefined;
+    }
   };
 
   public onUnmount = () => {

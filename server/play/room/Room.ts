@@ -44,7 +44,6 @@ export class Room {
       playService,
       generateId(),
       args.name,
-      args.color,
       args.gameSettings,
       Game.createNew(args.gameSettings),
       [],
@@ -60,7 +59,6 @@ export class Room {
   private readonly playService: PlayService;
   public readonly id: string;
   public name: string;
-  public color: string;
   public settings: GameSettings;
   public game: Game;
   public pastGames: CompletedGameState[];
@@ -71,7 +69,6 @@ export class Room {
     playService: PlayService,
     id: string,
     name: string,
-    color: string,
     settings: GameSettings,
     game: Game,
     pastGames: CompletedGameState[],
@@ -81,7 +78,6 @@ export class Room {
     this.playService = playService;
     this.id = id;
     this.name = name;
-    this.color = color;
     this.settings = settings;
     this.game = game;
     this.pastGames = pastGames;
@@ -329,7 +325,6 @@ export class Room {
     return {
       id: this.id,
       name: this.name,
-      color: this.color,
       players,
       settings: this.settings,
       gameId: this.game.id,

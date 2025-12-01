@@ -2,8 +2,8 @@ import type { Size } from "recharts/types/util/types";
 import { Card } from "../../../server/play/model/Card";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
-import { AnimationNode } from "../../sceneGraph/nodes/AnimationNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
+import { TimerNode } from "../../sceneGraph/nodes/TimerNode";
 import { getCardAssetKey } from "../assets/ImageAssets";
 import {
   AreaBackgroundPadding,
@@ -20,7 +20,8 @@ export class PlayerHandNode extends TwoDNode {
   public backgroundNode: RectNode;
   public cardListNode: TwoDNode;
   public cardNodes: LoadedImageNode[] = [];
-  public enterAnimation: AnimationNode;
+  public enterAnimation: TimerNode;
+  public selectedCards = new Set<number>();
   private handWidth: number = 0;
 
   constructor(context: PlaySceneContext, cards: ReadonlyArray<Card>) {
@@ -42,17 +43,9 @@ export class PlayerHandNode extends TwoDNode {
     this.cardListNode.offset[1] = CardHeight / 2;
     this.addChild(this.cardListNode);
 
-    this.enterAnimation = new AnimationNode(
-      `${PlayerHandNodeId}-enter-animation`
-    );
+    this.enterAnimation = new TimerNode(`${PlayerHandNodeId}-enter-animation`);
     this.enterAnimation.startValue = CardHeight / 2;
     this.enterAnimation.endValue = 0;
-    this.enterAnimation.updateListeners.add(
-      (value: number) => (this.cardListNode.offset[1] = value)
-    );
-    this.enterAnimation.finishListeners.add(() => {
-      this.cardListNode.offset[1] = 0;
-    });
     this.enterAnimation.durationMs = 750;
     this.enterAnimation.easing = "outCubic";
     this.addChild(this.enterAnimation);
@@ -100,7 +93,10 @@ export class PlayerHandNode extends TwoDNode {
     }
     this.layoutCards();
     if (animate) {
-      this.enterAnimation.start();
+      this.enterAnimation.start({
+        onChanged: (value: number) => (this.cardListNode.offset[1] = value),
+        onFinished: () => (this.cardListNode.offset[1] = 0),
+      });
     } else {
       this.cardListNode.offset[1] = 0;
     }
