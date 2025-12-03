@@ -56,16 +56,23 @@ export class PlayerInfoNode extends TwoDNode {
     this.addChild(this.readyNode);
 
     this.activeAnimation = new TimerNode(`${id}-active-animation`);
-    this.activeAnimation.startValue = 0;
-    this.activeAnimation.endValue = 1;
+    this.activeAnimation.startValue = 1;
+    this.activeAnimation.endValue = 0;
     this.activeAnimation.durationMs = 300;
     this.activeAnimation.easing = "inOutCubic";
+    this.activeAnimation.listen((value: number) => {
+      this.colorInterpolateValue = value;
+    });
     this.addChild(this.activeAnimation);
 
     this.fadeAnimation = new TimerNode(`${id}-opacity-animation`);
     this.fadeAnimation.durationMs = 300;
+    this.fadeAnimation.startValue = 1;
+    this.fadeAnimation.endValue = 0.6;
     this.fadeAnimation.easing = "inOutCubic";
-
+    this.fadeAnimation.listen((value: number) => {
+      this.opacity = value;
+    });
     this.addChild(this.fadeAnimation);
   }
 
@@ -77,34 +84,20 @@ export class PlayerInfoNode extends TwoDNode {
   public getPlayerId = () => this.playerId;
 
   public setActive = (active: boolean, animated: Animate) => {
+    this.activeAnimation.reversed = active;
     if (animated === "instant") {
-      this.colorInterpolateValue = active ? 1 : 0;
+      this.activeAnimation.instant();
     } else {
-      this.fadeAnimation.reversed = !active;
-      this.activeAnimation.start({
-        onChanged: (value: number) => {
-          this.colorInterpolateValue = value;
-        },
-        onFinished: () => {
-          this.colorInterpolateValue = this.activeAnimation.endValue;
-        },
-      });
+      this.activeAnimation.start();
     }
   };
 
   public fade = (mode: "fadeIn" | "fadeOut", animate: Animate) => {
+    this.fadeAnimation.reversed = mode === "fadeIn";
     if (animate === "instant") {
-      this.fadeAnimation.reversed = mode === "fadeOut";
-      this.fadeAnimation.start({
-        onChanged: (value: number) => {
-          this.opacity = value;
-        },
-        onFinished: () => {
-          this.opacity = this.fadeAnimation.endValue;
-        },
-      });
+      this.fadeAnimation.instant();
     } else {
-      this.opacity = mode === "fadeOut" ? 0.6 : 1;
+      this.fadeAnimation.start();
     }
   };
 

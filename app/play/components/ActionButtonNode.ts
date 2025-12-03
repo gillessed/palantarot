@@ -61,10 +61,10 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
   public setBaseTheme = (theme: ShapeTheme) => {
     this.baseTheme = theme;
     this.updateUi();
-  }
+  };
 
   public onMount = () => {
-    this.removeSizeListener = this.size.listen((size) => {
+    this.removeSizeListener = this.size.getAndListen((size) => {
       this.overlayNode.size.set(size);
     });
   };
@@ -81,7 +81,7 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
   public setSelected = (selected: boolean) => {
     this.selected = selected;
     this.updateUi();
-  }
+  };
 
   public updateUi = () => {
     if (this.disabled) {
@@ -91,12 +91,12 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
         this.container?.setCursor("default");
       }
       this.setTheme(ActionButtonDisabledTheme);
-    } else if (this.selected) {  
+    } else if (this.selected) {
       this.container?.setCursor("default");
       this.setTheme({
         ...this.baseTheme,
         borderColor: HighlightColor[10],
-      })
+      });
       this.overlayNode.opacity = 1;
       this.overlayNode.setTheme(ActiveTheme);
     } else {

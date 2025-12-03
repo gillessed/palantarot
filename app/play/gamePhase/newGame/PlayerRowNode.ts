@@ -2,6 +2,7 @@ import type { PlayerId } from "../../../../server/play/model/GameState";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { PlayerInfoNode } from "../../components/PlayerInfoNode";
 import type { PlaySceneContext } from "../../PlaySceneContext";
+import type { Animate } from "../../utils/Animate";
 import { ReadyButton } from "./ReadyButton";
 
 export const PlayerNodeWidth = 300;
@@ -19,21 +20,17 @@ export class PlayerRowNode extends TwoDNode {
     this.playerInfoNode = new PlayerInfoNode(context, `${id}-info`);
     this.playerInfoNode.setPlayerId(playerId);
     this.playerInfoNode.readyNode.visible = true;
+    this.playerInfoNode.fade("fadeIn", "instant");
     this.addChild(this.playerInfoNode);
 
     this.readyButton = new ReadyButton(context);
     if (playerId === this.context.playerId) {
-      this.addChild(this.readyButton);
+      this.playerInfoNode.addChild(this.readyButton);
     }
   }
 
-  public setReady = (ready: boolean) => {
-    this.playerInfoNode.readyNode.setReady(ready);
-    this.readyButton.setReady(ready);
-  };
-
-  public animateReady = (ready: boolean) => {
-    this.playerInfoNode.readyNode.animateReady(ready);
+  public setReady = (ready: boolean, animate: Animate) => {
+    this.playerInfoNode.readyNode.setReady(ready, animate);
     this.readyButton.setReady(ready);
   };
 }

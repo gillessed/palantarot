@@ -1,4 +1,3 @@
-import { ActionButtonNode } from "../../components/ActionButtonNode";
 import { TextActionButtonNode } from "../../components/TextActionButtonNode";
 import { ActionButtonTextTheme } from "../../constants/Themes";
 import { ReadyButtonId } from "../../NodeIds";

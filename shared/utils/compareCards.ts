@@ -1,6 +1,6 @@
-import type { Card, Suit } from "../../server/play/model/Card";
-import { getCardValueAsNumber } from "./getCardValueAsNumber";
-import { isCardEqual } from "./isCardEqual";
+import type { Card, Suit } from "../../server/play/model/Card.ts";
+import { getCardValueAsNumber } from "./getCardValueAsNumber.ts";
+import { isCardEqual } from "./isCardEqual.ts";
 
 type Comparator<T> = (t1: T, T2: T) => number;
 

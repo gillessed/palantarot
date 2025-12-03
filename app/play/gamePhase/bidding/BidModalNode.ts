@@ -1,5 +1,9 @@
 import { Call, type BidValue } from "../../../../server/play/model/GameState";
-import { createLayoutNode, LayoutNode, SizeableNode } from "../../../sceneGraph/nodes/2d/LayoutNode";
+import {
+  createLayoutNode,
+  LayoutNode,
+  SizeableNode,
+} from "../../../sceneGraph/nodes/2d/LayoutNode";
 import { ModalNode } from "../../components/ModalNode";
 import { TextActionButtonNode } from "../../components/TextActionButtonNode";
 import type { PlaySceneContext } from "../../PlaySceneContext";
@@ -36,9 +40,7 @@ export class BidModalNode extends ModalNode {
     const bidNodePairs: SizeableNode[] = [];
     for (let i = 0; i < 3; i++) {
       const offsetX =
-        -buttonRowWidth / 2 +
-        i * (ButtonWidth + ButtonGap) +
-        ButtonWidth / 2;
+        -buttonRowWidth / 2 + i * (ButtonWidth + ButtonGap) + ButtonWidth / 2;
 
       const upperBid = bids[i];
       const upperOffset = -modalHeight / 2 + ModalPadding + ButtonHeight / 2;
@@ -66,12 +68,14 @@ export class BidModalNode extends ModalNode {
       lowerButton.onClick = () => {
         this.context.eventHandler.bid(lowerBid.value, upperBid.calls);
       };
-      bidNodePairs.push(createLayoutNode({
-        id: `${this.id}-bid-pair-${i}`,
-        nodes: [upperButton, lowerButton],
-        axis: "y",
-        gap: ButtonGap,
-      }))
+      bidNodePairs.push(
+        createLayoutNode({
+          id: `${this.id}-bid-pair-${i}`,
+          nodes: [upperButton, lowerButton],
+          axis: "y",
+          gap: ButtonGap,
+        })
+      );
     }
 
     const passButton = new TextActionButtonNode(`${this.id}-bid-pass`);
@@ -90,12 +94,12 @@ export class BidModalNode extends ModalNode {
       nodes: [bidRowNode],
       axis: "y",
       padding: ModalPadding,
-    })
+    });
     this.addChild(this.outerLayout);
   }
 
   public onMount = () => {
-    const removeListener = this.outerLayout.size.listen((size) => {
+    const removeListener = this.outerLayout.size.getAndListen((size) => {
       this.size.set(size);
     });
     return () => {

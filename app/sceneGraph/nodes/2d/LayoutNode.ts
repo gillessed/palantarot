@@ -53,7 +53,7 @@ export class LayoutNode extends TwoDNode implements Sizeable {
   public pushNodes = (...nodes: SizeableNode[]) => {
     this.nodes.push(...nodes);
     for (const node of nodes) {
-      const removeListener = node.size.listen(this.layout);
+      const removeListener = node.size.getAndListen(this.layout);
       this.removeListeners.set(node, removeListener);
       this.addChild(node);
     }

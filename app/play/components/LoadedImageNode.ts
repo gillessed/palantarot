@@ -16,9 +16,11 @@ export class LoadedImageNode extends ImageNode {
   }
 
   public onMount = (container: NodeManager) => {
-    const cleanup = this.assetKey.listen((newAssetKey: LoadedImageKey) => {
-      this.updateImage(container, newAssetKey);
-    });
+    const cleanup = this.assetKey.getAndListen(
+      (newAssetKey: LoadedImageKey) => {
+        this.updateImage(container, newAssetKey);
+      }
+    );
     return () => {
       cleanup();
     };

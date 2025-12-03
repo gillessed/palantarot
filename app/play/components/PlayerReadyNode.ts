@@ -2,9 +2,10 @@ import { CircleNode } from "../../sceneGraph/nodes/2d/CircleNode";
 import { SvgNode } from "../../sceneGraph/nodes/2d/SvgNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import { SvgPaths } from "../assets/SvgPaths";
+import type { Animate } from "../utils/Animate";
 import { PlayerNodeColors } from "./PlayerNodeConstants";
 
-const CheckmarkScale = 0.15;
+const CheckmarkScale = 14;
 const BackgroundColor = "#dee2e6";
 
 const SvgReadyTheme = { backgroundColor: "#0bae4a" };
@@ -35,15 +36,11 @@ export class PlayerReadyNode extends TwoDNode {
     this.addChild(this.svgNode);
   }
 
-  public setReady = (ready: boolean) => {
+  public setReady = (ready: boolean, animate: Animate) => {
+    // TODO: animate
     this.ready = ready;
     this.svgNode.theme = ready ? SvgReadyTheme : SvgUnreadyTheme;
     this.svgNode.path = ready ? SvgPaths.Checkmark : SvgPaths.Cross;
   };
   public getReady = () => this.ready;
-  public animateReady = (ready: boolean) => {
-    this.ready = ready;
-    // TODO: Animate transition
-    this.setReady(ready);
-  };
 }

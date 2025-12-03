@@ -73,7 +73,7 @@ export class CardNode extends TwoDNode {
   };
 
   public onMount = () => {
-    const cleanup = this.card.listen((newCard: Card | undefined) => {
+    const cleanup = this.card.getAndListen((newCard: Card | undefined) => {
       this.setCardNodeAsset(newCard);
     });
     return () => {

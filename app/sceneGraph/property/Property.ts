@@ -6,6 +6,7 @@ export interface Property<Value, InternalValue = Value> {
   set: (args: InternalValue) => void;
   get: () => Value;
   listen: (listener: PropertyListener<Value>) => () => void;
+  getAndListen: (listener: PropertyListener<Value>) => () => void;
 }
 
 export function createDefaultProperty<Value>(
@@ -22,12 +23,16 @@ export function createDefaultProperty<Value>(
   const get = () => value;
   const listen = (listener: PropertyListener<Value>) => {
     listeners.add(listener);
-    listener(value);
     return () => listeners.delete(listener);
+  };
+  const getAndListen = (listener: PropertyListener<Value>) => {
+    listener(value);
+    return listen(listener);
   };
   return {
     set,
     get,
     listen,
+    getAndListen,
   };
 }

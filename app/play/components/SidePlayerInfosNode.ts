@@ -69,7 +69,7 @@ export class SidePlayerInfosNode extends TwoDNode {
     playerInfoNode.setPlayerId(playerId);
     playerInfoNode.visible = true;
     playerInfoNode.onMount = (nodeManager: NodeManager) => {
-      const removeListener = nodeManager.size.listen((size) => {
+      const removeListener = nodeManager.size.getAndListen((size) => {
         const [cardOffset] = SideCardPositions[position](
           size.width / 2,
           size.height / 2

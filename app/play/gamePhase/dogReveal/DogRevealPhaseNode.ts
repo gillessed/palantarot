@@ -1,3 +1,4 @@
+import type { PlayerEvent } from "../../../../server/play/model/GameEvents";
 import type { DogRevealClientGameState } from "../../../../shared/types/ClientGameState";
 import { TwoDNode } from "../../../sceneGraph/nodes/2d/TwoDNode";
 import { StartedGameNode } from "../../components/StartedGameNode";
@@ -36,5 +37,14 @@ export class DogRevealPhaseNode extends TwoDNode implements GameEventHandler {
 
   public reveal = (animate: Animate) => {
     this.dogCardsNode.turnOverAll("face-up", animate);
+  };
+
+  public handleEvent = (event: PlayerEvent) => {
+    const { type } = event;
+    switch (
+      type
+      // TODO
+    ) {
+    }
   };
 }

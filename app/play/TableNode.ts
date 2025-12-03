@@ -60,7 +60,7 @@ export class TableNode extends TwoDNode implements Sizeable {
       this.handleServerMessage
     );
 
-    const stopSizeListen = manager.size.listen((size: Size) => {
+    const stopSizeListen = manager.size.getAndListen((size: Size) => {
       const { width, height } = size;
       this.offset = [width / 2, height / 2];
       this.size.set(size);
@@ -70,14 +70,6 @@ export class TableNode extends TwoDNode implements Sizeable {
       stopSizeListen();
       removeSceneListener();
     };
-  };
-
-  public setSceneNode = (newGamePhaseNode: GamePhaseNode) => {
-    if (this.gamePhaseNode != null) {
-      this.removeChild(this.gamePhaseNode);
-    }
-    this.gamePhaseNode = newGamePhaseNode;
-    this.addChild(newGamePhaseNode);
   };
 
   public setToPlayState = (state: ClientGameState) => {
@@ -121,6 +113,7 @@ export class TableNode extends TwoDNode implements Sizeable {
         this.context.playerId
       );
       this.gameState = newGameState;
+      this.handleEvent(event);
     }
   };
 
@@ -128,18 +121,61 @@ export class TableNode extends TwoDNode implements Sizeable {
     const { type } = event;
     switch (type) {
       // handle transitions
-      case "game_started":
+      case "players_set":
+        this.transitionToBid();
         break;
       case "bidding_completed":
+        this.transitionToPartnerCall();
         break;
       case "dog_revealed":
+        this.transitionToDogReveal();
         break;
-      case "dog_revealed":
+      case "game_started":
+        // TODO: need to add game started state and reducers
         break;
       default:
         this.gamePhaseNode?.handleEvent(event, this.gameState);
         return;
     }
+  };
+
+  public transitionToBid = () => {
+    if (this.gameState.phase !== "bidding") {
+      return;
+    }
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
+    const newPhaseNode = new BiddingPhaseNode(this.context, this.gameState);
+    this.gamePhaseNode = newPhaseNode;
+    this.addChild(newPhaseNode);
+    // TODO: add any animations here
+  };
+
+  public transitionToPartnerCall = () => {
+    if (this.gameState.phase !== "partner_call") {
+      return;
+    }
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
+    const newPhaseNode = new PartnerCallPhaseNode(this.context, this.gameState);
+    this.gamePhaseNode = newPhaseNode;
+    this.addChild(newPhaseNode);
+    // TODO: add any animations here
+  };
+
+  public transitionToDogReveal = () => {
+    if (this.gameState.phase !== "dog_reveal") {
+      return;
+    }
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
+    const newPhaseNode = new DogRevealPhaseNode(this.context, this.gameState);
+    this.gamePhaseNode = newPhaseNode;
+    this.addChild(newPhaseNode);
+    // TODO: add any animations here
   };
 
   public handleServerMessage = (message: SocketMessage) => {

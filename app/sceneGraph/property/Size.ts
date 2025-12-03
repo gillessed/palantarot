@@ -15,7 +15,7 @@ export interface SizeProperty extends Property<Size> {
 }
 
 export function createSizeProperty(): SizeProperty {
-  const { get, set, listen } = createDefaultProperty<Size>({
+  const { get, set, listen, getAndListen } = createDefaultProperty<Size>({
     width: 0,
     height: 0,
   });
@@ -25,6 +25,7 @@ export function createSizeProperty(): SizeProperty {
     get,
     set,
     listen,
+    getAndListen,
     setWidth,
     setHeight,
   };

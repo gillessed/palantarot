@@ -36,7 +36,7 @@ export class InfoNode extends TwoDNode {
   }
 
   public onMount = (container: NodeManager) => {
-    const removeListener = container.size.listen(({ height }) => {
+    const removeListener = container.size.getAndListen(({ height }) => {
       this.offset[1] = height - 320;
     });
     return () => {

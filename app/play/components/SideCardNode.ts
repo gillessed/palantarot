@@ -109,7 +109,7 @@ export class SideCardNode extends TwoDNode {
         onChanged: this.enterAnimationUpdated,
       });
     }
-    const removeSizeListener = manager.size.listen(this.layout);
+    const removeSizeListener = manager.size.getAndListen(this.layout);
     return () => {
       removeSizeListener();
     };

@@ -126,7 +126,7 @@ export class PartnerCallModalNode extends ModalNode {
   }
 
   public onMount = () => {
-    const removeListener = this.outerLayout.size.listen((size) => {
+    const removeListener = this.outerLayout.size.getAndListen((size) => {
       this.size.set(size);
     });
     return () => {

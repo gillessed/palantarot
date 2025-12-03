@@ -56,7 +56,7 @@ export class PlayerHandNode extends TwoDNode {
   }
 
   public onMount = (nodeManager: NodeManager) => {
-    const removeListener = nodeManager.size.listen(
+    const removeListener = nodeManager.size.getAndListen(
       ({ width, height }: Size) => {
         this.offset[1] = height / 2;
         const newWidth = Math.max(width - 500, 0);

@@ -48,6 +48,7 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
 
     this.modalNode = new ModalNode(`${NewGamePhaseNodeId}-modal`);
     this.modalNode.size.set({ width: 420, height: PanelHeight });
+    this.modalNode.fadeIn();
     this.addChild(this.modalNode);
 
     this.playerInfoNodes = new Map();
@@ -61,7 +62,7 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
     }
 
     this.joinLeaveButton = new JoinLeaveButton(context);
-    this.addChild(this.joinLeaveButton);
+    this.modalNode.addChild(this.joinLeaveButton);
 
     this.sideCardNodes.setCount(state.playerOrder.length);
     this.addChild(this.sideCardNodes);
@@ -73,7 +74,7 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
         this.addPlayerInfoNode(playerId);
         const isReady = state.readiedPlayers.has(playerId);
         if (isReady) {
-          this.playerInfoNodes.get(playerId)!.setReady(isReady);
+          this.playerInfoNodes.get(playerId)!.setReady(isReady, "instant");
         }
         if (playerId === this.context.playerId) {
           this.joinLeaveButton.setInGame(true);
@@ -127,14 +128,14 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
       playerId
     );
     this.playerInfoNodes.set(playerId, playerRowNode);
-    this.addChild(playerRowNode);
+    this.modalNode.addChild(playerRowNode);
   };
 
   public removePlayerInfoNode = (playerId: PlayerId) => {
     const node = this.playerInfoNodes.get(playerId);
     this.playerInfoNodes.delete(playerId);
     if (node != null) {
-      this.removeChild(node);
+      this.modalNode.removeChild(node);
     }
   };
 
@@ -169,7 +170,7 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
 
   public setReady = (playerId: PlayerId, ready: boolean) => {
     const infoNode = this.playerInfoNodes.get(playerId);
-    infoNode?.animateReady(ready);
+    infoNode?.setReady(ready, "animate");
     if (playerId === this.context.playerId) {
       this.joinLeaveButton.setReady(ready);
     }
