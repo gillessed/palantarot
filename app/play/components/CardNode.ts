@@ -43,12 +43,13 @@ export class CardNode extends TwoDNode {
     this.setCardNodeAsset(this.card.get());
   };
 
-  public turnTo = (faceState: CardFaceState, animate: Animate) => {
+  public turnTo = (faceState: CardFaceState, animate: Animate, onFinished?: () => {}) => {
     if (this.faceState === faceState) {
       return;
     }
     if (animate === "instant") {
       this.setFaceState(faceState);
+      onFinished?.();
     } else {
       this.flipAnimation.reversed = faceState === "face-up";
       this.flipAnimation.startValue = -1;
@@ -67,6 +68,7 @@ export class CardNode extends TwoDNode {
           this.cardImageNode.scale[0] = 1;
           this.cardImageNode.offset[1] = 0;
           this.setFaceState(faceState);
+          onFinished?.();
         },
       });
     }

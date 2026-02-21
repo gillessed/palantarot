@@ -5,6 +5,7 @@ import { StartedGameNode } from "../../components/StartedGameNode";
 import { DogRevealPhaseNodeId } from "../../NodeIds";
 import type { PlaySceneContext } from "../../PlaySceneContext";
 import type { Animate } from "../../utils/Animate";
+import { GameEventHandler } from "../GameEventHandler";
 import { DogCardsNode } from "./DogCardsNode";
 
 export class DogRevealPhaseNode extends TwoDNode implements GameEventHandler {
@@ -33,6 +34,8 @@ export class DogRevealPhaseNode extends TwoDNode implements GameEventHandler {
     for (const card of state.dog) {
       this.dogCardsNode.addCard(card, "face-down");
     }
+    this.reveal("animate");
+    
   }
 
   public reveal = (animate: Animate) => {
@@ -45,6 +48,7 @@ export class DogRevealPhaseNode extends TwoDNode implements GameEventHandler {
       type
       // TODO
     ) {
+
     }
   };
 }

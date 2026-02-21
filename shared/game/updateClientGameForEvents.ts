@@ -186,6 +186,8 @@ export function updateClientGameForEvent(
       return updatePartnerCallClientGameState(state, event);
     case "dog_reveal":
       return null as any;
+    case "playing":
+      return null as any;
     default:
       assertNever(phase);
   }

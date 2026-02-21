@@ -4,7 +4,7 @@ import type {
   GamePhase,
   PlayerId,
 } from "../../server/play/model/GameState.ts";
-import type { ClientShowDetails } from "./ClientGameTypes.ts";
+import type { ClientCompletedTrick, ClientShowDetails, ClientTrickCards } from "./ClientGameTypes.ts";
 
 interface BaseClientGameState {
   readonly phase: GamePhase;
@@ -53,11 +53,30 @@ export interface DogRevealClientGameState
   readonly partner?: PlayerId;
 }
 
+export interface PlayingClientGameState
+  extends BaseClientGameState,
+    ShowTrumpClientGameState {
+  readonly phase: "playing";
+  readonly playerOrder: ReadonlyArray<PlayerId>;
+  readonly winningBid: Bid;
+  readonly hand: ReadonlyArray<Card>;
+  readonly partnerCard?: Card;
+  readonly dog?: ReadonlyArray<Card>;
+  readonly partner?: PlayerId;
+  readonly anyPlayerPlayedCard: boolean;
+  readonly trick: ClientTrickCards;
+  readonly completedTricks: ReadonlyArray<ClientCompletedTrick>;
+  readonly toPlay: PlayerId;
+}
+
 export type ClientGameState =
   | NewGameClientGameState
   | BiddingClientGameState
   | PartnerCallClientGameState
-  | DogRevealClientGameState;
+  | DogRevealClientGameState
+  | PlayingClientGameState;
+
+// TODO: completed game state
 
 // export interface ClientGame {
 //   readonly phase: GamePhase;
@@ -65,7 +84,6 @@ export type ClientGameState =
 //   readonly dog: ReadonlyArray<Card>;
 //   readonly playerOrder: ReadonlyArray<PlayerId>;
 //   readonly readiedPlayers: ReadonlySet<PlayerId>;
-//   readonly toPlay?: PlayerId;
 //   readonly toBid?: number;
 //   readonly playerBids: ReadonlyMap<PlayerId, Bid>;
 //   readonly winningBid?: Bid;

@@ -4,7 +4,7 @@ import { PlayerId } from "../../../server/play/model/GameState";
 import { ChatText } from "../../../server/play/room/ChatText";
 import { PlayerStatus } from "../../../server/play/room/PlayerStatus";
 import { RoomStatus } from "../../../server/play/room/RoomStatus";
-import type { ClientRoom } from "../../../shared/types/ClientRoom";
+import { ClientGameState } from "../../../shared/types/ClientGameState";
 
 export interface ClientRoom {
   // Server state
@@ -14,9 +14,9 @@ export interface ClientRoom {
   playerId: PlayerId;
   players: Map<string, PlayerStatus>;
   settings: GameSettings;
-  game: ClientRoom;
+  game: ClientGameState;
   chat: ChatText[];
-  nextGame?: ClientRoom;
+  nextGame?: ClientGameState;
 
   // Client state
   autoplay: boolean;

@@ -3,16 +3,15 @@ import {
   type DogRevealTransition,
   type PlayerEvent,
 } from "../../server/play/model/GameEvents.ts";
-import type { PlayerId } from "../../server/play/model/GameState.ts";
 import type {
-  BiddingClientGameState,
   ClientGameState,
   DogRevealClientGameState,
-  PartnerCallClientGameState,
+  PartnerCallClientGameState
 } from "../types/ClientGameState.ts";
 import { compareCards } from "../utils/compareCards.ts";
 import { isCardEqual } from "../utils/isCardEqual.ts";
 import { updateClientGameStateShowTrump } from "./updateClientGameStateShowTrump.ts";
+import { updateClientGameStateStarted } from "./updateClientGameStateStarted.ts";
 
 function callPartner(
   state: PartnerCallClientGameState,
@@ -57,6 +56,8 @@ export function updatePartnerCallClientGameState(
       return callPartner(state, event);
     case "dog_revealed":
       return dogRevealed(state, event);
+    case "game_started":
+      return updateClientGameStateStarted(state, event);
     default:
       console.error("Got an unexpected event during partner call phase", event);
       throw Error("Got an unexpected event during partner call phase");

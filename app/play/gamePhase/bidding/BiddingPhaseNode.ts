@@ -69,7 +69,7 @@ export class BiddingPhaseNode extends TwoDNode implements GameEventHandler {
   };
 
   public handleDealtHands = (transition: DealtHandTransition) => {
-    this.startedGameNode.playerHandNode.setHand(transition.hand, true);
+    this.startedGameNode.playerHandNode.dealHand(transition.hand, true);
   };
 
   public setBid = (bid: Bid, animate: Animate) => {

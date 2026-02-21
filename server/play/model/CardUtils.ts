@@ -213,11 +213,11 @@ function getLowestAllowableTrump(trick: Card[]): TrumpValue {
 }
 
 export const getCardsAllowedToPlay = function (
-  hand: Card[],
+  hand: readonly Card[],
   trick: Card[],
   anyPlayerPlayedCard: boolean,
   partnerSuit?: Card
-): Card[] {
+): readonly Card[] {
   const leadsuit = getLeadSuit(trick);
   if (leadsuit === undefined) {
     if (!anyPlayerPlayedCard) {
@@ -358,11 +358,11 @@ export function isBout(c: Card) {
   return isEqual(c, TheJoker) || isEqual(c, TheOne) || isEqual(c, The21);
 }
 
-export function getArrayRandom<T>(array: T[]): T {
+export function getArrayRandom<T>(array: readonly T[]): T {
   return getArrayRandoms(array, 1)[0];
 }
 
-export function getArrayRandoms<T>(array: T[], count: number): T[] {
+export function getArrayRandoms<T>(array: readonly T[], count: number): T[] {
   const dup = [...array];
   const picks: T[] = [];
   while (picks.length < count) {

@@ -51,7 +51,7 @@ export class PlayerHandNode extends TwoDNode {
     this.addChild(this.enterAnimation);
 
     if (cards.length > 0) {
-      this.setHand(cards, false);
+      this.dealHand(cards, false);
     }
   }
 
@@ -75,9 +75,7 @@ export class PlayerHandNode extends TwoDNode {
     };
   };
 
-  public update = () => {};
-
-  public setHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
+  public dealHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
     for (const node of this.cardNodes) {
       this.removeChild(node);
     }

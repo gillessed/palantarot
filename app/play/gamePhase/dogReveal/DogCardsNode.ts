@@ -77,7 +77,8 @@ export class DogCardsNode extends TwoDNode {
     this.cardNodes[lowestEmpty].turnTo(face, "instant");
   };
 
-  public turnOverAll = (face: CardFaceState, animate: Animate) => {
+  public turnOverAll = (face: CardFaceState, animate: Animate, onFinished?: () => {}) => {
+    
     for (const cardNode of this.cardNodes) {
       cardNode.turnTo(face, animate);
     }

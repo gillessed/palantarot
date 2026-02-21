@@ -9,8 +9,11 @@ import type {
 export interface ClientTrickCards {
   readonly order: string[];
   readonly cards: ReadonlyMap<string, Card>;
-  readonly completed: boolean;
-  readonly winner?: string;
+}
+
+export interface ClientCompletedTrick extends ClientTrickCards {
+  readonly completed: true;
+  readonly winner: string;
 }
 
 export interface ClientShowDetails {
@@ -50,7 +53,6 @@ export const EmptyClientGame: ClientGame = {
   trick: {
     order: [],
     cards: new Map(),
-    completed: false,
   },
   completedTricks: [],
   shows: [],

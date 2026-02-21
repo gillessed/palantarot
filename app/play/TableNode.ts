@@ -172,9 +172,9 @@ export class TableNode extends TwoDNode implements Sizeable {
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    const newPhaseNode = new DogRevealPhaseNode(this.context, this.gameState);
-    this.gamePhaseNode = newPhaseNode;
-    this.addChild(newPhaseNode);
+    const dogRevealPhaseNode = new DogRevealPhaseNode(this.context, this.gameState);
+    this.gamePhaseNode = dogRevealPhaseNode;
+    this.addChild(dogRevealPhaseNode);
     // TODO: add any animations here
   };
 
@@ -211,39 +211,39 @@ export class TableNode extends TwoDNode implements Sizeable {
     });
   };
 
-  public createBiddingPhaseEventHandler = (
-    biddingPhaseNode: BiddingPhaseNode
-  ) => {
-    return (event: PlayerEvent) => {
-      const { type } = event;
-      switch (type) {
-        case "dealt_hand":
-          biddingPhaseNode.handleDealtHands(event);
-          break;
+  // public createBiddingPhaseEventHandler = (
+  //   biddingPhaseNode: BiddingPhaseNode
+  // ) => {
+  //   return (event: PlayerEvent) => {
+  //     const { type } = event;
+  //     switch (type) {
+  //       case "dealt_hand":
+  //         biddingPhaseNode.handleDealtHands(event);
+  //         break;
 
-        case "bid":
-          if (this.gameState.phase !== "bidding") {
-            throw Error("Cannot be other phase during bid action");
-          }
-          biddingPhaseNode.handleBid(
-            event,
-            this.gameState.playerOrder[this.gameState.toBid]
-          );
-          break;
+  //       case "bid":
+  //         if (this.gameState.phase !== "bidding") {
+  //           throw Error("Cannot be other phase during bid action");
+  //         }
+  //         biddingPhaseNode.handleBid(
+  //           event,
+  //           this.gameState.playerOrder[this.gameState.toBid]
+  //         );
+  //         break;
 
-        case "bidding_completed":
-          // TODO: animation
-          this.setToPlayState(this.gameState);
-          break;
-      }
-    };
-  };
+  //       case "bidding_completed":
+  //         // TODO: animation
+  //         this.setToPlayState(this.gameState);
+  //         break;
+  //     }
+  //   };
+  // };
 
-  public createDogRevealPhaseEventHandler = (_: DogRevealPhaseNode) => {
-    return (event: PlayerEvent) => {
-      const { type } = event;
-      switch (type) {
-      }
-    };
-  };
+  // public createDogRevealPhaseEventHandler = (_: DogRevealPhaseNode) => {
+  //   return (event: PlayerEvent) => {
+  //     const { type } = event;
+  //     switch (type) {
+  //     }
+  //   };
+  // };
 }
