@@ -1,10 +1,11 @@
 import type { Size } from "recharts/types/util/types";
 import { Card } from "../../../server/play/model/Card";
+import { findCardIndex } from "../../../shared/utils/findCardIndex";
+import { Vector } from "../../sceneGraph/math/Vector";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { TimerNode } from "../../sceneGraph/nodes/TimerNode";
-import { getCardAssetKey } from "../assets/ImageAssets";
 import {
   AreaBackgroundPadding,
   CardHeight,
@@ -13,15 +14,23 @@ import {
 import { DarkenColor2 } from "../constants/Themes";
 import { PlayerHandNodeId } from "../NodeIds";
 import { PlaySceneContext } from "../PlaySceneContext";
-import { LoadedImageNode } from "./LoadedImageNode";
+import { CardNode } from "./CardNode";
+
+export interface InsertingNode {
+  readonly node: CardNode;
+  readonly index: number;
+  readonly moveTo: Vector;
+}
 
 export class PlayerHandNode extends TwoDNode {
   public context: PlaySceneContext;
   public backgroundNode: RectNode;
   public cardListNode: TwoDNode;
-  public cardNodes: LoadedImageNode[] = [];
-  public enterAnimation: TimerNode;
+  public cardNodes: CardNode[] = [];
   public selectedCards = new Set<number>();
+  public insertingNodes: InsertingNode[] = [];
+  public enterAnimation: TimerNode;
+  public insertAnimation: TimerNode;
   private handWidth: number = 0;
 
   constructor(context: PlaySceneContext, cards: ReadonlyArray<Card>) {
@@ -49,6 +58,10 @@ export class PlayerHandNode extends TwoDNode {
     this.enterAnimation.durationMs = 750;
     this.enterAnimation.easing = "outCubic";
     this.addChild(this.enterAnimation);
+
+    this.insertAnimation = new TimerNode(`${PlayerHandNodeId}-insert-animation`);
+    this.insertAnimation.durationMs = 750;
+    this.addChild(this.insertAnimation);
 
     if (cards.length > 0) {
       this.dealHand(cards, false);
@@ -81,11 +94,9 @@ export class PlayerHandNode extends TwoDNode {
     }
     this.cardNodes.splice(0);
     for (const card of cards) {
-      const cardNode = new LoadedImageNode(
+      const cardNode = new CardNode(
         `${PlayerHandNodeId}-card-${card}`,
-        getCardAssetKey(card)
       );
-      cardNode.size.set({ width: CardWidth, height: CardHeight });
       this.cardNodes.push(cardNode);
       this.cardListNode.addChild(cardNode);
     }
@@ -104,18 +115,52 @@ export class PlayerHandNode extends TwoDNode {
     const cardCount = this.cardNodes.length;
     if (cardCount === 0) {
       return;
-    } else if (cardCount === 1) {
-      this.cardNodes[0].offset[1] = 0;
     } else {
+      const insertValue = this.insertAnimation.value.get();
       const overlap = Math.min(
-        (this.handWidth - CardWidth) / (cardCount - 1),
+        (this.handWidth - CardWidth) / (cardCount + (this.insertingNodes.length * insertValue) - 1),
         CardWidth
       );
+      const insertCountMap = new Map<number, number>();
+      for (const node of this.insertingNodes) {
+        insertCountMap.set(node.index, (insertCountMap.get(node.index) ?? 0) + 1);
+      }
       let x = -(this.handWidth - CardWidth) / 2;
-      for (const card of this.cardNodes) {
-        card.offset[0] = Math.round(x);
+      for (let index = 0; index < this.cardNodes.length; index++) {
+        const insertingSpaceCount = insertCountMap.get(index) ?? 0;
+        x += overlap * insertValue * insertingSpaceCount;
+        const cardNode = this.cardNodes[index];
+        cardNode.offset[0] = Math.round(x);
         x += overlap;
       }
     }
   };
+
+  // total_width = card_width + overlap * (#cards - 1) + overlap * insert_value * insert_count
+  // total_width - card_width = overlap * (#cards - 1) + overlap * insert_value * insert_count
+  // total_width - card_width = overlap * (#cards - 1 + insert_value * insert_count)
+
+
+  public insertCards = async (cardsToInsert: CardNode[]): Promise<void> => {
+    const insertingNodes: InsertingNode[] = [];
+    const handCards = this.cardNodes.map((node) => node.card.get());
+    for (let i = 0; i < cardsToInsert.length; i++) {
+      const node = cardsToInsert[i];
+      const card = cardsToInsert[i].card.get();
+      const index = findCardIndex(handCards, card);
+      insertingNodes.push({
+        node,
+        index,
+        moveTo: [0, 0],
+      });
+    }
+    this.insertAnimation.start({
+      onChanged: () => {
+        this.layoutCards();
+      },
+      onFinished: () => {
+        this.insertingNodes = [];
+      }
+    })
+  }
 }

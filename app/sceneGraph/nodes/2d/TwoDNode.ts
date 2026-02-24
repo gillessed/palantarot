@@ -92,4 +92,5 @@ export class TwoDNode extends SceneNode {
     m_mult_v(this.inverseTransformation, copy);
     return copy;
   };
+
 }

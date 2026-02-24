@@ -68,7 +68,7 @@ export class DogCardsNode extends TwoDNode {
 
   public setAllFacedown = () => {};
 
-  public addCard = (card: Card | undefined, face: CardFaceState) => {
+  public addCard = (card: Card, face: CardFaceState) => {
     const lowestEmpty = this.getLowestEmpty();
     if (lowestEmpty === this.dogSize) {
       throw Error("Cannot insert a card into a full dog");
@@ -77,10 +77,18 @@ export class DogCardsNode extends TwoDNode {
     this.cardNodes[lowestEmpty].turnTo(face, "instant");
   };
 
-  public turnOverAll = (face: CardFaceState, animate: Animate, onFinished?: () => {}) => {
-    
+  public turnOverAll = async (face: CardFaceState, animate: Animate): Promise<void> => {
+    const promises: Promise<void>[] = [];
     for (const cardNode of this.cardNodes) {
-      cardNode.turnTo(face, animate);
+      promises.push(cardNode.turnTo(face, animate));
     }
+    await Promise.all(promises);
   };
+
+  public removeCards = (): CardNode[] => {
+    const cardNodes = [...this.cardNodes];
+    for (const node of cardNodes) {
+      
+    }
+  }
 }

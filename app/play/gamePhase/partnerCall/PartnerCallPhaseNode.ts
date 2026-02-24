@@ -12,7 +12,7 @@ export class PartnerCallPhaseNode extends TwoDNode implements GameEventHandler {
   public startedGameNode: StartedGameNode;
   public modalNode: PartnerCallModalNode;
 
-  constructor(context: PlaySceneContext, state: PartnerCallClientGameState) {
+  constructor(context: PlaySceneContext, state: PartnerCallClientGameState, initializing: boolean) {
     super(PartnerCallPhaseNodeId);
     this.context = context;
 
@@ -26,8 +26,13 @@ export class PartnerCallPhaseNode extends TwoDNode implements GameEventHandler {
     this.addChild(this.startedGameNode);
 
     this.modalNode = new PartnerCallModalNode(this.context, state.hand);
-    this.modalNode.visible =
-      this.startedGameNode.activePlayerId === context.playerId;
+    if (this.startedGameNode.activePlayerId === context.playerId) {
+      if (initializing) {
+        this.modalNode.visible = true;
+      } else {
+        this.modalNode.fadeIn();
+      }
+    }
     this.addChild(this.modalNode);
   }
 

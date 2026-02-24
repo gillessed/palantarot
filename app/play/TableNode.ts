@@ -72,7 +72,7 @@ export class TableNode extends TwoDNode implements Sizeable {
     };
   };
 
-  public setToPlayState = (state: ClientGameState) => {
+  public setToPlayState = (state: ClientGameState, initializing: boolean) => {
     this.gameState = state;
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
@@ -88,13 +88,15 @@ export class TableNode extends TwoDNode implements Sizeable {
       case "partner_call":
         this.gamePhaseNode = new PartnerCallPhaseNode(
           this.context,
-          this.gameState
+          this.gameState,
+          initializing
         );
         break;
       case "dog_reveal":
         this.gamePhaseNode = new DogRevealPhaseNode(
           this.context,
-          this.gameState
+          this.gameState,
+          initializing
         );
         break;
     }
@@ -159,7 +161,7 @@ export class TableNode extends TwoDNode implements Sizeable {
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    const newPhaseNode = new PartnerCallPhaseNode(this.context, this.gameState);
+    const newPhaseNode = new PartnerCallPhaseNode(this.context, this.gameState, false);
     this.gamePhaseNode = newPhaseNode;
     this.addChild(newPhaseNode);
     // TODO: add any animations here
@@ -172,7 +174,7 @@ export class TableNode extends TwoDNode implements Sizeable {
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    const dogRevealPhaseNode = new DogRevealPhaseNode(this.context, this.gameState);
+    const dogRevealPhaseNode = new DogRevealPhaseNode(this.context, this.gameState, false);
     this.gamePhaseNode = dogRevealPhaseNode;
     this.addChild(dogRevealPhaseNode);
     // TODO: add any animations here
@@ -198,7 +200,7 @@ export class TableNode extends TwoDNode implements Sizeable {
             payload.room.gameEvents,
             this.context.playerId
           );
-          this.setToPlayState(newGameState);
+          this.setToPlayState(newGameState, true);
           for (const queuedMessage of this.queueMessages) {
             this.handleGameEventMessage(queuedMessage);
           }

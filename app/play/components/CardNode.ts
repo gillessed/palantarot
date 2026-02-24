@@ -11,7 +11,7 @@ export type CardFaceState = "face-up" | "face-down";
 
 export class CardNode extends TwoDNode {
   private faceState: CardFaceState = "face-up";
-  public card = createDefaultProperty<Card | undefined>(undefined);
+  public card = createDefaultProperty<Card>(["T", "1"]);
   public cardImageNode: LoadedImageNode;
   public flipAnimation: TimerNode;
 
@@ -33,7 +33,7 @@ export class CardNode extends TwoDNode {
       this.cardImageNode.assetKey.set("CardBackBlack");
     } else {
       this.cardImageNode.assetKey.set(
-        card != null ? getCardAssetKey(card) : undefined
+        card != null ? getCardAssetKey(card) : undefined,
       );
     }
   };
@@ -43,33 +43,38 @@ export class CardNode extends TwoDNode {
     this.setCardNodeAsset(this.card.get());
   };
 
-  public turnTo = (faceState: CardFaceState, animate: Animate, onFinished?: () => {}) => {
+  public turnTo = async (
+    faceState: CardFaceState,
+    animate: Animate,
+  ): Promise<void> => {
     if (this.faceState === faceState) {
       return;
     }
     if (animate === "instant") {
       this.setFaceState(faceState);
-      onFinished?.();
+      return;
     } else {
-      this.flipAnimation.reversed = faceState === "face-up";
-      this.flipAnimation.startValue = -1;
-      this.flipAnimation.endValue = 1;
-      this.flipAnimation.start({
-        onChanged: (value) => {
-          this.cardImageNode.scale[0] = Math.abs(value);
-          this.cardImageNode.offset[1] = -20 * (1 - Math.abs(value));
-          if (value < 0) {
-            this.setFaceState("face-up");
-          } else {
-            this.setFaceState("face-down");
-          }
-        },
-        onFinished: () => {
-          this.cardImageNode.scale[0] = 1;
-          this.cardImageNode.offset[1] = 0;
-          this.setFaceState(faceState);
-          onFinished?.();
-        },
+      return new Promise((resolve) => {
+        this.flipAnimation.reversed = faceState === "face-up";
+        this.flipAnimation.startValue = -1;
+        this.flipAnimation.endValue = 1;
+        this.flipAnimation.start({
+          onChanged: (value) => {
+            this.cardImageNode.scale[0] = Math.abs(value);
+            this.cardImageNode.offset[1] = -20 * (1 - Math.abs(value));
+            if (value < 0) {
+              this.setFaceState("face-up");
+            } else {
+              this.setFaceState("face-down");
+            }
+          },
+          onFinished: () => {
+            this.cardImageNode.scale[0] = 1;
+            this.cardImageNode.offset[1] = 0;
+            this.setFaceState(faceState);
+            resolve();
+          },
+        });
       });
     }
   };
