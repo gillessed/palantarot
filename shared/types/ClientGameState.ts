@@ -4,7 +4,7 @@ import type {
   GamePhase,
   PlayerId,
 } from "../../server/play/model/GameState.ts";
-import type { ClientCompletedTrick, ClientShowDetails, ClientTrickCards } from "./ClientGameTypes.ts";
+import type { ClientShowDetails, ClientTrick, CompletedClientTrick } from "./ClientGameTypes.ts";
 
 interface BaseClientGameState {
   readonly phase: GamePhase;
@@ -64,8 +64,8 @@ export interface PlayingClientGameState
   readonly dog?: ReadonlyArray<Card>;
   readonly partner?: PlayerId;
   readonly anyPlayerPlayedCard: boolean;
-  readonly trick: ClientTrickCards;
-  readonly completedTricks: ReadonlyArray<ClientCompletedTrick>;
+  readonly trick: ClientTrick;
+  readonly completedTricks: ReadonlyArray<CompletedClientTrick>;
   readonly toPlay: PlayerId;
 }
 

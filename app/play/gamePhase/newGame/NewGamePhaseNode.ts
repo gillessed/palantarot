@@ -86,7 +86,7 @@ export class NewGamePhaseNode extends TwoDNode implements GameEventHandler {
     this.updateRowNodes();
   }
 
-  public handleEvent = (event: PlayerEvent) => {
+  public handleEvent = async (event: PlayerEvent) => {
     const { type } = event;
     switch (type) {
       case "enter_game":

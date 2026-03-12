@@ -1,11 +1,8 @@
+import { interpolateValue } from "../utils/interpolateValue";
+
 type Color = [number, number, number];
 const C_Black: Color = [0, 0, 0];
 const C_White: Color = [256, 256, 256];
-
-export function interpolateValue(x1: number, x2: number, t: number) {
-  return x1 + (x2 - x1) * t;
-}
-
 export function interpolateColor(
   [r1, g1, b1]: Color,
   [r2, g2, b2]: Color,

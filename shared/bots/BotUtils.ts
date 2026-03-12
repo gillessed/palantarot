@@ -1,18 +1,18 @@
-import { type TrickCards } from "../../app/services/room/ClientGameEventHandler.ts";
 import {
   AllCs,
   AllDs,
   AllRs,
   AllVs,
+  isBout,
   type Card,
 } from "../../server/play/model/Card.ts";
 import {
-  cardsWithout,
   getCardSuitAsNumber,
   getCardValueAsNumber,
-  isBout,
 } from "../../server/play/model/CardUtils.ts";
+import { ClientTrick } from "../types/ClientGameTypes.ts";
 import { type ClientRoom } from "../types/ClientRoom.ts";
+import { cardsWithout } from "../utils/cardsWithout.ts";
 
 const NonPassBids = [10, 20, 40, 80, 160];
 // const NonPassBids = [10, 20, 40];
@@ -29,7 +29,7 @@ export function getPossibleBidValues(clientGame: ClientRoom): number[] {
   return availableBidValue;
 }
 
-export function getNonSelfCalls(clientGame: ClientRoom): Card[] {
+export function getNonSelfCalls(clientGame: ClientRoom): readonly Card[] {
   const hand = clientGame.playState.hand;
   const hasAllRs = hand.filter(([_, value]) => value === "R").length === 4;
   const hasAllDs = hand.filter(([_, value]) => value === "D").length === 4;
@@ -109,7 +109,7 @@ export function dropValueSortComparator(c1: Card, c2: Card) {
   return s2 - s1;
 }
 
-export function getTrickCardList(trick: TrickCards) {
+export function getTrickCardList(trick: ClientTrick) {
   return trick.order
     .map((playerId) => trick.cards.get(playerId))
     .filter((c) => c) as Card[];

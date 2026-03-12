@@ -5,6 +5,8 @@ import { updateNewGameClientGameState } from "./updateNewGameClientGameState.ts"
 import { updateBiddingClientGameState } from "./updateBiddingClientGameState.ts";
 import { updatePartnerCallClientGameState } from "./updatePartnerCallClientGameState.ts";
 import type { PlayerEvent } from "../../server/play/model/GameEvents.ts";
+import { updateDogRevealClientGameState } from "./updateDogRevealClientGameState.ts";
+import { updatePlayingClientGameState } from "./updatePlayingClientGameState.ts";
 
 // const { isEqual } = pkg;
 
@@ -52,29 +54,6 @@ import type { PlayerEvent } from "../../server/play/model/GameEvents.ts";
 //   };
 // }
 
-// function setDog(state: ClientGame, action: SetDogAction): ClientGame {
-//   if (action.exclude != null) {
-//     const globalHand = state.allHands.get(action.playerId);
-//     const newAllHands = new Map(state.allHands);
-//     if (globalHand != null) {
-//       const handWithDog = [...globalHand, ...state.dog];
-//       const droppedHand = cardsWithout(handWithDog, ...action.dog);
-//       droppedHand.sort(compareCards());
-//       newAllHands.set(action.playerId, droppedHand);
-//     }
-//     return {
-//       ...state,
-//       dog: action.exclude != null ? action.dog : state.dog,
-//       allHands: newAllHands,
-//     };
-//   } else {
-//     return {
-//       ...state,
-//       hand: cardsWithout(state.hand, ...action.dog),
-//     };
-//   }
-// }
-
 // function gameStarted(
 //   state: ClientGame,
 //   action: GameStartTransition
@@ -83,55 +62,6 @@ import type { PlayerEvent } from "../../server/play/model/GameEvents.ts";
 //     ...state,
 //     gamePhase: "playing",
 //     toPlay: action.first_player,
-//   };
-// }
-
-// function playCard(
-//   state: ClientGame,
-//   action: PlayCardAction,
-//   playerId: PlayerId
-// ): ClientGame {
-//   const playerIndex = state.playerOrder.indexOf(action.playerId) + 1;
-//   const toPlay = state.playerOrder[playerIndex % state.playerOrder.length];
-//   let newTrickCards;
-//   let newOrder;
-//   let newCompletedTricks = state.completedTricks;
-//   if (state.trick.completed) {
-//     newTrickCards = new Map([[action.playerId, action.card]]);
-//     newOrder = [action.playerId];
-//     newCompletedTricks = [...state.completedTricks, state.trick];
-//   } else {
-//     newTrickCards = new Map(state.trick.cards);
-//     newTrickCards.set(action.playerId, action.card);
-//     newOrder = [...(state.trick.order ?? []), action.playerId];
-//   }
-//   const newTrick: ClientTrickCards = {
-//     order: newOrder,
-//     cards: newTrickCards,
-//     completed: false,
-//   };
-//   let partner = state.partner;
-//   if (!partner && isEqual(state.partnerCard, action.card)) {
-//     partner = action.playerId;
-//   }
-//   const globalHand = state.allHands.get(action.playerId);
-//   const newAllHands = new Map(state.allHands);
-//   if (globalHand != null) {
-//     newAllHands.set(action.playerId, cardsWithout(globalHand, action.card));
-//   }
-//   return {
-//     ...state,
-//     hand:
-//       action.playerId === playerId
-//         ? cardsWithout(state.hand, action.card)
-//         : state.hand,
-//     toPlay,
-//     trick: newTrick,
-//     completedTricks: newCompletedTricks,
-//     partner,
-//     anyPlayerPlayedCard: true,
-//     allHands: newAllHands,
-//     notifyPlayer: null,
 //   };
 // }
 
@@ -174,7 +104,7 @@ import type { PlayerEvent } from "../../server/play/model/GameEvents.ts";
 export function updateClientGameForEvent(
   state: ClientGameState,
   event: PlayerEvent,
-  playerId: PlayerId
+  playerId: PlayerId,
 ): ClientGameState {
   const { phase } = state;
   switch (phase) {
@@ -185,23 +115,15 @@ export function updateClientGameForEvent(
     case "partner_call":
       return updatePartnerCallClientGameState(state, event);
     case "dog_reveal":
-      return null as any;
+      return updateDogRevealClientGameState(state, event);
     case "playing":
-      return null as any;
+      return updatePlayingClientGameState(state, event);
     default:
       assertNever(phase);
   }
   // switch (event.type) {
-  //   case "dog_revealed":
-  //     return dogRevealed(state, event, playerId);
   //   case "show_dog_to_observers":
   //     return dogRevealedToObservers(state, event);
-  //   case "set_dog":
-  //     return setDog(state, event);
-  //   case "game_started":
-  //     return gameStarted(state, event);
-  //   case "play_card":
-  //     return playCard(state, event, playerId);
   //   case "completed_trick":
   //     return completedTrick(state, event);
   //   case "game_completed":
@@ -218,7 +140,7 @@ export function updateClientGameForEvent(
 export function updateClientGameForEvents(
   state: ClientGameState,
   events: ReadonlyArray<PlayerEvent>,
-  playerId: PlayerId
+  playerId: PlayerId,
 ): ClientGameState {
   let newState = state;
   for (const event of events) {

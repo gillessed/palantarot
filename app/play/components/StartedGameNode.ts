@@ -21,7 +21,7 @@ export class StartedGameNode extends TwoDNode {
     context: PlaySceneContext,
     playerOrder: ReadonlyArray<PlayerId>,
     hand: ReadonlyArray<Card>,
-    winningBid?: Bid
+    winningBid?: Bid,
   ) {
     super(StartedGameNodeId);
     this.context = context;
@@ -46,23 +46,31 @@ export class StartedGameNode extends TwoDNode {
     }
   }
 
-  public setActivePlayer = (
+  public setActivePlayer = async (
     playerId: PlayerId | undefined,
-    animate: Animate
+    animate: Animate,
   ) => {
     if (this.activePlayerId === playerId) {
       return;
     }
+    const promises: Promise<void>[] = [];
     if (this.activePlayerId != null) {
-      this.playerInfoNodes.playerInfoNodes
+      const promise = this.playerInfoNodes.playerInfoNodes
         .get(this.activePlayerId)
         ?.setActive(false, animate);
+      if (promise != null) {
+        promises.push(promise);
+      }
     }
     this.activePlayerId = playerId;
     if (this.activePlayerId != null) {
-      this.playerInfoNodes.playerInfoNodes
+      const promise = this.playerInfoNodes.playerInfoNodes
         .get(this.activePlayerId)
         ?.setActive(true, animate);
+      if (promise != null) {
+        promises.push(promise);
+      }
     }
+    await Promise.all(promises);
   };
 }

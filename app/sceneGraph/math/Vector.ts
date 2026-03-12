@@ -1,4 +1,4 @@
-import { interpolateValue } from "../../play/constants/PlayColors";
+import { interpolateValue } from "../../play/utils/interpolateValue";
 
 export type Vector = [number, number];
 
@@ -64,7 +64,7 @@ export function v_is_one([x, y]: Vector) {
 export function interpolateVector(
   [x1, y1]: Vector,
   [x2, y2]: Vector,
-  t: number
+  t: number,
 ): Vector {
   return [interpolateValue(x1, x2, t), interpolateValue(y1, y2, t)];
 }

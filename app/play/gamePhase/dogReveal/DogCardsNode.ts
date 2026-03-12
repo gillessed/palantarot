@@ -14,12 +14,20 @@ import type { Animate } from "../../utils/Animate";
 // support 6 card dogs
 
 export class DogCardsNode extends TwoDNode {
-  private dogSize: number;
-  private cardNodes: CardNode[] = [];
+  public dogSize: number;
+  public cardNodes: (CardNode | undefined)[] = [];
 
-  constructor(dogSize: number) {
+  public handleClick: ((cardNode: CardNode, index: number) => void) | undefined;
+  public handleMouseEntered:
+    | ((cardNode: CardNode, index: number) => void)
+    | undefined;
+  public handleMouseExited:
+    | ((cardNode: CardNode, index: number) => void)
+    | undefined;
+
+  constructor(cards: readonly Card[]) {
     super(DogCardsNodeId);
-    this.dogSize = dogSize;
+    this.dogSize = cards.length;
 
     const width = this.getWidth();
     const backgroundNode = new RectNode(`${this.id}-background`);
@@ -33,13 +41,31 @@ export class DogCardsNode extends TwoDNode {
     });
     this.addChild(backgroundNode);
 
-    for (let i = 0; i < dogSize; i++) {
+    for (let i = 0; i < cards.length; i++) {
       const cardNode = new CardNode(`${this.id}-card-${i}`);
+      cardNode.card.set(cards[i]);
+      cardNode.faceState.set("face-down");
       cardNode.offset[0] = this.getCardOffsetForIndex(i);
       this.addChild(cardNode);
+      this.setHandler(cardNode);
       this.cardNodes.push(cardNode);
     }
   }
+
+  public setHandler = (cardNode: CardNode) => {
+    cardNode.cardImageNode.mouseUp = () => {
+      const cardIndex = this.cardNodes.indexOf(cardNode);
+      this.handleClick?.(cardNode, cardIndex);
+    };
+    cardNode.cardImageNode.mouseEntered = () => {
+      const cardIndex = this.cardNodes.indexOf(cardNode);
+      this.handleMouseEntered?.(cardNode, cardIndex);
+    };
+    cardNode.cardImageNode.mouseExited = () => {
+      const cardIndex = this.cardNodes.indexOf(cardNode);
+      this.handleMouseExited?.(cardNode, cardIndex);
+    };
+  };
 
   public getWidth = () => {
     return (
@@ -51,44 +77,49 @@ export class DogCardsNode extends TwoDNode {
     return Math.round(
       -this.getWidth() / 2 +
         CardWidth / 2 +
-        (CardWidth + AreaBackgroundPadding) * index
+        (CardWidth + AreaBackgroundPadding) * index,
     );
   };
 
   public getLowestEmpty = () => {
     let lowestEmpty = 0;
-    while (
-      lowestEmpty < this.dogSize &&
-      this.cardNodes[lowestEmpty].card.get() != null
-    ) {
+    while (lowestEmpty < this.dogSize && this.cardNodes[lowestEmpty] != null) {
       lowestEmpty++;
     }
-    return lowestEmpty;
+    return lowestEmpty >= this.dogSize ? -1 : lowestEmpty;
   };
 
-  public setAllFacedown = () => {};
-
-  public addCard = (card: Card, face: CardFaceState) => {
-    const lowestEmpty = this.getLowestEmpty();
-    if (lowestEmpty === this.dogSize) {
-      throw Error("Cannot insert a card into a full dog");
-    }
-    this.cardNodes[lowestEmpty].card.set(card);
-    this.cardNodes[lowestEmpty].turnTo(face, "instant");
-  };
-
-  public turnOverAll = async (face: CardFaceState, animate: Animate): Promise<void> => {
+  public turnOverAll = async (
+    face: CardFaceState,
+    animate: Animate,
+  ): Promise<void> => {
     const promises: Promise<void>[] = [];
     for (const cardNode of this.cardNodes) {
-      promises.push(cardNode.turnTo(face, animate));
+      const promise = cardNode?.turnTo(face, animate);
+      if (promise != null) {
+        promises.push(promise);
+      }
     }
     await Promise.all(promises);
   };
 
-  public removeCards = (): CardNode[] => {
-    const cardNodes = [...this.cardNodes];
-    for (const node of cardNodes) {
-      
+  public getAllCardNodes = (): CardNode[] => {
+    return this.cardNodes.filter((maybeNode) => maybeNode != null);
+  };
+
+  public removeCardNode = (cardNode: CardNode) => {
+    const index = this.cardNodes.indexOf(cardNode);
+    cardNode.clearMouseHandlers();
+    if (index >= 0) {
+      this.cardNodes[index] = undefined;
     }
-  }
+  };
+
+  public clear = () => {
+    for (let i = 0; i < this.dogSize; i++) {
+      const cardNode = this.cardNodes[i];
+      cardNode?.clearMouseHandlers();
+      this.cardNodes[i] = undefined;
+    }
+  };
 }

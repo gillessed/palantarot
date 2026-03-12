@@ -1,11 +1,19 @@
 import type { Size } from "recharts/types/util/types";
+import { v4 as uuid } from "uuid";
 import { Card } from "../../../server/play/model/Card";
-import { findCardIndex } from "../../../shared/utils/findCardIndex";
-import { Vector } from "../../sceneGraph/math/Vector";
+import { findCardInsertIndex } from "../../../shared/utils/findCardInsertIndex";
+import { setsEqual } from "../../../shared/utils/setsEqual";
+import {
+  interpolateVector,
+  v_copy,
+  Vector,
+} from "../../sceneGraph/math/Vector";
 import { RectNode } from "../../sceneGraph/nodes/2d/RectNode";
 import { TwoDNode } from "../../sceneGraph/nodes/2d/TwoDNode";
 import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { TimerNode } from "../../sceneGraph/nodes/TimerNode";
+import { setDiff } from "../../sceneGraph/utils/setDiff";
+import { getCardAssetKey } from "../assets/ImageAssets";
 import {
   AreaBackgroundPadding,
   CardHeight,
@@ -14,24 +22,41 @@ import {
 import { DarkenColor2 } from "../constants/Themes";
 import { PlayerHandNodeId } from "../NodeIds";
 import { PlaySceneContext } from "../PlaySceneContext";
+import { Animate } from "../utils/Animate";
+import { CardNodeList } from "../utils/CardNodeList";
+import { transferNode } from "../utils/transferNode";
 import { CardNode } from "./CardNode";
 
-export interface InsertingNode {
-  readonly node: CardNode;
-  readonly index: number;
-  readonly moveTo: Vector;
+interface CardChangeAnimation {
+  readonly type: "insert" | "remove";
+  readonly timer: TimerNode;
+  readonly animatePosition: Vector;
+}
+
+interface ClickableCardAnimation {
+  readonly adding: Set<string>;
+  readonly removing: Set<string>;
+  readonly timer: TimerNode;
 }
 
 export class PlayerHandNode extends TwoDNode {
   public context: PlaySceneContext;
   public backgroundNode: RectNode;
   public cardListNode: TwoDNode;
-  public cardNodes: CardNode[] = [];
+  public cardNodes: CardNodeList;
   public selectedCards = new Set<number>();
-  public insertingNodes: InsertingNode[] = [];
+  public activeAnimations = new Map<string, CardChangeAnimation>();
   public enterAnimation: TimerNode;
-  public insertAnimation: TimerNode;
+  public handleClick: ((cardNode: CardNode, index: number) => void) | undefined;
+  public handleMouseEntered:
+    | ((cardNode: CardNode, index: number) => void)
+    | undefined;
+  public handleMouseExited:
+    | ((cardNode: CardNode, index: number) => void)
+    | undefined;
   private handWidth: number = 0;
+  private clickableCards = new Set<string>();
+  private clickableCardAnimation: ClickableCardAnimation | undefined;
 
   constructor(context: PlaySceneContext, cards: ReadonlyArray<Card>) {
     super(PlayerHandNodeId);
@@ -52,6 +77,14 @@ export class PlayerHandNode extends TwoDNode {
     this.cardListNode.offset[1] = CardHeight / 2;
     this.addChild(this.cardListNode);
 
+    this.cardNodes = new CardNodeList(this.cardListNode, {
+      handleClick: (cardNode, index) => this.handleClick?.(cardNode, index),
+      handleMouseEntered: (cardNode, index) =>
+        this.handleMouseEntered?.(cardNode, index),
+      handleMouseExited: (cardNode, index) =>
+        this.handleMouseExited?.(cardNode, index),
+    });
+
     this.enterAnimation = new TimerNode(`${PlayerHandNodeId}-enter-animation`);
     this.enterAnimation.startValue = CardHeight / 2;
     this.enterAnimation.endValue = 0;
@@ -59,12 +92,8 @@ export class PlayerHandNode extends TwoDNode {
     this.enterAnimation.easing = "outCubic";
     this.addChild(this.enterAnimation);
 
-    this.insertAnimation = new TimerNode(`${PlayerHandNodeId}-insert-animation`);
-    this.insertAnimation.durationMs = 750;
-    this.addChild(this.insertAnimation);
-
     if (cards.length > 0) {
-      this.dealHand(cards, false);
+      this.dealHand(cards, "instant");
     }
   }
 
@@ -77,90 +106,227 @@ export class PlayerHandNode extends TwoDNode {
           this.handWidth = newWidth;
           this.offset[0] = 150;
           this.backgroundNode.size.setWidth(
-            this.handWidth + 2 * AreaBackgroundPadding
+            this.handWidth + 2 * AreaBackgroundPadding,
           );
           this.layoutCards();
         }
-      }
+      },
     );
     return () => {
       removeListener();
     };
   };
 
-  public dealHand = (cards: ReadonlyArray<Card>, animate: boolean) => {
-    for (const node of this.cardNodes) {
-      this.removeChild(node);
-    }
-    this.cardNodes.splice(0);
+  public dealHand = async (cards: ReadonlyArray<Card>, animate: Animate) => {
+    this.cardNodes.clear();
     for (const card of cards) {
-      const cardNode = new CardNode(
-        `${PlayerHandNodeId}-card-${card}`,
-      );
-      this.cardNodes.push(cardNode);
-      this.cardListNode.addChild(cardNode);
+      this.cardNodes.add(card);
     }
     this.layoutCards();
-    if (animate) {
-      this.enterAnimation.start({
-        onChanged: (value: number) => (this.cardListNode.offset[1] = value),
-        onFinished: () => (this.cardListNode.offset[1] = 0),
+    if (animate === "animate") {
+      return new Promise<void>((resolve) => {
+        this.enterAnimation.start({
+          onChanged: (value: number) => (this.cardListNode.offset[1] = value),
+          onFinished: () => {
+            this.cardListNode.offset[1] = 0;
+            resolve();
+          },
+        });
       });
     } else {
       this.cardListNode.offset[1] = 0;
     }
   };
 
-  private layoutCards = () => {
-    const cardCount = this.cardNodes.length;
-    if (cardCount === 0) {
-      return;
+  private getHandLeft = () => {
+    return -(this.handWidth - CardWidth) / 2;
+  };
+
+  private getCardOffsets = () => {
+    const offsetFactors = [];
+    for (let i = 0; i < this.cardNodes.length; i++) {
+      const card = this.cardNodes.getCard(i);
+      const animation = this.activeAnimations.get(`${card}`);
+      if (animation == null) {
+        offsetFactors.push(1);
+      } else {
+        offsetFactors.push(animation.timer.value.get());
+      }
+    }
+    const totalOffsetFactors = offsetFactors.reduce((val, acc) => val + acc, 0);
+    const overlap = Math.min(
+      (this.handWidth - CardWidth) / (totalOffsetFactors - 1),
+      CardWidth,
+    );
+    const cardOffsets = offsetFactors.map((factor) => factor * overlap);
+    return cardOffsets;
+  };
+
+  private getCardYOffset = (card: Card) => {
+    const cardKey = getCardAssetKey(card);
+    if (this.clickableCardAnimation?.adding.has(cardKey)) {
+      return this.clickableCardAnimation?.timer.value.get() * -20;
+    } else if (this.clickableCardAnimation?.removing.has(cardKey)) {
+      return (1 - this.clickableCardAnimation?.timer.value.get()) * -20;
     } else {
-      const insertValue = this.insertAnimation.value.get();
-      const overlap = Math.min(
-        (this.handWidth - CardWidth) / (cardCount + (this.insertingNodes.length * insertValue) - 1),
-        CardWidth
-      );
-      const insertCountMap = new Map<number, number>();
-      for (const node of this.insertingNodes) {
-        insertCountMap.set(node.index, (insertCountMap.get(node.index) ?? 0) + 1);
-      }
-      let x = -(this.handWidth - CardWidth) / 2;
-      for (let index = 0; index < this.cardNodes.length; index++) {
-        const insertingSpaceCount = insertCountMap.get(index) ?? 0;
-        x += overlap * insertValue * insertingSpaceCount;
-        const cardNode = this.cardNodes[index];
-        cardNode.offset[0] = Math.round(x);
-        x += overlap;
-      }
+      return this.clickableCards.has(getCardAssetKey(card)) ? -20 : 0;
     }
   };
 
-  // total_width = card_width + overlap * (#cards - 1) + overlap * insert_value * insert_count
-  // total_width - card_width = overlap * (#cards - 1) + overlap * insert_value * insert_count
-  // total_width - card_width = overlap * (#cards - 1 + insert_value * insert_count)
+  private layoutCards = () => {
+    const cardOffsets = this.getCardOffsets();
+    let x = this.getHandLeft();
+    for (let index = 0; index < this.cardNodes.length; index++) {
+      const cardNode = this.cardNodes.get(index);
+      const card = cardNode.card.get();
+      const animation = this.activeAnimations.get(`${card}`);
+      const cardYOffset = this.getCardYOffset(card);
+      if (animation != null) {
+        const handPosition: Vector = [Math.round(x), cardYOffset];
+        let offset: Vector;
+        offset = interpolateVector(
+          animation.animatePosition,
+          handPosition,
+          animation.timer.value.get(),
+        );
+        cardNode.offset = offset;
+      } else {
+        cardNode.offset = [Math.round(x), cardYOffset];
+      }
+      x += cardOffsets[index];
+    }
+  };
 
+  private createAnimationTimer = (durationMs: number) => {
+    const timerNode = new TimerNode(`${PlayerHandNodeId}-animation-${uuid()}`);
+    timerNode.durationMs = durationMs;
+    timerNode.easing = "inOutSine";
+    return timerNode;
+  };
 
-  public insertCards = async (cardsToInsert: CardNode[]): Promise<void> => {
-    const insertingNodes: InsertingNode[] = [];
-    const handCards = this.cardNodes.map((node) => node.card.get());
+  public insertCards = async (
+    cardsToInsert: CardNode[],
+    animate: Animate,
+  ): Promise<void> => {
     for (let i = 0; i < cardsToInsert.length; i++) {
       const node = cardsToInsert[i];
       const card = cardsToInsert[i].card.get();
-      const index = findCardIndex(handCards, card);
-      insertingNodes.push({
-        node,
-        index,
-        moveTo: [0, 0],
-      });
+      const handCards = this.cardNodes.getCards();
+      const insertIndex = findCardInsertIndex(handCards, card);
+      transferNode(node, this.cardListNode, insertIndex);
+      this.cardNodes.insert(node, insertIndex);
     }
-    this.insertAnimation.start({
-      onChanged: () => {
-        this.layoutCards();
-      },
-      onFinished: () => {
-        this.insertingNodes = [];
+
+    if (animate === "animate") {
+      const timer = this.createAnimationTimer(500);
+      this.addChild(timer);
+      for (let i = 0; i < cardsToInsert.length; i++) {
+        const node = cardsToInsert[i];
+        const card = cardsToInsert[i].card.get();
+        this.activeAnimations.set(`${card}`, {
+          type: "insert",
+          timer,
+          animatePosition: v_copy(node.offset),
+        });
       }
-    })
-  }
+      return new Promise((resolve) => {
+        timer.start({
+          onChanged: () => {
+            this.layoutCards();
+          },
+          onFinished: () => {
+            for (const cardNode of cardsToInsert) {
+              this.cardNodes.setHandler(cardNode);
+              this.activeAnimations.delete(`${cardNode.card.get()}`);
+              timer.removeSelf();
+            }
+            resolve();
+          },
+        });
+      });
+    } else {
+      this.layoutCards();
+    }
+  };
+
+  public removeCard = async (
+    index: number,
+    targetPosition: Vector,
+  ): Promise<void> => {
+    const timer = this.createAnimationTimer(500);
+    timer.reversed = true;
+    const node = this.cardNodes.get(index);
+    const card = node.card.get();
+
+    this.activeAnimations.set(`${card}`, {
+      type: "remove",
+      timer,
+      animatePosition: targetPosition,
+    });
+    this.addChild(timer);
+    node.clearMouseHandlers();
+
+    return new Promise((resolve) => {
+      timer.start({
+        onChanged: () => {
+          this.layoutCards();
+        },
+        onFinished: () => {
+          this.activeAnimations.delete(`${card}`);
+          this.cardNodes.remove(node);
+          timer.removeSelf();
+          this.layoutCards();
+          resolve();
+        },
+      });
+    });
+  };
+
+  public setClickableCards = async (
+    cards: readonly Card[],
+    animate: Animate,
+  ): Promise<void> => {
+    if (this.clickableCardAnimation != null) {
+      this.clickableCardAnimation.timer.stop();
+      this.clickableCardAnimation.timer.removeSelf();
+    }
+    const newClickableCards = new Set<string>();
+    for (const card of cards) {
+      newClickableCards.add(getCardAssetKey(card));
+    }
+    if (setsEqual(newClickableCards, this.clickableCards)) {
+      return;
+    }
+    const { added, removed } = setDiff(this.clickableCards, newClickableCards);
+    this.clickableCards = newClickableCards;
+    for (const cardNode of this.cardNodes.nodes) {
+      if (!newClickableCards.has(getCardAssetKey(cardNode.card.get()))) {
+        cardNode.hovered.set(false);
+      }
+    }
+    if (animate === "animate") {
+      const timer = this.createAnimationTimer(250);
+      this.addChild(timer);
+      this.clickableCardAnimation = {
+        adding: new Set(added),
+        removing: new Set(removed),
+        timer,
+      };
+      return new Promise((resolve) => {
+        timer.start({
+          onChanged: () => {
+            this.layoutCards();
+          },
+          onFinished: () => {
+            this.clickableCardAnimation = undefined;
+            timer.removeSelf();
+            this.layoutCards();
+            resolve();
+          },
+        });
+      });
+    } else {
+      this.layoutCards();
+    }
+  };
 }

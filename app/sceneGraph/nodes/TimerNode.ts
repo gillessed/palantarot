@@ -1,4 +1,4 @@
-import { interpolateValue } from "../../play/constants/PlayColors";
+import { interpolateValue } from "../../play/utils/interpolateValue";
 import { EasingFunctions, type EasingFunction } from "../math/Easing";
 import { createDefaultProperty } from "../property/Property";
 import { SceneNode } from "./SceneNode";
@@ -47,12 +47,16 @@ export class TimerNode extends SceneNode {
     const interpolated = interpolateValue(
       this.startValue,
       this.endValue,
-      eased
+      eased,
     );
-    this.value.set(interpolated);
+    if (newTime <= this.durationMs) {
+      this.value.set(interpolated);
+    } else {
+      this.value.set(this.reversed ? this.startValue : this.endValue);
+    }
   };
 
-  public start = (args?: TimerStartArgs) => {
+  public start = async (args?: TimerStartArgs) => {
     const { onChanged, onFinished } = args ?? {};
     if (this.running) {
       return;
@@ -67,6 +71,11 @@ export class TimerNode extends SceneNode {
     if (onFinished) {
       this.cleanupFunctions.push(this.finished.listen(onFinished));
     }
+    return new Promise<void>((resolve) => {
+      this.finished.listen(() => {
+        resolve();
+      });
+    });
   };
 
   public stop = () => {

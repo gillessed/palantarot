@@ -11,3 +11,11 @@ export function getPlayerDebugName(player?: Player) {
     ? `${player.firstName}_${player.lastName}`.toLocaleLowerCase()
     : undefined;
 }
+
+export function getPlayerDebugNameOrThrow(player?: Player) {
+  const name = getPlayerDebugName(player);
+  if (name == null) {
+    throw Error("could not find active player");
+  }
+  return name;
+}

@@ -16,19 +16,22 @@ export interface PlayEventHandler {
   markUnready: () => void;
   bid: (value: BidValue, calls: Call[]) => void;
   callPartner: (card: Card) => void;
+  setDog: (cards: Card[]) => void;
+  playCard: (card: Card) => void;
+  autoplay: () => void;
 }
 
 export function createPlayEventHandler(
   playerId: PlayerId,
   roomId: string,
-  socket: ClientSocket
+  socket: ClientSocket,
 ): PlayEventHandler {
   const sendActionMessage = (action: Action) => {
     socket.send(
       RoomSocketMessages.gameAction({
         roomId,
         action,
-      })
+      }),
     );
   };
 
@@ -68,18 +71,42 @@ export function createPlayEventHandler(
         time: Date.now(),
         type: "call_partner",
         card,
-      })
-    }
+      });
+    },
+    setDog: (cards: Card[]) => {
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "set_dog",
+        dog: cards,
+        privateTo: playerId,
+      });
+    },
+    playCard: (card: Card) => {
+      sendActionMessage({
+        playerId,
+        time: Date.now(),
+        type: "play_card",
+        card,
+      });
+    },
+    autoplay: () => {
+      socket.send(
+        RoomSocketMessages.autoplay({
+          roomId,
+        }),
+      );
+    },
   };
 }
 
 export function usePlayEventHandler(
   playerId: PlayerId,
   roomId: string,
-  socket: ClientSocket
+  socket: ClientSocket,
 ): PlayEventHandler {
   return useMemo(
     () => createPlayEventHandler(playerId, roomId, socket),
-    [playerId, roomId, socket]
+    [playerId, roomId, socket],
   );
 }

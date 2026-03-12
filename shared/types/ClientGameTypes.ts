@@ -6,15 +6,17 @@ import type {
   PlayerId,
 } from "../../server/play/model/GameState.ts";
 
-export interface ClientTrickCards {
+export interface CompletedClientTrick {
   readonly order: string[];
   readonly cards: ReadonlyMap<string, Card>;
-}
-
-export interface ClientCompletedTrick extends ClientTrickCards {
-  readonly completed: true;
   readonly winner: string;
 }
+
+export type ClientTrick = {
+  readonly order: string[];
+  readonly cards: ReadonlyMap<string, Card>;
+  readonly completed: boolean;
+};
 
 export interface ClientShowDetails {
   readonly player: PlayerId;
@@ -34,8 +36,8 @@ export interface ClientGame {
   readonly partner?: PlayerId;
   readonly partnerCard?: Card;
   readonly anyPlayerPlayedCard?: boolean;
-  readonly trick: ClientTrickCards;
-  readonly completedTricks: ReadonlyArray<ClientTrickCards>;
+  readonly trick: ClientTrick;
+  readonly completedTricks: ReadonlyArray<CompletedClientTrick>;
   readonly endState?: CompletedGameState;
   readonly shows: ReadonlyArray<ClientShowDetails>;
   readonly showIndex: number | null;
@@ -51,6 +53,7 @@ export const EmptyClientGame: ClientGame = {
   readiedPlayers: new Set(),
   playerBids: new Map(),
   trick: {
+    completed: false,
     order: [],
     cards: new Map(),
   },

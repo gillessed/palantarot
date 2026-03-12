@@ -13,7 +13,7 @@ import type {
   NewGameClientGameState,
 } from "../types/ClientGameState.ts";
 
-const { isEqual, without } = pkg;
+const { without } = pkg;
 
 function markPlayerReady(
   state: NewGameClientGameState,

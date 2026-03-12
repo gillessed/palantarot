@@ -1,13 +1,11 @@
 import pkg from "lodash";
 import { type Suit } from "../../server/play/model/Card.ts";
-import {
-  AllSuits,
-  createCardsOfSuit,
-  getLeadCard,
-} from "../../server/play/model/CardUtils.ts";
 import { getTrickCardList } from "./BotUtils.ts";
 import { CardList } from "./CardList.ts";
 import type { ClientRoom } from "../types/ClientRoom.ts";
+import { AllSuits } from "../utils/CardSuits.ts";
+import { createCardsOfSuit } from "../utils/createCards.ts";
+import { getLeadCard } from "../utils/getLeadCard.ts";
 
 const { isEqual } = pkg;
 

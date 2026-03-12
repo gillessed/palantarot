@@ -1,8 +1,9 @@
 import type { Property as CssProperty } from "csstype";
-import { m_mult_v, m_new, transformContext } from "../math/Matrix";
+import { m_mult_v, m_new } from "../math/Matrix";
 import { v_copy, type Vector } from "../math/Vector";
 import type { Property } from "../property/Property";
 import type { Size } from "../property/Size";
+import { RenderUnit } from "../scene/RenderUnit";
 
 export interface NodeManager {
   size: Property<Size>;
@@ -20,6 +21,8 @@ export class SceneNode {
   public children: SceneNode[] = [];
   public visible = true;
   public isMounted = false;
+  public ignoreMouseEvents = false;
+  public zIndex: number | undefined;
 
   public onMount?: (container: NodeManager) => void;
   public onUnmount?: (container: NodeManager) => void;
@@ -50,21 +53,38 @@ export class SceneNode {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public update = (_dt: number) => {};
 
-  public renderTree = (ctx: CanvasRenderingContext2D) => {
-    ctx.save();
-    transformContext(ctx, this.inverseTransformation);
-    this.updateContextInternal?.(ctx);
-    this.render?.(ctx);
-    ctx.restore();
+  public resolveZIndex = () => {
+    return this.parent?.zIndex ?? 0;
+  }
+
+  public renderTree = (renderUnits: RenderUnit[]) => {
+    if (this.render && this.updateContextInternal) {
+      const renderUnit: RenderUnit = {
+        transformation: this.inverseTransformation,
+        zIndex: this.resolveZIndex(),
+        render: this.render,
+        updateContext: this.updateContextInternal,
+      }
+      renderUnits.push(renderUnit);
+    }
+    // transformContext(ctx, this.inverseTransformation);
+    // this.updateContextInternal?.(ctx);
+    // this.render?.(ctx);
     for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].visible) {
-        this.children[i].renderTree(ctx);
+        this.children[i].renderTree(renderUnits);
       }
     }
   };
 
   public addChild = (node: SceneNode) => {
     this.children.push(node);
+    node.parent = this;
+    node.setContainerTree(this.container);
+  };
+
+  public insertChild = (node: SceneNode, index: number) => {
+    this.children.splice(index, 0, node);
     node.parent = this;
     node.setContainerTree(this.container);
   };
@@ -96,8 +116,8 @@ export class SceneNode {
     this.children.splice(0);
   };
 
-  public removeSelf = (node: SceneNode) => {
-    node.parent?.removeChild(node);
+  public removeSelf = () => {
+    this.parent?.removeChild(this);
   };
 
   public setContainerTree = (container: NodeManager | undefined) => {
@@ -138,17 +158,18 @@ export class SceneNode {
   public transformToNodeSpace = (point: Vector): Vector => point;
   public transformFromNodeSpace = (point: Vector): Vector => point;
 
-  public intersectTree = (point: Vector, intersectionList: SceneNode[]) => {
+  public intersectTree = (point: Vector, intersectionList: SceneNode[], type: "mouse") => {
     if (!this.visible) {
       return;
     }
     const nodeSpacePoint = v_copy(point);
     m_mult_v(this.transformation, nodeSpacePoint);
-    if (this.intersects(nodeSpacePoint)) {
+    const ignore = type === "mouse" && this.ignoreMouseEvents;
+    if (!ignore && this.intersects(nodeSpacePoint)) {
       intersectionList.push(this);
     }
     for (const child of this.children) {
-      child.intersectTree(point, intersectionList);
+      child.intersectTree(point, intersectionList, type);
     }
   };
 

@@ -5,6 +5,7 @@ import type { NodeManager } from "../../sceneGraph/nodes/SceneNode";
 import { CardHeight } from "../constants/CardConstants";
 import { SidePlayerInfosNodeId } from "../NodeIds";
 import { PlaySceneContext } from "../PlaySceneContext";
+import { rotatePlayerOrder } from "../utils/rotatePlayerOrder";
 import {
   PlayerInfoNode,
   PlayerInfoNodeHeight,
@@ -26,21 +27,6 @@ const InfoOffsets: { [K in SideCardPosition]: Vector } = {
   right: [PushRight, Above],
   bottom: [PushRight, Above],
 };
-
-function rotatePlayerOrder(
-  playerOrder: ReadonlyArray<PlayerId>,
-  playerId: string
-) {
-  const playerIndex = playerOrder.indexOf(playerId);
-  if (playerIndex <= 0) {
-    return [...playerOrder];
-  } else {
-    return [
-      ...playerOrder.slice(playerIndex),
-      ...playerOrder.slice(0, playerIndex),
-    ];
-  }
-}
 
 export class SidePlayerInfosNode extends TwoDNode {
   public context: PlaySceneContext;

@@ -31,8 +31,10 @@ export class ActionButtonNode<InternalNode extends TwoDNode> extends RectNode {
     super(nodeId);
     this.setTheme(this.baseTheme);
     this.internalNode = internalNode;
+    this.internalNode.ignoreMouseEvents = true;
 
     this.overlayNode = new RectNode(`${this.id}-overlay`);
+    this.overlayNode.ignoreMouseEvents = true;
     this.overlayNode.opacity = 0;
     this.addChild(this.overlayNode);
 

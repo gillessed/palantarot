@@ -47,25 +47,41 @@ export class ModalNode extends RectNode {
     };
   };
 
-  public fadeIn = () => {
+  public fadeIn = async () => {
     this.visible = true;
     this.fadeAnimation.reversed = false;
-    this.fadeAnimation.start();
+    return new Promise<void>((resolve) => {
+      this.fadeAnimation.start({
+        onFinished: resolve,
+      });
+    });
   };
 
   public fadeOut = () => {
     this.fadeAnimation.reversed = true;
-    this.fadeAnimation.start();
+    return new Promise<void>((resolve) => {
+      this.fadeAnimation.start({
+        onFinished: resolve,
+      });
+    });
   };
 
   public translateIn = () => {
     this.visible = true;
     this.translateAnimation.reversed = false;
-    this.translateAnimation.start();
+    return new Promise<void>((resolve) => {
+      this.translateAnimation.start({
+        onFinished: resolve,
+      });
+    });
   };
 
   public translateOut = () => {
     this.translateAnimation.reversed = true;
-    this.translateAnimation.start();
+    return new Promise<void>((resolve) => {
+      this.translateAnimation.start({
+        onFinished: resolve,
+      });
+    });
   };
 }

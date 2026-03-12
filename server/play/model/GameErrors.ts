@@ -76,14 +76,14 @@ export const GameErrors = {
   playingOutOfTurn: (player: PlayerId, current: PlayerId) => {
     return new Error(`${player} cannot play a card because it is currently ${current}'s turn.`);
   },
-  cardNotInHand: (action: Action & { card: Card }, hand: Card[]) => {
+  cardNotInHand: (action: Action & { card: Card }, hand: readonly Card[]) => {
     return new Error(
       `Cannot conduct ${action.type} with ${toCardString(
         action.card
       )}, as requested card is not in the players hand! Hand contains ${hand.map(toCardString)}`
     );
   },
-  cannotPlayCard: (card: Card, trick: Card[], allowable: Card[]) => {
+  cannotPlayCard: (card: Card, trick: Card[], allowable: readonly Card[]) => {
     return new Error(
       `Cannot play card ${toCardString(card)} into played cards ${trick.map(
         toCardString

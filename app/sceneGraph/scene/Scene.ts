@@ -1,10 +1,16 @@
 import type { Property as CssProperty } from "csstype";
+import { transformContext } from "../math/Matrix";
 import { v_new, v_set, type Vector } from "../math/Vector";
-import type {} from "../nodes/2d/TwoDNode";
+import type { } from "../nodes/2d/TwoDNode";
 import type { NodeManager, SceneNode } from "../nodes/SceneNode";
 import { createDefaultProperty, type Property } from "../property/Property";
 import type { Size } from "../property/Size";
 import { setDiff } from "../utils/setDiff";
+import { RenderUnit } from "./RenderUnit";
+
+function zIndexComparator(n1: SceneNode, n2: SceneNode) {
+  return n1.resolveZIndex() - n2.resolveZIndex();
+}
 
 export class Scene implements NodeManager {
   public running = false;
@@ -20,6 +26,7 @@ export class Scene implements NodeManager {
   public size: Property<Size> = createDefaultProperty({ width: 0, height: 0 });
   public mousePosition: Vector = v_new();
   public intersectingNodes: SceneNode[] = [];
+  public hoveredNode: SceneNode | undefined;
 
   private handleResize = (entries: ResizeObserverEntry[]) => {
     const [entry] = entries;
@@ -126,7 +133,16 @@ export class Scene implements NodeManager {
       this.root.updateTree(dt);
       this.offscreenCtx.fillStyle = this.clearColor;
       this.offscreenCtx.fillRect(0, 0, width, height);
-      this.root.renderTree(this.offscreenCtx);
+      const renderUnits: RenderUnit[] = [];
+      this.root.renderTree(renderUnits);
+      renderUnits.sort((n1, n2) => n1.zIndex - n2.zIndex);
+      for (const { render, transformation, updateContext } of renderUnits) {
+        this.offscreenCtx.save();
+        transformContext(this.offscreenCtx, transformation);
+        updateContext(this.offscreenCtx);
+        render(this.offscreenCtx);
+        this.offscreenCtx.restore();
+      }
       this.ctx?.drawImage(this.offscreenCanvas, 0, 0);
     }
 
@@ -137,7 +153,7 @@ export class Scene implements NodeManager {
   };
 
   public getNode = <NodeType extends SceneNode = SceneNode>(
-    nodeId: string
+    nodeId: string,
   ): NodeType => {
     return this.nodesById.get(nodeId) as NodeType;
   };
@@ -150,9 +166,7 @@ export class Scene implements NodeManager {
     v_set(this.mousePosition, event.clientX, event.clientY);
     if (this.root != null) {
       this.updateIntersectingNodes(this.root);
-      for (const node of this.intersectingNodes) {
-        node.mouseDown?.();
-      }
+      this.hoveredNode?.mouseDown?.();
     }
   };
 
@@ -160,32 +174,27 @@ export class Scene implements NodeManager {
     v_set(this.mousePosition, event.clientX, event.clientY);
     if (this.root != null) {
       this.updateIntersectingNodes(this.root);
-      for (const node of this.intersectingNodes) {
-        node.mouseUp?.();
-      }
+      this.hoveredNode?.mouseUp?.();
     }
   };
 
   public updateIntersectingNodes = (root: SceneNode) => {
     const newIntersectingNodes: SceneNode[] = [];
-    root.intersectTree(this.mousePosition, newIntersectingNodes);
+    root.intersectTree(this.mousePosition, newIntersectingNodes, "mouse");
+    newIntersectingNodes.sort(zIndexComparator);
     this.intersectingNodes = newIntersectingNodes;
   };
 
   public handleMouseMovement = (root: SceneNode) => {
     const newIntersectingNodes: SceneNode[] = [];
-    root.intersectTree(this.mousePosition, newIntersectingNodes);
-    const { added, removed } = setDiff(
-      this.intersectingNodes,
-      newIntersectingNodes
-    );
+    root.intersectTree(this.mousePosition, newIntersectingNodes, "mouse");
+    newIntersectingNodes.sort(zIndexComparator);
+    setDiff(this.intersectingNodes, newIntersectingNodes);
     this.intersectingNodes = newIntersectingNodes;
-    for (const node of removed) {
-      node.mouseExited?.();
-    }
-    for (const node of added) {
-      node.mouseEntered?.();
-    }
+    this.hoveredNode?.mouseExited?.();
+    const lastNode = this.intersectingNodes[this.intersectingNodes.length - 1];
+    this.hoveredNode = lastNode;
+    this.hoveredNode?.mouseEntered?.();
   };
 
   public setCursor = (cursor: CssProperty.Cursor) => {

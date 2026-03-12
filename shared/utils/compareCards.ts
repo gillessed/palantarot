@@ -31,3 +31,5 @@ export const compareCards = function (
     }
   };
 };
+
+export const DefaultCardComparator = compareCards();

@@ -8,7 +8,7 @@ import type {
   DogRevealClientGameState,
   PartnerCallClientGameState
 } from "../types/ClientGameState.ts";
-import { compareCards } from "../utils/compareCards.ts";
+import { compareCards, DefaultCardComparator } from "../utils/compareCards.ts";
 import { isCardEqual } from "../utils/isCardEqual.ts";
 import { updateClientGameStateShowTrump } from "./updateClientGameStateShowTrump.ts";
 import { updateClientGameStateStarted } from "./updateClientGameStateStarted.ts";
@@ -38,7 +38,7 @@ function dogRevealed(
     phase: "dog_reveal",
     hand:
       state.hand.length > 0
-        ? [...state.hand, ...action.dog].sort(compareCards())
+        ? [...state.hand, ...action.dog].sort(DefaultCardComparator)
         : state.hand,
     partner,
     dog: action.dog,

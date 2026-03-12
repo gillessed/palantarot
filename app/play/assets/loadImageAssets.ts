@@ -1,4 +1,4 @@
-import { createAllCards } from "../../../server/play/model/CardUtils";
+import { createAllCards } from "../../../shared/utils/createCards";
 import { CardBackUrls, getCardUrl } from "../../utils/getCardUrl";
 import { getCardAssetKey, RegSuitImageAssets, TrumpSuitAssets, type ImageAssets } from "./ImageAssets";
 

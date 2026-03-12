@@ -1,46 +1,29 @@
 import pkg from "lodash";
+import { cardsWithout } from "../../../shared/utils/cardsWithout.ts";
+import {
+  compareCards,
+  DefaultCardComparator,
+} from "../../../shared/utils/compareCards.ts";
+import { createAllCards } from "../../../shared/utils/createCards.ts";
+import { getLeadSuit } from "../../../shared/utils/getLeadSuit.ts";
+import { isCardEqual } from "../../../shared/utils/isCardEqual.ts";
 import {
   type Card,
-  type RegSuit,
   type RegValue,
-  RegValues,
   type Suit,
-  The21,
-  TheJoker,
-  TheOne,
   type TrumpCard,
   type TrumpValue,
-  TrumpValues,
 } from "./Card.ts";
 import { GameErrors } from "./GameErrors.ts";
 import { type PlayerId } from "./GameState.ts";
-import { compareCards } from "../../../shared/utils/compareCards.ts";
+import { getCardAssetKey } from "../../../app/play/assets/ImageAssets.ts";
+import { setsEqual } from "../../../shared/utils/setsEqual.ts";
 
-const { chunk, differenceWith, filter, find, isEqual, shuffle } = pkg;
+const { chunk, filter, find, shuffle } = pkg;
 
 /*
  * This file contains game code which is useful for both client and server.
  */
-
-export const RegSuits: RegSuit[] = ["C", "D", "H", "S"];
-export const AllSuits: Suit[] = [...RegSuits, "T"];
-
-export function createAllCards(): Card[] {
-  const cards: Card[] = [];
-  for (const suit of RegSuits) {
-    for (const value of RegValues) {
-      cards.push([suit, value]);
-    }
-  }
-  for (const trumpValue of TrumpValues) {
-    cards.push(["T", trumpValue]);
-  }
-  return cards;
-}
-
-export function createCardsOfSuit(suit: Suit): Card[] {
-  return createAllCards().filter(([cardSuit, _]) => cardSuit === suit);
-}
 
 export function parseCard(card: string): Card {
   const suit = card[card.length - 1];
@@ -64,14 +47,14 @@ function invalidDeal(hands: Card[][]): boolean {
 }
 
 export const cardTestingSetShuffler = (
-  new_shuffler: (cards: Card[]) => Card[] = shuffle
+  new_shuffler: (cards: Card[]) => Card[] = shuffle,
 ) => {
   cardShuffler = new_shuffler;
 };
 let cardShuffler: (cards: Card[]) => Card[] = shuffle;
 
 export const playerTestingSetShuffler = (
-  new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle
+  new_shuffler: (players: PlayerId[]) => PlayerId[] = shuffle,
 ) => {
   playerShuffler = new_shuffler;
 };
@@ -87,14 +70,15 @@ export const shufflePlayers = (players: PlayerId[]): PlayerId[] =>
   playerShuffler(players);
 
 export const dealCards = (players: number): DealtCards => {
-  const comparer = compareCards();
   while (true) {
     const cards = cardShuffler(createAllCards());
     const dogSize = players > 4 ? 3 : 6;
     const chunkSize = (cards.length - dogSize) / players;
     const deal = chunk<Card>(cards, chunkSize);
     const dog = deal[players];
-    const hands = deal.slice(0, players).map((hand) => hand.sort(comparer));
+    const hands = deal
+      .slice(0, players)
+      .map((hand) => hand.sort(DefaultCardComparator));
     if (invalidDeal(hands)) {
       continue; // Invalid hand, deal again!
     }
@@ -128,7 +112,7 @@ export const dealRemainingCards = ({
   dealtCards.dog.push(...fixedDeal.dog);
   currentCards.push(...dealtCards.dog);
   const deck = shuffleDeck();
-  const cardsToDeal = cardsWithout(deck, ...currentCards);
+  const cardsToDeal = [...cardsWithout(deck, ...currentCards)];
   const dogSize = players > 4 ? 3 : 6;
   const handSize = (deck.length - dogSize) / players;
   for (let i = 0; i < players; i++) {
@@ -157,26 +141,21 @@ export const dealRemainingCards = ({
   return dealtCards;
 };
 
-export const getTrumps = function (cards?: Card[]): TrumpCard[] {
+export const getTrumps = function (cards?: readonly Card[]): TrumpCard[] {
   return cards?.filter((card: Card): card is TrumpCard => card[0] == "T") || [];
 };
 
-export const cardsEqual = function (one: Card[], two: Card[]): boolean {
-  return isEqual(one.sort(), two.sort());
+export const cardsEqual = function (one: Iterable<Card>, two: Iterable<Card>): boolean {
+  const keysOne = new Set([...one].map(getCardAssetKey));
+  const keysTwo = new Set([...two].map(getCardAssetKey));
+  return setsEqual(keysOne, keysTwo);
 };
 
 export const cardsContain = function (
-  cards: Card[],
-  target: Card
+  cards: readonly Card[],
+  target: Card,
 ): Card | undefined {
-  return find(cards, (card) => isEqual(card, target));
-};
-
-export const cardsWithout = function (
-  cards: ReadonlyArray<Card>,
-  ...subtract: ReadonlyArray<Card>
-): Card[] {
-  return differenceWith(cards, subtract, isEqual);
+  return find(cards, (card) => isCardEqual(card, target));
 };
 
 export const getPlayerNum = function (players: PlayerId[], player: PlayerId) {
@@ -185,71 +164,6 @@ export const getPlayerNum = function (players: PlayerId[], player: PlayerId) {
     throw GameErrors.playerNotInGame(player, players);
   } else {
     return index;
-  }
-};
-
-export function getLeadCard(trick: Card[]): Card | undefined {
-  for (const card of trick) {
-    if (card[1] !== "Joker") {
-      return card;
-    }
-  }
-  return undefined;
-}
-
-export function getLeadSuit(trick: Card[]): Suit | undefined {
-  const leadCard = getLeadCard(trick);
-  return leadCard ? leadCard[0] : undefined;
-}
-
-function getLowestAllowableTrump(trick: Card[]): TrumpValue {
-  let lowestAllowed: TrumpValue = "1";
-  for (const card of trick) {
-    if (card[0] === "T" && card[1] !== "Joker" && lowestAllowed < card[1]) {
-      lowestAllowed = card[1];
-    }
-  }
-  return lowestAllowed;
-}
-
-export const getCardsAllowedToPlay = function (
-  hand: readonly Card[],
-  trick: Card[],
-  anyPlayerPlayedCard: boolean,
-  partnerSuit?: Card
-): readonly Card[] {
-  const leadsuit = getLeadSuit(trick);
-  if (leadsuit === undefined) {
-    if (!anyPlayerPlayedCard) {
-      return hand.filter(
-        (card) =>
-          card[0] !== (partnerSuit ?? [])[0] || isEqual(card, partnerSuit)
-      ); // lead anything that isn't the partner suit or is the called card
-    } else {
-      return hand; // new trick, lead whatever
-    }
-  }
-
-  const joker = filter(hand, (card) => isEqual(card, TheJoker));
-  const handInSuit = filter(hand, (card) => card[0] === leadsuit);
-  if (leadsuit !== "T" && handInSuit.length > 0) {
-    return [...handInSuit, ...joker]; // can follow non-trump suit
-  }
-
-  const lowest_allowed = getLowestAllowableTrump(trick);
-  const allowedTrump = filter(
-    hand,
-    (card) =>
-      card[0] === "T" && card[1] !== "Joker" && card[1] >= lowest_allowed
-  );
-  if (allowedTrump.length > 0) {
-    return [...allowedTrump, ...joker]; // can over-trump
-  }
-  const trump = filter(hand, (card) => card[0] === "T" && card[1] !== "Joker");
-  if (trump.length > 0) {
-    return [...trump, ...joker]; // need to play some trump
-  } else {
-    return hand; // play whatever
   }
 };
 
@@ -342,7 +256,7 @@ export const getCardPoint = function (card: Card) {
 // Note: this does not include the joker slam code. If this actually happens, well, I guess we can code it afterwards.
 export const getWinner = function (
   trick: Card[],
-  players: PlayerId[]
+  players: PlayerId[],
 ): [Card, PlayerId] {
   let [card, player] = [trick[0], players[0]];
   const comparer = compareCards(getLeadSuit(trick));
@@ -353,10 +267,6 @@ export const getWinner = function (
   }
   return [card, player];
 };
-
-export function isBout(c: Card) {
-  return isEqual(c, TheJoker) || isEqual(c, TheOne) || isEqual(c, The21);
-}
 
 export function getArrayRandom<T>(array: readonly T[]): T {
   return getArrayRandoms(array, 1)[0];

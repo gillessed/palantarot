@@ -1,14 +1,13 @@
 import { type ClientRoom } from "../types/ClientRoom.ts";
-import { type Card } from "../../server/play/model/Card.ts";
+import { isBout, type Card } from "../../server/play/model/Card.ts";
 import {
   getArrayRandom,
   getArrayRandoms,
-  getCardsAllowedToPlay,
-  isBout,
 } from "../../server/play/model/CardUtils.ts";
 import { type Bid, type BidValue } from "../../server/play/model/GameState.ts";
 import { getNonSelfCalls, getPossibleBidValues } from "./BotUtils.ts";
 import { type TarotBot } from "./TarotBot.ts";
+import { getCardsAllowedToPlay } from "../utils/getCardsAllowedToPlay.ts";
 
 export const RandomBotType = "Random Bot";
 
@@ -59,7 +58,7 @@ export class RandomBot implements TarotBot {
   public dropDog(game: ClientRoom): Card[] {
     const hand = game.playState.hand;
     const nonTrumpNonKing = hand.filter(
-      ([suit, value]) => suit !== "T" && value !== "R"
+      ([suit, value]) => suit !== "T" && value !== "R",
     );
     const dogCount = game.playState.playerOrder.length === 5 ? 3 : 6;
     if (nonTrumpNonKing.length === 0) {
@@ -82,7 +81,7 @@ export class RandomBot implements TarotBot {
       hand,
       trickCards,
       !!anyPlayerPlayedCard,
-      partnerCard
+      partnerCard,
     );
     const finalCard = getArrayRandom(cards);
 

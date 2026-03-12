@@ -83,21 +83,23 @@ export class PlayerInfoNode extends TwoDNode {
 
   public getPlayerId = () => this.playerId;
 
-  public setActive = (active: boolean, animated: Animate) => {
+  public setActive = async (active: boolean, animated: Animate): Promise<void> => {
     this.activeAnimation.reversed = active;
     if (animated === "instant") {
       this.activeAnimation.instant();
+      return Promise.resolve();
     } else {
-      this.activeAnimation.start();
+      return this.activeAnimation.start();
     }
   };
 
-  public fade = (mode: "fadeIn" | "fadeOut", animate: Animate) => {
+  public fade = async (mode: "fadeIn" | "fadeOut", animate: Animate) => {
     this.fadeAnimation.reversed = mode === "fadeIn";
     if (animate === "instant") {
       this.fadeAnimation.instant();
+      return Promise.resolve();
     } else {
-      this.fadeAnimation.start();
+      return this.fadeAnimation.start();
     }
   };
 

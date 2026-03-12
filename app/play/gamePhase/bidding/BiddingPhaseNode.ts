@@ -52,24 +52,24 @@ export class BiddingPhaseNode extends TwoDNode implements GameEventHandler {
     this.addChild(this.modalNode);
   }
 
-  public handleEvent = (event: PlayerEvent, gameState: ClientGameState) => {
+  public handleEvent = async (event: PlayerEvent, gameState: ClientGameState) => {
     const { type } = event;
     switch (type) {
       case "dealt_hand":
-        this.handleDealtHands(event);
+        await this.handleDealtHands(event);
         break;
 
       case "bid":
         if (gameState.phase !== "bidding") {
           throw Error("Cannot be not in bid state here");
         }
-        this.handleBid(event, gameState.playerOrder[gameState.toBid]);
+        await this.handleBid(event, gameState.playerOrder[gameState.toBid]);
         break;
     }
   };
 
-  public handleDealtHands = (transition: DealtHandTransition) => {
-    this.startedGameNode.playerHandNode.dealHand(transition.hand, true);
+  public handleDealtHands = async (transition: DealtHandTransition) => {
+    return this.startedGameNode.playerHandNode.dealHand(transition.hand, "animate");
   };
 
   public setBid = (bid: Bid, animate: Animate) => {
@@ -90,7 +90,7 @@ export class BiddingPhaseNode extends TwoDNode implements GameEventHandler {
     }
   };
 
-  public handleBid = (action: BidAction, newActivePlayer: string) => {
+  public handleBid = async (action: BidAction, newActivePlayer: string) => {
     const bid: Bid = {
       player: action.playerId,
       bid: action.bid,

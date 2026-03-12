@@ -1,17 +1,14 @@
 import pkg from "lodash";
 import {
-  type Card,
-  type Suit,
   The21,
   TheJoker,
   TheOne,
+  type Card,
+  type Suit,
 } from "../../server/play/model/Card.ts";
 import {
-  cardsWithout,
   getCardValueAsNumber,
-  getLeadCard,
   getTrumps,
-  RegSuits,
 } from "../../server/play/model/CardUtils.ts";
 import {
   BidPass,
@@ -19,6 +16,8 @@ import {
   type BidValue,
 } from "../../server/play/model/GameState.ts";
 import type { ClientRoom } from "../types/ClientRoom.ts";
+import { RegSuits } from "../utils/CardSuits.ts";
+import { getLeadCard } from "../utils/getLeadCard.ts";
 import {
   dropValueSortComparator,
   getNonSelfCalls,
@@ -29,6 +28,7 @@ import { CardList } from "./CardList.ts";
 import { RandomBot } from "./RandomBot.ts";
 import { analyseGameState } from "./StateAnalysis.ts";
 import { type TarotBot } from "./TarotBot.ts";
+import { cardsWithout } from "../utils/cardsWithout.ts";
 
 const { isEqual } = pkg;
 
@@ -60,10 +60,10 @@ export class SimpleBot implements TarotBot {
     const { playState, playerId } = game;
     const { hand } = playState;
     const maxBid = Math.max(
-      ...[...playState.playerBids.values()].map((bid) => bid.bid)
+      ...[...playState.playerBids.values()].map((bid) => bid.bid),
     );
     const russianOnTable = !![...playState.playerBids.values()].find(
-      (bid) => bid.calls.indexOf("russian") >= 0
+      (bid) => bid.calls.indexOf("russian") >= 0,
     );
 
     const hasOne = hand.find((c) => isEqual(c, TheOne));
@@ -72,7 +72,7 @@ export class SimpleBot implements TarotBot {
     const kingCount = hand.filter(([_, value]) => value === "R").length;
     const boutCount = [hasOne, hasJoker, hasTwentyOne].reduce(
       (acc, b) => (b ? acc : acc + 1),
-      0
+      0,
     );
     const voidCount = ["C", "D", "H", "S"]
       .map((voidSuit) => hand.filter(([suit, _]) => suit === voidSuit).length)
@@ -154,7 +154,7 @@ export class SimpleBot implements TarotBot {
     });
     const finalSuit: Suit = suitLengths.reduce(
       ([maxLength, maxSuit], [suitLength, suit]) =>
-        suitLength >= maxLength ? [suitLength, suit] : [maxLength, maxSuit]
+        suitLength >= maxLength ? [suitLength, suit] : [maxLength, maxSuit],
     )[1];
     const finalCard = bidSet.filter(([suit, _]) => finalSuit === suit)[0];
     return finalCard;
@@ -188,10 +188,10 @@ export class SimpleBot implements TarotBot {
 
     if (shortestSuit.length > 0 && shortestSuit.length <= 3) {
       const cardsOfShortSuit = hand.filter(
-        ([suit, _]) => suit === shortestSuit
+        ([suit, _]) => suit === shortestSuit,
       );
       dogCards.push(...cardsOfShortSuit);
-      unDroppedHand = cardsWithout(unDroppedHand, ...cardsOfShortSuit);
+      unDroppedHand = [...cardsWithout(unDroppedHand, ...cardsOfShortSuit)];
     }
 
     unDroppedHand.sort(dropValueSortComparator);
@@ -265,7 +265,7 @@ export class SimpleBot implements TarotBot {
           .filter(([suit]) => suit === emptiestNonKingSuit)
           .sort(
             ([_s1, v1], [_s2, v2]) =>
-              getCardValueAsNumber(v1) - getCardValueAsNumber(v2)
+              getCardValueAsNumber(v1) - getCardValueAsNumber(v2),
           )[0];
       }
     }

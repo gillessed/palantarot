@@ -1,7 +1,8 @@
 import { useEffect } from "react";
+import { Card } from "../../server/play/model/Card";
 import { BidValue, Call } from "../../server/play/model/GameState";
 import type { Scene } from "../sceneGraph/scene/Scene";
-import { getPlayerDebugName } from "../services/utils/playerName";
+import { getPlayerDebugName, getPlayerDebugNameOrThrow } from "../services/utils/playerName";
 import { filterFalsy } from "../utils/filterFalsy";
 import { TableNodeId } from "./NodeIds";
 import {
@@ -98,17 +99,48 @@ function createDebugObject(
     leaveGame: selfPlayerHandler.leaveGame,
     markReady: selfPlayerHandler.markReady,
     markUnready: selfPlayerHandler.markUnready,
+    callPartner: (card: Card) => {
+      const gameState = getGameState();
+      if (gameState.phase !== "partner_call") {
+        return;
+      }
+      const bidder = gameState.winningBid.player;
+      const name = getPlayerDebugNameOrThrow(context.players.get(bidder));
+      playHandlers[name].callPartner(card);
+    },
     bid: (value: BidValue, calls: Call[]) => {
-      const toBid = getGameState().toBid;
-      if (toBid == null) {
+      const gameState = getGameState();
+      if (gameState.phase !== "bidding") {
+        return;
+      }
+      const bidder = gameState.toBid;
+      if (bidder == null) {
         throw Error("to bid is null");
       }
-      const name = getPlayerDebugName(context.players.get(getGameState().playerOrder[toBid]));
-      if (name == null) {
-        throw Error("could not find active player");
-      }
+      const name = getPlayerDebugNameOrThrow(context.players.get(getGameState().playerOrder[bidder]));
       playHandlers[name].bid(value, calls);
     },
+    setDog: (cards: Card[]) => {
+      const gameState = getGameState();
+      if (gameState.phase !== "dog_reveal") {
+        return;
+      }
+      const bidder = gameState.winningBid.player;
+      const name = getPlayerDebugNameOrThrow(context.players.get(bidder));
+      playHandlers[name].setDog(cards);
+    },
+    playCard: (card: Card) => {
+      const gameState = getGameState();
+      if (gameState.phase !== "dog_reveal") {
+        return;
+      }
+      const bidder = gameState.winningBid.player;
+      const name = getPlayerDebugNameOrThrow(context.players.get(bidder));
+      playHandlers[name].playCard(card);
+    },
+    autoplay: () => {
+      context.eventHandler.autoplay();
+    }
   };
 
   const startGame = (count: number) => {

@@ -22,12 +22,27 @@ import { DogRevealPhaseNode } from "./gamePhase/dogReveal/DogRevealPhaseNode";
 import type { GameEventHandler } from "./gamePhase/GameEventHandler";
 import { NewGamePhaseNode } from "./gamePhase/newGame/NewGamePhaseNode";
 import { PartnerCallPhaseNode } from "./gamePhase/partnerCall/PartnerCallPhaseNode";
+import { PlayingPhaseNode } from "./gamePhase/playing/PlayingPhaseNode";
 import { TableNodeId } from "./NodeIds";
 import type { PlaySceneContext } from "./PlaySceneContext";
+import { BlockingQueueExecutor } from "../../shared/blockingQueue/BlockingQueueExecutor";
 
 export type GamePhaseNode = TwoDNode & GameEventHandler;
 
 export class TableNode extends TwoDNode implements Sizeable {
+  
+  public handleGameEventMessage = async (payload: GameUpdatesMessagePayload) => {
+    for (const event of payload.events) {
+      const newGameState = updateClientGameForEvents(
+        this.gameState,
+        [event],
+        this.context.playerId,
+      );
+      this.gameState = newGameState;
+      await this.handleEvent(event);
+    }
+  };
+
   public context: PlaySceneContext;
   public gameSettings: GameSettings = {
     autologEnabled: false,
@@ -39,7 +54,7 @@ export class TableNode extends TwoDNode implements Sizeable {
   public gamePhaseNode?: GamePhaseNode;
   public gameState: ClientGameState = createEmptyClientGameState();
   private processedInitialUpdated = false;
-  private queueMessages: SocketMessage<GameUpdatesMessagePayload>[] = [];
+  private messageHandler = new BlockingQueueExecutor<GameUpdatesMessagePayload>(this.handleGameEventMessage);
 
   constructor(context: PlaySceneContext, imageAssets: ImageAssets) {
     super(TableNodeId);
@@ -53,11 +68,11 @@ export class TableNode extends TwoDNode implements Sizeable {
       RoomSocketMessages.enterRoom({
         playerId: this.context.playerId,
         roomId: this.context.roomId,
-      })
+      }),
     );
 
     const removeSceneListener = this.context.socket.addListener(
-      this.handleServerMessage
+      this.handleServerMessage,
     );
 
     const stopSizeListen = manager.size.getAndListen((size: Size) => {
@@ -72,7 +87,7 @@ export class TableNode extends TwoDNode implements Sizeable {
     };
   };
 
-  public setToPlayState = (state: ClientGameState, initializing: boolean) => {
+  public setToPlayState = (state: ClientGameState) => {
     this.gameState = state;
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
@@ -89,15 +104,16 @@ export class TableNode extends TwoDNode implements Sizeable {
         this.gamePhaseNode = new PartnerCallPhaseNode(
           this.context,
           this.gameState,
-          initializing
         );
         break;
       case "dog_reveal":
         this.gamePhaseNode = new DogRevealPhaseNode(
           this.context,
           this.gameState,
-          initializing
         );
+        break;
+      case "playing":
+        this.gamePhaseNode = new PlayingPhaseNode(this.context, this.gameState);
         break;
     }
     if (this.gamePhaseNode != null) {
@@ -105,43 +121,28 @@ export class TableNode extends TwoDNode implements Sizeable {
     }
   };
 
-  public handleGameEventMessage = ({
-    payload,
-  }: SocketMessage<GameUpdatesMessagePayload>) => {
-    for (const event of payload.events) {
-      const newGameState = updateClientGameForEvents(
-        this.gameState,
-        [event],
-        this.context.playerId
-      );
-      this.gameState = newGameState;
-      this.handleEvent(event);
-    }
-  };
-
-  public handleEvent = (event: PlayerEvent) => {
+  public handleEvent = async (event: PlayerEvent) => {
     const { type } = event;
     switch (type) {
-      // handle transitions
       case "players_set":
-        this.transitionToBid();
+        await this.transitionToBid();
         break;
       case "bidding_completed":
-        this.transitionToPartnerCall();
+        await this.transitionToPartnerCall();
         break;
       case "dog_revealed":
-        this.transitionToDogReveal();
+        await this.transitionToDogReveal();
         break;
       case "game_started":
-        // TODO: need to add game started state and reducers
+        await this.transitionToPlaying();
         break;
       default:
-        this.gamePhaseNode?.handleEvent(event, this.gameState);
+        await this.gamePhaseNode?.handleEvent(event, this.gameState);
         return;
     }
   };
 
-  public transitionToBid = () => {
+  public transitionToBid = async () => {
     if (this.gameState.phase !== "bidding") {
       return;
     }
@@ -151,43 +152,51 @@ export class TableNode extends TwoDNode implements Sizeable {
     const newPhaseNode = new BiddingPhaseNode(this.context, this.gameState);
     this.gamePhaseNode = newPhaseNode;
     this.addChild(newPhaseNode);
-    // TODO: add any animations here
   };
 
-  public transitionToPartnerCall = () => {
+  public transitionToPartnerCall = async () => {
     if (this.gameState.phase !== "partner_call") {
       return;
     }
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    const newPhaseNode = new PartnerCallPhaseNode(this.context, this.gameState, false);
+    const newPhaseNode = new PartnerCallPhaseNode(this.context, this.gameState);
     this.gamePhaseNode = newPhaseNode;
     this.addChild(newPhaseNode);
-    // TODO: add any animations here
   };
 
-  public transitionToDogReveal = () => {
+  public transitionToDogReveal = async () => {
     if (this.gameState.phase !== "dog_reveal") {
       return;
     }
     if (this.gamePhaseNode != null) {
       this.removeChild(this.gamePhaseNode);
     }
-    const dogRevealPhaseNode = new DogRevealPhaseNode(this.context, this.gameState, false);
+    const dogRevealPhaseNode = new DogRevealPhaseNode(
+      this.context,
+      this.gameState,
+    );
     this.gamePhaseNode = dogRevealPhaseNode;
     this.addChild(dogRevealPhaseNode);
-    // TODO: add any animations here
+  };
+
+  public transitionToPlaying = async () => {
+    if (this.gameState.phase !== "playing") {
+      return;
+    }
+    if (this.gamePhaseNode != null) {
+      this.removeChild(this.gamePhaseNode);
+    }
+    const playingPhaseNode = new PlayingPhaseNode(this.context, this.gameState);
+    this.gamePhaseNode = playingPhaseNode;
+    this.addChild(playingPhaseNode);
   };
 
   public handleServerMessage = (message: SocketMessage) => {
     RoomSocketMessages.gameUpdates.handleMessage(message, (typedMessage) => {
       try {
-        if (this.processedInitialUpdated) {
-          this.handleGameEventMessage(typedMessage);
-        } else {
-          this.queueMessages.push(message);
-        }
+        this.messageHandler.push(typedMessage.payload);
       } catch (error) {
         console.error(error);
       }
@@ -198,54 +207,15 @@ export class TableNode extends TwoDNode implements Sizeable {
           const newGameState = updateClientGameForEvents(
             this.gameState,
             payload.room.gameEvents,
-            this.context.playerId
+            this.context.playerId,
           );
-          this.setToPlayState(newGameState, true);
-          for (const queuedMessage of this.queueMessages) {
-            this.handleGameEventMessage(queuedMessage);
-          }
-          this.queueMessages.splice(0);
+          this.setToPlayState(newGameState);
           this.processedInitialUpdated = true;
+          this.messageHandler.start();
         } catch (error) {
           console.error(error);
         }
       }
     });
   };
-
-  // public createBiddingPhaseEventHandler = (
-  //   biddingPhaseNode: BiddingPhaseNode
-  // ) => {
-  //   return (event: PlayerEvent) => {
-  //     const { type } = event;
-  //     switch (type) {
-  //       case "dealt_hand":
-  //         biddingPhaseNode.handleDealtHands(event);
-  //         break;
-
-  //       case "bid":
-  //         if (this.gameState.phase !== "bidding") {
-  //           throw Error("Cannot be other phase during bid action");
-  //         }
-  //         biddingPhaseNode.handleBid(
-  //           event,
-  //           this.gameState.playerOrder[this.gameState.toBid]
-  //         );
-  //         break;
-
-  //       case "bidding_completed":
-  //         // TODO: animation
-  //         this.setToPlayState(this.gameState);
-  //         break;
-  //     }
-  //   };
-  // };
-
-  // public createDogRevealPhaseEventHandler = (_: DogRevealPhaseNode) => {
-  //   return (event: PlayerEvent) => {
-  //     const { type } = event;
-  //     switch (type) {
-  //     }
-  //   };
-  // };
 }

@@ -2,8 +2,6 @@ import pkg from "lodash";
 import { TheJoker } from "../Card.ts";
 import {
   cardsContain,
-  cardsWithout,
-  getCardsAllowedToPlay,
   getPlayerNum,
   getWinner,
 } from "../CardUtils.ts";
@@ -34,6 +32,8 @@ import {
   simpleResult,
 } from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
+import { getCardsAllowedToPlay } from "../../../../shared/utils/getCardsAllowedToPlay.ts";
+import { cardsWithout } from "../../../../shared/utils/cardsWithout.ts";
 
 const { compact, findIndex, isEqual } = pkg;
 

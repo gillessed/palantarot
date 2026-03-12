@@ -1,5 +1,5 @@
 import pkg from "lodash";
-import { cardsWithout, getPlayerNum } from "../CardUtils.ts";
+import { getPlayerNum } from "../CardUtils.ts";
 import { GameErrors } from "../GameErrors.ts";
 import {
   type GameStartTransition,
@@ -18,6 +18,7 @@ import {
   showTrumpActionReducer,
 } from "./CommonReducers.ts";
 import { getNewTrick } from "./Utils.ts";
+import { cardsWithout } from "../../../../shared/utils/cardsWithout.ts";
 
 const { isEqual } = pkg;
 

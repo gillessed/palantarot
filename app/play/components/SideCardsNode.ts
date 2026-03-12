@@ -5,9 +5,9 @@ import { SideCardNode, SideCardPosition } from "./SideCardNode";
 export const SideCardPositionLayout: Record<number, SideCardPosition[]> = {
   [1]: ["bottom"],
   [2]: ["bottom", "top-left"],
-  [3]: ["bottom", "top-right", "top-left"],
-  [4]: ["bottom", "left", "top", "right"],
-  [5]: ["bottom", "left", "top-left", "top-right", "right"],
+  [3]: ["bottom", "top-left", "top-right"],
+  [4]: ["bottom", "right", "top", "left"],
+  [5]: ["bottom", "right", "top-right", "top-left", "left"],
 };
 
 export class SideCardsNode extends TwoDNode {

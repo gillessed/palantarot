@@ -4,7 +4,7 @@ import {
   EmptyClientGame,
   type ClientGame,
   type ClientShowDetails,
-  type ClientTrickCards,
+  type ClientTrick,
 } from "../../../shared/types/ClientGameTypes.ts";
 import { Game } from "../game/Game.ts";
 import { type Card } from "../model/Card.ts";
@@ -223,7 +223,7 @@ function getShows(game: Game, botId: string) {
   return showDetails;
 }
 
-function convertCompletedTrick(trick: CompletedTrick): ClientTrickCards {
+function convertCompletedTrick(trick: CompletedTrick): ClientTrick {
   const cards = new Map<string, Card>();
   for (let i = 0; i < trick.cards.length; i++) {
     cards.set(trick.players[i], trick.cards[i]);
@@ -236,7 +236,7 @@ function convertCompletedTrick(trick: CompletedTrick): ClientTrickCards {
   };
 }
 
-function convertTrick(trick: Trick): ClientTrickCards {
+function convertTrick(trick: Trick): ClientTrick {
   const cards = new Map<string, Card>();
   for (let i = 0; i < trick.cards.length; i++) {
     cards.set(trick.players[i], trick.cards[i]);
